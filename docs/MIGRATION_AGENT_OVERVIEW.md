@@ -57,7 +57,9 @@ This refactor is presentation-only. The Migration Agent remains local/mock only:
 
 The Migration page now starts with an Import Wizard for browser-local migration file review. It supports CSV, XLSX, and XLS files, detects common gym export columns, lets staff map fields, validates imported rows with existing Migration Agent validation rules, and exports validation reports as JSON, Markdown, or CSV.
 
-The wizard persists file metadata, parsed rows, field mappings, wizard progress, and validation results in browser localStorage. It does not upload files to Supabase, write production data, create pending profiles, create organization memberships, send invitations, or call AI.
+CSV is recommended and parsed natively. Excel files are parsed locally in the browser behind an optional parser boundary with visible warnings, file limits, row/column limits, cell sanitization, and formula-injection-safe exports.
+
+The wizard persists file metadata, sanitized parsed rows, field mappings, wizard progress, parser warnings/errors, and validation results in browser localStorage. It does not upload files to Supabase, write production data, create pending profiles, create organization memberships, send invitations, store raw file binaries, or call AI.
 
 ## Core Principle
 

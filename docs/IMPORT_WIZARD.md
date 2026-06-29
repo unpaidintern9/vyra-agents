@@ -4,11 +4,13 @@ The Migration Import Wizard is a browser-local workflow for reviewing real gym m
 
 ## Supported Formats
 
-- CSV
+- CSV (recommended)
 - XLSX
 - XLS
 
-Spreadsheet parsing uses the client-side `xlsx` package. The parser is dynamically loaded by the dashboard only when an import file or sample Excel import is processed.
+CSV is parsed natively by the browser dashboard. Excel parsing uses the client-side `xlsx` package behind a dynamic import boundary only when XLSX/XLS parsing is requested.
+
+`xlsx` is retained for now because practical safer replacements reviewed in Phase 16C did not cover both XLSX and legacy XLS without reducing the wizard's promised format support. The parser is hardened with file limits, row and column limits, sanitization, visible Excel warnings, and local-only boundaries.
 
 ## Wizard Flow
 
@@ -24,6 +26,28 @@ Spreadsheet parsing uses the client-side `xlsx` package. The parser is dynamical
 The wizard automatically maps common columns such as first name, last name, email, phone, DOB, membership status, membership type, membership level, membership start, renewal date, billing status, coach, notes, emergency contact, and external member ID.
 
 Unknown columns stay mapped to `Ignore` until staff review them. The mapping table shows mapped, unmapped, duplicate mapping, and missing required states.
+
+## Limits
+
+Local imports are blocked when they exceed:
+
+- 5 MB file size
+- 5,000 rows
+- 75 columns
+- 500 characters per cell
+
+If a file exceeds these limits, the wizard shows a readable error and does not parse the file.
+
+## Sanitization
+
+Imported cells are sanitized before they are stored in browser localStorage:
+
+- whitespace is trimmed,
+- unsupported control characters are removed,
+- cells are capped at 500 characters,
+- formula-like values are treated as plain text for review.
+
+Formula-like values beginning with `=`, `+`, `-`, or `@` are escaped in CSV and Markdown exports to reduce spreadsheet formula injection risk.
 
 ## Validation
 
@@ -43,7 +67,7 @@ Reports include import summary, field mapping, warnings, errors, ready members, 
 
 ## Safety Boundary
 
-The Import Wizard is local-only. It stores file metadata, parsed rows, field mappings, validation results, and wizard progress in browser localStorage.
+The Import Wizard is local-only. It stores file metadata, sanitized parsed rows, field mappings, validation results, parser warnings/errors, and wizard progress in browser localStorage.
 
 It does not:
 
@@ -52,4 +76,5 @@ It does not:
 - create pending profiles,
 - create organization memberships,
 - send invitations,
-- call AI.
+- call AI,
+- store raw uploaded file binaries.

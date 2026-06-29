@@ -52,12 +52,17 @@ export interface MigrationImportWizardState {
   columns: string[];
   fieldMappings: Record<string, ImportFieldKey>;
   fileMetadata: ImportFileMetadata | null;
+  parserErrors: string[];
+  parserWarnings: string[];
   parsedRows: ParsedImportRow[];
+  sanitizedCellCount: number;
   step: ImportWizardStep;
   validation: ImportValidationResult | null;
 }
 
 export interface ParsedMigrationFile {
   columns: string[];
+  parserWarnings: string[];
   rows: ParsedImportRow[];
+  sanitizedCellCount: number;
 }

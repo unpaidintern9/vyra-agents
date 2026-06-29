@@ -5,7 +5,9 @@ import { StatusBadge } from '../../components/StatusBadge';
 import { localStorageKeys } from '../../storage/localStorageKeys';
 import { loadLocalState, saveLocalState } from '../../storage/localStorageStore';
 import { fieldLabel, importFieldOptions, requiredImportFields, detectFieldMapping } from './importWizardFields';
+import { importLimitsSummary } from './importWizardLimits';
 import { isSupportedMigrationFile, parseMigrationFile } from './importWizardParser';
+import { escapeMarkdownCell, escapeSpreadsheetFormula } from './importWizardSanitize';
 import type {
   ImportFieldKey,
   ImportReviewFilter,
@@ -33,7 +35,10 @@ const emptyWizardState: MigrationImportWizardState = {
   columns: [],
   fieldMappings: {},
   fileMetadata: null,
+  parserErrors: [],
+  parserWarnings: [],
   parsedRows: [],
+  sanitizedCellCount: 0,
   step: 'select-file',
   validation: null,
 };
@@ -61,29 +66,55 @@ export default function MigrationImportWizard() {
     setError(null);
     if (!isSupportedMigrationFile(file)) {
       setError('Unsupported file type. Upload a CSV, XLSX, or XLS file.');
+      updateState({ parserErrors: ['Unsupported file type. Upload a CSV, XLSX, or XLS file.'] });
       return;
     }
 
     try {
       const parsed = await parseMigrationFile(file);
+      const fieldMappings = parsed.columns.reduce<Record<string, ImportFieldKey>>((mappings, column) => {
+        mappings[column] = detectFieldMapping(column);
+        return mappings;
+      }, {});
+      const recognizableColumns = Object.values(fieldMappings).filter((field) => field !== 'ignore').length;
+      const parserWarnings = recognizableColumns
+        ? parsed.parserWarnings
+        : [...parsed.parserWarnings, 'No recognizable migration columns were detected automatically. Review field mappings before validating.'];
       updateState({
         columns: parsed.columns,
-        fieldMappings: parsed.columns.reduce<Record<string, ImportFieldKey>>((mappings, column) => {
-          mappings[column] = detectFieldMapping(column);
-          return mappings;
-        }, {}),
+        fieldMappings,
         fileMetadata: {
           filename: file.name,
           fileSize: file.size,
           fileType: file.type || file.name.split('.').pop()?.toUpperCase() || 'Unknown',
           uploadedAt: new Date().toISOString(),
         },
+        parserErrors: [],
+        parserWarnings,
         parsedRows: parsed.rows,
+        sanitizedCellCount: parsed.sanitizedCellCount,
         step: 'detect-columns',
         validation: null,
       });
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Unable to parse this import file.');
+      const message = caught instanceof Error ? caught.message : 'Unable to parse this import file.';
+      setError(message);
+      updateState({
+        columns: [],
+        fieldMappings: {},
+        fileMetadata: {
+          filename: file.name,
+          fileSize: file.size,
+          fileType: file.type || file.name.split('.').pop()?.toUpperCase() || 'Unknown',
+          uploadedAt: new Date().toISOString(),
+        },
+        parserErrors: [message],
+        parserWarnings: [],
+        parsedRows: [],
+        sanitizedCellCount: 0,
+        step: 'select-file',
+        validation: null,
+      });
     }
   };
 
@@ -163,7 +194,7 @@ export default function MigrationImportWizard() {
         <div className="wizard-body">
           <div className="safety-strip">
             <StatusBadge value="Local Only" tone="neutral" />
-            <span>No Supabase writes, no production data changes, no pending profiles, no memberships, no invitations.</span>
+            <span>No Supabase writes, no production data changes, no pending profiles, no memberships, no invitations. Raw file binaries are never stored.</span>
           </div>
 
           {error ? <p className="wizard-error">{error}</p> : null}
@@ -177,7 +208,8 @@ export default function MigrationImportWizard() {
             <UploadCloud size={28} />
             <div>
               <strong>Migration Import</strong>
-              <p>Choose File or drag and drop a CSV, XLSX, or XLS member export.</p>
+              <p>Choose File or drag and drop a CSV, XLSX, or XLS member export. CSV is recommended and parsed natively.</p>
+              <small>Limits: {importLimitsSummary()}.</small>
             </div>
             <input
               accept=".csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -209,8 +241,11 @@ export default function MigrationImportWizard() {
             <MigrationFact label="Rows Detected" value={String(wizardState.parsedRows.length)} />
             <MigrationFact label="Columns Detected" value={String(wizardState.columns.length)} />
             <MigrationFact label="Upload Time" value={wizardState.fileMetadata ? formatDate(wizardState.fileMetadata.uploadedAt) : 'Not uploaded'} />
-            <MigrationFact label="Parser" value="SheetJS xlsx, browser-local" />
+            <MigrationFact label="Parser" value={wizardState.fileMetadata?.filename.endsWith('.csv') ? 'Native CSV, browser-local' : 'Excel boundary, browser-local'} />
+            <MigrationFact label="Sanitized Values" value={String(wizardState.sanitizedCellCount)} />
           </div>
+
+          <WizardParserMessages errors={wizardState.parserErrors} warnings={wizardState.parserWarnings} />
 
           {wizardState.columns.length ? (
             <>
@@ -265,6 +300,31 @@ function WizardColumnDetection({
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function WizardParserMessages({ errors, warnings }: { errors: string[]; warnings: string[] }) {
+  if (!errors.length && !warnings.length) return null;
+  return (
+    <div className="section-gap parser-message-grid">
+      {errors.length ? (
+        <div className="parser-message parser-error">
+          <strong>Import errors</strong>
+          {errors.map((message) => (
+            <p key={message}>{message}</p>
+          ))}
+        </div>
+      ) : null}
+      {warnings.length ? (
+        <div className="parser-message parser-warning">
+          <strong>Parser warnings</strong>
+          {warnings.slice(0, 6).map((message) => (
+            <p key={message}>{message}</p>
+          ))}
+          {warnings.length > 6 ? <small>{warnings.length - 6} more parser warning(s) hidden for readability.</small> : null}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -536,6 +596,7 @@ function exportValidationReport(format: 'json' | 'markdown' | 'csv', state: Migr
     errors: state.validation.issues.filter((issue) => issue.severity === 'error').length,
     ready: state.validation.readyMemberIds.length,
     skipped: state.validation.skippedRows.length,
+    sanitizedValues: state.sanitizedCellCount,
     productionWritesOccurred: 'No',
   };
   const mappingRows = Object.entries(state.fieldMappings).map(([column, field]) => ({ column, mappedTo: fieldLabel(field) }));
@@ -544,6 +605,7 @@ function exportValidationReport(format: 'json' | 'markdown' | 'csv', state: Migr
     safetyNote: 'Local validation report only. No production writes were made.',
     summary,
     fieldMapping: mappingRows,
+    parserWarnings: state.parserWarnings,
     warningsAndErrors: state.validation.issues,
     readyMembers: state.validation.importedMembers.filter((member) => state.validation?.readyMemberIds.includes(member.id)),
     skippedRows: state.validation.skippedRows,
@@ -562,6 +624,7 @@ function validationMarkdown(payload: {
   safetyNote: string;
   summary: Record<string, unknown>;
   fieldMapping: Array<Record<string, string>>;
+  parserWarnings: string[];
   warningsAndErrors: ValidationIssue[];
   readyMembers: ImportedMember[];
   skippedRows: Array<{ reason: string; rowNumber: number }>;
@@ -575,19 +638,22 @@ function validationMarkdown(payload: {
     `Safety note: ${payload.safetyNote}`,
     '',
     '## Import Summary',
-    ...Object.entries(payload.summary).map(([key, value]) => `- ${labelize(key)}: ${value}`),
+    ...Object.entries(payload.summary).map(([key, value]) => `- ${escapeMarkdownCell(labelize(key))}: ${escapeMarkdownCell(String(value))}`),
     '',
     '## Field Mapping',
-    ...payload.fieldMapping.map((row) => `- ${row.column}: ${row.mappedTo}`),
+    ...payload.fieldMapping.map((row) => `- ${escapeMarkdownCell(row.column)}: ${escapeMarkdownCell(row.mappedTo)}`),
+    '',
+    '## Parser Warnings',
+    ...(payload.parserWarnings.length ? payload.parserWarnings.map((warning) => `- ${escapeMarkdownCell(warning)}`) : ['- None']),
     '',
     '## Warnings And Errors',
-    ...(payload.warningsAndErrors.length ? payload.warningsAndErrors.map((issue) => `- ${issue.memberName}: ${issue.issue} (${issue.severity})`) : ['- None']),
+    ...(payload.warningsAndErrors.length ? payload.warningsAndErrors.map((issue) => `- ${escapeMarkdownCell(issue.memberName)}: ${escapeMarkdownCell(issue.issue)} (${escapeMarkdownCell(issue.severity)})`) : ['- None']),
     '',
     '## Ready Members',
-    ...(payload.readyMembers.length ? payload.readyMembers.map((member) => `- ${memberName(member)} (${member.email || 'no email'})`) : ['- None']),
+    ...(payload.readyMembers.length ? payload.readyMembers.map((member) => `- ${escapeMarkdownCell(memberName(member))} (${escapeMarkdownCell(member.email || 'no email')})`) : ['- None']),
     '',
     '## Skipped Members',
-    ...(payload.skippedRows.length ? payload.skippedRows.map((row) => `- Row ${row.rowNumber}: ${row.reason}`) : ['- None']),
+    ...(payload.skippedRows.length ? payload.skippedRows.map((row) => `- Row ${row.rowNumber}: ${escapeMarkdownCell(row.reason)}`) : ['- None']),
     '',
   ].join('\n');
 }
@@ -599,7 +665,7 @@ function toCsv(rows: ReviewRow[]): string {
 }
 
 function csvEscape(value: string): string {
-  return `"${value.replace(/"/g, '""')}"`;
+  return `"${escapeSpreadsheetFormula(value).replace(/"/g, '""')}"`;
 }
 
 function downloadBlob(filename: string, content: string, type: string): void {
@@ -638,7 +704,7 @@ const sampleRows = [
   ['External Member ID', 'First Name', 'Last Name', 'Email', 'Phone', 'DOB', 'Membership Status', 'Membership Type', 'Membership Level', 'Membership Start', 'Renewal Date', 'Billing Status', 'Coach', 'Notes'],
   ['DCMA-2001', 'Maya', 'Chen', 'maya.chen@example.com', '+15025550112', '1992-04-18', 'active', 'Unlimited', 'Blue Belt', '2021-01-12', '2026-12-01', 'current', 'Coach Price', 'Existing Vyra user'],
   ['DCMA-2002', 'Ruth', 'Ellis', '', '+15025550117', '1972-06-10', 'active', 'Morning Classes', 'Black Belt', '2018-09-01', '2027-01-01', 'current', '', 'Offline member'],
-  ['DCMA-2003', '', 'Morgan', 'morgan.invalid', '555-ABCD', '1980-13-41', 'expired', '', 'White Belt', '2022-10-01', '2024-01-01', 'past_due', '', 'Needs cleanup'],
+  ['DCMA-2003', '', 'Morgan', 'morgan.invalid', '555-ABCD', '1980-13-41', 'expired', '', 'White Belt', '2022-10-01', '2024-01-01', 'past_due', '', '=Needs cleanup'],
 ];
 
 const sampleCsv = `${sampleRows.map((row) => row.map(csvEscape).join(',')).join('\n')}\n`;

@@ -371,6 +371,32 @@ Boundaries:
 - No invitations are sent.
 - No AI is implemented.
 
+## Phase 16C
+
+Migration Agent import parsing hardening.
+
+Includes:
+
+- Native browser-local CSV parsing kept first-class and recommended.
+- Excel parsing retained through dynamically imported `xlsx` to preserve XLSX/XLS support.
+- Parser boundary modules for limits, security checks, and sanitization.
+- Import limits: 5 MB file size, 5,000 rows, 75 columns, and 500 characters per cell.
+- Sanitized parsed rows persisted to localStorage instead of raw file binaries.
+- Parser warnings/errors displayed separately from validation warnings.
+- Excel local parsing warning shown in the wizard.
+- CSV and Markdown export hardening for spreadsheet-formula-like values.
+- Documentation for import security and package decision.
+
+Boundaries:
+
+- Local-only import review.
+- No Supabase writes.
+- No production data changes.
+- No pending profiles are created.
+- No organization memberships are created.
+- No invitations are sent.
+- No AI is implemented.
+
 ## Phase 16
 
 Workflow engine and production action logging.
