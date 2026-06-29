@@ -57,6 +57,17 @@ export const workflowMockData: WorkflowDefinition[] = [
     safeDryRun: true,
   },
   {
+    key: 'engineering-fix-queue-planning',
+    triggerType: 'local planning',
+    ownerAgent: 'Engineering Agent',
+    currentMode: 'read-only',
+    lastRun: 'Fix queue status or backlog export',
+    nextStatus: 'ready',
+    riskLevel: 'low',
+    approvalRequired: false,
+    safeDryRun: true,
+  },
+  {
     key: 'integration-status-check',
     triggerType: 'manual refresh',
     ownerAgent: 'Operations Agent',

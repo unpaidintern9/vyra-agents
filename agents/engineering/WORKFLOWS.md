@@ -77,6 +77,36 @@ Notes:
 - Broken relationship warnings are advisory only.
 - No AI or autonomous code-writing is implemented.
 
+## engineering-fix-queue-planning
+
+```text
+Load Engineering Graph
+↓
+Convert missing docs, orphan candidates, warnings, high-risk nodes, and repo health scores into local backlog items
+↓
+Review, dismiss, plan, mark done, or reset local task status
+↓
+Export planning reports when needed
+↓
+Append local Agent Memory event, audit log, and workflow result
+↓
+Sync through approved agent-memory Edge Function if configured
+```
+
+Mode: local read-only planning.
+
+Approval required: no.
+
+Production writes: no.
+
+Notes:
+
+- No code changes are made.
+- No GitHub issues are created.
+- Orphan candidates are review-only.
+- Broken relationship warnings require investigation.
+- Status persists locally under `vyra-agents:engineering-backlog-status`.
+
 ## repo-health-check
 
 ```text

@@ -242,7 +242,23 @@ Boundaries:
 - No production app tables are written.
 - Orphan, missing-doc, risk, and broken-relationship findings are advisory candidates only.
 - Graph stores metadata only, not file contents.
-- Local Agent Memory event/audit/workflow recording for impact exports.
+
+## Phase 12
+
+Engineering Fix Queue + Documentation Gap Planner.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Local Engineering Fix Queue generated from graph warnings, missing docs, orphan candidates, high-risk nodes, and repo health scores.
+- Documentation Gap Planner grouped by repo, owner, and feature area.
+- Orphan Review Queue with review-only wording.
+- Broken Relationship Queue with recommended investigations.
+- Repo Health Improvement Plan with estimated effort and expected impact.
+- Local-only task status actions: reviewed, dismissed, planned, done, reset.
+- Backlog JSON/Markdown exports and planning reports.
+- `engineering-fix-queue-planning` workflow records for local dashboard activity and approved Agent Memory sync.
 
 Boundaries:
 
@@ -250,24 +266,27 @@ Boundaries:
 - No autonomous code-writing agents are implemented.
 - No production business data is modified.
 - No production app tables are written.
-- Graph metadata only; no file contents or secret values.
-
-## Phase 11
-
-Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
-
-## Phase 12
-
-Workflow engine and production action logging.
+- No app, website, desktop, or backend code is changed by this planning queue.
+- No GitHub issues are created.
+- Backlog items are advisory planning tasks only.
+- Local status persistence uses browser localStorage.
 
 ## Phase 13
 
-Approval queue for risky actions.
+Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
 
 ## Phase 14
 
-Optional AI summaries and reasoning tools.
+Workflow engine and production action logging.
 
 ## Phase 15
+
+Approval queue for risky actions.
+
+## Phase 16
+
+Optional AI summaries and reasoning tools.
+
+## Phase 17
 
 Additional department agents.

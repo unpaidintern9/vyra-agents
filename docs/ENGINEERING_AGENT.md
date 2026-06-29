@@ -12,6 +12,7 @@ The Engineering Agent is the first practical Vyra agent MVP. It is a read-only r
 - Display graph summaries, search, selected-node details, relationships, and impact analysis in the dashboard Engineering page.
 - Export graph, node detail, node impact, table impact, route/screen impact, migration history, and full impact reports.
 - Map owners, feature areas, repo health scores, orphan candidates, missing docs, and relationship warnings.
+- Generate a local planning-only Engineering Fix Queue from graph findings.
 
 ## Explicit Boundaries
 
@@ -54,3 +55,15 @@ The Engineering Agent can now help answer:
 - Which relationships look broken?
 
 All findings are local metadata heuristics. Orphan, missing-doc, risk, and broken-relationship results are advisory only and do not trigger code changes, schema changes, or production writes.
+
+## Phase 12 Fix Queue
+
+The Engineering page now turns graph findings into a local backlog Robert can review:
+
+- missing documentation tasks
+- orphan review tasks
+- broken relationship investigation tasks
+- repo health improvement tasks
+- high-risk node planning tasks
+
+Task actions are local only: reviewed, dismissed, planned, done, and reset. No GitHub issues are created, no app repos are modified, and no code changes are made from this queue.

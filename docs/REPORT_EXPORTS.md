@@ -25,15 +25,24 @@ Phase 11 adds:
 - Missing docs report Markdown.
 - Orphan candidates report Markdown.
 
+Phase 12 adds:
+
+- Engineering Backlog JSON.
+- Engineering Backlog Markdown.
+- Documentation Gap Report Markdown.
+- Orphan Review Report Markdown.
+- Broken Relationship Report Markdown.
+- Repo Health Improvement Plan Markdown.
+
 Exports are generated in the browser from the static metadata graph and local dashboard state.
 
 ## Agent Memory Integration
 
-When an Engineering impact or ownership/health report is exported, the dashboard appends:
+When an Engineering impact, ownership/health, or fix queue planning report is exported, the dashboard appends:
 
 - a local Engineering Agent event
 - a local audit log
-- a local workflow result for `engineering-impact-analysis` or `engineering-ownership-health-scan`
+- a local workflow result for `engineering-impact-analysis`, `engineering-ownership-health-scan`, or `engineering-fix-queue-planning`
 
 If Agent Memory sync is configured, those local records sync only through the approved Edge Function path into approved `agent_*` tables. If unavailable, they remain in localStorage.
 

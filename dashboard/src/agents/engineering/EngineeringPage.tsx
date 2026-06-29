@@ -6,6 +6,11 @@ import { StatusBadge } from '../../components/StatusBadge';
 import { loadEngineeringGraph } from './engineeringGraph';
 import { engineeringMockGraph } from './engineeringMockData';
 import {
+  buildEngineeringBacklog,
+  engineeringBacklogStatusStorageKey,
+  summarizeEngineeringBacklog,
+} from './engineeringBacklog';
+import {
   analyzeEngineeringImpact,
   inboundRelationships,
   migrationHistory,
@@ -18,6 +23,9 @@ import {
 import {
   downloadEngineeringGraph,
   downloadEngineeringReport,
+  downloadBrokenRelationshipPlanner,
+  downloadDocumentationGapPlanner,
+  downloadEngineeringBacklog,
   downloadFunctionTableMap,
   downloadFullImpactSummary,
   downloadMigrationHistoryReport,
@@ -25,7 +33,9 @@ import {
   downloadNodeImpactReport,
   downloadMissingDocsReport,
   downloadOrphanCandidatesReport,
+  downloadOrphanReviewPlanner,
   downloadOwnershipMap,
+  downloadRepoHealthImprovementPlan,
   downloadRepoHealthReport,
   downloadRiskQueueReport,
   downloadRouteImpactReport,
@@ -43,9 +53,12 @@ import {
   riskWarningQueue,
   tableScreenMap,
 } from './engineeringOwnership';
+import { groupBacklogItems, repoHealthImprovementPlans } from './engineeringPlanner';
+import type { EngineeringPlannerGroup } from './engineeringPlanner';
 import { searchEngineeringNodes } from './engineeringSearch';
 import { edgeTypes, missingRepositoryWarnings, nodeTypes, topConnectedNodes, uniqueSorted } from './engineeringSummary';
 import type { EngineeringGraph, EngineeringNode, EngineeringScanResult } from './engineeringTypes';
+import type { EngineeringBacklogStatus } from './engineeringTaskTypes';
 import { runEngineeringScanFromDashboard } from './engineeringScanner';
 
 interface EngineeringPageProps {
@@ -75,6 +88,13 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
   const [riskNodeTypeFilter, setRiskNodeTypeFilter] = useState('all');
   const [riskLevelFilter, setRiskLevelFilter] = useState('all');
   const [warningTypeFilter, setWarningTypeFilter] = useState('high_risk');
+  const [backlogStatusOverrides, setBacklogStatusOverrides] = useState<Record<string, EngineeringBacklogStatus>>(() => loadBacklogStatusOverrides());
+  const [planningSeverityFilter, setPlanningSeverityFilter] = useState('all');
+  const [planningCategoryFilter, setPlanningCategoryFilter] = useState('all');
+  const [planningOwnerFilter, setPlanningOwnerFilter] = useState('all');
+  const [planningRepoFilter, setPlanningRepoFilter] = useState('all');
+  const [planningStatusFilter, setPlanningStatusFilter] = useState('all');
+  const [planningEffortFilter, setPlanningEffortFilter] = useState('all');
 
   const graph = scan.graph;
   const selectedNode = selectedNodeId ? graph.nodes.find((node) => node.id === selectedNodeId) ?? null : null;
@@ -111,6 +131,25 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
       ),
     [graph.repositories, riskQueue.brokenRelationships, riskRepoFilter],
   );
+  const backlogItems = useMemo(() => buildEngineeringBacklog(graph, backlogStatusOverrides), [backlogStatusOverrides, graph]);
+  const backlogSummary = useMemo(() => summarizeEngineeringBacklog(backlogItems), [backlogItems]);
+  const filteredBacklogItems = useMemo(
+    () =>
+      backlogItems.filter(
+        (item) =>
+          (planningSeverityFilter === 'all' || item.severity === planningSeverityFilter) &&
+          (planningCategoryFilter === 'all' || item.category === planningCategoryFilter) &&
+          (planningOwnerFilter === 'all' || item.owner === planningOwnerFilter) &&
+          (planningRepoFilter === 'all' || item.repo === planningRepoFilter) &&
+          (planningStatusFilter === 'all' || item.status === planningStatusFilter) &&
+          (planningEffortFilter === 'all' || item.effort === planningEffortFilter),
+      ),
+    [backlogItems, planningCategoryFilter, planningEffortFilter, planningOwnerFilter, planningRepoFilter, planningSeverityFilter, planningStatusFilter],
+  );
+  const docPlannerGroups = useMemo(() => groupBacklogItems(backlogItems, 'missing_doc'), [backlogItems]);
+  const orphanPlannerGroups = useMemo(() => groupBacklogItems(backlogItems, 'orphan_review'), [backlogItems]);
+  const brokenRelationshipItems = useMemo(() => backlogItems.filter((item) => item.category === 'broken_relationship'), [backlogItems]);
+  const repoHealthPlans = useMemo(() => repoHealthImprovementPlans(graph), [graph]);
 
   useEffect(() => {
     loadEngineeringGraph().then((result) => {
@@ -160,6 +199,32 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
       nodeLabel: 'engineering ownership health map',
       nodeType: 'graph',
       reportType,
+      riskLevel: 'low',
+    });
+  };
+
+  const exportPlanningReport = (reportType: string, exporter: () => void) => {
+    exporter();
+    onImpactExport({
+      affectedCount: backlogItems.length,
+      nodeLabel: 'engineering fix queue',
+      nodeType: 'planning',
+      reportType,
+      riskLevel: 'low',
+    });
+  };
+
+  const updateBacklogStatus = (itemId: string, status: EngineeringBacklogStatus) => {
+    setBacklogStatusOverrides((current) => {
+      const next = { ...current, [itemId]: status };
+      localStorage.setItem(engineeringBacklogStatusStorageKey, JSON.stringify(next));
+      return next;
+    });
+    onImpactExport({
+      affectedCount: 1,
+      nodeLabel: itemId,
+      nodeType: 'planning-task',
+      reportType: `fix queue status ${status}`,
       riskLevel: 'low',
     });
   };
@@ -276,6 +341,159 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               String(row.functions),
               String(row.docs),
               String(row.risks),
+            ])}
+          />
+        </Panel>
+
+        <Panel title="Engineering Planning Summary" icon={<ListChecks size={18} />} wide>
+          <div className="summary-grid compact-summary">
+            {[
+              ['Total Backlog Items', backlogSummary.total],
+              ['Critical', backlogSummary.critical],
+              ['High', backlogSummary.high],
+              ['Medium', backlogSummary.medium],
+              ['Low', backlogSummary.low],
+              ['Missing Docs', backlogSummary.missingDocs],
+              ['Orphan Reviews', backlogSummary.orphanReviews],
+              ['Broken Relationships', backlogSummary.brokenRelationships],
+              ['Repo Health Tasks', backlogSummary.repoHealthTasks],
+            ].map(([label, value]) => (
+              <article className="metric-card" key={label}>
+                <ListChecks size={18} />
+                <span>{label}</span>
+                <strong>{String(value)}</strong>
+              </article>
+            ))}
+          </div>
+          <div className="button-row end-row">
+            <ReportPair
+              disabled={!backlogItems.length}
+              label="Engineering Backlog"
+              onExport={(format) => exportPlanningReport(`engineering backlog ${format.toUpperCase()}`, () => downloadEngineeringBacklog(backlogItems, format))}
+            />
+            <button className="report-button" disabled={!backlogItems.length} onClick={() => exportPlanningReport('documentation gap report MARKDOWN', () => downloadDocumentationGapPlanner(backlogItems))} type="button">
+              <Download size={15} />
+              <span>Documentation Gap Markdown</span>
+            </button>
+            <button className="report-button" disabled={!backlogItems.length} onClick={() => exportPlanningReport('orphan review report MARKDOWN', () => downloadOrphanReviewPlanner(backlogItems))} type="button">
+              <Download size={15} />
+              <span>Orphan Review Markdown</span>
+            </button>
+            <button className="report-button" disabled={!backlogItems.length} onClick={() => exportPlanningReport('broken relationship report MARKDOWN', () => downloadBrokenRelationshipPlanner(backlogItems))} type="button">
+              <Download size={15} />
+              <span>Broken Relationship Markdown</span>
+            </button>
+            <button className="report-button" disabled={!repoHealthPlans.length} onClick={() => exportPlanningReport('repo health improvement plan MARKDOWN', () => downloadRepoHealthImprovementPlan(graph))} type="button">
+              <Download size={15} />
+              <span>Repo Health Plan Markdown</span>
+            </button>
+          </div>
+        </Panel>
+
+        <Panel title="Engineering Fix Queue" icon={<ListChecks size={18} />} wide>
+          <div className="toolbar-row">
+            <div className="filter-row">
+              <select aria-label="Filter backlog severity" value={planningSeverityFilter} onChange={(event) => setPlanningSeverityFilter(event.target.value)}>
+                <option value="all">All severities</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+              <select aria-label="Filter backlog category" value={planningCategoryFilter} onChange={(event) => setPlanningCategoryFilter(event.target.value)}>
+                <option value="all">All categories</option>
+                {uniqueSorted(backlogItems.map((item) => item.category)).map((category) => (
+                  <option key={category} value={category}>
+                    {formatHealth(category)}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Filter backlog owner" value={planningOwnerFilter} onChange={(event) => setPlanningOwnerFilter(event.target.value)}>
+                <option value="all">All owners</option>
+                {ownerGroups(graph).map((owner) => (
+                  <option key={owner} value={owner}>
+                    {owner}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Filter backlog repo" value={planningRepoFilter} onChange={(event) => setPlanningRepoFilter(event.target.value)}>
+                <option value="all">All repos</option>
+                {graph.repositories.map((repo) => (
+                  <option key={repo.name} value={repo.name}>
+                    {repo.name}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Filter backlog status" value={planningStatusFilter} onChange={(event) => setPlanningStatusFilter(event.target.value)}>
+                <option value="all">All statuses</option>
+                <option value="open">Open</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="dismissed">Dismissed</option>
+                <option value="planned">Planned</option>
+                <option value="done">Done</option>
+              </select>
+              <select aria-label="Filter backlog effort" value={planningEffortFilter} onChange={(event) => setPlanningEffortFilter(event.target.value)}>
+                <option value="all">All efforts</option>
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </div>
+            <StatusBadge value={`${filteredBacklogItems.length} visible`} />
+          </div>
+          <DataTable
+            columns={['Severity', 'Title', 'Category', 'Owner', 'Feature Area', 'Repo', 'Effort', 'Status', 'Recommended Action', 'Actions']}
+            rows={filteredBacklogItems.slice(0, 60).map((item) => [
+              <StatusBadge key={`${item.id}-severity`} value={formatHealth(item.severity)} tone={item.severity === 'critical' || item.severity === 'high' ? 'warn' : 'neutral'} />,
+              item.title,
+              formatHealth(item.category),
+              item.owner,
+              formatHealth(item.featureArea),
+              item.repo,
+              formatHealth(item.effort),
+              formatHealth(item.status),
+              item.recommendedAction,
+              <BacklogActions itemId={item.id} key={item.id} onUpdate={updateBacklogStatus} />,
+            ])}
+          />
+        </Panel>
+
+        <Panel title="Documentation Gap Planner" icon={<ListChecks size={18} />} wide>
+          <PlannerGroupTable groups={docPlannerGroups} />
+        </Panel>
+
+        <Panel title="Orphan Review Queue" icon={<ListChecks size={18} />} wide>
+          <p className="subtle-note">Review candidate — do not delete automatically.</p>
+          <PlannerGroupTable groups={orphanPlannerGroups} />
+        </Panel>
+
+        <Panel title="Broken Relationship Queue" icon={<Network size={18} />} wide>
+          <DataTable
+            columns={['Severity', 'Repo', 'Owner', 'Feature Area', 'Description', 'Recommended Investigation', 'Status', 'Actions']}
+            rows={brokenRelationshipItems.slice(0, 50).map((item) => [
+              <StatusBadge key={`${item.id}-severity`} value={formatHealth(item.severity)} tone={item.severity === 'critical' || item.severity === 'high' ? 'warn' : 'neutral'} />,
+              item.repo,
+              item.owner,
+              formatHealth(item.featureArea),
+              item.description,
+              item.recommendedAction,
+              formatHealth(item.status),
+              <BacklogActions itemId={item.id} key={item.id} onUpdate={updateBacklogStatus} />,
+            ])}
+          />
+        </Panel>
+
+        <Panel title="Repo Health Improvement Plan" icon={<GitBranch size={18} />} wide>
+          <DataTable
+            columns={['Repo', 'Health', 'Risk', 'Effort', 'Expected Impact', 'Top Recommended Actions']}
+            rows={repoHealthPlans.map((plan) => [
+              plan.repo,
+              `${plan.healthScore}/100`,
+              formatHealth(plan.riskLevel),
+              formatHealth(plan.effort),
+              plan.expectedImpact,
+              plan.recommendedActions.slice(0, 3).join(' · '),
             ])}
           />
         </Panel>
@@ -860,6 +1078,40 @@ function ReportPair({
   );
 }
 
+function PlannerGroupTable({ groups }: { groups: EngineeringPlannerGroup[] }) {
+  return (
+    <DataTable
+      columns={['Repo', 'Owner', 'Feature Area', 'Items', 'Effort', 'Examples']}
+      rows={groups.slice(0, 40).map((group) => [
+        group.repo,
+        group.owner,
+        formatHealth(group.featureArea),
+        String(group.count),
+        formatHealth(group.effort),
+        group.items.slice(0, 3).map((item) => item.title).join(' · '),
+      ])}
+    />
+  );
+}
+
+function BacklogActions({ itemId, onUpdate }: { itemId: string; onUpdate(_itemId: string, _status: EngineeringBacklogStatus): void }) {
+  return (
+    <div className="button-row compact-row">
+      {[
+        ['reviewed', 'Reviewed'],
+        ['planned', 'Plan'],
+        ['dismissed', 'Dismiss'],
+        ['done', 'Done'],
+        ['open', 'Reset'],
+      ].map(([status, label]) => (
+        <button className="inline-action" key={status} onClick={() => onUpdate(itemId, status as EngineeringBacklogStatus)} type="button">
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function Panel({ children, icon, title, wide = false }: { children: ReactNode; icon: ReactNode; title: string; wide?: boolean }) {
   return (
     <section className={wide ? 'panel wide-panel' : 'panel'}>
@@ -953,4 +1205,13 @@ function riskTone(risk: EngineeringImpactRisk): 'neutral' | 'good' | 'warn' {
   if (risk === 'low') return 'good';
   if (risk === 'medium' || risk === 'high') return 'warn';
   return 'neutral';
+}
+
+function loadBacklogStatusOverrides(): Record<string, EngineeringBacklogStatus> {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(engineeringBacklogStatusStorageKey) || '{}') as Record<string, EngineeringBacklogStatus>;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
 }

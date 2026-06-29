@@ -53,6 +53,10 @@ Missing-doc detection is advisory only. It flags Supabase functions without READ
 
 Broken relationship warnings are advisory only. They flag missing imported files, env variables referenced outside example env files, referenced functions without indexed function folders, and migration-created tables with no detected app references.
 
+## Phase 12 Planning Layer
+
+The Fix Queue consumes ownership and health metadata to create local planning tasks. It does not create GitHub issues, modify source repos, or perform fixes. It only helps Robert sort advisory graph findings by severity, effort, owner, feature area, repo, and status.
+
 ## Safety
 
 - No AI is implemented.

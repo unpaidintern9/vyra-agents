@@ -1,4 +1,5 @@
 import { analyzeEngineeringImpact, migrationHistory, routeImpact, tableImpact } from './engineeringImpact';
+import { summarizeEngineeringBacklog } from './engineeringBacklog';
 import {
   featureAreaMap,
   functionTableMap,
@@ -6,7 +7,9 @@ import {
   riskWarningQueue,
   tableScreenMap,
 } from './engineeringOwnership';
+import { groupBacklogItems, repoHealthImprovementPlans } from './engineeringPlanner';
 import type { EngineeringGraph, EngineeringNode } from './engineeringTypes';
+import type { EngineeringBacklogItem } from './engineeringTaskTypes';
 
 export type EngineeringReportFormat = 'json' | 'markdown';
 
@@ -195,6 +198,48 @@ export function downloadOrphanCandidatesReport(graph: EngineeringGraph): void {
     title: 'Engineering Orphan Candidates Report',
     generatedAt: new Date().toISOString(),
     orphanCandidates: riskWarningQueue(graph).orphanCandidates.map(nodeSummary),
+  }, 'markdown');
+}
+
+export function downloadEngineeringBacklog(items: EngineeringBacklogItem[], format: EngineeringReportFormat): void {
+  downloadReport('vyra-engineering-fix-queue-backlog', {
+    title: 'Engineering Fix Queue Backlog',
+    generatedAt: new Date().toISOString(),
+    summary: summarizeEngineeringBacklog(items),
+    items,
+  }, format);
+}
+
+export function downloadDocumentationGapPlanner(items: EngineeringBacklogItem[]): void {
+  downloadReport('vyra-engineering-documentation-gap-planner', {
+    title: 'Engineering Documentation Gap Planner',
+    generatedAt: new Date().toISOString(),
+    groups: groupBacklogItems(items, 'missing_doc'),
+  }, 'markdown');
+}
+
+export function downloadOrphanReviewPlanner(items: EngineeringBacklogItem[]): void {
+  downloadReport('vyra-engineering-orphan-review-queue', {
+    title: 'Engineering Orphan Review Queue',
+    generatedAt: new Date().toISOString(),
+    note: 'Review candidate only. Do not delete automatically.',
+    groups: groupBacklogItems(items, 'orphan_review'),
+  }, 'markdown');
+}
+
+export function downloadBrokenRelationshipPlanner(items: EngineeringBacklogItem[]): void {
+  downloadReport('vyra-engineering-broken-relationship-queue', {
+    title: 'Engineering Broken Relationship Queue',
+    generatedAt: new Date().toISOString(),
+    items: items.filter((item) => item.category === 'broken_relationship'),
+  }, 'markdown');
+}
+
+export function downloadRepoHealthImprovementPlan(graph: EngineeringGraph): void {
+  downloadReport('vyra-engineering-repo-health-improvement-plan', {
+    title: 'Engineering Repo Health Improvement Plan',
+    generatedAt: new Date().toISOString(),
+    plans: repoHealthImprovementPlans(graph),
   }, 'markdown');
 }
 

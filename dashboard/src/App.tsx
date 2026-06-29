@@ -451,8 +451,13 @@ function App() {
     riskLevel: 'low' | 'medium' | 'high' | 'unknown';
   }) => {
     const now = new Date().toISOString();
+    const isFixQueuePlanning = /fix queue|backlog|documentation gap|broken relationship|orphan review|status|repo health improvement/i.test(event.reportType);
     const isOwnershipHealthReport = /ownership|repo health|risk queue|missing docs|orphan|table-to-screen|function-to-table/i.test(event.reportType);
-    const workflowKey = isOwnershipHealthReport ? 'engineering-ownership-health-scan' : 'engineering-impact-analysis';
+    const workflowKey = isFixQueuePlanning
+      ? 'engineering-fix-queue-planning'
+      : isOwnershipHealthReport
+        ? 'engineering-ownership-health-scan'
+        : 'engineering-impact-analysis';
     setWorkflowRuns((current) => [
       {
         id: `workflow_engineering_impact_${Date.now()}`,
