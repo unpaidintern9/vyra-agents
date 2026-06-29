@@ -38,6 +38,8 @@ import { getAgentMemoryFunctionConfig } from './integrations/supabase/agentMemor
 import { getSupabaseEnvStatus } from './integrations/supabase/supabaseClient';
 import { getSupabaseStatus } from './integrations/supabase/supabaseStatus';
 import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/supabase/supabaseTypes';
+import { buildAgentRuntime } from './runtime/agentRuntime';
+import type { AgentRuntimeSnapshot } from './runtime/runtimeTypes';
 import {
   createInitialAgentEvents,
   createInitialAgentNotes,
@@ -71,7 +73,6 @@ import type { ApprovalHistoryEntry, MigrationDryRunRecord, WorkflowDryCheckRecor
 import { getWorkflowRegistry } from './workflows/workflowRegistry';
 import type { WorkflowDefinition } from './workflows/workflowTypes';
 import {
-  agents,
   ecosystemNodes,
   migrationStatus,
   navItems,
@@ -79,7 +80,6 @@ import {
   recentActivity,
   summaryStats,
   systemHealth,
-  workflows,
 } from './data';
 
 type IntegrationMode = 'mock' | 'live';
@@ -135,6 +135,35 @@ function App() {
   const syncStatus = useMemo(
     () => buildSyncStatusSnapshot(syncQueue, syncConnectionState, lastSyncAt, syncEnabled, syncWriteMode),
     [lastSyncAt, syncConnectionState, syncEnabled, syncQueue, syncWriteMode],
+  );
+  const runtime = useMemo(
+    () =>
+      buildAgentRuntime({
+        agentEvents,
+        agentNotes,
+        agentRuns,
+        agentTasks,
+        approvalHistory,
+        approvalItems,
+        auditLogs,
+        migrationDryRuns,
+        syncStatus,
+        workflowRuns,
+        workflows: workflowRegistry,
+      }),
+    [
+      agentEvents,
+      agentNotes,
+      agentRuns,
+      agentTasks,
+      approvalHistory,
+      approvalItems,
+      auditLogs,
+      migrationDryRuns,
+      syncStatus,
+      workflowRuns,
+      workflowRegistry,
+    ],
   );
   const lastDryRunAt = migrationDryRuns[0]?.createdAt ?? null;
 
@@ -780,20 +809,30 @@ function App() {
             runs={workflowRuns}
             workflows={workflowRegistry}
           />
+        ) : activePage === 'Runtime' ? (
+          <RuntimePage runtime={runtime} syncStatus={syncStatus} />
         ) : (
-          <OverviewPage approvalItems={approvalItems} snapshot={status} />
+          <OverviewPage approvalItems={approvalItems} runtime={runtime} snapshot={status} />
         )}
       </main>
     </div>
   );
 }
 
-function OverviewPage({ approvalItems, snapshot }: { approvalItems: ApprovalItem[]; snapshot: IntegrationSnapshot }) {
+function OverviewPage({
+  approvalItems,
+  runtime,
+  snapshot,
+}: {
+  approvalItems: ApprovalItem[];
+  runtime: AgentRuntimeSnapshot;
+  snapshot: IntegrationSnapshot;
+}) {
   const registry = buildIntegrationRegistry(snapshot.github, snapshot.supabase);
   return (
     <>
       <section className="summary-grid" aria-label="Command center summary">
-        {summaryStats.map((stat) => {
+        {runtimeSummaryStats(runtime).map((stat) => {
           const Icon = stat.icon;
           return (
             <article className="metric-card" key={stat.label}>
@@ -818,13 +857,13 @@ function OverviewPage({ approvalItems, snapshot }: { approvalItems: ApprovalItem
         </Panel>
         <Panel title="Active Agents" icon={<CircleDot size={18} />}>
           <div className="list-stack">
-            {agents.slice(0, 6).map((agent) => (
+            {runtime.agents.slice(0, 6).map((agent) => (
               <div className="row-item" key={agent.name}>
                 <div>
                   <strong>{agent.name}</strong>
-                  <span>{agent.detail}</span>
+                  <span>{agent.activity}</span>
                 </div>
-                <StatusBadge value={agent.status} />
+                <StatusBadge value={runtimeAgentStatus(agent.health)} tone={agent.health === 'ready' ? 'good' : 'neutral'} />
               </div>
             ))}
           </div>
@@ -879,11 +918,11 @@ function OverviewPage({ approvalItems, snapshot }: { approvalItems: ApprovalItem
         </Panel>
         <Panel title="Workflow Activity" icon={<ArrowRight size={18} />}>
           <div className="workflow-list">
-            {workflows.map((workflow) => (
-              <div className="workflow-item" key={workflow.name}>
-                <span>{workflow.name}</span>
-                <small>{workflow.owner}</small>
-                <StatusBadge value={workflow.status} />
+            {runtime.workflows.slice(0, 12).map((workflow) => (
+              <div className="workflow-item" key={workflow.key}>
+                <span>{workflow.key}</span>
+                <small>{workflow.ownerAgent}</small>
+                <StatusBadge value={workflow.approvalRequired ? 'Approval Gated' : 'Ready'} tone={workflow.approvalRequired ? 'warn' : 'good'} />
               </div>
             ))}
           </div>
@@ -931,6 +970,136 @@ function EngineeringFallback() {
     <section className="dashboard-grid">
       <Panel title="Engineering Graph" icon={<Network size={18} />} wide>
         <EmptyState message="Loading Engineering Agent graph tools." />
+      </Panel>
+    </section>
+  );
+}
+
+function RuntimePage({ runtime, syncStatus }: { runtime: AgentRuntimeSnapshot; syncStatus: SyncStatusSnapshot }) {
+  return (
+    <section className="dashboard-grid">
+      <Panel title="Runtime Summary" icon={<ListChecks size={18} />} wide>
+        <div className="batch-grid">
+          <Fact label="Runtime Version" value={runtime.runtimeVersion} />
+          <Fact label="Registered Agents" value={String(runtime.agents.length)} />
+          <Fact label="Registered Workflows" value={String(runtime.workflows.length)} />
+          <Fact label="Approvals" value={String(runtime.approvals.length)} />
+          <Fact label="Memory Records" value={String(runtimeMemoryTotal(runtime))} />
+          <Fact label="Sync Status" value={syncStatusLabel(syncStatus)} />
+        </div>
+      </Panel>
+
+      <Panel title="Registered Agents" icon={<CircleDot size={18} />} wide>
+        <DataTable
+          columns={['Agent', 'Owner', 'Health', 'Score', 'Workflows', 'Pending Tasks', 'Approvals', 'Last Activity']}
+          rows={runtime.agents.map((agent) => {
+            const health = runtime.health[agent.id];
+            return [
+              agent.name,
+              agent.owner,
+              <StatusBadge key={`${agent.id}-health`} value={runtimeAgentStatus(agent.health)} tone={agent.health === 'ready' ? 'good' : 'neutral'} />,
+              String(health.healthScore),
+              String(health.workflowCount),
+              String(health.pendingTasks),
+              String(health.approvalCount),
+              health.lastActivity,
+            ];
+          })}
+        />
+      </Panel>
+
+      <Panel title="Registered Workflows" icon={<Workflow size={18} />} wide>
+        <DataTable
+          columns={['Workflow', 'Agent', 'Mode', 'Trigger', 'Risk', 'Approval', 'Dry Run']}
+          rows={runtime.workflows.map((workflow) => [
+            workflow.key,
+            workflow.ownerAgent,
+            workflow.currentMode,
+            workflow.triggerType,
+            <RiskBadge key={`${workflow.key}-risk`} risk={workflow.riskLevel} />,
+            workflow.approvalRequired ? 'Required' : 'No',
+            workflow.safeDryRun ? 'Enabled' : 'Disabled',
+          ])}
+        />
+      </Panel>
+
+      <Panel title="Permissions" icon={<ShieldCheck size={18} />} wide>
+        <DataTable
+          columns={['Agent', 'Read', 'Write', 'Production Write', 'External Send', 'Approval Required', 'Risk']}
+          rows={runtime.agents.map((agent) => {
+            const permissions = runtime.permissions[agent.id];
+            return [
+              agent.name,
+              yesNo(permissions.read),
+              yesNo(permissions.write),
+              yesNo(permissions.productionWrite),
+              yesNo(permissions.externalSend),
+              yesNo(permissions.approvalRequired),
+              <RiskBadge key={`${agent.id}-risk`} risk={permissions.risk} />,
+            ];
+          })}
+        />
+      </Panel>
+
+      <Panel title="Runtime Memory" icon={<Database size={18} />}>
+        <div className="fact-list">
+          <Fact label="Runs" value={String(runtime.memory.runs)} />
+          <Fact label="Events" value={String(runtime.memory.events)} />
+          <Fact label="Tasks" value={String(runtime.memory.tasks)} />
+          <Fact label="Notes" value={String(runtime.memory.notes)} />
+          <Fact label="Approvals" value={String(runtime.memory.approvals)} />
+          <Fact label="Audit Logs" value={String(runtime.memory.auditLogs)} />
+          <Fact label="Workflow Runs" value={String(runtime.memory.workflowRuns)} />
+        </div>
+      </Panel>
+
+      <Panel title="Runtime Sync" icon={<Database size={18} />}>
+        <div className="fact-list">
+          <Fact label="Mode" value={runtime.sync.mode} />
+          <Fact label="Status" value={runtime.sync.status} />
+          <Fact label="Waiting" value={String(runtime.sync.recordsWaiting)} />
+          <Fact label="Synced" value={String(runtime.sync.syncedRecords)} />
+          <Fact label="Failed" value={String(runtime.sync.failedRecords)} />
+          <Fact label="Last Sync" value={runtime.sync.lastSyncAt ? formatDate(runtime.sync.lastSyncAt) : 'Never'} />
+        </div>
+      </Panel>
+
+      <Panel title="Lifecycle" icon={<ArrowRight size={18} />}>
+        <div className="workflow-list">
+          {runtime.lifecycle.map((step) => (
+            <div className="workflow-item" key={step}>
+              <span>{step.replace(/_/g, ' ')}</span>
+              <StatusBadge value="Inherited" tone="good" />
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel title="Runtime Activity" icon={<Activity size={18} />} wide>
+        <DataTable
+          columns={['Time', 'Agent', 'Type', 'Detail']}
+          rows={runtime.activities.slice(0, 12).map((activity) => [
+            formatDate(activity.timestamp),
+            activity.agent,
+            activity.type,
+            activity.detail,
+          ])}
+        />
+      </Panel>
+
+      <Panel title="Runtime Approvals" icon={<ShieldCheck size={18} />} wide>
+        <DataTable
+          columns={['Approval ID', 'Agent', 'Workflow', 'Risk', 'Status', 'Required By', 'Completed']}
+          rows={runtime.approvals.map((approval) => [
+            approval.approvalId,
+            approval.agent,
+            approval.workflow,
+            <RiskBadge key={`${approval.approvalId}-risk`} risk={approval.risk} />,
+            approval.status,
+            approval.requiredBy,
+            approval.completed ?? 'Open',
+          ])}
+        />
       </Panel>
     </section>
   );
@@ -1658,6 +1827,7 @@ function pageCopy(page: string): string {
     Migration: 'Migration dry-runs, staging review, member matching, table readiness, and mock approvals.',
     Engineering: 'Read-only repository knowledge graph for files, routes, components, Supabase assets, dependencies, and docs.',
     Integrations: 'Read-only integration health with safe mock fallback and no production writes.',
+    Runtime: 'Shared Agent OS for registry, lifecycle, permissions, health, workflows, memory, approvals, and sync.',
     Settings: 'Integration mode, Edge Function write path, env setup guidance, and safety reminders without exposing secrets.',
     'Agent Memory': 'Local/mock runs, events, tasks, approvals, and notes before Supabase writes are enabled.',
     'Sync Queue': 'Safe Supabase agent-memory synchronization with localStorage fallback and retry controls.',
@@ -1665,6 +1835,37 @@ function pageCopy(page: string): string {
     Workflows: 'Workflow registry with safe local dry checks and approval-risk visibility.',
   };
   return copy[page] ?? 'Read-only command center for the Vyra ecosystem. No AI or production write workflows are enabled.';
+}
+
+function runtimeSummaryStats(runtime: AgentRuntimeSnapshot) {
+  return summaryStats.map((stat) => {
+    if (stat.label === 'Agents Prepared') return { ...stat, value: String(runtime.agents.length) };
+    if (stat.label === 'Workflows Drafted') return { ...stat, value: String(runtime.workflows.length) };
+    return stat;
+  });
+}
+
+function runtimeAgentStatus(status: string): string {
+  return status
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function runtimeMemoryTotal(runtime: AgentRuntimeSnapshot): number {
+  return (
+    runtime.memory.approvals +
+    runtime.memory.auditLogs +
+    runtime.memory.events +
+    runtime.memory.notes +
+    runtime.memory.runs +
+    runtime.memory.tasks +
+    runtime.memory.workflowRuns
+  );
+}
+
+function yesNo(value: boolean): string {
+  return value ? 'Yes' : 'No';
 }
 
 function formatHealth(status: string): string {

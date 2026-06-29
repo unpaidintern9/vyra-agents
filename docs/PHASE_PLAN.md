@@ -450,7 +450,27 @@ Boundaries:
 
 ## Phase 18
 
-Optional AI summaries and reasoning tools.
+Shared Agent Runtime.
+
+Includes:
+
+- `dashboard/src/runtime/` shared runtime modules.
+- One factory/registry path for all agents.
+- Runtime lifecycle shared by Engineering, Migration, Sales, Support, Finance, Operations, Marketing, Product, and Executive agents.
+- Shared permission defaults with production writes and external sends disabled.
+- Shared health, workflow, activity, approval, memory, and sync snapshots.
+- Engineering and Migration represented in the runtime while preserving existing pages.
+- Placeholder runtime registrations and workflows for future department agents.
+- Runtime inspector dashboard page.
+- Overview agent and workflow summaries driven by runtime data.
+
+Boundaries:
+
+- No AI is implemented.
+- No production business data is modified.
+- No production writes are enabled.
+- No changes to `Vyra-Part-1`.
+- Existing Engineering and Migration functionality is preserved.
 
 ## Phase 19
 
