@@ -934,6 +934,16 @@ function MigrationPage({
   onExportDryRun(_format: ReportFormat): void;
   summary: ReturnType<typeof summarizeMigration>;
 }) {
+  const offlineMembers = importedMembers.filter((member) => member.knownOffline || member.wantsAppAccess === false || !member.email);
+  const invitationCandidates = importedMembers.filter((member) => member.email && member.wantsAppAccess !== false && member.membershipStatus === 'active');
+  const queueItems = [
+    ['Import received', 'Complete', `${migrationBatch.importedMembers.toLocaleString()} members staged from ${migrationBatch.source}`],
+    ['Validation issue resolution', summary.errors ? 'Blocked' : summary.warnings ? 'Review' : 'Ready', `${summary.errors} errors · ${summary.warnings} warnings`],
+    ['Member review table', summary.needsGymReview ? 'Review' : 'Ready', `${summary.needsGymReview} records need gym review`],
+    ['Offline / non-app tracking', 'Ready', `${summary.offlineMembers} offline/non-app members preserved`],
+    ['Invitation preview', approved ? 'Ready' : 'Gated', `${invitationCandidates.length} draft invitations prepared locally`],
+    ['Approval gate', approved ? 'Approved' : 'Waiting', 'Gym review approval required before any future finalization'],
+  ];
   const summaryCards = [
     ['Total Imported', summary.totalImported],
     ['Ready', summary.ready],
@@ -956,7 +966,17 @@ function MigrationPage({
         ))}
       </section>
       <section className="dashboard-grid">
-        <Panel title="Migration Dry Run" icon={<Workflow size={18} />} wide>
+        <Panel title="Migration Queue" icon={<Workflow size={18} />} wide>
+          <DataTable
+            columns={['Step', 'Status', 'Detail']}
+            rows={queueItems.map(([step, status, detail]) => [
+              step,
+              <StatusBadge key={step} value={status} tone={status === 'Blocked' || status === 'Gated' || status === 'Waiting' ? 'warn' : status === 'Complete' || status === 'Ready' || status === 'Approved' ? 'good' : 'neutral'} />,
+              detail,
+            ])}
+          />
+        </Panel>
+        <Panel title="Migration Agent Dry Run" icon={<Workflow size={18} />} wide>
           <div className="dry-run-panel">
             <div>
               <strong>Local dry run only — no production changes made.</strong>
@@ -971,6 +991,16 @@ function MigrationPage({
               <button className="approval-button compact-button" onClick={onDryRun} type="button">
                 Run Migration Agent Dry Run
               </button>
+            </div>
+          </div>
+        </Panel>
+        <Panel title="Export Migration Report" icon={<Download size={18} />} wide>
+          <div className="split-panel">
+            <p className="panel-copy">
+              Export the latest local dry-run report for review. Reports are generated in the browser and do not write to
+              Supabase, send invitations, or finalize memberships.
+            </p>
+            <div className="button-row end-row">
               <ExportButtons disabled={!dryRuns.length} onExport={onExportDryRun} />
               <button className="clear-button" disabled={!dryRuns.length} onClick={onClearDryRuns} type="button">
                 <Trash2 size={15} />
@@ -979,7 +1009,7 @@ function MigrationPage({
             </div>
           </div>
         </Panel>
-        <Panel title="Dry Run History" icon={<FileClock size={18} />} wide>
+        <Panel title="Migration Queue History" icon={<FileClock size={18} />} wide>
           {dryRuns.length === 0 ? (
             <EmptyState message="No migration dry-run history yet." />
           ) : (
@@ -999,7 +1029,7 @@ function MigrationPage({
             </div>
           )}
         </Panel>
-        <Panel title="Import Batch" icon={<UsersRound size={18} />}>
+        <Panel title="Migration Batch Detail" icon={<UsersRound size={18} />}>
           <div className="batch-grid">
             <Fact label="Gym" value={migrationBatch.gymName} />
             <Fact label="Organization ID" value={migrationBatch.organizationId} />
@@ -1016,7 +1046,7 @@ function MigrationPage({
             ))}
           </div>
         </Panel>
-        <Panel title="Offline / Non-App Members" icon={<UsersRound size={18} />}>
+        <Panel title="Offline / Non-App Member Tracking" icon={<UsersRound size={18} />} wide>
           <p className="panel-copy">
             These members can still attend the gym, be checked in, appear on rosters, keep billing status, receive coach
             assignments, and be managed by staff without downloading the app.
@@ -1027,10 +1057,21 @@ function MigrationPage({
             <StatusBadge value="Staff manageable" tone="good" />
             <StatusBadge value="App optional" tone="good" />
           </div>
-        </Panel>
-        <Panel title="Validation Issues" icon={<AlertTriangle size={18} />} wide>
           <DataTable
-            columns={['Member', 'Issue', 'Severity', 'Recommended Action', 'Status']}
+            columns={['Member', 'External ID', 'Reason', 'Billing', 'Coach', 'Staff Handling']}
+            rows={offlineMembers.map((member) => [
+              memberName(member),
+              member.externalMemberId,
+              offlineReason(member),
+              member.billingStatus || 'Unknown',
+              member.coachAssignment || 'Unassigned',
+              'Keep roster/check-in access without app user requirement',
+            ])}
+          />
+        </Panel>
+        <Panel title="Validation Issue Resolution" icon={<AlertTriangle size={18} />} wide>
+          <DataTable
+            columns={['Member', 'Issue', 'Severity', 'Recommended Resolution', 'Resolution State']}
             rows={issues.slice(0, 12).map((issue) => [
               issue.memberName,
               issue.issue,
@@ -1040,9 +1081,9 @@ function MigrationPage({
             ])}
           />
         </Panel>
-        <Panel title="Member Matching" icon={<CircleDot size={18} />} wide>
+        <Panel title="Member Review Table" icon={<CircleDot size={18} />} wide>
           <DataTable
-            columns={['Imported Member', 'Match Type', 'Member State', 'Existing User', 'Org Membership Ready', 'Notes']}
+            columns={['Imported Member', 'Match Type', 'Member State', 'Existing User', 'Org Membership', 'Review Notes']}
             rows={matches.map((match) => [
               match.importedMember,
               match.matchType,
@@ -1050,6 +1091,18 @@ function MigrationPage({
               match.existingUser,
               match.organizationMembershipReady ? 'Yes' : 'Review',
               match.notes,
+            ])}
+          />
+        </Panel>
+        <Panel title="Invitation Preview" icon={<UsersRound size={18} />} wide>
+          <DataTable
+            columns={['Member', 'Email', 'Membership', 'Invitation State', 'Preview']}
+            rows={invitationCandidates.slice(0, 12).map((member) => [
+              memberName(member),
+              member.email || 'No email',
+              member.membershipType || 'Unknown',
+              approved ? 'Ready after approval' : 'Held behind approval gate',
+              `Invite ${member.firstName || 'member'} to activate Vyra access for ${migrationBatch.gymName}.`,
             ])}
           />
         </Panel>
@@ -1080,7 +1133,7 @@ function MigrationPage({
             ))}
           </div>
         </Panel>
-        <Panel title="Approval" icon={<ShieldCheck size={18} />}>
+        <Panel title="Approval Gate" icon={<ShieldCheck size={18} />}>
           <p className="panel-copy">
             This mock approval only updates local UI state. No production data, customer messaging, or database migration is
             connected.
@@ -1907,6 +1960,17 @@ function formatHealth(status: string): string {
     .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
+}
+
+function memberName(member: (typeof importedMembers)[number]): string {
+  return [member.firstName, member.lastName].filter(Boolean).join(' ') || member.externalMemberId;
+}
+
+function offlineReason(member: (typeof importedMembers)[number]): string {
+  if (member.knownOffline) return 'Known offline member';
+  if (member.wantsAppAccess === false) return 'Non-app member';
+  if (!member.email) return 'No email for app invite';
+  return 'Staff-managed access';
 }
 
 function healthTone(status: string): 'neutral' | 'good' | 'warn' {

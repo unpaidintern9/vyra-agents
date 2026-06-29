@@ -419,7 +419,8 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
 
       <section className="dashboard-grid">
         <Panel title="Engineering Graph Controls" icon={<Network size={18} />} wide>
-          <div className="split-panel">
+          <p className="panel-description">Refresh the local metadata graph and export read-only engineering reports.</p>
+          <div className="control-toolbar graph-control-toolbar">
             <div className="fact-list compact-facts">
               <Fact label="Graph Source" value={scan.source === 'generated-json' ? 'Generated JSON' : 'Fallback'} />
               <Fact label="Loaded At" value={scan.loadedAt === 'Loading' ? scan.loadedAt : formatDate(scan.loadedAt)} />
@@ -427,17 +428,22 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               <Fact label="Mode" value={graph.scanner.mode} />
               <Fact label="Stores Contents" value={graph.scanner.storesFileContents ? 'Yes' : 'No'} />
             </div>
-            <div className="button-row end-row">
-              <button className="approval-button compact-button" onClick={runScan} type="button">
-                Run Engineering Scan
-              </button>
+            <div className="control-stack">
+              <span className="section-kicker">Actions</span>
+              <div className="button-group">
+                <button className="approval-button compact-button" onClick={runScan} type="button">
+                  Run Engineering Scan
+                </button>
+              </div>
+              <span className="section-kicker">Exports</span>
+              <div className="export-group">
               <button className="report-button" disabled={!graph.nodes.length} onClick={() => downloadEngineeringGraph(graph)} type="button">
                 <Download size={15} />
-                <span>Export Engineering Graph JSON</span>
+                <span>Graph JSON</span>
               </button>
               <button className="report-button" disabled={!graph.nodes.length} onClick={() => downloadEngineeringReport(graph)} type="button">
                 <Download size={15} />
-                <span>Export Engineering Report Markdown</span>
+                <span>Report Markdown</span>
               </button>
               <ReportPair
                 disabled={!graph.nodes.length}
@@ -476,6 +482,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
                 <Download size={15} />
                 <span>Risk Queue Markdown</span>
               </button>
+              </div>
             </div>
           </div>
         </Panel>
@@ -528,7 +535,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               </article>
             ))}
           </div>
-          <div className="button-row end-row">
+          <div className="export-group">
             <ReportPair
               disabled={!backlogItems.length}
               label="Engineering Backlog"
@@ -554,8 +561,9 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
         </Panel>
 
         <Panel title="Engineering Fix Queue" icon={<ListChecks size={18} />} wide>
-          <div className="toolbar-row">
-            <div className="filter-row">
+          <p className="panel-description">Filter advisory backlog items generated from graph warnings, risk signals, and repo health.</p>
+          <div className="table-toolbar">
+            <div className="filter-grid">
               <select aria-label="Filter backlog severity" value={planningSeverityFilter} onChange={(event) => setPlanningSeverityFilter(event.target.value)}>
                 <option value="all">All severities</option>
                 <option value="critical">Critical</option>
@@ -682,7 +690,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               </article>
             ))}
           </div>
-          <div className="button-row end-row">
+          <div className="export-group">
             <button className="report-button" disabled={!issueDrafts.length} onClick={() => exportIssueDrafts('all issue drafts JSON', () => downloadIssueDraftCollection(issueDrafts, 'all-json'))} type="button">
               <Download size={15} />
               <span>All Issue Drafts JSON</span>
@@ -718,7 +726,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               <strong>{githubIssueConfig.owner || 'Missing'}</strong>
             </div>
           </div>
-          <div className="button-row end-row">
+          <div className="action-row">
             <button className="report-button" disabled={!selectedIssueDraft?.readyForGitHub || issueCreationBusy} onClick={() => selectedIssueDraft && void runGitHubIssueCreation([selectedIssueDraft], 'dry-run')} type="button">
               Dry Run Selected Draft
             </button>
@@ -751,8 +759,8 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
             </div>
           ) : null}
           <p className="subtle-note">{issueCreationMessage}</p>
-          <div className="toolbar-row">
-            <div className="filter-row">
+          <div className="table-toolbar">
+            <div className="filter-grid">
               <select aria-label="Filter issue priority" value={issuePriorityFilter} onChange={(event) => setIssuePriorityFilter(event.target.value)}>
                 <option value="all">All priorities</option>
                 <option value="P0">P0</option>
@@ -915,7 +923,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
         </Panel>
 
         <Panel title="Table-to-Screen Map" icon={<Database size={18} />} wide>
-          <div className="button-row end-row">
+          <div className="export-group">
             <button
               className="report-button"
               disabled={!graph.nodes.length}
@@ -943,7 +951,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
         </Panel>
 
         <Panel title="Function-to-Table Map" icon={<Database size={18} />} wide>
-          <div className="button-row end-row">
+          <div className="export-group">
             <button
               className="report-button"
               disabled={!graph.nodes.length}
@@ -972,8 +980,8 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
         </Panel>
 
         <Panel title="Risk & Warning Queue" icon={<ListChecks size={18} />} wide>
-          <div className="toolbar-row">
-            <div className="filter-row">
+          <div className="table-toolbar">
+            <div className="filter-grid">
               <select aria-label="Filter risk owner" value={ownerFilter} onChange={(event) => setOwnerFilter(event.target.value)}>
                 <option value="all">All owners</option>
                 {ownerGroups(graph).map((owner) => (
@@ -1019,7 +1027,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               <StatusBadge value={`${riskQueue.brokenRelationships.length} warnings`} tone="warn" />
             </div>
           </div>
-          <div className="button-row end-row">
+          <div className="export-group">
             <button
               className="report-button"
               disabled={!graph.nodes.length}
@@ -1066,7 +1074,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
 
         <Panel title="Global Graph Search" icon={<Search size={18} />} wide>
           <div className="search-panel">
-            <label>
+            <label className="input-control">
               <span>Search graph nodes</span>
               <input
                 aria-label="Search graph nodes"
@@ -1138,8 +1146,8 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
         <Panel title="Relationship Explorer" icon={<Network size={18} />} wide>
           {selectedNode ? (
             <>
-              <div className="toolbar-row">
-                <div className="filter-row">
+              <div className="table-toolbar">
+                <div className="filter-grid compact-filter-grid">
                   <select aria-label="Filter relationship type" value={relationshipTypeFilter} onChange={(event) => setRelationshipTypeFilter(event.target.value)}>
                     <option value="all">All relationships</option>
                     {edgeTypes(graph).map((type) => (
