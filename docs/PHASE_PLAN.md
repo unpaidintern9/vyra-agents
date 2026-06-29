@@ -326,6 +326,25 @@ Boundaries:
 
 Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
 
+## Phase 16A
+
+Migration Agent Operations refactor.
+
+Includes:
+
+- Migration page UI moved from `dashboard/src/App.tsx` into dedicated components under `dashboard/src/agents/migration/`.
+- Dedicated components for migration queue, batch detail, member review, offline/non-app tracking, validation resolution, invitation preview, approval gate, and report actions.
+- Shared migration UI helpers for local panels, tables, export buttons, summary cards, dry-run history, table readiness, and approval queue rendering.
+
+Boundaries:
+
+- Refactor only.
+- Existing mock/local Migration Agent behavior preserved.
+- No production writes.
+- No business table writes.
+- No invitation sending.
+- No AI is implemented.
+
 ## Phase 16
 
 Workflow engine and production action logging.

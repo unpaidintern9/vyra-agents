@@ -47,6 +47,12 @@ Migration Dry Run reports include these operating rules:
 
 Reports are generated locally in the browser and do not write to Supabase, call AI, send invitations, or apply migrations.
 
+## Phase 16A Operations Refactor
+
+The dashboard Migration Agent Operations UI has been modularized under `dashboard/src/agents/migration/`. `App.tsx` now keeps the local state and workflow wiring, while `MigrationPage.tsx` and the dedicated operation components render the queue, batch detail, member review, offline member tracking, validation resolution, invitation preview, approval gate, reports, and dry-run history.
+
+This refactor is presentation-only. The Migration Agent remains local/mock only: no production data writes, no direct business table writes, no invitation sending, and no AI behavior are introduced.
+
 ## Core Principle
 
 Members must be attached to the gym before they ever download or log into Vyra. Organization Membership is the source of truth.

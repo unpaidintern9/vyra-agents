@@ -2,7 +2,6 @@ import {
   Activity,
   AlertTriangle,
   ArrowRight,
-  CheckCircle2,
   CircleDot,
   Database,
   Download,
@@ -14,13 +13,14 @@ import {
   Settings,
   ShieldCheck,
   Trash2,
-  UsersRound,
   Workflow,
 } from 'lucide-react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { EngineeringScanResult } from './agents/engineering/engineeringTypes';
+import MigrationPage from './agents/migration/MigrationPage';
 import { existingVyraUsers, importedMembers, migrationBatch } from './agents/migration/migrationMockData';
+import { migrationRules } from './agents/migration/migrationRules';
 import { summarizeMigration } from './agents/migration/migrationSummary';
 import { validateMigrationMembers } from './agents/migration/migrationValidation';
 import { matchMigrationMembers } from './agents/migration/memberMatching';
@@ -899,254 +899,6 @@ function EngineeringFallback() {
   );
 }
 
-function MigrationPage({
-  approvalItems,
-  approvalHistory,
-  approved,
-  dryRuns,
-  expectedTables,
-  issues,
-  lastDryRunAt,
-  matches,
-  onClearApprovalHistory,
-  onClearDryRuns,
-  onApprove,
-  onApproveItem,
-  onDryRun,
-  onExportApprovalHistory,
-  onExportDryRun,
-  summary,
-}: {
-  approvalItems: ApprovalItem[];
-  approvalHistory: ApprovalHistoryEntry[];
-  approved: boolean;
-  dryRuns: MigrationDryRunRecord[];
-  expectedTables: SupabaseTableCheck[];
-  issues: ReturnType<typeof validateMigrationMembers>;
-  lastDryRunAt: string | null;
-  matches: ReturnType<typeof matchMigrationMembers>;
-  onClearApprovalHistory(): void;
-  onClearDryRuns(): void;
-  onApprove: () => void;
-  onApproveItem(_id: string): void;
-  onDryRun: () => void;
-  onExportApprovalHistory(_format: ReportFormat): void;
-  onExportDryRun(_format: ReportFormat): void;
-  summary: ReturnType<typeof summarizeMigration>;
-}) {
-  const offlineMembers = importedMembers.filter((member) => member.knownOffline || member.wantsAppAccess === false || !member.email);
-  const invitationCandidates = importedMembers.filter((member) => member.email && member.wantsAppAccess !== false && member.membershipStatus === 'active');
-  const queueItems = [
-    ['Import received', 'Complete', `${migrationBatch.importedMembers.toLocaleString()} members staged from ${migrationBatch.source}`],
-    ['Validation issue resolution', summary.errors ? 'Blocked' : summary.warnings ? 'Review' : 'Ready', `${summary.errors} errors · ${summary.warnings} warnings`],
-    ['Member review table', summary.needsGymReview ? 'Review' : 'Ready', `${summary.needsGymReview} records need gym review`],
-    ['Offline / non-app tracking', 'Ready', `${summary.offlineMembers} offline/non-app members preserved`],
-    ['Invitation preview', approved ? 'Ready' : 'Gated', `${invitationCandidates.length} draft invitations prepared locally`],
-    ['Approval gate', approved ? 'Approved' : 'Waiting', 'Gym review approval required before any future finalization'],
-  ];
-  const summaryCards = [
-    ['Total Imported', summary.totalImported],
-    ['Ready', summary.ready],
-    ['Warnings', summary.warnings],
-    ['Errors', summary.errors],
-    ['Existing Vyra Matches', summary.existingUserMatches],
-    ['Pending Profiles', summary.pendingProfiles],
-    ['Offline Members', summary.offlineMembers],
-    ['Ready for Review', `${summary.readyForReview}%`],
-  ];
-  return (
-    <>
-      <section className="summary-grid migration-summary" aria-label="Migration summary">
-        {summaryCards.map(([label, value]) => (
-          <article className="metric-card" key={label}>
-            <ListChecks size={20} />
-            <span>{label}</span>
-            <strong>{value}</strong>
-          </article>
-        ))}
-      </section>
-      <section className="dashboard-grid">
-        <Panel title="Migration Queue" icon={<Workflow size={18} />} wide>
-          <DataTable
-            columns={['Step', 'Status', 'Detail']}
-            rows={queueItems.map(([step, status, detail]) => [
-              step,
-              <StatusBadge key={step} value={status} tone={status === 'Blocked' || status === 'Gated' || status === 'Waiting' ? 'warn' : status === 'Complete' || status === 'Ready' || status === 'Approved' ? 'good' : 'neutral'} />,
-              detail,
-            ])}
-          />
-        </Panel>
-        <Panel title="Migration Agent Dry Run" icon={<Workflow size={18} />} wide>
-          <div className="dry-run-panel">
-            <div>
-              <strong>Local dry run only — no production changes made.</strong>
-              <p>
-                Validates mock member imports, calculates summary, records local agent run state, and appends local audit
-                history. It does not write to Supabase, call AI, send invitations, or create real organization
-                memberships.
-              </p>
-              <small>{lastDryRunAt ? `Last dry run: ${formatDate(lastDryRunAt)}` : 'No Phase 5 dry run yet.'}</small>
-            </div>
-            <div className="button-row end-row">
-              <button className="approval-button compact-button" onClick={onDryRun} type="button">
-                Run Migration Agent Dry Run
-              </button>
-            </div>
-          </div>
-        </Panel>
-        <Panel title="Export Migration Report" icon={<Download size={18} />} wide>
-          <div className="split-panel">
-            <p className="panel-copy">
-              Export the latest local dry-run report for review. Reports are generated in the browser and do not write to
-              Supabase, send invitations, or finalize memberships.
-            </p>
-            <div className="button-row end-row">
-              <ExportButtons disabled={!dryRuns.length} onExport={onExportDryRun} />
-              <button className="clear-button" disabled={!dryRuns.length} onClick={onClearDryRuns} type="button">
-                <Trash2 size={15} />
-                <span>Clear History</span>
-              </button>
-            </div>
-          </div>
-        </Panel>
-        <Panel title="Migration Queue History" icon={<FileClock size={18} />} wide>
-          {dryRuns.length === 0 ? (
-            <EmptyState message="No migration dry-run history yet." />
-          ) : (
-            <div className="history-list">
-              {dryRuns.slice(0, 6).map((run) => (
-                <div className="history-item" key={run.id}>
-                  <div>
-                    <strong>{formatDate(run.createdAt)}</strong>
-                    <span>
-                      {run.summary.totalImported} imported · {run.summary.warnings} warnings · {run.summary.errors} errors ·
-                      production writes: {run.productionWritesOccurred}
-                    </span>
-                  </div>
-                  <StatusBadge value={run.workflow} tone="good" />
-                </div>
-              ))}
-            </div>
-          )}
-        </Panel>
-        <Panel title="Migration Batch Detail" icon={<UsersRound size={18} />}>
-          <div className="batch-grid">
-            <Fact label="Gym" value={migrationBatch.gymName} />
-            <Fact label="Organization ID" value={migrationBatch.organizationId} />
-            <Fact label="Source" value={migrationBatch.source} />
-            <Fact label="Status" value={migrationBatch.status} />
-            <Fact label="Imported Members" value={migrationBatch.importedMembers.toLocaleString()} />
-            <Fact label="Created By" value={migrationBatch.createdBy} />
-          </div>
-        </Panel>
-        <Panel title="Critical Migration Rules" icon={<ShieldCheck size={18} />}>
-          <div className="rule-list">
-            {migrationRules.map((rule) => (
-              <p key={rule}>{rule}</p>
-            ))}
-          </div>
-        </Panel>
-        <Panel title="Offline / Non-App Member Tracking" icon={<UsersRound size={18} />} wide>
-          <p className="panel-copy">
-            These members can still attend the gym, be checked in, appear on rosters, keep billing status, receive coach
-            assignments, and be managed by staff without downloading the app.
-          </p>
-          <div className="offline-support-grid">
-            <StatusBadge value="Attendance allowed" tone="good" />
-            <StatusBadge value="Rosters preserved" tone="good" />
-            <StatusBadge value="Staff manageable" tone="good" />
-            <StatusBadge value="App optional" tone="good" />
-          </div>
-          <DataTable
-            columns={['Member', 'External ID', 'Reason', 'Billing', 'Coach', 'Staff Handling']}
-            rows={offlineMembers.map((member) => [
-              memberName(member),
-              member.externalMemberId,
-              offlineReason(member),
-              member.billingStatus || 'Unknown',
-              member.coachAssignment || 'Unassigned',
-              'Keep roster/check-in access without app user requirement',
-            ])}
-          />
-        </Panel>
-        <Panel title="Validation Issue Resolution" icon={<AlertTriangle size={18} />} wide>
-          <DataTable
-            columns={['Member', 'Issue', 'Severity', 'Recommended Resolution', 'Resolution State']}
-            rows={issues.slice(0, 12).map((issue) => [
-              issue.memberName,
-              issue.issue,
-              <StatusBadge key={issue.issue} value={issue.severity} tone={issue.severity === 'error' ? 'warn' : 'neutral'} />,
-              issue.recommendedAction,
-              issue.status,
-            ])}
-          />
-        </Panel>
-        <Panel title="Member Review Table" icon={<CircleDot size={18} />} wide>
-          <DataTable
-            columns={['Imported Member', 'Match Type', 'Member State', 'Existing User', 'Org Membership', 'Review Notes']}
-            rows={matches.map((match) => [
-              match.importedMember,
-              match.matchType,
-              match.memberState,
-              match.existingUser,
-              match.organizationMembershipReady ? 'Yes' : 'Review',
-              match.notes,
-            ])}
-          />
-        </Panel>
-        <Panel title="Invitation Preview" icon={<UsersRound size={18} />} wide>
-          <DataTable
-            columns={['Member', 'Email', 'Membership', 'Invitation State', 'Preview']}
-            rows={invitationCandidates.slice(0, 12).map((member) => [
-              memberName(member),
-              member.email || 'No email',
-              member.membershipType || 'Unknown',
-              approved ? 'Ready after approval' : 'Held behind approval gate',
-              `Invite ${member.firstName || 'member'} to activate Vyra access for ${migrationBatch.gymName}.`,
-            ])}
-          />
-        </Panel>
-        <Panel title="Migration Table Readiness" icon={<Network size={18} />} wide>
-          <DataTable
-            columns={['Expected Table', 'Status', 'Detail']}
-            rows={expectedTables.map((table) => [
-              table.tableName,
-              <StatusBadge key={table.tableName} value={formatHealth(table.status)} tone={tableTone(table.status)} />,
-              table.detail,
-            ])}
-          />
-        </Panel>
-        <ApprovalQueuePanel
-          history={approvalHistory}
-          items={approvalItems}
-          onApproveItem={onApproveItem}
-          onClearHistory={onClearApprovalHistory}
-          onExportHistory={onExportApprovalHistory}
-        />
-        <Panel title="Gym Review Checklist" icon={<CheckCircle2 size={18} />}>
-          <div className="checklist">
-            {['Duplicates reviewed', 'Missing info reviewed', 'Existing user matches reviewed', 'Pending profiles reviewed', 'Offline members reviewed', 'Invitations prepared', 'Organization memberships ready'].map((item) => (
-              <label key={item}>
-                <input checked readOnly type="checkbox" />
-                <span>{item}</span>
-              </label>
-            ))}
-          </div>
-        </Panel>
-        <Panel title="Approval Gate" icon={<ShieldCheck size={18} />}>
-          <p className="panel-copy">
-            This mock approval only updates local UI state. No production data, customer messaging, or database migration is
-            connected.
-          </p>
-          <button className="approval-button" disabled={approved} onClick={onApprove} type="button">
-            {approved ? 'Review Approved' : 'Approve Migration Review'}
-          </button>
-        </Panel>
-      </section>
-    </>
-  );
-}
-
 function IntegrationsPage({ snapshot }: { snapshot: IntegrationSnapshot }) {
   const registry = buildIntegrationRegistry(snapshot.github, snapshot.supabase);
   return (
@@ -1598,75 +1350,6 @@ function WorkflowsPage({
   );
 }
 
-function ApprovalQueuePanel({
-  history,
-  items,
-  onClearHistory,
-  onApproveItem,
-  onExportHistory,
-}: {
-  history: ApprovalHistoryEntry[];
-  items: ApprovalItem[];
-  onClearHistory(): void;
-  onApproveItem(_id: string): void;
-  onExportHistory(_format: ReportFormat): void;
-}) {
-  return (
-    <Panel title="Approval Queue Foundation" icon={<ShieldCheck size={18} />} wide>
-      <div className="toolbar-row">
-        <p className="panel-copy">Mock approval decisions persist locally and are exportable for review.</p>
-        <div className="button-row">
-          <ExportButtons disabled={!history.length} onExport={onExportHistory} />
-          <button className="clear-button" disabled={!history.length} onClick={onClearHistory} type="button">
-            <Trash2 size={15} />
-            <span>Clear History</span>
-          </button>
-        </div>
-      </div>
-      <DataTable
-        columns={['Item', 'Requested By', 'Risk', 'Status', 'Approver', 'Reason', 'Mock Action']}
-        rows={items.map((item) => [
-          item.title,
-          item.requestedBy,
-          <RiskBadge key={`${item.id}-risk`} risk={item.riskLevel} />,
-          item.status,
-          item.requiredApprover,
-          item.reason,
-          <button
-            className="inline-action"
-            disabled={item.status !== 'pending'}
-            key={`${item.id}-action`}
-            onClick={() => onApproveItem(item.id)}
-            type="button"
-          >
-            {item.status === 'pending' ? 'Mock Approve' : item.status}
-          </button>,
-        ])}
-      />
-      <div className="section-gap">
-        <h3>Approval History</h3>
-        {history.length === 0 ? (
-          <EmptyState message="No mock approval decisions have been recorded yet." />
-        ) : (
-          <div className="history-list">
-            {history.slice(0, 6).map((entry) => (
-              <div className="history-item" key={entry.id}>
-                <div>
-                  <strong>{entry.title}</strong>
-                  <span>
-                    {entry.action} by {entry.decidedBy} · production writes: {entry.productionWritesOccurred}
-                  </span>
-                </div>
-                <small>{formatDate(entry.decidedAt)}</small>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </Panel>
-  );
-}
-
 function ExportButtons({
   disabled = false,
   onExport,
@@ -1930,17 +1613,6 @@ function envChecklist(): Record<string, 'configured' | 'missing' | 'invalid/unkn
   };
 }
 
-const migrationRules = [
-  'Members belong to the gym before app login.',
-  'Organization Membership is the source of truth.',
-  'Existing Vyra users should be linked, not duplicated.',
-  'Pending profiles reserve a member’s gym relationship before activation.',
-  'Offline/non-app members are valid members.',
-  'Gym operations must continue even if zero members download the app on day one.',
-  'The app is optional for the member, not required for gym operations.',
-  'Staff can manage all migrated members from the gym dashboard.',
-];
-
 function pageCopy(page: string): string {
   const copy: Record<string, string> = {
     Migration: 'Migration dry-runs, staging review, member matching, table readiness, and mock approvals.',
@@ -1962,32 +1634,11 @@ function formatHealth(status: string): string {
     .join(' ');
 }
 
-function memberName(member: (typeof importedMembers)[number]): string {
-  return [member.firstName, member.lastName].filter(Boolean).join(' ') || member.externalMemberId;
-}
-
-function offlineReason(member: (typeof importedMembers)[number]): string {
-  if (member.knownOffline) return 'Known offline member';
-  if (member.wantsAppAccess === false) return 'Non-app member';
-  if (!member.email) return 'No email for app invite';
-  return 'Staff-managed access';
-}
-
 function healthTone(status: string): 'neutral' | 'good' | 'warn' {
   if (status === 'healthy' || status === 'prepared' || status === 'reachable' || status === 'completed') {
     return 'good';
   }
   if (status === 'warning' || status === 'critical' || status === 'protected' || status === 'missing' || status === 'failed') {
-    return 'warn';
-  }
-  return 'neutral';
-}
-
-function tableTone(status: string): 'neutral' | 'good' | 'warn' {
-  if (status === 'prepared' || status === 'reachable') {
-    return 'good';
-  }
-  if (status === 'protected' || status === 'missing') {
     return 'warn';
   }
   return 'neutral';
