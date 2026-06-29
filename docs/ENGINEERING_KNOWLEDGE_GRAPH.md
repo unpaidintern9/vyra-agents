@@ -53,10 +53,13 @@ The graph can contain:
 - contains
 - imports
 - uses
+- renders
 - defines
 - creates_table
 - alters_table
 - references_table
+- reads_table
+- writes_table
 - calls_function
 - depends_on
 - has_script
@@ -72,3 +75,25 @@ The scanner stores metadata only. It does not store file contents. It ignores se
 The dashboard loads the graph only when the Engineering page is opened. The page supports search, selected-node details, inbound/outbound relationship exploration, table impact, route/screen impact, migration history, and report exports.
 
 The graph remains static until `node scripts/engineering-scan.mjs` is run again.
+
+## Ownership + Health Metadata
+
+Phase 11 enriches each node with:
+
+- `owner`: heuristic ownership group.
+- `featureArea`: heuristic product or feature area.
+- `riskSignals`: local advisory risk signals.
+- `docStatus`: `documented`, `missing`, or `unknown`.
+- `orphanStatus`: `connected`, `orphan_candidate`, or `unknown`.
+
+Repository summaries include owner, health score, risk level, high-risk node count, missing-doc count, orphan candidate count, and broken relationship warning count.
+
+## Heuristics
+
+Owner groups are inferred from repo names and path/label keywords. Examples include Agent Platform for `vyra-agents`, Website for `vyra-website`, Desktop Software for `Vyra-Software`, Backend / Supabase for Supabase folders, Gym OS for gym/member/class paths, Coach Platform for coach paths, Athlete Experience for workout/athlete/nutrition paths, Billing / Revenue for Stripe/payment/subscription paths, and Health Integrations for Oura/Whoop/Apple Health paths.
+
+Feature areas use similar keyword matching and are meant for triage, not authority.
+
+Health score is ratio-based: high-risk density, missing-doc density, orphan-candidate density, and relationship warnings reduce a repo from 100. Scores are comparative planning signals only.
+
+Broken relationship warnings are advisory. They flag missing imports, env variables referenced outside examples, called Supabase functions without indexed function folders, and migration-created tables with no detected app references.

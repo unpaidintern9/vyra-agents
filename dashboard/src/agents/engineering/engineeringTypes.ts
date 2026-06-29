@@ -22,10 +22,13 @@ export type EngineeringEdgeType =
   | 'contains'
   | 'imports'
   | 'uses'
+  | 'renders'
   | 'defines'
   | 'creates_table'
   | 'alters_table'
   | 'references_table'
+  | 'reads_table'
+  | 'writes_table'
   | 'calls_function'
   | 'depends_on'
   | 'has_script'
@@ -41,6 +44,11 @@ export interface EngineeringNode {
   repo: string;
   path: string;
   status: EngineeringNodeStatus;
+  owner?: string;
+  featureArea?: string;
+  riskSignals?: string[];
+  docStatus?: 'documented' | 'missing' | 'unknown';
+  orphanStatus?: 'connected' | 'orphan_candidate' | 'unknown';
   metadata: Record<string, unknown>;
 }
 
@@ -65,6 +73,13 @@ export interface EngineeringRepositorySummary {
   functions: number;
   migrations: number;
   tables: number;
+  owner?: string;
+  healthScore?: number;
+  riskLevel?: 'low' | 'medium' | 'high' | 'unknown';
+  orphanCandidates?: number;
+  missingDocs?: number;
+  brokenRelationshipWarnings?: number;
+  highRiskNodes?: number;
 }
 
 export interface EngineeringGraphSummary {

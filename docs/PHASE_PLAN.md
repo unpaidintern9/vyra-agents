@@ -218,6 +218,30 @@ Includes:
 - Impact analysis utility with direct and second-order dependencies/dependents.
 - Table impact, route/screen impact, and migration history views.
 - JSON and Markdown exports for node detail and impact reports.
+
+## Phase 11
+
+Engineering Agent Ownership + Health Mapping.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Ownership group and feature area metadata on graph nodes.
+- Repo health scores with risk level, high-risk node count, missing docs, orphan candidates, and relationship warnings.
+- Route-to-component, table-to-screen, function-to-table, table read/write, and migration-to-table relationship maps where detected.
+- Dashboard sections for Ownership Overview, Product Area Map, Repo Health Score, Table-to-Screen Map, Function-to-Table Map, and Risk & Warning Queue.
+- Exports for ownership maps, repo health, risk queue, table-to-screen, function-to-table, missing docs, and orphan candidates.
+- `engineering-ownership-health-scan` workflow records for local dashboard activity and approved Agent Memory sync.
+
+Boundaries:
+
+- No AI is implemented.
+- No autonomous code-writing agents are implemented.
+- No production business data is modified.
+- No production app tables are written.
+- Orphan, missing-doc, risk, and broken-relationship findings are advisory candidates only.
+- Graph stores metadata only, not file contents.
 - Local Agent Memory event/audit/workflow recording for impact exports.
 
 Boundaries:

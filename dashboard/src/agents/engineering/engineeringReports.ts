@@ -1,4 +1,11 @@
 import { analyzeEngineeringImpact, migrationHistory, routeImpact, tableImpact } from './engineeringImpact';
+import {
+  featureAreaMap,
+  functionTableMap,
+  ownershipOverview,
+  riskWarningQueue,
+  tableScreenMap,
+} from './engineeringOwnership';
 import type { EngineeringGraph, EngineeringNode } from './engineeringTypes';
 
 export type EngineeringReportFormat = 'json' | 'markdown';
@@ -105,6 +112,90 @@ export function downloadMigrationHistoryReport(graph: EngineeringGraph, node: En
     relatedFiles: history.relatedFiles.map(nodeSummary),
   };
   downloadReport(`vyra-engineering-migration-history-${slug(node.label)}`, payload, format);
+}
+
+export function downloadOwnershipMap(graph: EngineeringGraph, format: EngineeringReportFormat): void {
+  downloadReport('vyra-engineering-ownership-map', {
+    title: 'Engineering Ownership Map',
+    generatedAt: new Date().toISOString(),
+    owners: ownershipOverview(graph),
+    featureAreas: featureAreaMap(graph),
+  }, format);
+}
+
+export function downloadRepoHealthReport(graph: EngineeringGraph): void {
+  downloadReport('vyra-engineering-repo-health', {
+    title: 'Engineering Repo Health Report',
+    generatedAt: new Date().toISOString(),
+    repositories: graph.repositories.map((repo) => ({
+      name: repo.name,
+      owner: repo.owner,
+      healthScore: repo.healthScore,
+      riskLevel: repo.riskLevel,
+      highRiskNodes: repo.highRiskNodes,
+      missingDocs: repo.missingDocs,
+      orphanCandidates: repo.orphanCandidates,
+      brokenRelationshipWarnings: repo.brokenRelationshipWarnings,
+    })),
+  }, 'markdown');
+}
+
+export function downloadRiskQueueReport(graph: EngineeringGraph): void {
+  const queue = riskWarningQueue(graph);
+  downloadReport('vyra-engineering-risk-queue', {
+    title: 'Engineering Risk Queue Report',
+    generatedAt: new Date().toISOString(),
+    highRiskNodes: queue.highRiskNodes.slice(0, 200).map(nodeSummary),
+    missingDocs: queue.missingDocs.slice(0, 200).map(nodeSummary),
+    orphanCandidates: queue.orphanCandidates.slice(0, 200).map(nodeSummary),
+    brokenRelationships: queue.brokenRelationships.slice(0, 200),
+  }, 'markdown');
+}
+
+export function downloadTableScreenMap(graph: EngineeringGraph): void {
+  downloadReport('vyra-engineering-table-to-screen-map', {
+    title: 'Engineering Table To Screen Map',
+    generatedAt: new Date().toISOString(),
+    tables: tableScreenMap(graph).slice(0, 300).map((row) => ({
+      table: nodeSummary(row.table),
+      routes: row.routes.map(nodeSummary),
+      files: row.files.map(nodeSummary),
+      services: row.services.map(nodeSummary),
+      functions: row.functions.map(nodeSummary),
+      migrations: row.migrations.map(nodeSummary),
+    })),
+  }, 'json');
+}
+
+export function downloadFunctionTableMap(graph: EngineeringGraph): void {
+  downloadReport('vyra-engineering-function-to-table-map', {
+    title: 'Engineering Function To Table Map',
+    generatedAt: new Date().toISOString(),
+    functions: functionTableMap(graph).slice(0, 300).map((row) => ({
+      functionNode: nodeSummary(row.functionNode),
+      riskLevel: row.riskLevel,
+      docsStatus: row.docsStatus,
+      tablesRead: row.tablesRead.map(nodeSummary),
+      tablesWritten: row.tablesWritten.map(nodeSummary),
+      tablesReferenced: row.tablesReferenced.map(nodeSummary),
+    })),
+  }, 'json');
+}
+
+export function downloadMissingDocsReport(graph: EngineeringGraph): void {
+  downloadReport('vyra-engineering-missing-docs', {
+    title: 'Engineering Missing Docs Report',
+    generatedAt: new Date().toISOString(),
+    missingDocs: riskWarningQueue(graph).missingDocs.map(nodeSummary),
+  }, 'markdown');
+}
+
+export function downloadOrphanCandidatesReport(graph: EngineeringGraph): void {
+  downloadReport('vyra-engineering-orphan-candidates', {
+    title: 'Engineering Orphan Candidates Report',
+    generatedAt: new Date().toISOString(),
+    orphanCandidates: riskWarningQueue(graph).orphanCandidates.map(nodeSummary),
+  }, 'markdown');
 }
 
 export function buildEngineeringReportMarkdown(graph: EngineeringGraph): string {

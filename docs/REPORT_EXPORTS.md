@@ -15,15 +15,25 @@ Phase 10 adds:
 - Route/screen impact report.
 - Migration history report.
 
+Phase 11 adds:
+
+- Ownership map JSON and Markdown.
+- Repo health report Markdown.
+- Risk queue report Markdown.
+- Table-to-screen map JSON.
+- Function-to-table map JSON.
+- Missing docs report Markdown.
+- Orphan candidates report Markdown.
+
 Exports are generated in the browser from the static metadata graph and local dashboard state.
 
 ## Agent Memory Integration
 
-When a selected-node impact report is exported, the dashboard appends:
+When an Engineering impact or ownership/health report is exported, the dashboard appends:
 
 - a local Engineering Agent event
 - a local audit log
-- a local workflow result for `engineering-impact-analysis`
+- a local workflow result for `engineering-impact-analysis` or `engineering-ownership-health-scan`
 
 If Agent Memory sync is configured, those local records sync only through the approved Edge Function path into approved `agent_*` tables. If unavailable, they remain in localStorage.
 

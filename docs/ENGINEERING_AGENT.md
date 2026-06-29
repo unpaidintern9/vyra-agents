@@ -11,6 +11,7 @@ The Engineering Agent is the first practical Vyra agent MVP. It is a read-only r
 - Ignore `.env`, `.env.local`, production env files, binaries, build output, and dependency folders.
 - Display graph summaries, search, selected-node details, relationships, and impact analysis in the dashboard Engineering page.
 - Export graph, node detail, node impact, table impact, route/screen impact, migration history, and full impact reports.
+- Map owners, feature areas, repo health scores, orphan candidates, missing docs, and relationship warnings.
 
 ## Explicit Boundaries
 
@@ -37,3 +38,19 @@ The Engineering page can now help answer:
 - Which repo owns this file/component/function?
 - Which dependency is used where?
 - What could break if this node changes?
+
+## Phase 11 Ownership + Health
+
+The Engineering Agent can now help answer:
+
+- Who owns this?
+- What product area does this belong to?
+- What screens touch this table?
+- What functions touch this table?
+- What routes use this component?
+- What repo has the most risk?
+- What files or nodes are orphan candidates?
+- What important things appear to be missing docs?
+- Which relationships look broken?
+
+All findings are local metadata heuristics. Orphan, missing-doc, risk, and broken-relationship results are advisory only and do not trigger code changes, schema changes, or production writes.

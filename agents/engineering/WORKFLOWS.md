@@ -46,6 +46,37 @@ Approval required: no.
 
 Production writes: no.
 
+## engineering-ownership-health-scan
+
+```text
+Run local scanner or export ownership/health report
+↓
+Assign heuristic owners and feature areas
+↓
+Calculate repo health scores and risk signals
+↓
+Flag orphan, missing-doc, and broken-relationship candidates
+↓
+Render dashboard ownership and health sections
+↓
+Append local Agent Memory event, audit log, and workflow result
+↓
+Sync through approved agent-memory Edge Function if configured
+```
+
+Mode: local read-only.
+
+Approval required: no.
+
+Production writes: no.
+
+Notes:
+
+- Orphan detection is advisory only.
+- Missing-doc detection is advisory only.
+- Broken relationship warnings are advisory only.
+- No AI or autonomous code-writing is implemented.
+
 ## repo-health-check
 
 ```text

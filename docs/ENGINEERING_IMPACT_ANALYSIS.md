@@ -71,3 +71,15 @@ For table and migration nodes, the page shows detected migration files, created 
 - Env variable names only, never values.
 - No production writes.
 - No AI or autonomous code-writing.
+
+## Phase 11 Ownership + Health Context
+
+Impact analysis now sits beside ownership and health mapping. Node details may include owner, feature area, document status, orphan status, and scanner-generated risk signals.
+
+Risk remains heuristic:
+
+- High risk: data/control-plane nodes, sensitive domains such as auth, billing, health, RLS, membership, organization membership, high table dependency counts, or function/table coupling.
+- Medium risk: moderate dependency counts or missing docs on lower-impact nodes.
+- Low risk: documented and connected nodes with few dependents.
+
+These signals are advisory planning aids only. They do not authorize edits, deploys, RLS changes, migrations, or production writes.

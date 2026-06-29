@@ -411,12 +411,27 @@ function App() {
         approvalRequired: false,
         productionWritesOccurred: 'No',
       },
+      {
+        id: `workflow_engineering_health_${Date.now()}`,
+        workflowKey: 'engineering-ownership-health-scan',
+        agent: 'Engineering Agent',
+        riskLevel: 'low',
+        result: `${graph.repositories.length} repo health profiles refreshed`,
+        createdAt: now,
+        approvalRequired: false,
+        productionWritesOccurred: 'No',
+      },
       ...current,
     ]);
     appendAgentEvent({
       agent: 'Engineering Agent',
       event: 'engineering-knowledge-graph-scan',
       detail: `Loaded ${graph.summary.repositoriesIndexed} repos, ${graph.summary.filesIndexed} files, ${graph.nodes.length} nodes, and ${graph.edges.length} relationships from the local graph.`,
+    });
+    appendAgentEvent({
+      agent: 'Engineering Agent',
+      event: 'engineering-ownership-health-scan',
+      detail: `Mapped owners, feature areas, health scores, orphan candidates, missing docs, and relationship warnings for ${graph.repositories.length} repos.`,
     });
     appendAudit({
       actor: 'Robert',
@@ -436,10 +451,12 @@ function App() {
     riskLevel: 'low' | 'medium' | 'high' | 'unknown';
   }) => {
     const now = new Date().toISOString();
+    const isOwnershipHealthReport = /ownership|repo health|risk queue|missing docs|orphan|table-to-screen|function-to-table/i.test(event.reportType);
+    const workflowKey = isOwnershipHealthReport ? 'engineering-ownership-health-scan' : 'engineering-impact-analysis';
     setWorkflowRuns((current) => [
       {
         id: `workflow_engineering_impact_${Date.now()}`,
-        workflowKey: 'engineering-impact-analysis',
+        workflowKey,
         agent: 'Engineering Agent',
         riskLevel: event.riskLevel === 'unknown' ? 'medium' : event.riskLevel,
         result: `${event.reportType} exported for ${event.nodeLabel}`,
@@ -451,7 +468,7 @@ function App() {
     ]);
     appendAgentEvent({
       agent: 'Engineering Agent',
-      event: 'engineering-impact-analysis',
+      event: workflowKey,
       detail: `${event.reportType} exported for ${event.nodeType} ${event.nodeLabel}; ${event.affectedCount} related nodes detected.`,
     });
     appendAudit({

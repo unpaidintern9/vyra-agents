@@ -46,6 +46,17 @@ export const workflowMockData: WorkflowDefinition[] = [
     safeDryRun: true,
   },
   {
+    key: 'engineering-ownership-health-scan',
+    triggerType: 'manual scan/report',
+    ownerAgent: 'Engineering Agent',
+    currentMode: 'read-only',
+    lastRun: 'Ownership or health report export',
+    nextStatus: 'ready',
+    riskLevel: 'low',
+    approvalRequired: false,
+    safeDryRun: true,
+  },
+  {
     key: 'integration-status-check',
     triggerType: 'manual refresh',
     ownerAgent: 'Operations Agent',

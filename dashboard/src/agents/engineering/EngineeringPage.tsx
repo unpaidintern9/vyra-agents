@@ -18,14 +18,31 @@ import {
 import {
   downloadEngineeringGraph,
   downloadEngineeringReport,
+  downloadFunctionTableMap,
   downloadFullImpactSummary,
   downloadMigrationHistoryReport,
   downloadNodeDetailReport,
   downloadNodeImpactReport,
+  downloadMissingDocsReport,
+  downloadOrphanCandidatesReport,
+  downloadOwnershipMap,
+  downloadRepoHealthReport,
+  downloadRiskQueueReport,
   downloadRouteImpactReport,
+  downloadTableScreenMap,
   downloadTableImpactReport,
   type EngineeringReportFormat,
 } from './engineeringReports';
+import {
+  featureAreaMap,
+  filteredRiskNodes,
+  functionTableMap,
+  ownerGroups,
+  ownershipOverview,
+  riskLevelForNode,
+  riskWarningQueue,
+  tableScreenMap,
+} from './engineeringOwnership';
 import { searchEngineeringNodes } from './engineeringSearch';
 import { edgeTypes, missingRepositoryWarnings, nodeTypes, topConnectedNodes, uniqueSorted } from './engineeringSummary';
 import type { EngineeringGraph, EngineeringNode, EngineeringScanResult } from './engineeringTypes';
@@ -53,6 +70,11 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
   const [relationshipTypeFilter, setRelationshipTypeFilter] = useState('all');
   const [relationshipNodeTypeFilter, setRelationshipNodeTypeFilter] = useState('all');
   const [relationshipRepoFilter, setRelationshipRepoFilter] = useState('all');
+  const [ownerFilter, setOwnerFilter] = useState('all');
+  const [riskRepoFilter, setRiskRepoFilter] = useState('all');
+  const [riskNodeTypeFilter, setRiskNodeTypeFilter] = useState('all');
+  const [riskLevelFilter, setRiskLevelFilter] = useState('all');
+  const [warningTypeFilter, setWarningTypeFilter] = useState('high_risk');
 
   const graph = scan.graph;
   const selectedNode = selectedNodeId ? graph.nodes.find((node) => node.id === selectedNodeId) ?? null : null;
@@ -64,6 +86,31 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
   const routeView = selectedNode && ['route', 'screen'].includes(selectedNode.type) ? routeImpact(graph, selectedNode) : null;
   const migrationView = selectedNode && ['table', 'migration'].includes(selectedNode.type) ? migrationHistory(graph, selectedNode) : null;
   const relationshipRepos = uniqueSorted([...inboundRelationships(graph, selectedNodeId ?? ''), ...outboundRelationships(graph, selectedNodeId ?? '')].map((item) => item.node.repo));
+  const ownershipRows = useMemo(() => ownershipOverview(graph), [graph]);
+  const featureRows = useMemo(() => featureAreaMap(graph), [graph]);
+  const tableScreenRows = useMemo(() => tableScreenMap(graph), [graph]);
+  const functionTableRows = useMemo(() => functionTableMap(graph), [graph]);
+  const riskQueue = useMemo(() => riskWarningQueue(graph), [graph]);
+  const riskRows = useMemo(
+    () =>
+      filteredRiskNodes(graph, {
+        owner: ownerFilter,
+        repo: riskRepoFilter,
+        risk: riskLevelFilter,
+        type: riskNodeTypeFilter,
+        warningType: warningTypeFilter,
+      }),
+    [graph, ownerFilter, riskLevelFilter, riskNodeTypeFilter, riskRepoFilter, warningTypeFilter],
+  );
+  const brokenWarningRows = useMemo(
+    () =>
+      riskQueue.brokenRelationships.filter(
+        (warning) =>
+          riskRepoFilter === 'all' ||
+          graph.repositories.some((repo) => repo.name === riskRepoFilter && warning.includes(`${repo.name}:`)),
+      ),
+    [graph.repositories, riskQueue.brokenRelationships, riskRepoFilter],
+  );
 
   useEffect(() => {
     loadEngineeringGraph().then((result) => {
@@ -103,6 +150,17 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
       nodeType: 'graph',
       reportType: `full impact summary ${format.toUpperCase()}`,
       riskLevel: graph.summary.tables || graph.summary.supabaseFunctions || graph.summary.migrations ? 'high' : 'medium',
+    });
+  };
+
+  const exportOwnershipHealth = (reportType: string, exporter: () => void) => {
+    exporter();
+    onImpactExport({
+      affectedCount: graph.nodes.length,
+      nodeLabel: 'engineering ownership health map',
+      nodeType: 'graph',
+      reportType,
+      riskLevel: 'low',
     });
   };
 
@@ -158,8 +216,234 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
                 label="Full Impact Summary"
                 onExport={exportFullImpact}
               />
+              <ReportPair
+                disabled={!graph.nodes.length}
+                label="Ownership Map"
+                onExport={(format) => {
+                  downloadOwnershipMap(graph, format);
+                  onImpactExport({
+                    affectedCount: graph.nodes.length,
+                    nodeLabel: 'engineering ownership map',
+                    nodeType: 'graph',
+                    reportType: `ownership map ${format.toUpperCase()}`,
+                    riskLevel: 'low',
+                  });
+                }}
+              />
+              <button
+                className="report-button"
+                disabled={!graph.nodes.length}
+                onClick={() => exportOwnershipHealth('repo health report MARKDOWN', () => downloadRepoHealthReport(graph))}
+                type="button"
+              >
+                <Download size={15} />
+                <span>Repo Health Markdown</span>
+              </button>
+              <button
+                className="report-button"
+                disabled={!graph.nodes.length}
+                onClick={() => exportOwnershipHealth('risk queue report MARKDOWN', () => downloadRiskQueueReport(graph))}
+                type="button"
+              >
+                <Download size={15} />
+                <span>Risk Queue Markdown</span>
+              </button>
             </div>
           </div>
+        </Panel>
+
+        <Panel title="Ownership Overview" icon={<Network size={18} />} wide>
+          <DataTable
+            columns={['Owner', 'Nodes', 'High Risk', 'Orphans', 'Missing Docs', 'Health']}
+            rows={ownershipRows.map((row) => [
+              row.owner,
+              String(row.nodeCount),
+              String(row.highRiskNodes),
+              String(row.orphanCandidates),
+              String(row.missingDocs),
+              `${row.healthScore}/100`,
+            ])}
+          />
+        </Panel>
+
+        <Panel title="Product Area Map" icon={<ListChecks size={18} />} wide>
+          <DataTable
+            columns={['Feature Area', 'Routes / Screens', 'Tables', 'Functions', 'Docs', 'Risks']}
+            rows={featureRows.map((row) => [
+              formatHealth(row.featureArea),
+              String(row.routes),
+              String(row.tables),
+              String(row.functions),
+              String(row.docs),
+              String(row.risks),
+            ])}
+          />
+        </Panel>
+
+        <Panel title="Repo Health Score" icon={<GitBranch size={18} />} wide>
+          <DataTable
+            columns={['Repository', 'Owner', 'Health', 'Risk', 'High Risk', 'Missing Docs', 'Orphans', 'Warnings']}
+            rows={graph.repositories.map((repo) => [
+              repo.name,
+              repo.owner || 'Unknown',
+              `${repo.healthScore ?? 0}/100`,
+              <StatusBadge key={`${repo.name}-risk`} value={formatHealth(repo.riskLevel || 'unknown')} tone={riskTone(repo.riskLevel || 'unknown')} />,
+              String(repo.highRiskNodes ?? 0),
+              String(repo.missingDocs ?? 0),
+              String(repo.orphanCandidates ?? 0),
+              String(repo.brokenRelationshipWarnings ?? 0),
+            ])}
+          />
+        </Panel>
+
+        <Panel title="Table-to-Screen Map" icon={<Database size={18} />} wide>
+          <div className="button-row end-row">
+            <button
+              className="report-button"
+              disabled={!graph.nodes.length}
+              onClick={() => exportOwnershipHealth('table-to-screen map JSON', () => downloadTableScreenMap(graph))}
+              type="button"
+            >
+              <Download size={15} />
+              <span>Table-to-Screen Map JSON</span>
+            </button>
+          </div>
+          <DataTable
+            columns={['Table', 'Owner', 'Routes / Screens', 'Files / Services', 'Functions', 'Migrations', 'Open']}
+            rows={tableScreenRows.slice(0, 24).map((row) => [
+              row.table.label,
+              row.table.owner || 'Unknown',
+              formatNodeList(row.routes),
+              formatNodeList([...row.files, ...row.services]),
+              formatNodeList(row.functions),
+              formatNodeList(row.migrations),
+              <button className="inline-action" key={row.table.id} onClick={() => setSelectedNodeId(row.table.id)} type="button">
+                Open
+              </button>,
+            ])}
+          />
+        </Panel>
+
+        <Panel title="Function-to-Table Map" icon={<Database size={18} />} wide>
+          <div className="button-row end-row">
+            <button
+              className="report-button"
+              disabled={!graph.nodes.length}
+              onClick={() => exportOwnershipHealth('function-to-table map JSON', () => downloadFunctionTableMap(graph))}
+              type="button"
+            >
+              <Download size={15} />
+              <span>Function-to-Table Map JSON</span>
+            </button>
+          </div>
+          <DataTable
+            columns={['Function', 'Owner', 'Risk', 'Docs', 'Reads', 'Writes', 'References', 'Open']}
+            rows={functionTableRows.slice(0, 24).map((row) => [
+              row.functionNode.label,
+              row.functionNode.owner || 'Unknown',
+              <StatusBadge key={`${row.functionNode.id}-risk`} value={formatHealth(row.riskLevel)} tone={riskTone(row.riskLevel)} />,
+              formatHealth(row.docsStatus || 'unknown'),
+              formatNodeList(row.tablesRead),
+              formatNodeList(row.tablesWritten),
+              formatNodeList(row.tablesReferenced),
+              <button className="inline-action" key={row.functionNode.id} onClick={() => setSelectedNodeId(row.functionNode.id)} type="button">
+                Open
+              </button>,
+            ])}
+          />
+        </Panel>
+
+        <Panel title="Risk & Warning Queue" icon={<ListChecks size={18} />} wide>
+          <div className="toolbar-row">
+            <div className="filter-row">
+              <select aria-label="Filter risk owner" value={ownerFilter} onChange={(event) => setOwnerFilter(event.target.value)}>
+                <option value="all">All owners</option>
+                {ownerGroups(graph).map((owner) => (
+                  <option key={owner} value={owner}>
+                    {owner}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Filter risk repo" value={riskRepoFilter} onChange={(event) => setRiskRepoFilter(event.target.value)}>
+                <option value="all">All repos</option>
+                {graph.repositories.map((repo) => (
+                  <option key={repo.name} value={repo.name}>
+                    {repo.name}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Filter risk node type" value={riskNodeTypeFilter} onChange={(event) => setRiskNodeTypeFilter(event.target.value)}>
+                <option value="all">All node types</option>
+                {nodeTypes(graph).map((type) => (
+                  <option key={type} value={type}>
+                    {formatHealth(type)}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Filter risk level" value={riskLevelFilter} onChange={(event) => setRiskLevelFilter(event.target.value)}>
+                <option value="all">All risks</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+                <option value="unknown">Unknown</option>
+              </select>
+              <select aria-label="Filter warning type" value={warningTypeFilter} onChange={(event) => setWarningTypeFilter(event.target.value)}>
+                <option value="high_risk">High risk nodes</option>
+                <option value="missing_docs">Missing docs</option>
+                <option value="orphan">Orphan candidates</option>
+                <option value="broken_relationship">Broken relationships</option>
+              </select>
+            </div>
+            <div className="button-row">
+              <StatusBadge value={`${riskQueue.highRiskNodes.length} high risk`} tone="warn" />
+              <StatusBadge value={`${riskQueue.missingDocs.length} missing docs`} />
+              <StatusBadge value={`${riskQueue.orphanCandidates.length} orphans`} />
+              <StatusBadge value={`${riskQueue.brokenRelationships.length} warnings`} tone="warn" />
+            </div>
+          </div>
+          <div className="button-row end-row">
+            <button
+              className="report-button"
+              disabled={!graph.nodes.length}
+              onClick={() => exportOwnershipHealth('missing docs report MARKDOWN', () => downloadMissingDocsReport(graph))}
+              type="button"
+            >
+              <Download size={15} />
+              <span>Missing Docs Markdown</span>
+            </button>
+            <button
+              className="report-button"
+              disabled={!graph.nodes.length}
+              onClick={() => exportOwnershipHealth('orphan candidates report MARKDOWN', () => downloadOrphanCandidatesReport(graph))}
+              type="button"
+            >
+              <Download size={15} />
+              <span>Orphan Candidates Markdown</span>
+            </button>
+          </div>
+          {warningTypeFilter === 'broken_relationship' ? (
+            <DataTable
+              columns={['Warning']}
+              rows={brokenWarningRows.slice(0, 40).map((warning) => [warning.replace(/^Relationship warning:\s*/, '')])}
+            />
+          ) : (
+            <DataTable
+              columns={['Node', 'Type', 'Owner', 'Repo', 'Risk', 'Docs', 'Orphan', 'Signals', 'Open']}
+              rows={riskRows.slice(0, 40).map((node) => [
+                node.label,
+                formatHealth(node.type),
+                node.owner || 'Unknown',
+                node.repo,
+                formatHealth(riskLevelForNode(node)),
+                formatHealth(node.docStatus || 'unknown'),
+                formatHealth(node.orphanStatus || 'unknown'),
+                (node.riskSignals || []).slice(0, 2).join(' · '),
+                <button className="inline-action" key={node.id} onClick={() => setSelectedNodeId(node.id)} type="button">
+                  Open
+                </button>,
+              ])}
+            />
+          )}
         </Panel>
 
         <Panel title="Global Graph Search" icon={<Search size={18} />} wide>
@@ -639,6 +923,14 @@ function formatMetadata(metadata: Record<string, unknown>): string {
     .slice(0, 3)
     .map(([key, value]) => `${formatHealth(key)}: ${String(value)}`)
     .join(' · ');
+}
+
+function formatNodeList(nodes: EngineeringNode[]): string {
+  if (!nodes.length) return 'None detected';
+  return nodes
+    .slice(0, 4)
+    .map((node) => node.label)
+    .join(', ');
 }
 
 function formatHealth(status: string): string {
