@@ -30,6 +30,23 @@ The dry run:
 
 It does not write to Supabase, call AI, send invitations, or create real organization memberships.
 
+## Phase 6 Dry-Run History And Reports
+
+Migration dry-run summaries now persist in browser localStorage. The Migration page includes dry-run history, JSON and Markdown export of the latest migration dry-run report, and a clear local migration dry-run history control.
+
+Migration Dry Run reports include these operating rules:
+
+1. Members belong to the gym before app login.
+2. Organization Membership is the source of truth.
+3. Existing Vyra users should be linked, not duplicated.
+4. Pending profiles reserve a member's gym relationship before activation.
+5. Offline/non-app members are valid members.
+6. Gym operations must continue even if zero members download the app on day one.
+7. The app is optional for the member, not required for gym operations.
+8. Staff can manage all migrated members from the gym dashboard.
+
+Reports are generated locally in the browser and do not write to Supabase, call AI, send invitations, or apply migrations.
+
 ## Core Principle
 
 Members must be attached to the gym before they ever download or log into Vyra. Organization Membership is the source of truth.

@@ -40,3 +40,9 @@ High-risk actions must pause before execution. The future approval queue should 
 Safe workflows can run a local dry check from the dashboard. This only updates local React state and local/mock audit logs.
 
 No Supabase writes, GitHub writes, deploys, customer messages, database migrations, or AI calls are performed.
+
+## Phase 6 Local Dry-Check History
+
+Workflow dry-check results are persisted in browser localStorage. The Workflows page now shows the last dry-check result per workflow, a local run detail summary, JSON and Markdown report exports, and a clear local workflow results control.
+
+Workflow reports are generated locally in the browser and include the source as local dashboard state plus the safety note that no production writes were made.

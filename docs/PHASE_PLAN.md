@@ -101,20 +101,45 @@ Boundaries:
 
 ## Phase 6
 
-Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
+Local Persistence + Exportable Agent Reports.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Browser localStorage persistence for local/mock agent runs, audit logs, approvals, workflow dry-check results, and migration dry-run summaries.
+- Reset/clear controls for local browser state.
+- JSON and Markdown report exports for agent memory, audit logs, workflow runs, migration dry runs, and approval history.
+- Migration dry-run history and report exports.
+- Agent run detail view.
+- Approval history.
+- Workflow last dry-check summaries.
+
+Boundaries:
+
+- Browser localStorage only.
+- No production writes.
+- No Supabase writes.
+- No GitHub writes from dashboard workflows.
+- No database migrations are applied.
+- No AI is implemented.
 
 ## Phase 7
 
-Workflow engine and production action logging.
+Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
 
 ## Phase 8
 
-Approval queue for risky actions.
+Workflow engine and production action logging.
 
 ## Phase 9
 
-Optional AI summaries and reasoning tools.
+Approval queue for risky actions.
 
 ## Phase 10
+
+Optional AI summaries and reasoning tools.
+
+## Phase 11
 
 Additional department agents.

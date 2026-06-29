@@ -4,6 +4,7 @@ import {
   ArrowRight,
   CheckCircle2,
   CircleDot,
+  Download,
   FileClock,
   GitBranch,
   ListChecks,
@@ -11,6 +12,7 @@ import {
   RefreshCcw,
   Settings,
   ShieldCheck,
+  Trash2,
   UsersRound,
   Workflow,
 } from 'lucide-react';
@@ -39,6 +41,15 @@ import {
 } from './state/agentRunStore';
 import { createInitialApprovals, type ApprovalItem } from './state/approvalStore';
 import { createInitialAuditLogs, type AuditLogEntry } from './state/auditLogStore';
+import { localStorageKeys } from './storage/localStorageKeys';
+import {
+  clearLocalState,
+  getLocalPersistenceStatus,
+  loadLocalState,
+  saveLocalState,
+  type LocalPersistenceStatus,
+} from './storage/localStorageStore';
+import { downloadReport, type ReportFormat } from './storage/reportExport';
 import { getWorkflowRegistry } from './workflows/workflowRegistry';
 import type { WorkflowDefinition } from './workflows/workflowTypes';
 import {
@@ -65,6 +76,40 @@ interface IntegrationSnapshot {
   lastChecked: string;
 }
 
+interface MigrationDryRunRecord {
+  id: string;
+  createdAt: string;
+  agent: string;
+  workflow: string;
+  summary: ReturnType<typeof summarizeMigration>;
+  rules: string[];
+  productionWritesOccurred: 'No';
+}
+
+interface WorkflowDryCheckRecord {
+  id: string;
+  workflowKey: string;
+  agent: string;
+  riskLevel: WorkflowDefinition['riskLevel'];
+  result: string;
+  createdAt: string;
+  approvalRequired: boolean;
+  productionWritesOccurred: 'No';
+}
+
+interface ApprovalHistoryEntry {
+  id: string;
+  approvalId: string;
+  title: string;
+  requestedBy: string;
+  riskLevel: ApprovalItem['riskLevel'];
+  action: string;
+  result: string;
+  decidedBy: string;
+  decidedAt: string;
+  productionWritesOccurred: 'No';
+}
+
 const requestedMode = import.meta.env.VITE_VYRA_INTEGRATION_MODE === 'live' ? 'live' : 'mock';
 
 function App() {
@@ -72,14 +117,22 @@ function App() {
   const [reviewApproved, setReviewApproved] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [snapshot, setSnapshot] = useState<IntegrationSnapshot | null>(null);
-  const [agentRuns, setAgentRuns] = useState(createInitialAgentRuns);
-  const [agentEvents, setAgentEvents] = useState(createInitialAgentEvents);
-  const [agentTasks] = useState(createInitialAgentTasks);
+  const [agentRuns, setAgentRuns] = useState(() => loadLocalState(localStorageKeys.agentRuns, createInitialAgentRuns));
+  const [agentEvents, setAgentEvents] = useState(() => loadLocalState(localStorageKeys.agentEvents, createInitialAgentEvents));
+  const [agentTasks, setAgentTasks] = useState(() => loadLocalState(localStorageKeys.agentTasks, createInitialAgentTasks));
   const [agentNotes] = useState(createInitialAgentNotes);
-  const [auditLogs, setAuditLogs] = useState(createInitialAuditLogs);
-  const [approvalItems, setApprovalItems] = useState(createInitialApprovals);
-  const [workflowRuns, setWorkflowRuns] = useState<Record<string, string>>({});
-  const [lastDryRunAt, setLastDryRunAt] = useState<string | null>(null);
+  const [auditLogs, setAuditLogs] = useState(() => loadLocalState(localStorageKeys.auditLogs, createInitialAuditLogs));
+  const [approvalItems, setApprovalItems] = useState(() => loadLocalState(localStorageKeys.approvals, createInitialApprovals));
+  const [workflowRuns, setWorkflowRuns] = useState(() =>
+    loadLocalState<WorkflowDryCheckRecord[]>(localStorageKeys.workflowResults, () => []),
+  );
+  const [migrationDryRuns, setMigrationDryRuns] = useState(() =>
+    loadLocalState<MigrationDryRunRecord[]>(localStorageKeys.migrationDryRuns, () => []),
+  );
+  const [approvalHistory, setApprovalHistory] = useState(() =>
+    loadLocalState<ApprovalHistoryEntry[]>(localStorageKeys.approvalHistory, () => []),
+  );
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
 
   const migrationIssues = useMemo(() => validateMigrationMembers(importedMembers), []);
   const memberMatches = useMemo(() => matchMigrationMembers(importedMembers, existingVyraUsers), []);
@@ -88,6 +141,17 @@ function App() {
     [memberMatches, migrationIssues],
   );
   const workflowRegistry = useMemo(() => getWorkflowRegistry(), []);
+  const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
+  const lastDryRunAt = migrationDryRuns[0]?.createdAt ?? null;
+
+  useEffect(() => saveLocalState(localStorageKeys.agentRuns, agentRuns), [agentRuns]);
+  useEffect(() => saveLocalState(localStorageKeys.agentEvents, agentEvents), [agentEvents]);
+  useEffect(() => saveLocalState(localStorageKeys.agentTasks, agentTasks), [agentTasks]);
+  useEffect(() => saveLocalState(localStorageKeys.auditLogs, auditLogs), [auditLogs]);
+  useEffect(() => saveLocalState(localStorageKeys.approvals, approvalItems), [approvalItems]);
+  useEffect(() => saveLocalState(localStorageKeys.workflowResults, workflowRuns), [workflowRuns]);
+  useEffect(() => saveLocalState(localStorageKeys.migrationDryRuns, migrationDryRuns), [migrationDryRuns]);
+  useEffect(() => saveLocalState(localStorageKeys.approvalHistory, approvalHistory), [approvalHistory]);
 
   const appendAudit = useCallback((entry: Omit<AuditLogEntry, 'id' | 'timestamp'>) => {
     setAuditLogs((current) => [
@@ -141,7 +205,6 @@ function App() {
 
   const runMigrationDryRun = () => {
     const now = new Date().toISOString();
-    setLastDryRunAt(now);
     const run: AgentRun = {
       id: `run_${Date.now()}`,
       agent: 'Migration Agent',
@@ -151,7 +214,18 @@ function App() {
       completedAt: new Date().toISOString(),
       summary: migrationSummary,
     };
+    const dryRun: MigrationDryRunRecord = {
+      id: `migration_dry_run_${Date.now()}`,
+      createdAt: now,
+      agent: 'Migration Agent',
+      workflow: 'migration-validation-dry-run',
+      summary: migrationSummary,
+      rules: migrationRules,
+      productionWritesOccurred: 'No',
+    };
     setAgentRuns((current) => [run, ...current]);
+    setSelectedRunId(run.id);
+    setMigrationDryRuns((current) => [dryRun, ...current]);
     appendAgentEvent({
       agent: 'Migration Agent',
       event: 'migration-validation-dry-run',
@@ -168,9 +242,27 @@ function App() {
   };
 
   const approveMockItem = (id: string) => {
+    const item = approvalItems.find((approval) => approval.id === id);
     setApprovalItems((current) =>
       current.map((item) => (item.id === id && item.status === 'pending' ? { ...item, status: 'mock approved' } : item)),
     );
+    if (item?.status === 'pending') {
+      setApprovalHistory((current) => [
+        {
+          id: `approval_history_${Date.now()}`,
+          approvalId: item.id,
+          title: item.title,
+          requestedBy: item.requestedBy,
+          riskLevel: item.riskLevel,
+          action: 'mock approved',
+          result: 'local approval state updated',
+          decidedBy: 'Robert',
+          decidedAt: new Date().toISOString(),
+          productionWritesOccurred: 'No',
+        },
+        ...current,
+      ]);
+    }
     appendAudit({
       actor: 'Robert',
       agent: 'Operations Agent',
@@ -187,7 +279,19 @@ function App() {
       return;
     }
     const now = new Date().toISOString();
-    setWorkflowRuns((current) => ({ ...current, [workflow.key]: now }));
+    setWorkflowRuns((current) => [
+      {
+        id: `workflow_dry_check_${Date.now()}`,
+        workflowKey: workflow.key,
+        agent: workflow.ownerAgent,
+        riskLevel: workflow.riskLevel,
+        result: 'local dry check only',
+        createdAt: now,
+        approvalRequired: workflow.approvalRequired,
+        productionWritesOccurred: 'No',
+      },
+      ...current,
+    ]);
     appendAudit({
       actor: 'Robert',
       agent: workflow.ownerAgent,
@@ -197,6 +301,135 @@ function App() {
       riskLevel: workflow.riskLevel,
       approvalRequired: workflow.approvalRequired,
     });
+  };
+
+  const clearAgentMemory = () => {
+    setAgentRuns([]);
+    setAgentEvents([]);
+    setAgentTasks([]);
+    setSelectedRunId(null);
+    clearLocalState(localStorageKeys.agentRuns);
+    clearLocalState(localStorageKeys.agentEvents);
+    clearLocalState(localStorageKeys.agentTasks);
+  };
+
+  const clearAuditLogs = () => {
+    setAuditLogs([]);
+    clearLocalState(localStorageKeys.auditLogs);
+  };
+
+  const clearWorkflowResults = () => {
+    setWorkflowRuns([]);
+    clearLocalState(localStorageKeys.workflowResults);
+  };
+
+  const clearMigrationDryRuns = () => {
+    setMigrationDryRuns([]);
+    clearLocalState(localStorageKeys.migrationDryRuns);
+  };
+
+  const clearApprovalHistory = () => {
+    setApprovalHistory([]);
+    clearLocalState(localStorageKeys.approvalHistory);
+  };
+
+  const exportAgentMemory = (format: ReportFormat) => {
+    downloadReport(
+      {
+        title: 'Agent Memory Report',
+        slug: 'vyra-agent-memory-report',
+        summary: {
+          persistenceStatus,
+          agentRuns: agentRuns.length,
+          agentEvents: agentEvents.length,
+          agentTasks: agentTasks.length,
+          approvals: approvalItems.length,
+          productionWritesOccurred: 'No',
+        },
+        sections: [
+          { title: 'Agent Runs', rows: agentRuns.map((run) => flattenAgentRun(run)) },
+          { title: 'Agent Events', rows: agentEvents },
+          { title: 'Agent Tasks', rows: agentTasks },
+          { title: 'Approvals', rows: approvalItems },
+        ],
+      },
+      format,
+    );
+  };
+
+  const exportAuditLogs = (format: ReportFormat) => {
+    downloadReport(
+      {
+        title: 'Audit Log Report',
+        slug: 'vyra-audit-log-report',
+        summary: {
+          rows: auditLogs.length,
+          highRisk: auditLogs.filter((log) => log.riskLevel === 'high').length,
+          mediumRisk: auditLogs.filter((log) => log.riskLevel === 'medium').length,
+          lowRisk: auditLogs.filter((log) => log.riskLevel === 'low').length,
+          productionWritesOccurred: 'No',
+        },
+        rows: auditLogs,
+      },
+      format,
+    );
+  };
+
+  const exportWorkflowRuns = (format: ReportFormat) => {
+    downloadReport(
+      {
+        title: 'Workflow Run Report',
+        slug: 'vyra-workflow-run-report',
+        summary: {
+          dryChecks: workflowRuns.length,
+          uniqueWorkflows: new Set(workflowRuns.map((run) => run.workflowKey)).size,
+          productionWritesOccurred: 'No',
+        },
+        rows: workflowRuns,
+      },
+      format,
+    );
+  };
+
+  const exportMigrationDryRun = (format: ReportFormat) => {
+    downloadReport(
+      {
+        title: 'Migration Dry Run Report',
+        slug: 'vyra-migration-dry-run-report',
+        summary: migrationDryRuns[0]
+          ? {
+              latestDryRun: migrationDryRuns[0].createdAt,
+              totalDryRuns: migrationDryRuns.length,
+              productionWritesOccurred: 'No',
+              ...migrationDryRuns[0].summary,
+            }
+          : {
+              totalDryRuns: 0,
+              productionWritesOccurred: 'No',
+            },
+        sections: [
+          { title: 'Migration Rules', notes: migrationRules },
+          { title: 'Dry Run History', rows: migrationDryRuns.map((run) => flattenMigrationDryRun(run)) },
+        ],
+      },
+      format,
+    );
+  };
+
+  const exportApprovalHistory = (format: ReportFormat) => {
+    downloadReport(
+      {
+        title: 'Approval History Report',
+        slug: 'vyra-approval-history-report',
+        summary: {
+          approvals: approvalHistory.length,
+          pendingQueueItems: approvalItems.filter((item) => item.status === 'pending').length,
+          productionWritesOccurred: 'No',
+        },
+        rows: approvalHistory,
+      },
+      format,
+    );
   };
 
   const status = snapshot ?? buildLoadingSnapshot();
@@ -254,8 +487,14 @@ function App() {
         {activePage === 'Migration' ? (
           <MigrationPage
             approvalItems={approvalItems}
+            approvalHistory={approvalHistory}
             approved={reviewApproved}
+            dryRuns={migrationDryRuns}
             expectedTables={status.supabase.tableChecks}
+            onClearApprovalHistory={clearApprovalHistory}
+            onClearDryRuns={clearMigrationDryRuns}
+            onExportApprovalHistory={exportApprovalHistory}
+            onExportDryRun={exportMigrationDryRun}
             issues={migrationIssues}
             lastDryRunAt={lastDryRunAt}
             matches={memberMatches}
@@ -271,15 +510,27 @@ function App() {
         ) : activePage === 'Agent Memory' ? (
           <AgentMemoryPage
             approvals={approvalItems}
+            auditLogs={auditLogs}
+            onClear={clearAgentMemory}
+            onExport={exportAgentMemory}
+            onSelectRun={setSelectedRunId}
+            persistenceStatus={persistenceStatus}
+            selectedRunId={selectedRunId}
             events={agentEvents}
             notes={agentNotes}
             runs={agentRuns}
             tasks={agentTasks}
           />
         ) : activePage === 'Audit Logs' ? (
-          <AuditLogsPage logs={auditLogs} />
+          <AuditLogsPage logs={auditLogs} onClear={clearAuditLogs} onExport={exportAuditLogs} />
         ) : activePage === 'Workflows' ? (
-          <WorkflowsPage onRunDryCheck={runWorkflowDryCheck} runs={workflowRuns} workflows={workflowRegistry} />
+          <WorkflowsPage
+            onClear={clearWorkflowResults}
+            onExport={exportWorkflowRuns}
+            onRunDryCheck={runWorkflowDryCheck}
+            runs={workflowRuns}
+            workflows={workflowRegistry}
+          />
         ) : (
           <OverviewPage approvalItems={approvalItems} snapshot={status} />
         )}
@@ -428,25 +679,37 @@ function OverviewPage({ approvalItems, snapshot }: { approvalItems: ApprovalItem
 
 function MigrationPage({
   approvalItems,
+  approvalHistory,
   approved,
+  dryRuns,
   expectedTables,
   issues,
   lastDryRunAt,
   matches,
+  onClearApprovalHistory,
+  onClearDryRuns,
   onApprove,
   onApproveItem,
   onDryRun,
+  onExportApprovalHistory,
+  onExportDryRun,
   summary,
 }: {
   approvalItems: ApprovalItem[];
+  approvalHistory: ApprovalHistoryEntry[];
   approved: boolean;
+  dryRuns: MigrationDryRunRecord[];
   expectedTables: SupabaseTableCheck[];
   issues: ReturnType<typeof validateMigrationMembers>;
   lastDryRunAt: string | null;
   matches: ReturnType<typeof matchMigrationMembers>;
+  onClearApprovalHistory(): void;
+  onClearDryRuns(): void;
   onApprove: () => void;
   onApproveItem(_id: string): void;
   onDryRun: () => void;
+  onExportApprovalHistory(_format: ReportFormat): void;
+  onExportDryRun(_format: ReportFormat): void;
   summary: ReturnType<typeof summarizeMigration>;
 }) {
   const summaryCards = [
@@ -482,10 +745,37 @@ function MigrationPage({
               </p>
               <small>{lastDryRunAt ? `Last dry run: ${formatDate(lastDryRunAt)}` : 'No Phase 5 dry run yet.'}</small>
             </div>
-            <button className="approval-button compact-button" onClick={onDryRun} type="button">
-              Run Migration Agent Dry Run
-            </button>
+            <div className="button-row end-row">
+              <button className="approval-button compact-button" onClick={onDryRun} type="button">
+                Run Migration Agent Dry Run
+              </button>
+              <ExportButtons disabled={!dryRuns.length} onExport={onExportDryRun} />
+              <button className="clear-button" disabled={!dryRuns.length} onClick={onClearDryRuns} type="button">
+                <Trash2 size={15} />
+                <span>Clear History</span>
+              </button>
+            </div>
           </div>
+        </Panel>
+        <Panel title="Dry Run History" icon={<FileClock size={18} />} wide>
+          {dryRuns.length === 0 ? (
+            <EmptyState message="No migration dry-run history yet." />
+          ) : (
+            <div className="history-list">
+              {dryRuns.slice(0, 6).map((run) => (
+                <div className="history-item" key={run.id}>
+                  <div>
+                    <strong>{formatDate(run.createdAt)}</strong>
+                    <span>
+                      {run.summary.totalImported} imported · {run.summary.warnings} warnings · {run.summary.errors} errors ·
+                      production writes: {run.productionWritesOccurred}
+                    </span>
+                  </div>
+                  <StatusBadge value={run.workflow} tone="good" />
+                </div>
+              ))}
+            </div>
+          )}
         </Panel>
         <Panel title="Import Batch" icon={<UsersRound size={18} />}>
           <div className="batch-grid">
@@ -551,7 +841,13 @@ function MigrationPage({
             ])}
           />
         </Panel>
-        <ApprovalQueuePanel items={approvalItems} onApproveItem={onApproveItem} />
+        <ApprovalQueuePanel
+          history={approvalHistory}
+          items={approvalItems}
+          onApproveItem={onApproveItem}
+          onClearHistory={onClearApprovalHistory}
+          onExportHistory={onExportApprovalHistory}
+        />
         <Panel title="Gym Review Checklist" icon={<CheckCircle2 size={18} />}>
           <div className="checklist">
             {['Duplicates reviewed', 'Missing info reviewed', 'Existing user matches reviewed', 'Pending profiles reviewed', 'Offline members reviewed', 'Invitations prepared', 'Organization memberships ready'].map((item) => (
@@ -680,40 +976,98 @@ function SettingsPage({ snapshot }: { snapshot: IntegrationSnapshot }) {
 
 function AgentMemoryPage({
   approvals,
+  auditLogs,
   events,
   notes,
+  onClear,
+  onExport,
+  onSelectRun,
+  persistenceStatus,
   runs,
+  selectedRunId,
   tasks,
 }: {
   approvals: ApprovalItem[];
+  auditLogs: AuditLogEntry[];
   events: AgentEvent[];
   notes: ReturnType<typeof createInitialAgentNotes>;
+  onClear(): void;
+  onExport(_format: ReportFormat): void;
+  onSelectRun(_id: string): void;
+  persistenceStatus: LocalPersistenceStatus;
   runs: AgentRun[];
+  selectedRunId: string | null;
   tasks: ReturnType<typeof createInitialAgentTasks>;
 }) {
+  const selectedRun = runs.find((run) => run.id === selectedRunId) ?? runs[0] ?? null;
+  const relatedEvents = selectedRun ? events.filter((event) => event.agent === selectedRun.agent) : [];
+  const relatedAuditLogs = selectedRun ? auditLogs.filter((log) => log.agent === selectedRun.agent) : [];
   return (
     <section className="dashboard-grid">
       <Panel title="Agent Memory Boundary" icon={<ShieldCheck size={18} />} wide>
-        <p className="panel-copy">
-          Agent memory tables now exist in Supabase, but Phase 5 uses local/mock state only and does not write to
-          production.
-        </p>
+        <div className="split-panel">
+          <p className="panel-copy">
+            Agent memory tables now exist in Supabase, but Phase 6 persists only browser localStorage state and does not
+            write to production.
+          </p>
+          <div className="button-row">
+            <StatusBadge value={`Persistence ${persistenceStatus}`} tone={persistenceStatus === 'available' ? 'good' : 'warn'} />
+            <ExportButtons disabled={runs.length + events.length + tasks.length === 0} onExport={onExport} />
+            <button className="clear-button" onClick={onClear} type="button">
+              <Trash2 size={15} />
+              <span>Clear Memory</span>
+            </button>
+          </div>
+        </div>
       </Panel>
       <Panel title="Agent Runs" icon={<Activity size={18} />} wide>
         {runs.length === 0 ? (
           <EmptyState message="No local agent runs yet." />
         ) : (
           <DataTable
-            columns={['Agent', 'Workflow', 'Status', 'Started', 'Completed', 'Summary']}
+            columns={['Agent', 'Workflow', 'Status', 'Started', 'Completed', 'Production Writes', 'Detail']}
             rows={runs.map((run) => [
               run.agent,
               run.workflow,
               <StatusBadge key={run.id} value={run.status} tone="good" />,
               formatDate(run.startedAt),
               formatDate(run.completedAt),
-              `${run.summary.totalImported} imported · ${run.summary.warnings} warnings · ${run.summary.errors} errors · ${run.summary.pendingProfiles} pending · ${run.summary.existingUserMatches} matches · ${run.summary.offlineMembers} offline`,
+              'No',
+              <button className="inline-action" key={`${run.id}-detail`} onClick={() => onSelectRun(run.id)} type="button">
+                View Details
+              </button>,
             ])}
           />
+        )}
+      </Panel>
+      <Panel title="Agent Run Detail" icon={<ListChecks size={18} />} wide>
+        {selectedRun ? (
+          <div className="detail-panel">
+            <div className="fact-list">
+              <Fact label="Agent" value={selectedRun.agent} />
+              <Fact label="Workflow" value={selectedRun.workflow} />
+              <Fact label="Status" value={selectedRun.status} />
+              <Fact label="Started" value={formatDate(selectedRun.startedAt)} />
+              <Fact label="Completed" value={formatDate(selectedRun.completedAt)} />
+              <Fact label="Duration" value={durationLabel(selectedRun.startedAt, selectedRun.completedAt)} />
+              <Fact label="Production Writes" value="No" />
+              <Fact label="Related Audit Logs" value={String(relatedAuditLogs.length)} />
+            </div>
+            <p className="detail-summary">{migrationSummaryLabel(selectedRun.summary)}</p>
+            <div className="history-list compact-history">
+              {relatedEvents.slice(0, 4).map((event) => (
+                <div className="history-item" key={event.id}>
+                  <div>
+                    <strong>{event.event}</strong>
+                    <span>{event.detail}</span>
+                  </div>
+                  <small>{formatDate(event.timestamp)}</small>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <EmptyState message="Select or run an agent action to see detail." />
         )}
       </Panel>
       <Panel title="Agent Events" icon={<FileClock size={18} />}>
@@ -760,13 +1114,65 @@ function AgentMemoryPage({
   );
 }
 
-function AuditLogsPage({ logs }: { logs: AuditLogEntry[] }) {
+function AuditLogsPage({
+  logs,
+  onClear,
+  onExport,
+}: {
+  logs: AuditLogEntry[];
+  onClear(): void;
+  onExport(_format: ReportFormat): void;
+}) {
+  const [riskFilter, setRiskFilter] = useState('all');
+  const [agentFilter, setAgentFilter] = useState('all');
+  const [resultFilter, setResultFilter] = useState('all');
+  const agentsForFilter = Array.from(new Set(logs.map((log) => log.agent))).sort();
+  const resultsForFilter = Array.from(new Set(logs.map((log) => log.result))).sort();
+  const filteredLogs = logs.filter(
+    (log) =>
+      (riskFilter === 'all' || log.riskLevel === riskFilter) &&
+      (agentFilter === 'all' || log.agent === agentFilter) &&
+      (resultFilter === 'all' || log.result === resultFilter),
+  );
   return (
     <section className="dashboard-grid">
       <Panel title="Audit Logs" icon={<FileClock size={18} />} wide>
+        <div className="toolbar-row">
+          <div className="filter-row">
+            <select aria-label="Filter by risk" value={riskFilter} onChange={(event) => setRiskFilter(event.target.value)}>
+              <option value="all">All risk</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+            <select aria-label="Filter by agent" value={agentFilter} onChange={(event) => setAgentFilter(event.target.value)}>
+              <option value="all">All agents</option>
+              {agentsForFilter.map((agent) => (
+                <option key={agent} value={agent}>
+                  {agent}
+                </option>
+              ))}
+            </select>
+            <select aria-label="Filter by result" value={resultFilter} onChange={(event) => setResultFilter(event.target.value)}>
+              <option value="all">All results</option>
+              {resultsForFilter.map((result) => (
+                <option key={result} value={result}>
+                  {result}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="button-row">
+            <ExportButtons disabled={!logs.length} onExport={onExport} />
+            <button className="clear-button" disabled={!logs.length} onClick={onClear} type="button">
+              <Trash2 size={15} />
+              <span>Clear Logs</span>
+            </button>
+          </div>
+        </div>
         <DataTable
           columns={['Timestamp', 'Actor', 'Agent', 'Action', 'Target', 'Result', 'Risk', 'Approval']}
-          rows={logs.map((log) => [
+          rows={filteredLogs.map((log) => [
             formatDate(log.timestamp),
             log.actor,
             log.agent,
@@ -783,26 +1189,60 @@ function AuditLogsPage({ logs }: { logs: AuditLogEntry[] }) {
 }
 
 function WorkflowsPage({
+  onClear,
+  onExport,
   onRunDryCheck,
   runs,
   workflows: registry,
 }: {
+  onClear(): void;
+  onExport(_format: ReportFormat): void;
   onRunDryCheck(_workflow: WorkflowDefinition): void;
-  runs: Record<string, string>;
+  runs: WorkflowDryCheckRecord[];
   workflows: WorkflowDefinition[];
 }) {
+  const latestByWorkflow = runs.reduce<Record<string, WorkflowDryCheckRecord>>((accumulator, run) => {
+    if (!accumulator[run.workflowKey] || run.createdAt > accumulator[run.workflowKey].createdAt) {
+      accumulator[run.workflowKey] = run;
+    }
+    return accumulator;
+  }, {});
   return (
     <section className="dashboard-grid">
+      <Panel title="Workflow Run Reports" icon={<Download size={18} />} wide>
+        <div className="split-panel">
+          <p className="panel-copy">
+            Workflow dry checks are stored in browser localStorage only. They do not run production jobs, deploy code, or
+            write to external systems.
+          </p>
+          <div className="button-row">
+            <ExportButtons disabled={!runs.length} onExport={onExport} />
+            <button className="clear-button" disabled={!runs.length} onClick={onClear} type="button">
+              <Trash2 size={15} />
+              <span>Clear Results</span>
+            </button>
+          </div>
+        </div>
+      </Panel>
       {registry.map((workflow) => (
         <Panel key={workflow.key} title={workflow.key} icon={<Workflow size={18} />}>
           <div className="fact-list">
             <Fact label="Trigger" value={workflow.triggerType} />
             <Fact label="Owner" value={workflow.ownerAgent} />
             <Fact label="Mode" value={workflow.currentMode} />
-            <Fact label="Last Run" value={runs[workflow.key] ? formatDate(runs[workflow.key]) : workflow.lastRun} />
+            <Fact
+              label="Last Dry Check"
+              value={latestByWorkflow[workflow.key] ? formatDate(latestByWorkflow[workflow.key].createdAt) : workflow.lastRun}
+            />
             <Fact label="Next Status" value={workflow.nextStatus} />
             <Fact label="Approval" value={workflow.approvalRequired ? 'Yes' : 'No'} />
           </div>
+          {latestByWorkflow[workflow.key] ? (
+            <p className="detail-summary">
+              Latest result: {latestByWorkflow[workflow.key].result}. Production writes:{' '}
+              {latestByWorkflow[workflow.key].productionWritesOccurred}.
+            </p>
+          ) : null}
           <div className="workflow-actions">
             <RiskBadge risk={workflow.riskLevel} />
             <button
@@ -821,14 +1261,30 @@ function WorkflowsPage({
 }
 
 function ApprovalQueuePanel({
+  history,
   items,
+  onClearHistory,
   onApproveItem,
+  onExportHistory,
 }: {
+  history: ApprovalHistoryEntry[];
   items: ApprovalItem[];
+  onClearHistory(): void;
   onApproveItem(_id: string): void;
+  onExportHistory(_format: ReportFormat): void;
 }) {
   return (
     <Panel title="Approval Queue Foundation" icon={<ShieldCheck size={18} />} wide>
+      <div className="toolbar-row">
+        <p className="panel-copy">Mock approval decisions persist locally and are exportable for review.</p>
+        <div className="button-row">
+          <ExportButtons disabled={!history.length} onExport={onExportHistory} />
+          <button className="clear-button" disabled={!history.length} onClick={onClearHistory} type="button">
+            <Trash2 size={15} />
+            <span>Clear History</span>
+          </button>
+        </div>
+      </div>
       <DataTable
         columns={['Item', 'Requested By', 'Risk', 'Status', 'Approver', 'Reason', 'Mock Action']}
         rows={items.map((item) => [
@@ -849,7 +1305,48 @@ function ApprovalQueuePanel({
           </button>,
         ])}
       />
+      <div className="section-gap">
+        <h3>Approval History</h3>
+        {history.length === 0 ? (
+          <EmptyState message="No mock approval decisions have been recorded yet." />
+        ) : (
+          <div className="history-list">
+            {history.slice(0, 6).map((entry) => (
+              <div className="history-item" key={entry.id}>
+                <div>
+                  <strong>{entry.title}</strong>
+                  <span>
+                    {entry.action} by {entry.decidedBy} · production writes: {entry.productionWritesOccurred}
+                  </span>
+                </div>
+                <small>{formatDate(entry.decidedAt)}</small>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </Panel>
+  );
+}
+
+function ExportButtons({
+  disabled = false,
+  onExport,
+}: {
+  disabled?: boolean;
+  onExport(_format: ReportFormat): void;
+}) {
+  return (
+    <div className="button-row compact-row">
+      <button className="report-button" disabled={disabled} onClick={() => onExport('json')} type="button">
+        <Download size={15} />
+        <span>JSON</span>
+      </button>
+      <button className="report-button" disabled={disabled} onClick={() => onExport('markdown')} type="button">
+        <Download size={15} />
+        <span>Markdown</span>
+      </button>
+    </div>
   );
 }
 
@@ -1039,6 +1536,47 @@ function shortSha(value: string): string {
 
 function countTables(tables: SupabaseTableCheck[], status: SupabaseTableCheck['status']): number {
   return tables.filter((table) => table.status === status).length;
+}
+
+function flattenAgentRun(run: AgentRun): Record<string, unknown> {
+  return {
+    id: run.id,
+    agent: run.agent,
+    workflow: run.workflow,
+    status: run.status,
+    startedAt: run.startedAt,
+    completedAt: run.completedAt,
+    duration: durationLabel(run.startedAt, run.completedAt),
+    productionWritesOccurred: 'No',
+    summary: migrationSummaryLabel(run.summary),
+    ...run.summary,
+  };
+}
+
+function flattenMigrationDryRun(run: MigrationDryRunRecord): Record<string, unknown> {
+  return {
+    id: run.id,
+    createdAt: run.createdAt,
+    agent: run.agent,
+    workflow: run.workflow,
+    productionWritesOccurred: run.productionWritesOccurred,
+    rulesIncluded: run.rules.length,
+    ...run.summary,
+  };
+}
+
+function migrationSummaryLabel(summary: AgentRun['summary']): string {
+  return `${summary.totalImported} imported, ${summary.ready} ready, ${summary.warnings} warnings, ${summary.errors} errors, ${summary.pendingProfiles} pending profiles, ${summary.existingUserMatches} existing user matches, ${summary.offlineMembers} offline members.`;
+}
+
+function durationLabel(startedAt: string, completedAt: string): string {
+  const started = new Date(startedAt).valueOf();
+  const completed = new Date(completedAt).valueOf();
+  if (Number.isNaN(started) || Number.isNaN(completed)) {
+    return 'unknown';
+  }
+  const seconds = Math.max(0, Math.round((completed - started) / 1000));
+  return `${seconds}s`;
 }
 
 function formatDate(value: string): string {

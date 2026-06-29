@@ -55,6 +55,20 @@ The Agent Memory dashboard page shows local/mock:
 - Agent Approvals
 - Agent Notes
 
-These records are stored in React state only. They do not write to Supabase yet.
+## Phase 6 Local Persistence And Reports
+
+Phase 6 persists local/mock agent runs, events, tasks, approvals, audit logs, workflow dry checks, and migration dry-run summaries in browser localStorage.
+
+The Agent Memory page now includes:
+
+- local persistence status
+- JSON and Markdown export buttons
+- clear local agent memory controls
+- an agent run detail view with related events and audit-log counts
+- explicit production writes status of `No`
+
+Reports are generated locally in the browser and include a title, generated timestamp, local dashboard source, a safety note, summary fields, and detail rows.
+
+These records do not write to Supabase yet.
 
 Future connection should write to the Phase 3 `agent_*` tables only after permissions, RLS policies, production logging, and approval boundaries are reviewed.
