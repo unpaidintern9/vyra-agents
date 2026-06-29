@@ -72,3 +72,23 @@ Reports are generated locally in the browser and include a title, generated time
 These records do not write to Supabase yet.
 
 Future connection should write to the Phase 3 `agent_*` tables only after permissions, RLS policies, production logging, and approval boundaries are reviewed.
+
+## Phase 7 Safe Supabase Sync
+
+Phase 7 adds a synchronized persistence layer for operational memory. The dashboard writes only to approved agent memory tables when Supabase is available, then keeps localStorage updated as the local cache.
+
+If Supabase is unavailable, records remain usable locally and are queued for retry. The Agent Memory page shows sync status for local records as synced, pending, failed, or local only.
+
+Approved writable tables:
+
+- agent_runs
+- agent_events
+- agent_tasks
+- agent_status
+- agent_memory
+- agent_logs
+- agent_approvals
+- agent_workflows
+- agent_integrations
+
+Production business tables remain out of scope.

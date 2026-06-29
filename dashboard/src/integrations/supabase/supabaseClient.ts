@@ -1,8 +1,23 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
+export function getSupabaseEnvStatus(): { url: 'Found' | 'Missing'; key: 'Found' | 'Missing' } {
+  return {
+    url: supabaseUrl() ? 'Found' : 'Missing',
+    key: supabaseAnonOrPublishableKey() ? 'Found' : 'Missing',
+  };
+}
+
 export function createReadOnlySupabaseClient(): SupabaseClient | null {
-  const url = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  return createBrowserSupabaseClient();
+}
+
+export function createAgentMemorySupabaseClient(): SupabaseClient | null {
+  return createBrowserSupabaseClient();
+}
+
+function createBrowserSupabaseClient(): SupabaseClient | null {
+  const url = supabaseUrl();
+  const anonKey = supabaseAnonOrPublishableKey();
 
   if (!url || !anonKey) {
     return null;
@@ -17,3 +32,15 @@ export function createReadOnlySupabaseClient(): SupabaseClient | null {
   });
 }
 
+function supabaseUrl(): string {
+  return import.meta.env.VITE_SUPABASE_URL || import.meta.env.EXPO_PUBLIC_SUPABASE_URL || '';
+}
+
+function supabaseAnonOrPublishableKey(): string {
+  return (
+    import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    import.meta.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    ''
+  );
+}

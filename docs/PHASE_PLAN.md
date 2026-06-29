@@ -126,20 +126,41 @@ Boundaries:
 
 ## Phase 7
 
-Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
+Safe Supabase Agent Memory.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Dashboard support for Supabase agent-memory synchronization.
+- Browser localStorage remains the automatic offline cache.
+- Sync queue for pending, synced, and failed agent-memory records.
+- Connection status monitoring and retry controls.
+- Environment compatibility with dashboard `VITE_` keys and copied Vyra-Part-1 `EXPO_PUBLIC_` Supabase keys.
+
+Boundaries:
+
+- Writable tables are limited to `agent_runs`, `agent_events`, `agent_tasks`, `agent_status`, `agent_memory`, `agent_logs`, `agent_approvals`, `agent_workflows`, and `agent_integrations`.
+- No production business tables are modified.
+- No service role keys are used in browser code.
+- No AI or autonomous agents are implemented.
 
 ## Phase 8
 
-Workflow engine and production action logging.
+Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
 
 ## Phase 9
 
-Approval queue for risky actions.
+Workflow engine and production action logging.
 
 ## Phase 10
 
-Optional AI summaries and reasoning tools.
+Approval queue for risky actions.
 
 ## Phase 11
+
+Optional AI summaries and reasoning tools.
+
+## Phase 12
 
 Additional department agents.

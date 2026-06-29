@@ -4,6 +4,7 @@ import {
   ArrowRight,
   CheckCircle2,
   CircleDot,
+  Database,
   Download,
   FileClock,
   GitBranch,
@@ -29,6 +30,7 @@ import { StatusBadge } from './components/StatusBadge';
 import { getGitHubStatus } from './integrations/github/githubStatus';
 import type { GitHubStatusResult } from './integrations/github/githubTypes';
 import { buildIntegrationRegistry } from './integrations/integrationRegistry';
+import { getSupabaseEnvStatus } from './integrations/supabase/supabaseClient';
 import { getSupabaseStatus } from './integrations/supabase/supabaseStatus';
 import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/supabase/supabaseTypes';
 import {
@@ -50,6 +52,17 @@ import {
   type LocalPersistenceStatus,
 } from './storage/localStorageStore';
 import { downloadReport, type ReportFormat } from './storage/reportExport';
+import { agentMemoryRecords, detectAgentMemoryConnection, syncPendingQueue } from './sync/syncManager';
+import {
+  clearSyncQueueStorage,
+  enqueueSyncRecords,
+  loadSyncQueue,
+  resetFailedQueueItems,
+  saveSyncQueue,
+} from './sync/syncQueue';
+import { buildSyncStatusSnapshot } from './sync/syncStatus';
+import type { SyncConnectionState, SyncQueueItem, SyncStatusSnapshot } from './sync/syncTypes';
+import type { ApprovalHistoryEntry, MigrationDryRunRecord, WorkflowDryCheckRecord } from './types/localRecords';
 import { getWorkflowRegistry } from './workflows/workflowRegistry';
 import type { WorkflowDefinition } from './workflows/workflowTypes';
 import {
@@ -76,40 +89,6 @@ interface IntegrationSnapshot {
   lastChecked: string;
 }
 
-interface MigrationDryRunRecord {
-  id: string;
-  createdAt: string;
-  agent: string;
-  workflow: string;
-  summary: ReturnType<typeof summarizeMigration>;
-  rules: string[];
-  productionWritesOccurred: 'No';
-}
-
-interface WorkflowDryCheckRecord {
-  id: string;
-  workflowKey: string;
-  agent: string;
-  riskLevel: WorkflowDefinition['riskLevel'];
-  result: string;
-  createdAt: string;
-  approvalRequired: boolean;
-  productionWritesOccurred: 'No';
-}
-
-interface ApprovalHistoryEntry {
-  id: string;
-  approvalId: string;
-  title: string;
-  requestedBy: string;
-  riskLevel: ApprovalItem['riskLevel'];
-  action: string;
-  result: string;
-  decidedBy: string;
-  decidedAt: string;
-  productionWritesOccurred: 'No';
-}
-
 const requestedMode = import.meta.env.VITE_VYRA_INTEGRATION_MODE === 'live' ? 'live' : 'mock';
 
 function App() {
@@ -133,6 +112,10 @@ function App() {
     loadLocalState<ApprovalHistoryEntry[]>(localStorageKeys.approvalHistory, () => []),
   );
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+  const [syncQueue, setSyncQueue] = useState(loadSyncQueue);
+  const [syncConnectionState, setSyncConnectionState] = useState<SyncConnectionState>('disabled');
+  const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
+  const [syncEnabled] = useState(true);
 
   const migrationIssues = useMemo(() => validateMigrationMembers(importedMembers), []);
   const memberMatches = useMemo(() => matchMigrationMembers(importedMembers, existingVyraUsers), []);
@@ -142,6 +125,10 @@ function App() {
   );
   const workflowRegistry = useMemo(() => getWorkflowRegistry(), []);
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
+  const syncStatus = useMemo(
+    () => buildSyncStatusSnapshot(syncQueue, syncConnectionState, lastSyncAt, syncEnabled),
+    [lastSyncAt, syncConnectionState, syncEnabled, syncQueue],
+  );
   const lastDryRunAt = migrationDryRuns[0]?.createdAt ?? null;
 
   useEffect(() => saveLocalState(localStorageKeys.agentRuns, agentRuns), [agentRuns]);
@@ -152,6 +139,53 @@ function App() {
   useEffect(() => saveLocalState(localStorageKeys.workflowResults, workflowRuns), [workflowRuns]);
   useEffect(() => saveLocalState(localStorageKeys.migrationDryRuns, migrationDryRuns), [migrationDryRuns]);
   useEffect(() => saveLocalState(localStorageKeys.approvalHistory, approvalHistory), [approvalHistory]);
+  useEffect(() => saveSyncQueue(syncQueue), [syncQueue]);
+
+  useEffect(() => {
+    setSyncQueue((current) =>
+      enqueueSyncRecords(
+        current,
+        agentMemoryRecords({
+          agentRuns,
+          agentEvents,
+          agentTasks,
+          auditLogs,
+          approvalItems,
+          workflowRuns,
+          migrationDryRuns,
+          approvalHistory,
+        }),
+      ),
+    );
+  }, [agentRuns, agentEvents, agentTasks, auditLogs, approvalItems, workflowRuns, migrationDryRuns, approvalHistory]);
+
+  const syncNow = useCallback(async () => {
+    const result = await syncPendingQueue(syncQueue);
+    setSyncConnectionState(result.connectionState);
+    if (result.lastSyncAt) {
+      setLastSyncAt(result.lastSyncAt);
+    }
+    setSyncQueue(result.queue);
+  }, [syncQueue]);
+
+  const retryFailedSync = useCallback(() => {
+    setSyncQueue((current) => resetFailedQueueItems(current));
+  }, []);
+
+  const clearSyncQueue = useCallback(() => {
+    setSyncQueue([]);
+    clearSyncQueueStorage();
+  }, []);
+
+  useEffect(() => {
+    detectAgentMemoryConnection().then(setSyncConnectionState).catch(() => setSyncConnectionState('offline'));
+  }, []);
+
+  useEffect(() => {
+    if (syncEnabled && syncQueue.some((item) => item.status === 'pending')) {
+      void syncNow();
+    }
+  }, [syncEnabled, syncNow, syncQueue]);
 
   const appendAudit = useCallback((entry: Omit<AuditLogEntry, 'id' | 'timestamp'>) => {
     setAuditLogs((current) => [
@@ -483,6 +517,7 @@ function App() {
         />
 
         {status.warnings.length > 0 ? <WarningsPanel warnings={status.warnings} /> : null}
+        <SyncStatusCard syncStatus={syncStatus} />
 
         {activePage === 'Migration' ? (
           <MigrationPage
@@ -506,7 +541,13 @@ function App() {
         ) : activePage === 'Integrations' ? (
           <IntegrationsPage snapshot={status} />
         ) : activePage === 'Settings' ? (
-          <SettingsPage snapshot={status} />
+          <SettingsPage
+            onClearQueue={clearSyncQueue}
+            onRetryFailed={retryFailedSync}
+            onSyncNow={syncNow}
+            snapshot={status}
+            syncStatus={syncStatus}
+          />
         ) : activePage === 'Agent Memory' ? (
           <AgentMemoryPage
             approvals={approvalItems}
@@ -516,10 +557,19 @@ function App() {
             onSelectRun={setSelectedRunId}
             persistenceStatus={persistenceStatus}
             selectedRunId={selectedRunId}
+            syncQueue={syncQueue}
             events={agentEvents}
             notes={agentNotes}
             runs={agentRuns}
             tasks={agentTasks}
+          />
+        ) : activePage === 'Sync Queue' ? (
+          <SyncQueuePage
+            onClearQueue={clearSyncQueue}
+            onRetryFailed={retryFailedSync}
+            onSyncNow={syncNow}
+            queue={syncQueue}
+            syncStatus={syncStatus}
           />
         ) : activePage === 'Audit Logs' ? (
           <AuditLogsPage logs={auditLogs} onClear={clearAuditLogs} onExport={exportAuditLogs} />
@@ -932,8 +982,21 @@ function IntegrationsPage({ snapshot }: { snapshot: IntegrationSnapshot }) {
   );
 }
 
-function SettingsPage({ snapshot }: { snapshot: IntegrationSnapshot }) {
+function SettingsPage({
+  onClearQueue,
+  onRetryFailed,
+  onSyncNow,
+  snapshot,
+  syncStatus,
+}: {
+  onClearQueue(): void;
+  onRetryFailed(): void;
+  onSyncNow(): void;
+  snapshot: IntegrationSnapshot;
+  syncStatus: SyncStatusSnapshot;
+}) {
   const envItems = envChecklist();
+  const supabaseEnv = getSupabaseEnvStatus();
   return (
     <section className="dashboard-grid">
       <Panel title="Integration Configuration" icon={<Settings size={18} />} wide>
@@ -941,8 +1004,34 @@ function SettingsPage({ snapshot }: { snapshot: IntegrationSnapshot }) {
           <Fact label="Current Mode" value={modeLabel(snapshot.effectiveMode)} />
           <Fact label="Requested Mode" value={modeLabel(snapshot.requestedMode)} />
           <Fact label="GitHub Token" value={envItems.VITE_GITHUB_TOKEN} />
-          <Fact label="Supabase URL" value={envItems.VITE_SUPABASE_URL} />
-          <Fact label="Supabase Anon Key" value={envItems.VITE_SUPABASE_ANON_KEY} />
+          <Fact label="Supabase URL" value={supabaseEnv.url} />
+          <Fact label="Supabase Anon/Publishable Key" value={supabaseEnv.key} />
+        </div>
+      </Panel>
+      <Panel title="Agent Memory Sync" icon={<Database size={18} />} wide>
+        <div className="split-panel">
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Supabase Connected" value={syncStatus.connected ? 'Yes' : 'No'} />
+            <Fact label="Local Storage Enabled" value={syncStatus.localStorageEnabled ? 'Yes' : 'No'} />
+            <Fact label="Sync Enabled" value={syncStatus.syncEnabled ? 'Yes' : 'No'} />
+            <Fact label="Records Waiting" value={String(syncStatus.recordsWaiting)} />
+            <Fact label="Failed Records" value={String(syncStatus.failedRecords)} />
+            <Fact label="Last Sync" value={syncStatus.lastSyncAt ? formatDate(syncStatus.lastSyncAt) : 'Never'} />
+          </div>
+          <div className="button-row end-row">
+            <button className="report-button" onClick={onSyncNow} type="button">
+              <RefreshCcw size={15} />
+              <span>Sync Now</span>
+            </button>
+            <button className="report-button" disabled={!syncStatus.failedRecords} onClick={onRetryFailed} type="button">
+              <RefreshCcw size={15} />
+              <span>Retry Failed</span>
+            </button>
+            <button className="clear-button" disabled={!syncStatus.recordsWaiting && !syncStatus.failedRecords} onClick={onClearQueue} type="button">
+              <Trash2 size={15} />
+              <span>Clear Queue</span>
+            </button>
+          </div>
         </div>
       </Panel>
       <Panel title="Environment Checklist" icon={<ListChecks size={18} />} wide>
@@ -957,8 +1046,9 @@ function SettingsPage({ snapshot }: { snapshot: IntegrationSnapshot }) {
       <Panel title="Setup Instructions" icon={<FileClock size={18} />}>
         <div className="activity-list">
           <p>Copy `dashboard/.env.example` to `dashboard/.env`.</p>
+          <p>Copied Vyra-Part-1 files may use EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.</p>
           <p>Add a GitHub token only if private repos or higher rate limits are needed.</p>
-          <p>Add Supabase URL and anon key only for live read-only table checks.</p>
+          <p>Add only Supabase URL and anon/publishable keys; service role keys are never used in browser code.</p>
           <p>Run `npm run dev` from `dashboard/`.</p>
         </div>
       </Panel>
@@ -966,8 +1056,8 @@ function SettingsPage({ snapshot }: { snapshot: IntegrationSnapshot }) {
         <div className="rule-list">
           <p>Frontend uses anon or publishable keys only.</p>
           <p>Service role keys are forbidden in browser code.</p>
-          <p>Dashboard checks are read-only.</p>
-          <p>Agent actions are mock/local only for now.</p>
+          <p>Only agent memory tables are writable in Phase 7.</p>
+          <p>Production business data remains out of scope.</p>
         </div>
       </Panel>
     </section>
@@ -985,6 +1075,7 @@ function AgentMemoryPage({
   persistenceStatus,
   runs,
   selectedRunId,
+  syncQueue,
   tasks,
 }: {
   approvals: ApprovalItem[];
@@ -997,6 +1088,7 @@ function AgentMemoryPage({
   persistenceStatus: LocalPersistenceStatus;
   runs: AgentRun[];
   selectedRunId: string | null;
+  syncQueue: SyncQueueItem[];
   tasks: ReturnType<typeof createInitialAgentTasks>;
 }) {
   const selectedRun = runs.find((run) => run.id === selectedRunId) ?? runs[0] ?? null;
@@ -1007,8 +1099,8 @@ function AgentMemoryPage({
       <Panel title="Agent Memory Boundary" icon={<ShieldCheck size={18} />} wide>
         <div className="split-panel">
           <p className="panel-copy">
-            Agent memory tables now exist in Supabase, but Phase 6 persists only browser localStorage state and does not
-            write to production.
+            Phase 7 syncs operational memory to approved Supabase agent tables when available, with localStorage as the
+            offline fallback.
           </p>
           <div className="button-row">
             <StatusBadge value={`Persistence ${persistenceStatus}`} tone={persistenceStatus === 'available' ? 'good' : 'warn'} />
@@ -1025,11 +1117,12 @@ function AgentMemoryPage({
           <EmptyState message="No local agent runs yet." />
         ) : (
           <DataTable
-            columns={['Agent', 'Workflow', 'Status', 'Started', 'Completed', 'Production Writes', 'Detail']}
+            columns={['Agent', 'Workflow', 'Status', 'Sync', 'Started', 'Completed', 'Production Writes', 'Detail']}
             rows={runs.map((run) => [
               run.agent,
               run.workflow,
               <StatusBadge key={run.id} value={run.status} tone="good" />,
+              syncRecordBadge(syncQueue, 'agent_run', run.id),
               formatDate(run.startedAt),
               formatDate(run.completedAt),
               'No',
@@ -1071,37 +1164,39 @@ function AgentMemoryPage({
         )}
       </Panel>
       <Panel title="Agent Events" icon={<FileClock size={18} />}>
-        <div className="activity-list">
-          {events.map((event) => (
-            <p key={event.id}>{`${formatDate(event.timestamp)} · ${event.agent}: ${event.detail}`}</p>
-          ))}
-        </div>
+        <DataTable
+          columns={['Timestamp', 'Agent', 'Event', 'Sync', 'Detail']}
+          rows={events.map((event) => [
+            formatDate(event.timestamp),
+            event.agent,
+            event.event,
+            syncRecordBadge(syncQueue, 'agent_event', event.id),
+            event.detail,
+          ])}
+        />
       </Panel>
       <Panel title="Agent Tasks" icon={<ListChecks size={18} />}>
-        <div className="list-stack">
-          {tasks.map((task) => (
-            <div className="row-item" key={task.id}>
-              <div>
-                <strong>{task.title}</strong>
-                <span>{task.agent}</span>
-              </div>
-              <RiskBadge risk={task.priority} />
-            </div>
-          ))}
-        </div>
+        <DataTable
+          columns={['Task', 'Agent', 'Priority', 'Status', 'Sync']}
+          rows={tasks.map((task) => [
+            task.title,
+            task.agent,
+            <RiskBadge key={`${task.id}-risk`} risk={task.priority} />,
+            task.status,
+            syncRecordBadge(syncQueue, 'agent_task', task.id),
+          ])}
+        />
       </Panel>
       <Panel title="Agent Approvals" icon={<ShieldCheck size={18} />}>
-        <div className="list-stack">
-          {approvals.slice(0, 4).map((approval) => (
-            <div className="row-item" key={approval.id}>
-              <div>
-                <strong>{approval.title}</strong>
-                <span>{approval.status}</span>
-              </div>
-              <RiskBadge risk={approval.riskLevel} />
-            </div>
-          ))}
-        </div>
+        <DataTable
+          columns={['Approval', 'Status', 'Risk', 'Sync']}
+          rows={approvals.map((approval) => [
+            approval.title,
+            approval.status,
+            <RiskBadge key={`${approval.id}-risk`} risk={approval.riskLevel} />,
+            syncRecordBadge(syncQueue, 'approval_queue_item', approval.id),
+          ])}
+        />
       </Panel>
       <Panel title="Agent Notes" icon={<FileClock size={18} />}>
         <div className="activity-list">
@@ -1350,6 +1445,95 @@ function ExportButtons({
   );
 }
 
+function SyncStatusCard({ syncStatus }: { syncStatus: SyncStatusSnapshot }) {
+  return (
+    <section className="sync-status-card" aria-label="Supabase agent memory sync status">
+      <div>
+        <Database size={18} />
+        <strong>Agent Memory Sync</strong>
+      </div>
+      <StatusBadge value={syncStatusLabel(syncStatus)} tone={syncStatusTone(syncStatus)} />
+      <span>Last Sync: {syncStatus.lastSyncAt ? formatDate(syncStatus.lastSyncAt) : 'Never'}</span>
+      <span>Waiting: {syncStatus.recordsWaiting}</span>
+      <span>Errors: {syncStatus.failedRecords}</span>
+    </section>
+  );
+}
+
+function SyncQueuePage({
+  onClearQueue,
+  onRetryFailed,
+  onSyncNow,
+  queue,
+  syncStatus,
+}: {
+  onClearQueue(): void;
+  onRetryFailed(): void;
+  onSyncNow(): void;
+  queue: SyncQueueItem[];
+  syncStatus: SyncStatusSnapshot;
+}) {
+  return (
+    <section className="dashboard-grid">
+      <Panel title="Sync Queue Controls" icon={<Database size={18} />} wide>
+        <div className="split-panel">
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Connection" value={syncStatus.connectionState} />
+            <Fact label="Sync Pending" value={String(syncStatus.recordsWaiting)} />
+            <Fact label="Synced Records" value={String(syncStatus.syncedRecords)} />
+            <Fact label="Failed Records" value={String(syncStatus.failedRecords)} />
+            <Fact label="Local Storage" value={syncStatus.localStorageEnabled ? 'Enabled' : 'Unavailable'} />
+            <Fact label="Last Sync" value={syncStatus.lastSyncAt ? formatDate(syncStatus.lastSyncAt) : 'Never'} />
+          </div>
+          <div className="button-row end-row">
+            <button className="report-button" onClick={onSyncNow} type="button">
+              <RefreshCcw size={15} />
+              <span>Sync Now</span>
+            </button>
+            <button className="report-button" disabled={!syncStatus.failedRecords} onClick={onRetryFailed} type="button">
+              <RefreshCcw size={15} />
+              <span>Retry Failed</span>
+            </button>
+            <button className="clear-button" disabled={!queue.length} onClick={onClearQueue} type="button">
+              <Trash2 size={15} />
+              <span>Clear Queue</span>
+            </button>
+          </div>
+        </div>
+      </Panel>
+      <Panel title="Queued Agent Memory Records" icon={<FileClock size={18} />} wide>
+        {queue.length === 0 ? (
+          <EmptyState message="No queued sync records." />
+        ) : (
+          <DataTable
+            columns={['Status', 'Table', 'Source', 'Queued', 'Attempts', 'Last Attempt', 'Error']}
+            rows={queue.map((item) => [
+              syncRecordBadge(queue, item.sourceType, item.sourceId),
+              item.table,
+              item.sourceType,
+              formatDate(item.queuedAt),
+              String(item.retryCount),
+              item.lastAttemptAt ? formatDate(item.lastAttemptAt) : 'Never',
+              item.error ?? '',
+            ])}
+          />
+        )}
+      </Panel>
+      <Panel title="Sync Errors" icon={<AlertTriangle size={18} />} wide>
+        {syncStatus.syncErrors.length === 0 ? (
+          <EmptyState message="No sync errors recorded." />
+        ) : (
+          <div className="activity-list">
+            {syncStatus.syncErrors.map((error) => (
+              <p key={error}>{error}</p>
+            ))}
+          </div>
+        )}
+      </Panel>
+    </section>
+  );
+}
+
 function WarningsPanel({ warnings }: { warnings: string[] }) {
   return (
     <section className="warnings-panel" aria-label="Integration warnings">
@@ -1475,6 +1659,9 @@ function envChecklist(): Record<string, 'configured' | 'missing' | 'invalid/unkn
     VITE_GITHUB_REPOS: import.meta.env.VITE_GITHUB_REPOS ? 'configured' : 'missing',
     VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL ? 'configured' : 'missing',
     VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'configured' : 'missing',
+    VITE_SUPABASE_PUBLISHABLE_KEY: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'configured' : 'missing',
+    EXPO_PUBLIC_SUPABASE_URL: import.meta.env.EXPO_PUBLIC_SUPABASE_URL ? 'configured' : 'missing',
+    EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: import.meta.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ? 'configured' : 'missing',
     VITE_SUPABASE_PROJECT_NAME: import.meta.env.VITE_SUPABASE_PROJECT_NAME ? 'configured' : 'missing',
     VITE_SUPABASE_ENVIRONMENT: import.meta.env.VITE_SUPABASE_ENVIRONMENT ? 'configured' : 'missing',
   };
@@ -1497,6 +1684,7 @@ function pageCopy(page: string): string {
     Integrations: 'Read-only integration health with safe mock fallback and no production writes.',
     Settings: 'Integration mode, env setup guidance, and safety reminders without exposing secrets.',
     'Agent Memory': 'Local/mock runs, events, tasks, approvals, and notes before Supabase writes are enabled.',
+    'Sync Queue': 'Safe Supabase agent-memory synchronization with localStorage fallback and retry controls.',
     'Audit Logs': 'Local/mock action history for agent activity, approvals, warnings, and dry checks.',
     Workflows: 'Workflow registry with safe local dry checks and approval-risk visibility.',
   };
@@ -1536,6 +1724,50 @@ function shortSha(value: string): string {
 
 function countTables(tables: SupabaseTableCheck[], status: SupabaseTableCheck['status']): number {
   return tables.filter((table) => table.status === status).length;
+}
+
+function syncRecordBadge(queue: SyncQueueItem[], sourceType: string, sourceId: string): ReactNode {
+  const item = queue.find((entry) => entry.sourceType === sourceType && entry.sourceId === sourceId);
+  if (!item) {
+    return <StatusBadge value="Local Only" tone="neutral" />;
+  }
+  return <StatusBadge value={formatHealth(item.status)} tone={syncQueueItemTone(item.status)} />;
+}
+
+function syncQueueItemTone(status: SyncQueueItem['status']): 'neutral' | 'good' | 'warn' {
+  if (status === 'synced') {
+    return 'good';
+  }
+  if (status === 'failed') {
+    return 'warn';
+  }
+  return 'neutral';
+}
+
+function syncStatusLabel(syncStatus: SyncStatusSnapshot): string {
+  if (syncStatus.recordsWaiting > 0) {
+    return 'Sync Pending';
+  }
+  if (syncStatus.failedRecords > 0) {
+    return 'Sync Errors';
+  }
+  if (syncStatus.connectionState === 'connected') {
+    return 'Connected';
+  }
+  if (syncStatus.connectionState === 'disabled') {
+    return 'Sync Disabled';
+  }
+  return 'Offline';
+}
+
+function syncStatusTone(syncStatus: SyncStatusSnapshot): 'neutral' | 'good' | 'warn' {
+  if (syncStatus.failedRecords > 0 || syncStatus.connectionState === 'offline') {
+    return 'warn';
+  }
+  if (syncStatus.connectionState === 'connected' && syncStatus.recordsWaiting === 0) {
+    return 'good';
+  }
+  return 'neutral';
 }
 
 function flattenAgentRun(run: AgentRun): Record<string, unknown> {

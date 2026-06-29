@@ -25,6 +25,7 @@ export const navItems = [
   { label: 'Integrations', icon: Link2 },
   { label: 'Workflows', icon: Workflow },
   { label: 'Agent Memory', icon: BrainCircuit },
+  { label: 'Sync Queue', icon: Database },
   { label: 'Audit Logs', icon: FileClock },
   { label: 'Settings', icon: Settings },
 ];
@@ -129,4 +130,3 @@ export const summaryStats = [
   { label: 'Repos Tracked', value: '4', icon: GitBranch },
   { label: 'Integrations Mapped', value: '12', icon: BarChart3 },
 ];
-

@@ -7,6 +7,7 @@ export const localStorageKeys = {
   auditLogs: 'vyra-agents:audit-logs',
   workflowResults: 'vyra-agents:workflow-results',
   migrationDryRuns: 'vyra-agents:migration-dry-runs',
+  syncQueue: 'vyra-agents:sync-queue',
 } as const;
 
 export type LocalStorageKey = (typeof localStorageKeys)[keyof typeof localStorageKeys];

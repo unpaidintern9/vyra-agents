@@ -28,7 +28,15 @@ Never commit `.env`. Commit `.env.example` only.
 
 ## Supabase Keys
 
-Use only `VITE_SUPABASE_ANON_KEY` in the dashboard. Service role keys bypass RLS and are forbidden in frontend code.
+Use only anon or publishable Supabase keys in the dashboard. Supported local variable names are `VITE_SUPABASE_ANON_KEY`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Service role keys bypass RLS and are forbidden in frontend code.
+
+## Phase 7 Agent Memory Sync
+
+The dashboard may write operational memory only to the approved `agent_*` tables. It must not modify production users, organizations, memberships, billing, workouts, nutrition, health, authentication, or other business data.
+
+Local environment files are copied into `dashboard/` only for local development and are ignored by git. Only `.env.example` may be committed.
+
+When Supabase is unavailable or permissions block writes, the dashboard keeps operating from localStorage and records pending sync queue items for retry.
 
 ## Secret Handling
 
