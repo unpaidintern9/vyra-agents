@@ -24,6 +24,17 @@ export const workflowMockData: WorkflowDefinition[] = [
     safeDryRun: true,
   },
   {
+    key: 'engineering-knowledge-graph-scan',
+    triggerType: 'manual',
+    ownerAgent: 'Engineering Agent',
+    currentMode: 'read-only',
+    lastRun: 'Latest generated graph',
+    nextStatus: 'ready',
+    riskLevel: 'low',
+    approvalRequired: false,
+    safeDryRun: true,
+  },
+  {
     key: 'integration-status-check',
     triggerType: 'manual refresh',
     ownerAgent: 'Operations Agent',
@@ -79,4 +90,3 @@ export const workflowMockData: WorkflowDefinition[] = [
     safeDryRun: false,
   },
 ];
-

@@ -10,4 +10,5 @@ yarn-error.log*
 pnpm-debug.log*
 .vite/
 coverage/
-
+.tools/
+tools/deno/

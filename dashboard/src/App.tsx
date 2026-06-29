@@ -4,6 +4,7 @@ import {
   ArrowRight,
   CheckCircle2,
   CircleDot,
+  Code2,
   Database,
   Download,
   FileClock,
@@ -19,6 +20,21 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import {
+  downloadEngineeringGraph,
+  downloadEngineeringReport,
+  loadEngineeringGraph,
+} from './agents/engineering/engineeringGraph';
+import { engineeringMockGraph } from './agents/engineering/engineeringMockData';
+import { runEngineeringScanFromDashboard } from './agents/engineering/engineeringScanner';
+import {
+  edgeTypes,
+  filterEdges,
+  missingRepositoryWarnings,
+  nodeTypes,
+  topConnectedNodes,
+} from './agents/engineering/engineeringSummary';
+import type { EngineeringGraph, EngineeringScanResult } from './agents/engineering/engineeringTypes';
 import { existingVyraUsers, importedMembers, migrationBatch } from './agents/migration/migrationMockData';
 import { summarizeMigration } from './agents/migration/migrationSummary';
 import { validateMigrationMembers } from './agents/migration/migrationValidation';
@@ -117,6 +133,11 @@ function App() {
   const [syncConnectionState, setSyncConnectionState] = useState<SyncConnectionState>('disabled');
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [syncEnabled] = useState(true);
+  const [engineeringScan, setEngineeringScan] = useState<EngineeringScanResult>({
+    graph: engineeringMockGraph,
+    loadedAt: 'Not loaded',
+    source: 'mock-fallback',
+  });
 
   const migrationIssues = useMemo(() => validateMigrationMembers(importedMembers), []);
   const memberMatches = useMemo(() => matchMigrationMembers(importedMembers, existingVyraUsers), []);
@@ -270,6 +291,16 @@ function App() {
     void refreshStatus();
   }, [refreshStatus]);
 
+  useEffect(() => {
+    loadEngineeringGraph().then(setEngineeringScan).catch(() => {
+      setEngineeringScan({
+        graph: engineeringMockGraph,
+        loadedAt: new Date().toISOString(),
+        source: 'mock-fallback',
+      });
+    });
+  }, []);
+
   const runMigrationDryRun = () => {
     const now = new Date().toISOString();
     const run: AgentRun = {
@@ -370,6 +401,64 @@ function App() {
     });
   };
 
+  const runEngineeringScan = async () => {
+    const result = await runEngineeringScanFromDashboard();
+    const now = new Date().toISOString();
+    const graph = result.graph;
+    setEngineeringScan(result);
+    const summary = {
+      repositoriesIndexed: graph.summary.repositoriesIndexed,
+      repositoriesMissing: graph.summary.repositoriesMissing,
+      filesIndexed: graph.summary.filesIndexed,
+      routes: graph.summary.routes,
+      components: graph.summary.components,
+      supabaseFunctions: graph.summary.supabaseFunctions,
+      migrations: graph.summary.migrations,
+      tables: graph.summary.tables,
+      dependencies: graph.summary.dependencies,
+      envVariableNames: graph.summary.envVariableNames,
+      docs: graph.summary.docs,
+      productionWritesOccurred: 'No',
+    };
+    const run: AgentRun = {
+      id: `run_engineering_scan_${Date.now()}`,
+      agent: 'Engineering Agent',
+      workflow: 'engineering-knowledge-graph-scan',
+      status: 'completed',
+      startedAt: now,
+      completedAt: new Date().toISOString(),
+      summary,
+    };
+    setAgentRuns((current) => [run, ...current]);
+    setSelectedRunId(run.id);
+    setWorkflowRuns((current) => [
+      {
+        id: `workflow_engineering_scan_${Date.now()}`,
+        workflowKey: 'engineering-knowledge-graph-scan',
+        agent: 'Engineering Agent',
+        riskLevel: 'low',
+        result: `${graph.summary.filesIndexed} files indexed locally`,
+        createdAt: now,
+        approvalRequired: false,
+        productionWritesOccurred: 'No',
+      },
+      ...current,
+    ]);
+    appendAgentEvent({
+      agent: 'Engineering Agent',
+      event: 'engineering-knowledge-graph-scan',
+      detail: `Loaded ${graph.summary.repositoriesIndexed} repos, ${graph.summary.filesIndexed} files, ${graph.nodes.length} nodes, and ${graph.edges.length} relationships from the local graph.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Engineering Agent',
+      action: 'engineering knowledge graph scan loaded',
+      target: 'dashboard/public/engineering-graph.json',
+      result: 'local read-only metadata graph loaded',
+      riskLevel: 'low',
+    });
+  };
+
   const clearAgentMemory = () => {
     setAgentRuns([]);
     setAgentEvents([]);
@@ -456,6 +545,14 @@ function App() {
       },
       format,
     );
+  };
+
+  const exportEngineeringGraph = () => {
+    downloadEngineeringGraph(engineeringScan.graph);
+  };
+
+  const exportEngineeringReport = () => {
+    downloadEngineeringReport(engineeringScan.graph);
   };
 
   const exportMigrationDryRun = (format: ReportFormat) => {
@@ -553,7 +650,16 @@ function App() {
         {pageWarnings.length > 0 ? <WarningsPanel warnings={pageWarnings} /> : null}
         <SyncStatusCard syncStatus={syncStatus} />
 
-        {activePage === 'Migration' ? (
+        {activePage === 'Engineering' ? (
+          <EngineeringPage
+            graph={engineeringScan.graph}
+            loadedAt={engineeringScan.loadedAt}
+            onExportGraph={exportEngineeringGraph}
+            onExportReport={exportEngineeringReport}
+            onRunScan={runEngineeringScan}
+            source={engineeringScan.source}
+          />
+        ) : activePage === 'Migration' ? (
           <MigrationPage
             approvalItems={approvalItems}
             approvalHistory={approvalHistory}
@@ -756,6 +862,194 @@ function OverviewPage({ approvalItems, snapshot }: { approvalItems: ApprovalItem
               </div>
             ))}
           </div>
+        </Panel>
+      </section>
+    </>
+  );
+}
+
+function EngineeringPage({
+  graph,
+  loadedAt,
+  onExportGraph,
+  onExportReport,
+  onRunScan,
+  source,
+}: {
+  graph: EngineeringGraph;
+  loadedAt: string;
+  onExportGraph(): void;
+  onExportReport(): void;
+  onRunScan(): void;
+  source: EngineeringScanResult['source'];
+}) {
+  const [nodeFilter, setNodeFilter] = useState<string>('all');
+  const [edgeFilter, setEdgeFilter] = useState<string>('all');
+  const visibleNodes = nodeFilter === 'all' ? graph.nodes : graph.nodes.filter((node) => node.type === nodeFilter);
+  const visibleEdges = filterEdges(graph, edgeFilter);
+  const topNodes = topConnectedNodes(graph);
+  const missingWarnings = missingRepositoryWarnings(graph);
+  const supabaseRows = graph.nodes
+    .filter((node) => ['migration', 'table', 'rls_policy', 'supabase_function'].includes(node.type))
+    .slice(0, 80);
+  const dependencyRows = graph.nodes
+    .filter((node) => node.type === 'package_dependency' || node.type === 'npm_script')
+    .slice(0, 80);
+
+  const summaryCards: Array<[string, number]> = [
+    ['Repositories Indexed', graph.summary.repositoriesIndexed],
+    ['Files Indexed', graph.summary.filesIndexed],
+    ['Routes Found', graph.summary.routes],
+    ['Components Found', graph.summary.components],
+    ['Supabase Functions', graph.summary.supabaseFunctions],
+    ['Migrations', graph.summary.migrations],
+    ['Tables', graph.summary.tables],
+    ['Dependencies', graph.summary.dependencies],
+    ['Env Variable Names', graph.summary.envVariableNames],
+    ['Docs', graph.summary.docs],
+  ];
+
+  return (
+    <>
+      <section className="summary-grid engineering-summary" aria-label="Engineering graph summary">
+        {summaryCards.map(([label, value]) => (
+          <article className="metric-card" key={label}>
+            <Code2 size={20} />
+            <span>{label}</span>
+            <strong>{value.toLocaleString()}</strong>
+          </article>
+        ))}
+      </section>
+      <section className="dashboard-grid">
+        <Panel title="Engineering Graph Controls" icon={<Network size={18} />} wide>
+          <div className="split-panel">
+            <div className="fact-list compact-facts">
+              <Fact label="Graph Source" value={source === 'generated-json' ? 'Generated JSON' : 'Fallback'} />
+              <Fact label="Loaded At" value={loadedAt === 'Not loaded' ? loadedAt : formatDate(loadedAt)} />
+              <Fact label="Generated At" value={graph.generatedAt === 'Not generated yet' ? graph.generatedAt : formatDate(graph.generatedAt)} />
+              <Fact label="Mode" value={graph.scanner.mode} />
+              <Fact label="Stores Contents" value={graph.scanner.storesFileContents ? 'Yes' : 'No'} />
+            </div>
+            <div className="button-row end-row">
+              <button className="approval-button compact-button" onClick={onRunScan} type="button">
+                Run Engineering Scan
+              </button>
+              <button className="report-button" disabled={!graph.nodes.length} onClick={onExportGraph} type="button">
+                <Download size={15} />
+                <span>Export Engineering Graph JSON</span>
+              </button>
+              <button className="report-button" disabled={!graph.nodes.length} onClick={onExportReport} type="button">
+                <Download size={15} />
+                <span>Export Engineering Report Markdown</span>
+              </button>
+            </div>
+          </div>
+        </Panel>
+        <Panel title="Repository Explorer" icon={<GitBranch size={18} />} wide>
+          <DataTable
+            columns={['Repository', 'Status', 'Branch', 'Commit', 'Dirty', 'Files', 'Functions', 'Migrations', 'Tables']}
+            rows={graph.repositories.map((repo) => [
+              repo.name,
+              <StatusBadge key={`${repo.name}-status`} value={formatHealth(repo.status)} tone={repo.status === 'missing' ? 'warn' : 'good'} />,
+              repo.branch,
+              shortSha(repo.latestCommit),
+              repo.dirty ? 'Yes' : 'No',
+              String(repo.filesIndexed),
+              String(repo.functions),
+              String(repo.migrations),
+              String(repo.tables),
+            ])}
+          />
+        </Panel>
+        <Panel title="Knowledge Graph Panel" icon={<Network size={18} />} wide>
+          <div className="toolbar-row">
+            <div className="filter-row">
+              <select aria-label="Filter graph nodes" value={nodeFilter} onChange={(event) => setNodeFilter(event.target.value)}>
+                <option value="all">All node types</option>
+                {nodeTypes(graph).map((type) => (
+                  <option key={type} value={type}>
+                    {formatHealth(type)}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Filter graph edges" value={edgeFilter} onChange={(event) => setEdgeFilter(event.target.value)}>
+                <option value="all">All edge types</option>
+                {edgeTypes(graph).map((type) => (
+                  <option key={type} value={type}>
+                    {formatHealth(type)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="button-row">
+              <StatusBadge value={`${visibleNodes.length.toLocaleString()} nodes`} />
+              <StatusBadge value={`${visibleEdges.length.toLocaleString()} edges`} />
+            </div>
+          </div>
+          {missingWarnings.length || graph.warnings.length ? (
+            <div className="warning-list">
+              {[...missingWarnings, ...graph.warnings].slice(0, 6).map((warning) => (
+                <p key={warning}>{warning}</p>
+              ))}
+            </div>
+          ) : null}
+          <div className="graph-browser">
+            <div>
+              <h3>Top Connected Nodes</h3>
+              <div className="history-list compact-history">
+                {topNodes.map((item) =>
+                  item.node ? (
+                    <div className="history-item" key={item.node.id}>
+                      <div>
+                        <strong>{item.node.label}</strong>
+                        <span>
+                          {formatHealth(item.node.type)} · {item.node.repo}
+                        </span>
+                      </div>
+                      <small>{item.count} links</small>
+                    </div>
+                  ) : null,
+                )}
+              </div>
+            </div>
+            <div>
+              <h3>Visible Nodes</h3>
+              <DataTable
+                columns={['Type', 'Label', 'Repo', 'Path', 'Status']}
+                rows={visibleNodes.slice(0, 35).map((node) => [
+                  formatHealth(node.type),
+                  node.label,
+                  node.repo,
+                  node.path,
+                  <StatusBadge key={node.id} value={formatHealth(node.status)} tone={node.status === 'missing' ? 'warn' : 'neutral'} />,
+                ])}
+              />
+            </div>
+          </div>
+        </Panel>
+        <Panel title="Supabase Map" icon={<Database size={18} />} wide>
+          <DataTable
+            columns={['Type', 'Label', 'Repo', 'Path', 'Metadata']}
+            rows={supabaseRows.map((node) => [
+              formatHealth(node.type),
+              node.label,
+              node.repo,
+              node.path,
+              formatMetadata(node.metadata),
+            ])}
+          />
+        </Panel>
+        <Panel title="Dependency Map" icon={<ListChecks size={18} />} wide>
+          <DataTable
+            columns={['Type', 'Name', 'Repo', 'Path', 'Metadata']}
+            rows={dependencyRows.map((node) => [
+              formatHealth(node.type),
+              node.label,
+              node.repo,
+              node.path,
+              formatMetadata(node.metadata),
+            ])}
+          />
         </Panel>
       </section>
     </>
@@ -1735,6 +2029,7 @@ const migrationRules = [
 function pageCopy(page: string): string {
   const copy: Record<string, string> = {
     Migration: 'Migration dry-runs, staging review, member matching, table readiness, and mock approvals.',
+    Engineering: 'Read-only repository knowledge graph for files, routes, components, Supabase assets, dependencies, and docs.',
     Integrations: 'Read-only integration health with safe mock fallback and no production writes.',
     Settings: 'Integration mode, Edge Function write path, env setup guidance, and safety reminders without exposing secrets.',
     'Agent Memory': 'Local/mock runs, events, tasks, approvals, and notes before Supabase writes are enabled.',
@@ -1778,6 +2073,17 @@ function shortSha(value: string): string {
 
 function countTables(tables: SupabaseTableCheck[], status: SupabaseTableCheck['status']): number {
   return tables.filter((table) => table.status === status).length;
+}
+
+function formatMetadata(metadata: Record<string, unknown>): string {
+  const entries = Object.entries(metadata).filter(([, value]) => value !== undefined && value !== '');
+  if (!entries.length) {
+    return '';
+  }
+  return entries
+    .slice(0, 3)
+    .map(([key, value]) => `${key}: ${String(value)}`)
+    .join(' · ');
 }
 
 function syncRecordBadge(queue: SyncQueueItem[], sourceType: string, sourceId: string): ReactNode {
@@ -1882,7 +2188,25 @@ function flattenMigrationDryRun(run: MigrationDryRunRecord): Record<string, unkn
 }
 
 function migrationSummaryLabel(summary: AgentRun['summary']): string {
-  return `${summary.totalImported} imported, ${summary.ready} ready, ${summary.warnings} warnings, ${summary.errors} errors, ${summary.pendingProfiles} pending profiles, ${summary.existingUserMatches} existing user matches, ${summary.offlineMembers} offline members.`;
+  if (isMigrationRunSummary(summary)) {
+    return `${summary.totalImported} imported, ${summary.ready} ready, ${summary.warnings} warnings, ${summary.errors} errors, ${summary.pendingProfiles} pending profiles, ${summary.existingUserMatches} existing user matches, ${summary.offlineMembers} offline members.`;
+  }
+  return Object.entries(summary)
+    .slice(0, 8)
+    .map(([key, value]) => `${formatHealth(key)}: ${String(value)}`)
+    .join(', ');
+}
+
+function isMigrationRunSummary(summary: object): summary is {
+  totalImported: number;
+  ready: number;
+  warnings: number;
+  errors: number;
+  pendingProfiles: number;
+  existingUserMatches: number;
+  offlineMembers: number;
+} {
+  return 'totalImported' in summary && 'ready' in summary && 'pendingProfiles' in summary;
 }
 
 function durationLabel(startedAt: string, completedAt: string): string {

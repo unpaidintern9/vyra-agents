@@ -182,6 +182,29 @@ Boundaries:
 
 ## Phase 9
 
+Engineering Agent Knowledge Graph MVP.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Local read-only scanner script for the Vyra ecosystem repositories.
+- Static `dashboard/public/engineering-graph.json` output.
+- Engineering dashboard page with graph summary, repository explorer, knowledge graph filters, Supabase map, dependency map, and exports.
+- Local Deno tooling under `.tools/deno` for Supabase Edge Function tests.
+- Documentation for Engineering Agent boundaries, graph schema, local tooling, and Deno setup.
+
+Boundaries:
+
+- No AI is implemented.
+- No autonomous code-writing agents are implemented.
+- No production app tables are written.
+- No production business data is modified.
+- Graph stores metadata only, not file contents.
+- Env variable names may be recorded; values are never recorded.
+
+## Phase 9B
+
 Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
 
 ## Phase 10

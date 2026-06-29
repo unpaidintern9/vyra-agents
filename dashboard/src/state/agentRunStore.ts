@@ -1,5 +1,3 @@
-import type { MigrationSummary } from '../agents/migration/migrationTypes';
-
 export interface AgentRun {
   id: string;
   agent: string;
@@ -7,7 +5,7 @@ export interface AgentRun {
   status: 'completed' | 'queued' | 'failed';
   startedAt: string;
   completedAt: string;
-  summary: MigrationSummary;
+  summary: object;
 }
 
 export interface AgentEvent {
@@ -106,4 +104,3 @@ export function createInitialAgentNotes(): AgentNote[] {
     },
   ];
 }
-

@@ -38,7 +38,7 @@ export const systemHealth = [
 
 export const agents = [
   { name: 'Executive Agent', status: 'Ready', detail: 'Ecosystem rollups prepared' },
-  { name: 'Engineering Agent', status: 'Ready', detail: 'Repository checks staged' },
+  { name: 'Engineering Agent', status: 'Ready', detail: 'Knowledge graph scan prepared' },
   { name: 'Migration Agent', status: 'Ready', detail: 'Gym import rules documented' },
   { name: 'Products Agent', status: 'Ready', detail: 'Surface map initialized' },
   { name: 'Operations Agent', status: 'Ready', detail: 'Workflow queue mocked' },
@@ -83,6 +83,7 @@ export const migrationStatus = [
 export const workflows = [
   { name: 'daily-ecosystem-audit', status: 'Drafted', owner: 'Executive Agent' },
   { name: 'repo-health-check', status: 'Drafted', owner: 'Engineering Agent' },
+  { name: 'engineering-knowledge-graph-scan', status: 'Drafted', owner: 'Engineering Agent' },
   { name: 'migration-import-review', status: 'Drafted', owner: 'Migration Agent' },
   { name: 'migration-validation', status: 'Drafted', owner: 'Migration Agent' },
   { name: 'approval-queue', status: 'Drafted', owner: 'Operations Agent' },
@@ -97,10 +98,10 @@ export const priorities = [
 ];
 
 export const recentActivity = [
+  'Engineering Agent knowledge graph MVP added',
   'Migration Agent charter created with offline member rules',
   'Supabase memory table stubs prepared',
   'Workflow engine contract documented',
-  'Dashboard shell populated with mock command-center data',
 ];
 
 export const approvals = [
@@ -126,7 +127,7 @@ export const ecosystemNodes = [
 
 export const summaryStats = [
   { label: 'Agents Prepared', value: '10', icon: CheckCircle2 },
-  { label: 'Workflows Drafted', value: '6', icon: Workflow },
+  { label: 'Workflows Drafted', value: '7', icon: Workflow },
   { label: 'Repos Tracked', value: '4', icon: GitBranch },
   { label: 'Integrations Mapped', value: '12', icon: BarChart3 },
 ];
