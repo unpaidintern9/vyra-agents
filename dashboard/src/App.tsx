@@ -167,6 +167,26 @@ function App() {
     if (result.lastSyncAt) {
       setLastSyncAt(result.lastSyncAt);
     }
+    const syncedNow = result.queue.filter((item) => {
+      const previous = syncQueue.find((entry) => entry.id === item.id);
+      return item.status === 'synced' && previous?.status === 'pending';
+    });
+    const shouldAuditSync = syncedNow.some((item) => item.sourceType !== 'audit_log');
+    if (shouldAuditSync) {
+      setAuditLogs((current) => [
+        {
+          id: `audit_sync_${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          actor: 'System',
+          agent: 'Operations Agent',
+          action: 'agent memory edge function sync completed',
+          target: 'approved agent memory tables',
+          result: `${syncedNow.length} records synced`,
+          riskLevel: 'low',
+        },
+        ...current,
+      ]);
+    }
     setSyncQueue(result.queue);
   }, [syncQueue]);
 
@@ -1501,6 +1521,8 @@ function SyncQueuePage({
   queue: SyncQueueItem[];
   syncStatus: SyncStatusSnapshot;
 }) {
+  const activeQueue = queue.filter((item) => item.status !== 'synced');
+
   return (
     <section className="dashboard-grid">
       <Panel title="Sync Queue Controls" icon={<Database size={18} />} wide>
@@ -1523,7 +1545,7 @@ function SyncQueuePage({
               <RefreshCcw size={15} />
               <span>Retry Failed</span>
             </button>
-            <button className="clear-button" disabled={!queue.length} onClick={onClearQueue} type="button">
+            <button className="clear-button" disabled={!activeQueue.length} onClick={onClearQueue} type="button">
               <Trash2 size={15} />
               <span>Clear Queue</span>
             </button>
@@ -1531,12 +1553,12 @@ function SyncQueuePage({
         </div>
       </Panel>
       <Panel title="Queued Agent Memory Records" icon={<FileClock size={18} />} wide>
-        {queue.length === 0 ? (
+        {activeQueue.length === 0 ? (
           <EmptyState message="No queued sync records." />
         ) : (
           <DataTable
             columns={['Status', 'Table', 'Source', 'Queued', 'Attempts', 'Last Attempt', 'Error']}
-            rows={queue.map((item) => [
+            rows={activeQueue.map((item) => [
               syncRecordBadge(queue, item.sourceType, item.sourceId),
               item.table,
               item.sourceType,
