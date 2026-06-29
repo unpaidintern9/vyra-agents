@@ -1,5 +1,4 @@
 import {
-  Activity,
   BarChart3,
   BrainCircuit,
   CheckCircle2,
@@ -10,10 +9,8 @@ import {
   GitBranch,
   LayoutDashboard,
   Link2,
-  LockKeyhole,
   Package,
   Settings,
-  ShieldAlert,
   Workflow,
 } from 'lucide-react';
 
@@ -49,28 +46,6 @@ export const agents = [
   { name: 'Analytics Agent', status: 'Planned', detail: 'Awaiting event taxonomy' },
 ];
 
-export const repositories = [
-  { name: 'Vyra-Part-1', state: 'Needs audit', branch: 'main', signal: 'warn' },
-  { name: 'Vyra-Software', state: 'Ready to connect', branch: 'main', signal: 'good' },
-  { name: 'vyra-website', state: 'Docs pending', branch: 'main', signal: 'warn' },
-  { name: 'vyra-agents', state: 'MVP initializing', branch: 'main', signal: 'good' },
-];
-
-export const integrations = [
-  ['GitHub', 'Ready to connect'],
-  ['Supabase', 'Planned read-only'],
-  ['Stripe', 'Planned'],
-  ['Apple App Store', 'Planned'],
-  ['Google Play', 'Planned'],
-  ['SendGrid', 'Planned'],
-  ['Slack', 'Planned'],
-  ['Discord', 'Planned'],
-  ['Sentry', 'Planned'],
-  ['Apple Health', 'Planned'],
-  ['WHOOP', 'Planned'],
-  ['Oura', 'Planned'],
-];
-
 export const migrationStatus = [
   { label: 'Staged Members', value: '1,284' },
   { label: 'Pending Profiles', value: '938' },
@@ -84,6 +59,7 @@ export const workflows = [
   { name: 'daily-ecosystem-audit', status: 'Drafted', owner: 'Executive Agent' },
   { name: 'repo-health-check', status: 'Drafted', owner: 'Engineering Agent' },
   { name: 'engineering-knowledge-graph-scan', status: 'Drafted', owner: 'Engineering Agent' },
+  { name: 'engineering-impact-analysis', status: 'Drafted', owner: 'Engineering Agent' },
   { name: 'migration-import-review', status: 'Drafted', owner: 'Migration Agent' },
   { name: 'migration-validation', status: 'Drafted', owner: 'Migration Agent' },
   { name: 'approval-queue', status: 'Drafted', owner: 'Operations Agent' },
@@ -104,13 +80,6 @@ export const recentActivity = [
   'Workflow engine contract documented',
 ];
 
-export const approvals = [
-  { item: 'Production deploys', required: 'Future approval required', icon: ShieldAlert },
-  { item: 'Database migrations', required: 'Future approval required', icon: Database },
-  { item: 'Billing changes', required: 'Future approval required', icon: LockKeyhole },
-  { item: 'Customer emails', required: 'Future approval required', icon: Activity },
-];
-
 export const ecosystemNodes = [
   'Executive Agent',
   'Engineering Agent',
@@ -127,7 +96,7 @@ export const ecosystemNodes = [
 
 export const summaryStats = [
   { label: 'Agents Prepared', value: '10', icon: CheckCircle2 },
-  { label: 'Workflows Drafted', value: '7', icon: Workflow },
+  { label: 'Workflows Drafted', value: '8', icon: Workflow },
   { label: 'Repos Tracked', value: '4', icon: GitBranch },
   { label: 'Integrations Mapped', value: '12', icon: BarChart3 },
 ];

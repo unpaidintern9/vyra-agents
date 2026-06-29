@@ -100,6 +100,8 @@ for (const target of repoTargets) {
   scanRepository(target);
 }
 
+pruneLowSignalGraph();
+
 graph.summary.repositoriesIndexed = graph.repositories.filter((repo) => repo.status === 'indexed').length;
 graph.summary.repositoriesMissing = graph.repositories.filter((repo) => repo.status === 'missing').length;
 graph.summary.filesIndexed = countNodes('file');
@@ -211,17 +213,20 @@ function walk(currentPath, repoPath, repoName, parentNodeId, files) {
     const absolutePath = join(currentPath, entry.name);
     const relativePath = relative(repoPath, absolutePath);
     if (entry.isDirectory()) {
-      const folderId = nodeId(repoName, 'folder', relativePath);
-      addNode({
-        id: folderId,
-        type: 'folder',
-        label: entry.name,
-        repo: repoName,
-        path: relativePath,
-        status: 'indexed',
-        metadata: {},
-      });
-      addEdge(parentNodeId, folderId, 'contains', {});
+      const shouldIndexFolder = relativePath.split('/').length <= 2;
+      const folderId = shouldIndexFolder ? nodeId(repoName, 'folder', relativePath) : parentNodeId;
+      if (shouldIndexFolder) {
+        addNode({
+          id: folderId,
+          type: 'folder',
+          label: entry.name,
+          repo: repoName,
+          path: relativePath,
+          status: 'indexed',
+          metadata: {},
+        });
+        addEdge(parentNodeId, folderId, 'contains', {});
+      }
       walk(absolutePath, repoPath, repoName, folderId, files);
       continue;
     }
@@ -425,7 +430,9 @@ function scanFile(filePath, repoPath, repoName) {
 
 function scanSourceFile(content, repoName, relativePath, fileId) {
   for (const importTarget of matchAll(content, /import(?:\s+type)?(?:[\s\S]*?)from\s+['"]([^'"]+)['"]/g)) {
-    addEdge(fileId, nodeId(repoName, 'file', importTarget), 'imports', { target: importTarget });
+    if (importTarget.startsWith('.')) {
+      addEdge(fileId, nodeId(repoName, 'file', importTarget), 'imports', { target: importTarget });
+    }
   }
 
   for (const name of [
@@ -463,18 +470,20 @@ function scanSourceFile(content, repoName, relativePath, fileId) {
     addEdge(fileId, node, 'defines', {});
   }
 
-  for (const name of matchAll(content, /(?:export\s+)?async\s+function\s+([a-z][A-Za-z0-9_]*)\s*\(/g)) {
-    const node = nodeId(repoName, 'service', `${relativePath}:${name}`);
-    addNode({
-      id: node,
-      type: 'service',
-      label: name,
-      repo: repoName,
-      path: relativePath,
-      status: 'indexed',
-      metadata: {},
-    });
-    addEdge(fileId, node, 'defines', {});
+  if (isServicePath(relativePath)) {
+    for (const name of matchAll(content, /export\s+async\s+function\s+([a-z][A-Za-z0-9_]*)\s*\(/g)) {
+      const node = nodeId(repoName, 'service', `${relativePath}:${name}`);
+      addNode({
+        id: node,
+        type: 'service',
+        label: name,
+        repo: repoName,
+        path: relativePath,
+        status: 'indexed',
+        metadata: {},
+      });
+      addEdge(fileId, node, 'defines', {});
+    }
   }
 
   for (const routePath of [
@@ -661,4 +670,27 @@ function firstMarkdownTitle(content) {
 
 function sanitizeCommand(command) {
   return command.replace(/AGENT_MEMORY_WRITE_TOKEN=[^\s]+/g, 'AGENT_MEMORY_WRITE_TOKEN=[redacted]');
+}
+
+function isServicePath(relativePath) {
+  return /(^|\/)(api|client|clients|integrations?|lib|services?|supabase|sync)(\/|$)/i.test(relativePath);
+}
+
+function pruneLowSignalGraph() {
+  const semanticFileIds = new Set(
+    graph.edges
+      .filter((edge) => edge.type !== 'contains' && (edge.from.includes(':file:') || edge.to.includes(':file:')))
+      .flatMap((edge) => [edge.from, edge.to])
+      .filter((id) => id.includes(':file:')),
+  );
+  const keepNodeIds = new Set(
+    graph.nodes
+      .filter((node) => node.type !== 'file' || semanticFileIds.has(node.id))
+      .map((node) => node.id),
+  );
+  graph.nodes = graph.nodes.filter((node) => keepNodeIds.has(node.id));
+  graph.edges = graph.edges.filter((edge) => keepNodeIds.has(edge.from) && keepNodeIds.has(edge.to));
+  for (const repo of graph.repositories) {
+    repo.filesIndexed = graph.nodes.filter((node) => node.repo === repo.name && node.type === 'file').length;
+  }
 }

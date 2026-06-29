@@ -629,6 +629,70 @@ h2 {
   gap: 10px;
 }
 
+.search-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.search-panel label {
+  display: grid;
+  gap: 8px;
+  color: #94a4b8;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.search-panel input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.055);
+  color: #f3f8ff;
+  padding: 0 12px;
+}
+
+.node-detail-grid,
+.relationship-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.impact-summary {
+  display: grid;
+  gap: 14px;
+}
+
+.impact-summary > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.metadata-list,
+.impact-buckets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.impact-bucket {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.028);
+  padding: 12px;
+}
+
+.impact-bucket h3 {
+  margin: 0 0 10px;
+  color: #eff6ff;
+  font-size: 0.9rem;
+}
+
 .offline-support-grid {
   display: flex;
   flex-wrap: wrap;

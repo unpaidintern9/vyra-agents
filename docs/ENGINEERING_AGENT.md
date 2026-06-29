@@ -9,8 +9,8 @@ The Engineering Agent is the first practical Vyra agent MVP. It is a read-only r
 - Store metadata only, never file contents.
 - Record environment variable names only, never values.
 - Ignore `.env`, `.env.local`, production env files, binaries, build output, and dependency folders.
-- Display graph summaries in the dashboard Engineering page.
-- Export the graph JSON and a Markdown report.
+- Display graph summaries, search, selected-node details, relationships, and impact analysis in the dashboard Engineering page.
+- Export graph, node detail, node impact, table impact, route/screen impact, migration history, and full impact reports.
 
 ## Explicit Boundaries
 
@@ -24,3 +24,16 @@ The Engineering Agent is the first practical Vyra agent MVP. It is a read-only r
 ## How It Helps Future AI
 
 The graph gives future AI features a safer map of the codebase before any reasoning or code generation is enabled. It can answer structural questions such as where routes, components, migrations, Supabase functions, and docs live without needing to read every file at runtime.
+
+## Phase 10 Drill-Down
+
+The Engineering page can now help answer:
+
+- What depends on this?
+- What does this depend on?
+- Which routes/screens touch this table?
+- Which migrations created or changed this table?
+- Which Edge Functions reference this table?
+- Which repo owns this file/component/function?
+- Which dependency is used where?
+- What could break if this node changes?

@@ -203,22 +203,47 @@ Boundaries:
 - Graph stores metadata only, not file contents.
 - Env variable names may be recorded; values are never recorded.
 
-## Phase 9B
-
-Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
-
 ## Phase 10
 
-Workflow engine and production action logging.
+Engineering Graph Drill-Down + Impact Analysis.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Lazy-loaded Engineering page.
+- Search across graph nodes.
+- Selected-node detail panel.
+- Inbound/outbound relationship explorer.
+- Impact analysis utility with direct and second-order dependencies/dependents.
+- Table impact, route/screen impact, and migration history views.
+- JSON and Markdown exports for node detail and impact reports.
+- Local Agent Memory event/audit/workflow recording for impact exports.
+
+Boundaries:
+
+- No AI is implemented.
+- No autonomous code-writing agents are implemented.
+- No production business data is modified.
+- No production app tables are written.
+- Graph metadata only; no file contents or secret values.
 
 ## Phase 11
 
-Approval queue for risky actions.
+Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
 
 ## Phase 12
 
-Optional AI summaries and reasoning tools.
+Workflow engine and production action logging.
 
 ## Phase 13
+
+Approval queue for risky actions.
+
+## Phase 14
+
+Optional AI summaries and reasoning tools.
+
+## Phase 15
 
 Additional department agents.

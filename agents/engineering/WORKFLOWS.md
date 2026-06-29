@@ -24,6 +24,28 @@ Approval required: no.
 
 Production writes: no.
 
+## engineering-impact-analysis
+
+```text
+Select graph node
+↓
+Inspect node details and relationships
+↓
+Calculate local impact analysis
+↓
+Export selected report
+↓
+Append local Agent Memory event, audit log, and workflow result
+↓
+Sync through approved agent-memory Edge Function if configured
+```
+
+Mode: local read-only.
+
+Approval required: no.
+
+Production writes: no.
+
 ## repo-health-check
 
 ```text

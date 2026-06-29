@@ -66,3 +66,9 @@ The graph can contain:
 ## Data Safety
 
 The scanner stores metadata only. It does not store file contents. It ignores secret-bearing env files and records only env variable names from safe example files or source-code references.
+
+## Drill-Down
+
+The dashboard loads the graph only when the Engineering page is opened. The page supports search, selected-node details, inbound/outbound relationship exploration, table impact, route/screen impact, migration history, and report exports.
+
+The graph remains static until `node scripts/engineering-scan.mjs` is run again.

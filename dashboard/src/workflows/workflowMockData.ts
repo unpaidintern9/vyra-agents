@@ -35,6 +35,17 @@ export const workflowMockData: WorkflowDefinition[] = [
     safeDryRun: true,
   },
   {
+    key: 'engineering-impact-analysis',
+    triggerType: 'manual export',
+    ownerAgent: 'Engineering Agent',
+    currentMode: 'read-only',
+    lastRun: 'Node detail or impact export',
+    nextStatus: 'ready',
+    riskLevel: 'low',
+    approvalRequired: false,
+    safeDryRun: true,
+  },
+  {
     key: 'integration-status-check',
     triggerType: 'manual refresh',
     ownerAgent: 'Operations Agent',
