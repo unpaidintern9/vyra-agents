@@ -30,6 +30,14 @@ This is still local/mock only:
 - No AI-generated memory is stored.
 - Production connection comes later after schema review, access control, and approval logging.
 
+## Phase 3 Promotion
+
+The agent memory foundation migration is promoted to the real Vyra-Part-1 Supabase migration folder as:
+
+- `20260629000100_agent_memory_foundation.sql`
+
+Supabase CLI migration commands should be run from Vyra-Part-1, not from Vyra Agents. Dashboard checks remain mock/readiness only until a future read-only integration phase.
+
 ## Future Requirements
 
 - Every run must be traceable.

@@ -118,3 +118,25 @@ create table if not exists agent_integrations (
   updated_at timestamptz not null default now()
 );
 
+alter table agent_runs enable row level security;
+alter table agent_events enable row level security;
+alter table agent_tasks enable row level security;
+alter table agent_status enable row level security;
+alter table agent_memory enable row level security;
+alter table agent_logs enable row level security;
+alter table agent_approvals enable row level security;
+alter table agent_workflows enable row level security;
+alter table agent_integrations enable row level security;
+
+create index if not exists idx_agent_runs_agent_status on agent_runs (agent_key, status);
+create index if not exists idx_agent_runs_workflow on agent_runs (workflow_key);
+create index if not exists idx_agent_events_agent_created on agent_events (agent_key, created_at desc);
+create index if not exists idx_agent_events_run on agent_events (run_id);
+create index if not exists idx_agent_tasks_agent_status on agent_tasks (agent_key, status);
+create index if not exists idx_agent_status_agent_key on agent_status (agent_key);
+create index if not exists idx_agent_memory_agent_type on agent_memory (agent_key, memory_type);
+create index if not exists idx_agent_logs_agent_created on agent_logs (agent_key, created_at desc);
+create index if not exists idx_agent_logs_run on agent_logs (run_id);
+create index if not exists idx_agent_approvals_agent_status on agent_approvals (agent_key, status);
+create index if not exists idx_agent_workflows_agent_status on agent_workflows (agent_key, status);
+create index if not exists idx_agent_integrations_status on agent_integrations (status);

@@ -8,6 +8,14 @@ Phase 2 is a local/mock MVP. It adds dashboard-side TypeScript validation and ma
 
 No production data is connected. No migrations are applied. No AI is implemented. The SQL files are foundation stubs for later review.
 
+## Phase 3 Promotion
+
+The gym migration foundation migration is promoted to the real Vyra-Part-1 Supabase migration folder as:
+
+- `20260629000200_gym_migration_foundation.sql`
+
+The dashboard still uses mock data and does not query or write production Supabase. Future read-only checks can confirm whether the expected tables exist.
+
 ## Core Principle
 
 Members must be attached to the gym before they ever download or log into Vyra. Organization Membership is the source of truth.
@@ -53,4 +61,3 @@ Offline/non-app members do not require `user_id`. They must remain visible and m
 - gym_offline_members
 - gym_migration_review_items
 - gym_migration_invitations
-

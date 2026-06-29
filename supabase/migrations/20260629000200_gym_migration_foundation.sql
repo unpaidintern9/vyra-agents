@@ -151,3 +151,49 @@ create table if not exists gym_migration_invitations (
   updated_at timestamptz not null default now()
 );
 
+alter table gym_migration_batches enable row level security;
+alter table gym_migration_staging_members enable row level security;
+alter table gym_migration_validation_issues enable row level security;
+alter table gym_migration_member_matches enable row level security;
+alter table gym_pending_member_profiles enable row level security;
+alter table gym_offline_members enable row level security;
+alter table gym_migration_review_items enable row level security;
+alter table gym_migration_invitations enable row level security;
+
+create index if not exists idx_gym_migration_batches_org_status
+  on gym_migration_batches (organization_id, status);
+
+create index if not exists idx_gym_migration_staging_batch
+  on gym_migration_staging_members (migration_batch_id);
+
+create index if not exists idx_gym_migration_staging_org_state
+  on gym_migration_staging_members (organization_id, member_state);
+
+create index if not exists idx_gym_migration_staging_external_member
+  on gym_migration_staging_members (organization_id, external_member_id);
+
+create index if not exists idx_gym_migration_staging_email
+  on gym_migration_staging_members (lower(email))
+  where email is not null;
+
+create index if not exists idx_gym_migration_staging_phone
+  on gym_migration_staging_members (phone)
+  where phone is not null;
+
+create index if not exists idx_gym_migration_validation_batch_status
+  on gym_migration_validation_issues (migration_batch_id, status);
+
+create index if not exists idx_gym_migration_matches_batch_status
+  on gym_migration_member_matches (migration_batch_id, match_status);
+
+create index if not exists idx_gym_pending_profiles_org
+  on gym_pending_member_profiles (organization_id, activation_status);
+
+create index if not exists idx_gym_offline_members_org
+  on gym_offline_members (organization_id, membership_status);
+
+create index if not exists idx_gym_review_items_batch_status
+  on gym_migration_review_items (migration_batch_id, status);
+
+create index if not exists idx_gym_invitations_batch_status
+  on gym_migration_invitations (migration_batch_id, status);

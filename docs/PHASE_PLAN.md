@@ -32,7 +32,25 @@ Boundaries:
 
 ## Phase 3
 
-GitHub and Supabase read-only integrations.
+Read-only integration foundation and Supabase migration promotion.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Mock GitHub repository health provider.
+- Mock Supabase project health provider.
+- Integration registry used by Overview and Integrations dashboard pages.
+- Promotion of SQL foundation migrations into the real Vyra-Part-1 Supabase migration folder.
+- Supabase CLI push run from Vyra-Part-1 only.
+
+Boundaries:
+
+- Dashboard GitHub integration is mock/readiness only.
+- Dashboard Supabase integration is mock/readiness only.
+- No production dashboard writes are implemented.
+- No AI is implemented.
+- Future phase will add real read-only API checks.
 
 ## Phase 4
 

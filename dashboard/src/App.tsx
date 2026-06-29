@@ -16,16 +16,17 @@ import { existingVyraUsers, importedMembers, migrationBatch } from './agents/mig
 import { summarizeMigration } from './agents/migration/migrationSummary';
 import { validateMigrationMembers } from './agents/migration/migrationValidation';
 import { matchMigrationMembers } from './agents/migration/memberMatching';
+import { getGitHubRepositoryStatuses } from './integrations/github/githubStatus';
+import { integrationRegistry } from './integrations/integrationRegistry';
+import { getExpectedMigrationTables, getSupabaseProjectStatus } from './integrations/supabase/supabaseStatus';
 import {
   agents,
   approvals,
   ecosystemNodes,
-  integrations,
   migrationStatus,
   navItems,
   priorities,
   recentActivity,
-  repositories,
   summaryStats,
   systemHealth,
   workflows,
@@ -40,6 +41,9 @@ function App() {
     () => summarizeMigration(importedMembers, migrationIssues, memberMatches),
     [memberMatches, migrationIssues],
   );
+  const repositoryStatuses = useMemo(() => getGitHubRepositoryStatuses(), []);
+  const supabaseStatus = useMemo(() => getSupabaseProjectStatus(), []);
+  const expectedTables = useMemo(() => getExpectedMigrationTables(), []);
 
   return (
     <div className="app-shell">
@@ -89,20 +93,29 @@ function App() {
         {activePage === 'Migration' ? (
           <MigrationPage
             approved={reviewApproved}
+            expectedTables={expectedTables}
             issues={migrationIssues}
             matches={memberMatches}
             onApprove={() => setReviewApproved(true)}
             summary={migrationSummary}
           />
+        ) : activePage === 'Integrations' ? (
+          <IntegrationsPage supabaseStatus={supabaseStatus} />
         ) : (
-          <OverviewPage />
+          <OverviewPage repositoryStatuses={repositoryStatuses} supabaseStatus={supabaseStatus} />
         )}
       </main>
     </div>
   );
 }
 
-function OverviewPage() {
+function OverviewPage({
+  repositoryStatuses,
+  supabaseStatus,
+}: {
+  repositoryStatuses: ReturnType<typeof getGitHubRepositoryStatuses>;
+  supabaseStatus: ReturnType<typeof getSupabaseProjectStatus>;
+}) {
   return (
     <>
       <section className="summary-grid" aria-label="Command center summary">
@@ -146,13 +159,13 @@ function OverviewPage() {
 
         <Panel title="Repository Health" icon={<GitBranch size={18} />}>
           <div className="list-stack">
-            {repositories.map((repo) => (
-              <div className="row-item compact" key={repo.name}>
+            {repositoryStatuses.map((repo) => (
+              <div className="row-item compact" key={repo.repositoryName}>
                 <div>
-                  <strong>{repo.name}</strong>
-                  <span>{repo.branch}</span>
+                  <strong>{repo.repositoryName}</strong>
+                  <span>{repo.defaultBranch} · {repo.workflowStatus}</span>
                 </div>
-                <Badge value={repo.state} tone={repo.signal === 'warn' ? 'warn' : 'good'} />
+                <Badge value={formatHealth(repo.healthStatus)} tone={healthTone(repo.healthStatus)} />
               </div>
             ))}
           </div>
@@ -160,12 +173,23 @@ function OverviewPage() {
 
         <Panel title="Integration Status" icon={<Network size={18} />}>
           <div className="integration-grid">
-            {integrations.map(([name, status]) => (
-              <div className="integration-pill" key={name}>
-                <span>{name}</span>
-                <small>{status}</small>
+            {integrationRegistry.slice(0, 8).map((integration) => (
+              <div className="integration-pill" key={integration.name}>
+                <span>{integration.name}</span>
+                <small>{integration.status}</small>
               </div>
             ))}
+          </div>
+        </Panel>
+
+        <Panel title="Supabase Health" icon={<Network size={18} />}>
+          <div className="batch-grid">
+            <Fact label="Migrations" value={String(supabaseStatus.migrationCount)} />
+            <Fact label="Database" value={formatHealth(supabaseStatus.databaseStatus)} />
+            <Fact label="Auth" value={formatHealth(supabaseStatus.authStatus)} />
+            <Fact label="Storage" value={formatHealth(supabaseStatus.storageStatus)} />
+            <Fact label="Edge Functions" value={formatHealth(supabaseStatus.edgeFunctionsStatus)} />
+            <Fact label="Latest Migration" value={supabaseStatus.latestMigration} />
           </div>
         </Panel>
 
@@ -241,12 +265,14 @@ function OverviewPage() {
 
 function MigrationPage({
   approved,
+  expectedTables,
   issues,
   matches,
   onApprove,
   summary,
 }: {
   approved: boolean;
+  expectedTables: ReturnType<typeof getExpectedMigrationTables>;
   issues: ReturnType<typeof validateMigrationMembers>;
   matches: ReturnType<typeof matchMigrationMembers>;
   onApprove: () => void;
@@ -352,6 +378,16 @@ function MigrationPage({
           />
         </Panel>
 
+        <Panel title="Migration Agent Status" icon={<Network size={18} />} wide>
+          <DataTable
+            columns={['Expected Table', 'Status']}
+            rows={expectedTables.map((table) => [
+              table.tableName,
+              <Badge key={table.tableName} value={table.status} tone="good" />,
+            ])}
+          />
+        </Panel>
+
         <Panel title="Gym Review Checklist" icon={<CheckCircle2 size={18} />}>
           <div className="checklist">
             {checklist.map((item) => (
@@ -371,6 +407,83 @@ function MigrationPage({
           <button className="approval-button" disabled={approved} onClick={onApprove} type="button">
             {approved ? 'Review Approved' : 'Approve Migration Review'}
           </button>
+        </Panel>
+      </section>
+    </>
+  );
+}
+
+function IntegrationsPage({ supabaseStatus }: { supabaseStatus: ReturnType<typeof getSupabaseProjectStatus> }) {
+  const githubStatuses = getGitHubRepositoryStatuses();
+
+  return (
+    <>
+      <section className="summary-grid" aria-label="Integration summary">
+        {integrationRegistry.slice(0, 4).map((integration) => (
+          <article className="metric-card" key={integration.name}>
+            <Network size={20} />
+            <span>{integration.name}</span>
+            <strong>{formatHealth(integration.healthStatus)}</strong>
+          </article>
+        ))}
+      </section>
+
+      <section className="dashboard-grid">
+        <Panel title="Integration Registry" icon={<Network size={18} />} wide>
+          <div className="integration-card-grid">
+            {integrationRegistry.map((integration) => (
+              <article className="integration-card" key={integration.name}>
+                <div>
+                  <strong>{integration.name}</strong>
+                  <span>{integration.category}</span>
+                </div>
+                <Badge value={formatHealth(integration.healthStatus)} tone={healthTone(integration.healthStatus)} />
+                <p>{integration.detail}</p>
+              </article>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="GitHub Read-Only Mock Status" icon={<GitBranch size={18} />} wide>
+          <DataTable
+            columns={[
+              'Repository',
+              'Remote URL',
+              'Default Branch',
+              'Latest Commit',
+              'Open PRs',
+              'Issues',
+              'Workflow',
+              'Last Updated',
+              'Health',
+            ]}
+            rows={githubStatuses.map((repo) => [
+              repo.repositoryName,
+              repo.remoteUrl,
+              repo.defaultBranch,
+              repo.latestCommit,
+              String(repo.openPullRequests),
+              String(repo.issueCount),
+              repo.workflowStatus,
+              repo.lastUpdated,
+              <Badge key={repo.repositoryName} value={formatHealth(repo.healthStatus)} tone={healthTone(repo.healthStatus)} />,
+            ])}
+          />
+        </Panel>
+
+        <Panel title="Supabase Read-Only Mock Status" icon={<Network size={18} />} wide>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Project" value={supabaseStatus.projectName} />
+            <Fact label="Environment" value={supabaseStatus.environment} />
+            <Fact label="Migration Count" value={String(supabaseStatus.migrationCount)} />
+            <Fact label="Latest Migration" value={supabaseStatus.latestMigration} />
+            <Fact label="Database" value={formatHealth(supabaseStatus.databaseStatus)} />
+            <Fact label="Auth" value={formatHealth(supabaseStatus.authStatus)} />
+            <Fact label="Storage" value={formatHealth(supabaseStatus.storageStatus)} />
+            <Fact label="Edge Functions" value={formatHealth(supabaseStatus.edgeFunctionsStatus)} />
+            <Fact label="Last Checked" value={supabaseStatus.lastChecked} />
+            <Fact label="Health" value={formatHealth(supabaseStatus.healthStatus)} />
+          </div>
         </Panel>
       </section>
     </>
@@ -409,6 +522,25 @@ function Fact({ label, value }: { label: string; value: string }) {
       <strong>{value}</strong>
     </div>
   );
+}
+
+function formatHealth(status: string): string {
+  return status
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function healthTone(status: string): 'neutral' | 'good' | 'warn' {
+  if (status === 'healthy' || status === 'prepared') {
+    return 'good';
+  }
+
+  if (status === 'warning' || status === 'critical') {
+    return 'warn';
+  }
+
+  return 'neutral';
 }
 
 function Panel({
