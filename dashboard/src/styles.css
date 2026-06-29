@@ -644,6 +644,69 @@ td:nth-child(6) {
   cursor: default;
 }
 
+.compact-button {
+  width: fit-content;
+  min-width: 180px;
+  margin-top: 0;
+  padding: 0 16px;
+}
+
+.inline-action {
+  min-height: 32px;
+  border: 1px solid rgba(87, 196, 164, 0.42);
+  border-radius: 8px;
+  background: rgba(87, 196, 164, 0.14);
+  color: #a6f4d4;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 0 10px;
+}
+
+.inline-action:disabled {
+  cursor: default;
+  opacity: 0.68;
+}
+
+.dry-run-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.dry-run-panel strong,
+.dry-run-panel small {
+  display: block;
+}
+
+.dry-run-panel p {
+  max-width: 840px;
+  color: #bac7d8;
+}
+
+.dry-run-panel small {
+  color: #9ef0c8;
+}
+
+.fact-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.workflow-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.empty-state {
+  margin: 0;
+  color: #94a4b8;
+}
+
 @media (max-width: 1100px) {
   .app-shell {
     display: block;
@@ -713,5 +776,15 @@ td:nth-child(6) {
 
   .panel {
     grid-column: span 12;
+  }
+
+  .dry-run-panel,
+  .workflow-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .fact-list {
+    grid-template-columns: 1fr;
   }
 }

@@ -77,20 +77,44 @@ Boundaries:
 
 ## Phase 5
 
-Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
+Integration Settings + Local Agent Run Logs.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Settings page with env checklist and safety guidance.
+- Agent Memory page with local/mock runs, events, tasks, approvals, and notes.
+- Audit Logs page with local/mock action history.
+- Workflows page with safe dry-check actions.
+- Migration Agent local dry-run button.
+- Approval Queue UI foundation.
+
+Boundaries:
+
+- Local/mock state only.
+- No production writes.
+- No Supabase writes from the dashboard.
+- No GitHub writes.
+- No AI is implemented.
+- Mock approve/run buttons only update local UI state.
 
 ## Phase 6
 
-Workflow engine and action logging.
+Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
 
 ## Phase 7
 
-Approval queue for risky actions.
+Workflow engine and production action logging.
 
 ## Phase 8
 
-Optional AI summaries and reasoning tools.
+Approval queue for risky actions.
 
 ## Phase 9
+
+Optional AI summaries and reasoning tools.
+
+## Phase 10
 
 Additional department agents.

@@ -44,3 +44,17 @@ Supabase CLI migration commands should be run from Vyra-Part-1, not from Vyra Ag
 - Every integration read must be logged.
 - Every high-risk action must require approval.
 - AI-generated content, if added later, must be tagged, metered, and auditable.
+
+## Phase 5 Local Memory
+
+The Agent Memory dashboard page shows local/mock:
+
+- Agent Runs
+- Agent Events
+- Agent Tasks
+- Agent Approvals
+- Agent Notes
+
+These records are stored in React state only. They do not write to Supabase yet.
+
+Future connection should write to the Phase 3 `agent_*` tables only after permissions, RLS policies, production logging, and approval boundaries are reviewed.

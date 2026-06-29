@@ -16,6 +16,20 @@ The gym migration foundation migration is promoted to the real Vyra-Part-1 Supab
 
 The dashboard still uses mock data and does not query or write production Supabase. Future read-only checks can confirm whether the expected tables exist.
 
+## Phase 5 Dry Run
+
+The Migration page includes `Run Migration Agent Dry Run`.
+
+The dry run:
+
+- validates mock imported members,
+- calculates the migration summary,
+- appends a local/mock agent run,
+- appends a local/mock audit log,
+- shows the last dry-run timestamp.
+
+It does not write to Supabase, call AI, send invitations, or create real organization memberships.
+
 ## Core Principle
 
 Members must be attached to the gym before they ever download or log into Vyra. Organization Membership is the source of truth.
