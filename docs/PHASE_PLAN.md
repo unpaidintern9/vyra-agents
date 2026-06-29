@@ -145,6 +145,20 @@ Boundaries:
 - No service role keys are used in browser code.
 - No AI or autonomous agents are implemented.
 
+## Phase 7B
+
+Local Supabase Env Setup + Live Agent Table Sync Test.
+
+Status: Tested in this repo.
+
+Result:
+
+- Local `.env.local` can configure live mode with Supabase URL and anon/publishable key.
+- Dashboard detects configured Supabase values without displaying secrets.
+- Migration dry run queues agent-memory sync attempts.
+- Supabase RLS blocks anon inserts with `42501`, which preserves the safe boundary.
+- LocalStorage fallback, retry, and local clear queue behavior remain functional.
+
 ## Phase 8
 
 Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.

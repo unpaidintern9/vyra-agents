@@ -29,6 +29,12 @@ The dashboard reports:
 
 Failed writes are kept in the sync queue with a retry count and sanitized error. Users can retry failed records or clear the local queue from Settings or Sync Queue.
 
+## RLS Behavior
+
+If Supabase returns row-level security errors for anon inserts, the dashboard treats the sync as failed and keeps the local fallback available. This is expected when the agent tables do not yet have safe authenticated write policies.
+
+Do not fix this by exposing public insert policies or placing a service role key in frontend code. Future writes should be authenticated admin-only or routed through a secure server-side path.
+
 ## Safety
 
 Writes are limited to agent-memory tables only. The dashboard must not write to users, athletes, coaches, organizations, billing, workouts, nutrition, health, authentication, memberships, or other production business tables.

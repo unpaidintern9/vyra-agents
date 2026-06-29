@@ -38,6 +38,12 @@ Local environment files are copied into `dashboard/` only for local development 
 
 When Supabase is unavailable or permissions block writes, the dashboard keeps operating from localStorage and records pending sync queue items for retry.
 
+## RLS Blocks
+
+If anon writes to agent tables fail with row-level security errors, treat that as a safe protection boundary. Do not add public insert policies. Do not use a service role key in the frontend.
+
+Future write enablement should use authenticated admin-only RLS or a server-side path such as an Edge Function where privileged credentials never reach the browser.
+
 ## Secret Handling
 
 Do not display tokens, anon keys, URLs with secrets, or full error payloads that may contain credentials. Dashboard warnings should explain the issue without leaking secrets.
