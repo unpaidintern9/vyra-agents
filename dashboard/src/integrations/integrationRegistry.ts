@@ -1,30 +1,32 @@
-import { getGitHubHealthStatus } from './github/githubStatus';
-import { getSupabaseProjectStatus } from './supabase/supabaseStatus';
+import type { GitHubStatusResult } from './github/githubTypes';
+import type { SupabaseProjectStatus } from './supabase/supabaseTypes';
 
 export interface IntegrationRegistryItem {
   name: string;
   category: string;
   status: string;
-  healthStatus: 'healthy' | 'warning' | 'critical' | 'prepared' | 'planned';
+  healthStatus: 'healthy' | 'warning' | 'critical' | 'prepared' | 'planned' | 'unknown';
   detail: string;
 }
 
-const supabaseStatus = getSupabaseProjectStatus();
-
-export const integrationRegistry: IntegrationRegistryItem[] = [
+export function buildIntegrationRegistry(
+  githubStatus?: GitHubStatusResult,
+  supabaseStatus?: SupabaseProjectStatus,
+): IntegrationRegistryItem[] {
+  return [
   {
     name: 'GitHub',
     category: 'Source Control',
-    status: 'Mock read-only foundation',
-    healthStatus: getGitHubHealthStatus(),
-    detail: 'Repository status shape prepared; no GitHub API calls yet.',
+    status: githubStatus?.usedFallback ? 'Live fallback' : 'Read-only checks ready',
+    healthStatus: githubStatus?.repositories.some((repo) => repo.healthStatus === 'warning') ? 'warning' : 'healthy',
+    detail: 'Repository status checks use GET-only GitHub API calls in live mode.',
   },
   {
     name: 'Supabase',
     category: 'Backend',
-    status: 'Mock read-only foundation',
-    healthStatus: supabaseStatus.healthStatus,
-    detail: 'Migration table readiness modeled; dashboard does not query production yet.',
+    status: supabaseStatus?.usedFallback ? 'Live fallback' : 'Read-only checks ready',
+    healthStatus: supabaseStatus?.healthStatus ?? 'prepared',
+    detail: 'Anon-key table checks classify reachable, protected, missing, and unknown states.',
   },
   {
     name: 'Stripe',
@@ -96,5 +98,7 @@ export const integrationRegistry: IntegrationRegistryItem[] = [
     healthStatus: 'planned',
     detail: 'Data sync checks planned.',
   },
-];
+  ];
+}
 
+export const integrationRegistry = buildIntegrationRegistry();

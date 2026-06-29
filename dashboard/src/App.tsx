@@ -7,18 +7,21 @@ import {
   GitBranch,
   ListChecks,
   Network,
+  RefreshCcw,
   ShieldCheck,
   UsersRound,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { existingVyraUsers, importedMembers, migrationBatch } from './agents/migration/migrationMockData';
 import { summarizeMigration } from './agents/migration/migrationSummary';
 import { validateMigrationMembers } from './agents/migration/migrationValidation';
 import { matchMigrationMembers } from './agents/migration/memberMatching';
-import { getGitHubRepositoryStatuses } from './integrations/github/githubStatus';
-import { integrationRegistry } from './integrations/integrationRegistry';
-import { getExpectedMigrationTables, getSupabaseProjectStatus } from './integrations/supabase/supabaseStatus';
+import { getGitHubStatus } from './integrations/github/githubStatus';
+import type { GitHubStatusResult } from './integrations/github/githubTypes';
+import { buildIntegrationRegistry } from './integrations/integrationRegistry';
+import { getSupabaseStatus } from './integrations/supabase/supabaseStatus';
+import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/supabase/supabaseTypes';
 import {
   agents,
   approvals,
@@ -32,18 +35,53 @@ import {
   workflows,
 } from './data';
 
+type IntegrationMode = 'mock' | 'live';
+
+interface IntegrationSnapshot {
+  requestedMode: IntegrationMode;
+  effectiveMode: 'mock' | 'live' | 'fallback';
+  github: GitHubStatusResult;
+  supabase: SupabaseProjectStatus;
+  warnings: string[];
+  lastChecked: string;
+}
+
+const requestedMode = getRequestedMode();
+
 function App() {
   const [activePage, setActivePage] = useState('Overview');
   const [reviewApproved, setReviewApproved] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [snapshot, setSnapshot] = useState<IntegrationSnapshot | null>(null);
   const migrationIssues = useMemo(() => validateMigrationMembers(importedMembers), []);
   const memberMatches = useMemo(() => matchMigrationMembers(importedMembers, existingVyraUsers), []);
   const migrationSummary = useMemo(
     () => summarizeMigration(importedMembers, migrationIssues, memberMatches),
     [memberMatches, migrationIssues],
   );
-  const repositoryStatuses = useMemo(() => getGitHubRepositoryStatuses(), []);
-  const supabaseStatus = useMemo(() => getSupabaseProjectStatus(), []);
-  const expectedTables = useMemo(() => getExpectedMigrationTables(), []);
+
+  const refreshStatus = useCallback(async () => {
+    setIsRefreshing(true);
+    const [github, supabase] = await Promise.all([getGitHubStatus(requestedMode), getSupabaseStatus(requestedMode)]);
+    const warnings = [...github.warnings, ...supabase.warnings];
+    const effectiveMode = requestedMode === 'mock' ? 'mock' : github.usedFallback || supabase.usedFallback ? 'fallback' : 'live';
+
+    setSnapshot({
+      requestedMode,
+      effectiveMode,
+      github,
+      supabase,
+      warnings,
+      lastChecked: new Date().toISOString(),
+    });
+    setIsRefreshing(false);
+  }, []);
+
+  useEffect(() => {
+    void refreshStatus();
+  }, [refreshStatus]);
+
+  const status = snapshot ?? buildLoadingSnapshot();
 
   return (
     <div className="app-shell">
@@ -80,42 +118,46 @@ function App() {
             <h1>{activePage === 'Migration' ? 'Migration Agent' : 'Vyra Agents'}</h1>
             <p className="hero-copy">
               {activePage === 'Migration'
-                ? 'Local migration staging, validation, matching, offline member handling, and gym review flow for Derby City Martial Arts.'
-                : 'A local MVP for monitoring the Vyra ecosystem, preparing agent responsibilities, and staging future workflow automation without touching production systems.'}
+                ? 'Migration staging, validation, matching, offline member handling, and table-readiness checks.'
+                : 'Read-only ecosystem status with safe mock fallback. No AI, writes, deploys, or production data mutations.'}
             </p>
           </div>
-          <div className="hero-status">
-            <ShieldCheck size={22} />
-            <span>Mock data only</span>
+          <div className="hero-actions">
+            <div className="hero-status">
+              <ShieldCheck size={22} />
+              <span>{modeLabel(status.effectiveMode)}</span>
+            </div>
+            <button className="refresh-button" disabled={isRefreshing} onClick={refreshStatus} type="button">
+              <RefreshCcw size={17} />
+              <span>{isRefreshing ? 'Refreshing' : 'Refresh Status'}</span>
+            </button>
           </div>
         </header>
+
+        {status.warnings.length > 0 ? <WarningsPanel warnings={status.warnings} /> : null}
 
         {activePage === 'Migration' ? (
           <MigrationPage
             approved={reviewApproved}
-            expectedTables={expectedTables}
+            expectedTables={status.supabase.tableChecks}
             issues={migrationIssues}
             matches={memberMatches}
             onApprove={() => setReviewApproved(true)}
             summary={migrationSummary}
           />
         ) : activePage === 'Integrations' ? (
-          <IntegrationsPage supabaseStatus={supabaseStatus} />
+          <IntegrationsPage snapshot={status} />
         ) : (
-          <OverviewPage repositoryStatuses={repositoryStatuses} supabaseStatus={supabaseStatus} />
+          <OverviewPage snapshot={status} />
         )}
       </main>
     </div>
   );
 }
 
-function OverviewPage({
-  repositoryStatuses,
-  supabaseStatus,
-}: {
-  repositoryStatuses: ReturnType<typeof getGitHubRepositoryStatuses>;
-  supabaseStatus: ReturnType<typeof getSupabaseProjectStatus>;
-}) {
+function OverviewPage({ snapshot }: { snapshot: IntegrationSnapshot }) {
+  const registry = buildIntegrationRegistry(snapshot.github, snapshot.supabase);
+
   return (
     <>
       <section className="summary-grid" aria-label="Command center summary">
@@ -159,11 +201,13 @@ function OverviewPage({
 
         <Panel title="Repository Health" icon={<GitBranch size={18} />}>
           <div className="list-stack">
-            {repositoryStatuses.map((repo) => (
+            {snapshot.github.repositories.map((repo) => (
               <div className="row-item compact" key={repo.repositoryName}>
                 <div>
                   <strong>{repo.repositoryName}</strong>
-                  <span>{repo.defaultBranch} · {repo.workflowStatus}</span>
+                  <span>
+                    {repo.defaultBranch} · {shortSha(repo.latestCommit)} · {repo.workflowStatus}
+                  </span>
                 </div>
                 <Badge value={formatHealth(repo.healthStatus)} tone={healthTone(repo.healthStatus)} />
               </div>
@@ -173,7 +217,7 @@ function OverviewPage({
 
         <Panel title="Integration Status" icon={<Network size={18} />}>
           <div className="integration-grid">
-            {integrationRegistry.slice(0, 8).map((integration) => (
+            {registry.slice(0, 8).map((integration) => (
               <div className="integration-pill" key={integration.name}>
                 <span>{integration.name}</span>
                 <small>{integration.status}</small>
@@ -184,12 +228,12 @@ function OverviewPage({
 
         <Panel title="Supabase Health" icon={<Network size={18} />}>
           <div className="batch-grid">
-            <Fact label="Migrations" value={String(supabaseStatus.migrationCount)} />
-            <Fact label="Database" value={formatHealth(supabaseStatus.databaseStatus)} />
-            <Fact label="Auth" value={formatHealth(supabaseStatus.authStatus)} />
-            <Fact label="Storage" value={formatHealth(supabaseStatus.storageStatus)} />
-            <Fact label="Edge Functions" value={formatHealth(supabaseStatus.edgeFunctionsStatus)} />
-            <Fact label="Latest Migration" value={supabaseStatus.latestMigration} />
+            <Fact label="Database" value={snapshot.supabase.databaseReachable ? 'Reachable' : 'Not checked'} />
+            <Fact label="Reachable Tables" value={String(countTables(snapshot.supabase.tableChecks, 'reachable'))} />
+            <Fact label="Protected Tables" value={String(countTables(snapshot.supabase.tableChecks, 'protected'))} />
+            <Fact label="Missing Tables" value={String(countTables(snapshot.supabase.tableChecks, 'missing'))} />
+            <Fact label="Edge Functions" value={formatHealth(snapshot.supabase.edgeFunctionsStatus)} />
+            <Fact label="Last Checked" value={formatDate(snapshot.supabase.lastChecked)} />
           </div>
         </Panel>
 
@@ -272,7 +316,7 @@ function MigrationPage({
   summary,
 }: {
   approved: boolean;
-  expectedTables: ReturnType<typeof getExpectedMigrationTables>;
+  expectedTables: SupabaseTableCheck[];
   issues: ReturnType<typeof validateMigrationMembers>;
   matches: ReturnType<typeof matchMigrationMembers>;
   onApprove: () => void;
@@ -378,12 +422,13 @@ function MigrationPage({
           />
         </Panel>
 
-        <Panel title="Migration Agent Status" icon={<Network size={18} />} wide>
+        <Panel title="Migration Table Readiness" icon={<Network size={18} />} wide>
           <DataTable
-            columns={['Expected Table', 'Status']}
+            columns={['Expected Table', 'Status', 'Detail']}
             rows={expectedTables.map((table) => [
               table.tableName,
-              <Badge key={table.tableName} value={table.status} tone="good" />,
+              <Badge key={table.tableName} value={formatHealth(table.status)} tone={tableTone(table.status)} />,
+              table.detail,
             ])}
           />
         </Panel>
@@ -413,25 +458,38 @@ function MigrationPage({
   );
 }
 
-function IntegrationsPage({ supabaseStatus }: { supabaseStatus: ReturnType<typeof getSupabaseProjectStatus> }) {
-  const githubStatuses = getGitHubRepositoryStatuses();
+function IntegrationsPage({ snapshot }: { snapshot: IntegrationSnapshot }) {
+  const registry = buildIntegrationRegistry(snapshot.github, snapshot.supabase);
 
   return (
     <>
       <section className="summary-grid" aria-label="Integration summary">
-        {integrationRegistry.slice(0, 4).map((integration) => (
-          <article className="metric-card" key={integration.name}>
-            <Network size={20} />
-            <span>{integration.name}</span>
-            <strong>{formatHealth(integration.healthStatus)}</strong>
-          </article>
-        ))}
+        <article className="metric-card">
+          <Network size={20} />
+          <span>Integration Mode</span>
+          <strong>{modeLabel(snapshot.effectiveMode)}</strong>
+        </article>
+        <article className="metric-card">
+          <GitBranch size={20} />
+          <span>GitHub Repos</span>
+          <strong>{snapshot.github.repositories.length}</strong>
+        </article>
+        <article className="metric-card">
+          <Network size={20} />
+          <span>Reachable Tables</span>
+          <strong>{countTables(snapshot.supabase.tableChecks, 'reachable')}</strong>
+        </article>
+        <article className="metric-card">
+          <AlertTriangle size={20} />
+          <span>Warnings</span>
+          <strong>{snapshot.warnings.length}</strong>
+        </article>
       </section>
 
       <section className="dashboard-grid">
         <Panel title="Integration Registry" icon={<Network size={18} />} wide>
           <div className="integration-card-grid">
-            {integrationRegistry.map((integration) => (
+            {registry.map((integration) => (
               <article className="integration-card" key={integration.name}>
                 <div>
                   <strong>{integration.name}</strong>
@@ -444,49 +502,63 @@ function IntegrationsPage({ supabaseStatus }: { supabaseStatus: ReturnType<typeo
           </div>
         </Panel>
 
-        <Panel title="GitHub Read-Only Mock Status" icon={<GitBranch size={18} />} wide>
+        <Panel title="GitHub Live Status" icon={<GitBranch size={18} />} wide>
           <DataTable
             columns={[
               'Repository',
-              'Remote URL',
-              'Default Branch',
+              'Branch',
               'Latest Commit',
+              'Message',
               'Open PRs',
               'Issues',
               'Workflow',
-              'Last Updated',
+              'Last Checked',
               'Health',
             ]}
-            rows={githubStatuses.map((repo) => [
+            rows={snapshot.github.repositories.map((repo) => [
               repo.repositoryName,
-              repo.remoteUrl,
               repo.defaultBranch,
-              repo.latestCommit,
+              shortSha(repo.latestCommit),
+              repo.latestCommitMessage,
               String(repo.openPullRequests),
               String(repo.issueCount),
               repo.workflowStatus,
-              repo.lastUpdated,
+              formatDate(repo.lastUpdated),
               <Badge key={repo.repositoryName} value={formatHealth(repo.healthStatus)} tone={healthTone(repo.healthStatus)} />,
             ])}
           />
         </Panel>
 
-        <Panel title="Supabase Read-Only Mock Status" icon={<Network size={18} />} wide>
+        <Panel title="Supabase Live Status" icon={<Network size={18} />} wide>
           <div className="batch-grid supabase-detail-grid">
-            <Fact label="Project" value={supabaseStatus.projectName} />
-            <Fact label="Environment" value={supabaseStatus.environment} />
-            <Fact label="Migration Count" value={String(supabaseStatus.migrationCount)} />
-            <Fact label="Latest Migration" value={supabaseStatus.latestMigration} />
-            <Fact label="Database" value={formatHealth(supabaseStatus.databaseStatus)} />
-            <Fact label="Auth" value={formatHealth(supabaseStatus.authStatus)} />
-            <Fact label="Storage" value={formatHealth(supabaseStatus.storageStatus)} />
-            <Fact label="Edge Functions" value={formatHealth(supabaseStatus.edgeFunctionsStatus)} />
-            <Fact label="Last Checked" value={supabaseStatus.lastChecked} />
-            <Fact label="Health" value={formatHealth(supabaseStatus.healthStatus)} />
+            <Fact label="Project" value={snapshot.supabase.projectName} />
+            <Fact label="Environment" value={snapshot.supabase.environment} />
+            <Fact label="Database" value={snapshot.supabase.databaseReachable ? 'Reachable' : 'Not checked'} />
+            <Fact label="Protected Tables" value={String(countTables(snapshot.supabase.tableChecks, 'protected'))} />
+            <Fact label="Missing Tables" value={String(countTables(snapshot.supabase.tableChecks, 'missing'))} />
+            <Fact label="Auth" value={formatHealth(snapshot.supabase.authStatus)} />
+            <Fact label="Storage" value={formatHealth(snapshot.supabase.storageStatus)} />
+            <Fact label="Edge Functions" value={formatHealth(snapshot.supabase.edgeFunctionsStatus)} />
+            <Fact label="Agent Status Rows" value={String(snapshot.supabase.latestAgentStatusRows)} />
+            <Fact label="Workflow Rows" value={String(snapshot.supabase.latestWorkflowRows)} />
           </div>
         </Panel>
       </section>
     </>
+  );
+}
+
+function WarningsPanel({ warnings }: { warnings: string[] }) {
+  return (
+    <section className="warnings-panel" aria-label="Integration warnings">
+      <div>
+        <AlertTriangle size={18} />
+        <strong>Warnings</strong>
+      </div>
+      {warnings.slice(0, 5).map((warning) => (
+        <p key={warning}>{warning}</p>
+      ))}
+    </section>
   );
 }
 
@@ -524,23 +596,8 @@ function Fact({ label, value }: { label: string; value: string }) {
   );
 }
 
-function formatHealth(status: string): string {
-  return status
-    .split('_')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
-
-function healthTone(status: string): 'neutral' | 'good' | 'warn' {
-  if (status === 'healthy' || status === 'prepared') {
-    return 'good';
-  }
-
-  if (status === 'warning' || status === 'critical') {
-    return 'warn';
-  }
-
-  return 'neutral';
+function Badge({ value, tone = 'neutral' }: { value: string; tone?: 'neutral' | 'good' | 'warn' }) {
+  return <span className={`badge ${tone}`}>{value}</span>;
 }
 
 function Panel({
@@ -567,8 +624,103 @@ function Panel({
   );
 }
 
-function Badge({ value, tone = 'neutral' }: { value: string; tone?: 'neutral' | 'good' | 'warn' }) {
-  return <span className={`badge ${tone}`}>{value}</span>;
+function getRequestedMode(): IntegrationMode {
+  return import.meta.env.VITE_VYRA_INTEGRATION_MODE === 'live' ? 'live' : 'mock';
+}
+
+function buildLoadingSnapshot(): IntegrationSnapshot {
+  const supabase = {
+    projectName: import.meta.env.VITE_SUPABASE_PROJECT_NAME || 'Vyra Production',
+    environment: import.meta.env.VITE_SUPABASE_ENVIRONMENT || 'production',
+    migrationCount: 17,
+    latestMigration: '20260629000200_gym_migration_foundation.sql',
+    databaseStatus: 'prepared' as const,
+    databaseReachable: false,
+    authStatus: 'prepared' as const,
+    storageStatus: 'prepared' as const,
+    edgeFunctionsStatus: 'prepared' as const,
+    lastChecked: 'Loading',
+    healthStatus: 'prepared' as const,
+    tableChecks: [],
+    latestAgentStatusRows: 0,
+    latestWorkflowRows: 0,
+    warnings: [],
+    usedFallback: requestedMode === 'mock',
+  };
+
+  return {
+    requestedMode,
+    effectiveMode: requestedMode,
+    github: {
+      repositories: [],
+      warnings: [],
+      usedFallback: requestedMode === 'mock',
+      lastChecked: 'Loading',
+    },
+    supabase,
+    warnings: [],
+    lastChecked: 'Loading',
+  };
+}
+
+function formatHealth(status: string): string {
+  return status
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function healthTone(status: string): 'neutral' | 'good' | 'warn' {
+  if (status === 'healthy' || status === 'prepared' || status === 'reachable') {
+    return 'good';
+  }
+
+  if (status === 'warning' || status === 'critical' || status === 'protected' || status === 'missing') {
+    return 'warn';
+  }
+
+  return 'neutral';
+}
+
+function tableTone(status: string): 'neutral' | 'good' | 'warn' {
+  if (status === 'prepared' || status === 'reachable') {
+    return 'good';
+  }
+
+  if (status === 'protected' || status === 'missing') {
+    return 'warn';
+  }
+
+  return 'neutral';
+}
+
+function shortSha(value: string): string {
+  return value && value !== 'unknown' ? value.slice(0, 7) : value;
+}
+
+function countTables(tables: SupabaseTableCheck[], status: SupabaseTableCheck['status']): number {
+  return tables.filter((table) => table.status === status).length;
+}
+
+function formatDate(value: string): string {
+  if (!value || value === 'Mock readiness only' || value === 'Loading' || value === 'unknown') {
+    return value;
+  }
+
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.valueOf()) ? value : parsed.toLocaleString();
+}
+
+function modeLabel(mode: IntegrationSnapshot['effectiveMode']): string {
+  if (mode === 'live') {
+    return 'Live Read-Only Mode';
+  }
+
+  if (mode === 'fallback') {
+    return 'Live With Fallback';
+  }
+
+  return 'Mock Mode';
 }
 
 export default App;

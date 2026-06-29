@@ -54,20 +54,43 @@ Boundaries:
 
 ## Phase 4
 
-Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
+Live read-only status checks for GitHub and Supabase.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Dashboard `.env.example`.
+- Mock/live integration mode switch.
+- GitHub GET-only repository status checks.
+- Supabase anon-key read-only table checks.
+- Migration table readiness states: prepared, reachable, protected, missing, unknown.
+- Refresh Status action.
+- Warning panel for missing credentials, inaccessible repos, protected tables, and fallback use.
+
+Boundaries:
+
+- No production writes.
+- No inserts, updates, deletes, deploys, or migrations.
+- No service role keys in frontend code or env examples.
+- No AI is implemented.
 
 ## Phase 5
 
-Workflow engine and action logging.
+Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
 
 ## Phase 6
 
-Approval queue for risky actions.
+Workflow engine and action logging.
 
 ## Phase 7
 
-Optional AI summaries and reasoning tools.
+Approval queue for risky actions.
 
 ## Phase 8
+
+Optional AI summaries and reasoning tools.
+
+## Phase 9
 
 Additional department agents.

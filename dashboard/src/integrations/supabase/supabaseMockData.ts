@@ -26,10 +26,19 @@ export const supabaseProjectStatus: SupabaseProjectStatus = {
   migrationCount: 318,
   latestMigration: '20260629000200_gym_migration_foundation.sql',
   databaseStatus: 'prepared',
+  databaseReachable: false,
   authStatus: 'prepared',
   storageStatus: 'prepared',
   edgeFunctionsStatus: 'prepared',
   lastChecked: 'Mock readiness only',
   healthStatus: 'prepared',
+  tableChecks: expectedMigrationTables.map((tableName) => ({
+    tableName,
+    status: 'prepared',
+    detail: 'Prepared by migration foundation; live check not run.',
+  })),
+  latestAgentStatusRows: 0,
+  latestWorkflowRows: 0,
+  warnings: [],
+  usedFallback: false,
 };
-
