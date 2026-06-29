@@ -4,6 +4,7 @@ import type { ReportFormat } from '../../storage/reportExport';
 import type { ApprovalHistoryEntry, MigrationDryRunRecord } from '../../types/localRecords';
 import { MigrationApprovalGate } from './MigrationApprovalGate';
 import { MigrationBatchDetail } from './MigrationBatchDetail';
+import { MigrationBatchBuilder } from './MigrationBatchBuilder';
 import { MigrationInvitationPreview } from './MigrationInvitationPreview';
 import MigrationImportWizard from './MigrationImportWizard';
 import { MigrationMemberReview } from './MigrationMemberReview';
@@ -20,6 +21,8 @@ import {
 import { MigrationQueue, type MigrationQueueItem } from './MigrationQueue';
 import { MigrationReportActions } from './MigrationReportActions';
 import { MigrationValidationResolution } from './MigrationValidationResolution';
+import type { BatchPacketExportFormat } from './batchBuilderExports';
+import type { MigrationBatchPreview } from './batchBuilderTypes';
 import { importedMembers, migrationBatch } from './migrationMockData';
 import type { MemberMatch, MigrationSummary, ValidationIssue } from './migrationTypes';
 
@@ -32,6 +35,8 @@ export interface MigrationPageProps {
   issues: ValidationIssue[];
   lastDryRunAt: string | null;
   matches: MemberMatch[];
+  onBatchApprovalPacketExported(_format: BatchPacketExportFormat, _batch: MigrationBatchPreview): void;
+  onBatchPreviewBuilt(_batch: MigrationBatchPreview): void;
   onClearApprovalHistory(): void;
   onClearDryRuns(): void;
   onApprove: () => void;
@@ -51,6 +56,8 @@ export default function MigrationPage({
   issues,
   lastDryRunAt,
   matches,
+  onBatchApprovalPacketExported,
+  onBatchPreviewBuilt,
   onClearApprovalHistory,
   onClearDryRuns,
   onApprove,
@@ -102,6 +109,10 @@ export default function MigrationPage({
       <MigrationSummaryCards summary={summary} />
       <section className="dashboard-grid">
         <MigrationImportWizard />
+        <MigrationBatchBuilder
+          onBatchApprovalPacketExported={onBatchApprovalPacketExported}
+          onBatchPreviewBuilt={onBatchPreviewBuilt}
+        />
         <MigrationQueue queueItems={queueItems} />
         <MigrationDryRunPanel lastDryRunAt={lastDryRunAt} onDryRun={onDryRun} />
         <MigrationReportActions disabled={!dryRuns.length} onClearDryRuns={onClearDryRuns} onExportDryRun={onExportDryRun} />

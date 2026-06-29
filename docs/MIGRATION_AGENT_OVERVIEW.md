@@ -61,6 +61,14 @@ CSV is recommended and parsed natively. Excel files are parsed locally in the br
 
 The wizard persists file metadata, sanitized parsed rows, field mappings, wizard progress, parser warnings/errors, and validation results in browser localStorage. It does not upload files to Supabase, write production data, create pending profiles, create organization memberships, send invitations, store raw file binaries, or call AI.
 
+## Phase 16D Batch Builder
+
+The Migration page now includes a Migration Batch Builder after the Import Wizard. It converts the latest validated import rows into a local staged member preview, pending profile preview, offline/non-app member preview, existing user match preview, organization membership preview, review checklist, and approval packet.
+
+The batch preview is stored in browser localStorage under `vyra-agents:migration-batch-preview`. Approval packets export locally as JSON, Markdown, or CSV staged members. Building and exporting a preview appends local Migration Agent events and audit log entries that can use the existing Agent Memory sync path if enabled.
+
+The Batch Builder remains preview-only. It does not write to Supabase, modify production data, create pending profiles, create organization memberships, send invitations, store raw file binaries, or call AI.
+
 ## Core Principle
 
 Members must be attached to the gym before they ever download or log into Vyra. Organization Membership is the source of truth.

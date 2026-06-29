@@ -19,6 +19,8 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react
 import type { ReactNode } from 'react';
 import type { EngineeringScanResult } from './agents/engineering/engineeringTypes';
 import MigrationPage from './agents/migration/MigrationPage';
+import type { BatchPacketExportFormat } from './agents/migration/batchBuilderExports';
+import type { MigrationBatchPreview } from './agents/migration/batchBuilderTypes';
 import { existingVyraUsers, importedMembers, migrationBatch } from './agents/migration/migrationMockData';
 import { migrationRules } from './agents/migration/migrationRules';
 import { summarizeMigration } from './agents/migration/migrationSummary';
@@ -306,6 +308,38 @@ function App() {
       action: 'migration dry run completed',
       target: `${migrationBatch.gymName} mock import`,
       result: 'local dry run only',
+      riskLevel: 'low',
+    });
+  };
+
+  const recordBatchPreviewBuilt = (batch: MigrationBatchPreview) => {
+    appendAgentEvent({
+      agent: 'Migration Agent',
+      event: 'migration-batch-preview-built',
+      detail: `Built local batch preview ${batch.batchId} from ${batch.sourceFileName} with ${batch.summary.totalImported} staged row(s).`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Migration Agent',
+      action: 'migration batch preview built',
+      target: batch.batchId,
+      result: 'local preview only',
+      riskLevel: 'low',
+    });
+  };
+
+  const recordBatchApprovalPacketExported = (format: BatchPacketExportFormat, batch: MigrationBatchPreview) => {
+    appendAgentEvent({
+      agent: 'Migration Agent',
+      event: 'migration-approval-packet-exported',
+      detail: `Exported ${format.toUpperCase()} approval packet for local batch preview ${batch.batchId}.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Migration Agent',
+      action: 'migration approval packet exported',
+      target: batch.batchId,
+      result: `${format} export, local preview only`,
       riskLevel: 'low',
     });
   };
@@ -687,6 +721,8 @@ function App() {
             approved={reviewApproved}
             dryRuns={migrationDryRuns}
             expectedTables={status.supabase.tableChecks}
+            onBatchApprovalPacketExported={recordBatchApprovalPacketExported}
+            onBatchPreviewBuilt={recordBatchPreviewBuilt}
             onClearApprovalHistory={clearApprovalHistory}
             onClearDryRuns={clearMigrationDryRuns}
             onExportApprovalHistory={exportApprovalHistory}

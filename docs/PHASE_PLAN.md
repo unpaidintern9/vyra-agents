@@ -397,6 +397,31 @@ Boundaries:
 - No invitations are sent.
 - No AI is implemented.
 
+## Phase 16D
+
+Migration Batch Builder preview.
+
+Includes:
+
+- Local Batch Builder after the Import Wizard on the Migration page.
+- Conversion of validated Import Wizard rows into staged member previews.
+- Pending profile, offline/non-app member, existing user match, and organization membership previews.
+- Review checklist and approval packet generation.
+- Browser localStorage persistence under `vyra-agents:migration-batch-preview`.
+- JSON, Markdown, and CSV approval packet exports.
+- Local Migration Agent event and audit log entries when previews are built or exported.
+
+Boundaries:
+
+- Preview-only batch planning.
+- No Supabase writes.
+- No production data changes.
+- No pending profiles are created.
+- No organization memberships are created.
+- No invitations are sent.
+- No raw uploaded file binaries are stored.
+- No AI is implemented.
+
 ## Phase 16
 
 Workflow engine and production action logging.

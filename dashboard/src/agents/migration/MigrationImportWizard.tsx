@@ -45,9 +45,7 @@ const emptyWizardState: MigrationImportWizardState = {
 
 export default function MigrationImportWizard() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [wizardState, setWizardState] = useState(() =>
-    loadLocalState<MigrationImportWizardState>(localStorageKeys.migrationImportWizard, () => emptyWizardState),
-  );
+  const [wizardState, setWizardState] = useState(() => loadImportWizardState());
   const [error, setError] = useState<string | null>(null);
   const [reviewFilter, setReviewFilter] = useState<ImportReviewFilter>('all');
   const mappingHealth = useMemo(() => mappingStatus(wizardState.columns, wizardState.fieldMappings), [wizardState.columns, wizardState.fieldMappings]);
@@ -56,7 +54,9 @@ export default function MigrationImportWizard() {
     [reviewFilter, wizardState.validation],
   );
 
-  useEffect(() => saveLocalState(localStorageKeys.migrationImportWizard, wizardState), [wizardState]);
+  useEffect(() => {
+    saveLocalState(localStorageKeys.migrationImportWizard, wizardState);
+  }, [wizardState]);
 
   const updateState = (updates: Partial<MigrationImportWizardState>) => {
     setWizardState((current) => ({ ...current, ...updates }));
@@ -279,6 +279,21 @@ export default function MigrationImportWizard() {
       </div>
     </MigrationPanel>
   );
+}
+
+function loadImportWizardState(): MigrationImportWizardState {
+  const stored = loadLocalState<Partial<MigrationImportWizardState>>(localStorageKeys.migrationImportWizard, () => ({}));
+  return {
+    ...emptyWizardState,
+    ...stored,
+    columns: Array.isArray(stored.columns) ? stored.columns : [],
+    fieldMappings: stored.fieldMappings && typeof stored.fieldMappings === 'object' ? stored.fieldMappings : {},
+    parserErrors: Array.isArray(stored.parserErrors) ? stored.parserErrors : [],
+    parserWarnings: Array.isArray(stored.parserWarnings) ? stored.parserWarnings : [],
+    parsedRows: Array.isArray(stored.parsedRows) ? stored.parsedRows : [],
+    sanitizedCellCount: typeof stored.sanitizedCellCount === 'number' ? stored.sanitizedCellCount : 0,
+    validation: stored.validation ?? null,
+  };
 }
 
 function WizardColumnDetection({

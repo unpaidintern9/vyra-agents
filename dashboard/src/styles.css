@@ -909,6 +909,73 @@ h2 {
   background: rgba(87, 196, 164, 0.22);
 }
 
+.batch-builder-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.batch-builder-toolbar {
+  align-items: flex-start;
+}
+
+.batch-builder-message {
+  margin: 0;
+  border-left: 2px solid rgba(87, 196, 164, 0.7);
+  color: #b9f8dc;
+  line-height: 1.5;
+  padding-left: 12px;
+}
+
+.batch-empty-state {
+  display: grid;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  color: #c8d4e4;
+  padding: 18px;
+}
+
+.batch-empty-state strong {
+  color: #f3f8ff;
+}
+
+.batch-summary-grid {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.batch-checklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.batch-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  color: #dce6f3;
+  padding: 12px;
+}
+
+.batch-checklist-item span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.approval-packet {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+}
+
+.compact-warning-list {
+  margin-top: 14px;
+}
+
 .wizard-error {
   margin: 10px 0;
   border-left: 2px solid rgba(255, 111, 111, 0.7);
