@@ -6,11 +6,13 @@ GitHub live checks use REST API GET requests only.
 
 ```bash
 VITE_GITHUB_OWNER=unpaidintern9
-VITE_GITHUB_REPOS=vyra-agents,Vyra-Part-1,Vyra-Software,vyra-website
+VITE_GITHUB_REPOS=unpaidintern9/vyra-agents,Matthewalbin1/Vyra-Part-1,unpaidintern9/Vyra-Software,unpaidintern9/vyra-website
 VITE_GITHUB_TOKEN=
 ```
 
 Add repositories by editing `VITE_GITHUB_REPOS` as a comma-separated list.
+
+Repo entries can be `repo-name` or `owner/repo-name`. When an owner is omitted, the dashboard uses `VITE_GITHUB_OWNER`.
 
 ## Token
 
@@ -23,4 +25,3 @@ If a repo is private, missing, rate-limited, or unreachable, the dashboard retur
 ## No Writes
 
 This phase does not create issues, update PRs, write commits, dispatch workflows, or change repo settings.
-

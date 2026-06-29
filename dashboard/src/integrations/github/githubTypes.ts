@@ -1,7 +1,9 @@
 export type IntegrationHealth = 'healthy' | 'warning' | 'critical' | 'prepared' | 'unknown';
 
 export interface GitHubRepositoryStatus {
+  repositoryFullName?: string;
   repositoryName: string;
+  repositoryOwner?: string;
   remoteUrl: string;
   defaultBranch: string;
   latestCommit: string;

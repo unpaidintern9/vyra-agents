@@ -795,9 +795,9 @@ function OverviewPage({ approvalItems, snapshot }: { approvalItems: ApprovalItem
         <Panel title="Repository Health" icon={<GitBranch size={18} />}>
           <div className="list-stack">
             {snapshot.github.repositories.map((repo) => (
-              <div className="row-item compact" key={repo.repositoryName}>
+              <div className="row-item compact" key={repo.repositoryFullName || repo.repositoryName}>
                 <div>
-                  <strong>{repo.repositoryName}</strong>
+                  <strong>{repo.repositoryFullName || repo.repositoryName}</strong>
                   <span>
                     {repo.defaultBranch} · {shortSha(repo.latestCommit)} · {repo.workflowStatus}
                   </span>
@@ -1121,9 +1121,10 @@ function IntegrationsPage({ snapshot }: { snapshot: IntegrationSnapshot }) {
         </Panel>
         <Panel title="GitHub Live Status" icon={<GitBranch size={18} />} wide>
           <DataTable
-            columns={['Repository', 'Branch', 'Latest Commit', 'Message', 'Open PRs', 'Issues', 'Workflow', 'Last Checked', 'Health']}
+            columns={['Repository', 'Owner', 'Branch', 'Latest Commit', 'Message', 'Open PRs', 'Issues', 'Workflow', 'Last Checked', 'Health']}
             rows={snapshot.github.repositories.map((repo) => [
               repo.repositoryName,
+              repo.repositoryOwner || 'Unknown',
               repo.defaultBranch,
               shortSha(repo.latestCommit),
               repo.latestCommitMessage,
@@ -1131,7 +1132,7 @@ function IntegrationsPage({ snapshot }: { snapshot: IntegrationSnapshot }) {
               String(repo.issueCount),
               repo.workflowStatus,
               formatDate(repo.lastUpdated),
-              <StatusBadge key={repo.repositoryName} value={formatHealth(repo.healthStatus)} tone={healthTone(repo.healthStatus)} />,
+              <StatusBadge key={repo.repositoryFullName || repo.repositoryName} value={formatHealth(repo.healthStatus)} tone={healthTone(repo.healthStatus)} />,
             ])}
           />
         </Panel>
@@ -1728,17 +1729,28 @@ function SyncQueuePage({
 }
 
 function WarningsPanel({ warnings }: { warnings: string[] }) {
+  const visibleWarnings = warnings.slice(0, 3);
+  const remainingCount = warnings.length - visibleWarnings.length;
   return (
     <section className="warnings-panel" aria-label="Integration warnings">
       <div>
         <AlertTriangle size={18} />
         <strong>Warnings</strong>
       </div>
-      {warnings.slice(0, 5).map((warning) => (
-        <p key={warning}>{warning}</p>
+      {visibleWarnings.map((warning) => (
+        <p key={warning}>{formatWarningMessage(warning)}</p>
       ))}
+      {remainingCount > 0 ? <small>{remainingCount} more warning{remainingCount === 1 ? '' : 's'} hidden for readability.</small> : null}
     </section>
   );
+}
+
+function formatWarningMessage(warning: string): string {
+  const githubMatch = warning.match(/^([^:]+\/[^:]+): GitHub GET .* failed with (\d+)$/);
+  if (githubMatch) return `${githubMatch[1]}: GitHub read failed (${githubMatch[2]})`;
+  const repoMatch = warning.match(/^([^:]+): GitHub GET .* failed with (\d+)$/);
+  if (repoMatch) return `${repoMatch[1]}: GitHub read failed (${repoMatch[2]})`;
+  return warning;
 }
 
 function DataTable({ columns, rows }: { columns: string[]; rows: ReactNode[][] }) {

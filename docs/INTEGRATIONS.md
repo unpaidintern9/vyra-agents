@@ -42,8 +42,10 @@ The GitHub integration models repository name, remote URL, default branch, lates
 Live mode uses GitHub REST API GET requests only. Add repos with:
 
 ```bash
-VITE_GITHUB_REPOS=vyra-agents,Vyra-Part-1,Vyra-Software,vyra-website
+VITE_GITHUB_REPOS=unpaidintern9/vyra-agents,Matthewalbin1/Vyra-Part-1,unpaidintern9/Vyra-Software,unpaidintern9/vyra-website
 ```
+
+Repo entries can be `repo-name` or `owner/repo-name`. Owner-qualified entries override `VITE_GITHUB_OWNER`.
 
 `VITE_GITHUB_TOKEN` is optional for public repos and useful for private repos or higher rate limits. The token is never displayed in the UI.
 

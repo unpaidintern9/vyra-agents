@@ -13,6 +13,7 @@ npm run dev
 Optional live read-only checks:
 
 - Add `VITE_GITHUB_TOKEN` if private repos or higher GitHub rate limits are needed.
+- Use `owner/repo` entries in `VITE_GITHUB_REPOS` for repositories owned outside `VITE_GITHUB_OWNER`.
 - Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for Supabase read-only status checks.
 
 ## Phase 7B Live Agent Sync Env
@@ -22,7 +23,7 @@ For local live agent-memory sync testing, create `dashboard/.env.local`:
 ```bash
 VITE_VYRA_INTEGRATION_MODE=live
 VITE_GITHUB_OWNER=unpaidintern9
-VITE_GITHUB_REPOS=vyra-agents,Vyra-Part-1,Vyra-Software,vyra-website
+VITE_GITHUB_REPOS=unpaidintern9/vyra-agents,Matthewalbin1/Vyra-Part-1,unpaidintern9/Vyra-Software,unpaidintern9/vyra-website
 VITE_SUPABASE_URL=<supabase-project-url>
 VITE_SUPABASE_ANON_KEY=<supabase-anon-or-publishable-key>
 VITE_SUPABASE_PROJECT_NAME=Vyra Production

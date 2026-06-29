@@ -3,6 +3,7 @@ import type {
   GitHubIssueCreationResult,
   GitHubIssueDraftPayload,
 } from './githubIssueTypes';
+import { defaultGitHubOwner, resolveGitHubRepo } from './githubRepoConfig';
 
 const githubApiBase = 'https://api.github.com';
 
@@ -19,7 +20,7 @@ export function githubIssueCreationConfigFromEnv(): GitHubIssueCreationConfig {
   return {
     dryRun: import.meta.env.VITE_GITHUB_ISSUE_CREATION_DRY_RUN !== 'false',
     enabled: import.meta.env.VITE_GITHUB_ISSUE_CREATION_ENABLED === 'true',
-    owner: import.meta.env.VITE_GITHUB_OWNER || 'unpaidintern9',
+    owner: defaultGitHubOwner(),
     token: import.meta.env.VITE_GITHUB_TOKEN || '',
   };
 }
@@ -41,9 +42,10 @@ export async function createGitHubIssueFromDraft(
   const base = {
     createdAt,
     draftId: draft.id,
-    repo: draft.repo,
+    repo: resolveGitHubRepo(draft.repo, config.owner).fullName,
     title: draft.title,
   };
+  const repo = resolveGitHubRepo(draft.repo, config.owner);
 
   if (!draft.readyForGitHub) {
     return {
@@ -54,7 +56,7 @@ export async function createGitHubIssueFromDraft(
     };
   }
 
-  if (!config.owner || !draft.repo) {
+  if (!repo.owner || !repo.name) {
     return {
       ...base,
       dryRun: mode === 'dry-run',
@@ -90,7 +92,7 @@ export async function createGitHubIssueFromDraft(
     };
   }
 
-  const duplicate = await findDuplicateIssue(draft, config);
+  const duplicate = await findDuplicateIssue(draft, config, repo);
   if (duplicate) {
     return {
       ...base,
@@ -102,7 +104,7 @@ export async function createGitHubIssueFromDraft(
     };
   }
 
-  const response = await githubRequest<GitHubIssueResponse>(`/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(draft.repo)}/issues`, {
+  const response = await githubRequest<GitHubIssueResponse>(`/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.name)}/issues`, {
     body: JSON.stringify({
       body: githubIssueDraftBodyWithMarkers(draft),
       labels: draft.labels,
@@ -122,10 +124,14 @@ export async function createGitHubIssueFromDraft(
   };
 }
 
-async function findDuplicateIssue(draft: GitHubIssueDraftPayload, config: GitHubIssueCreationConfig): Promise<GitHubIssueResponse | null> {
+async function findDuplicateIssue(
+  draft: GitHubIssueDraftPayload,
+  config: GitHubIssueCreationConfig,
+  repo: ReturnType<typeof resolveGitHubRepo>,
+): Promise<GitHubIssueResponse | null> {
   const marker = `<!-- vyra-agent-draft-id: ${draft.id} -->`;
   const issues = await githubRequest<GitHubIssueResponse[]>(
-    `/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(draft.repo)}/issues?state=open&per_page=100`,
+    `/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.name)}/issues?state=open&per_page=100`,
     {
       method: 'GET',
       token: config.token,

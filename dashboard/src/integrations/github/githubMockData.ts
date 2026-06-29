@@ -2,7 +2,9 @@ import type { GitHubRepositoryStatus } from './githubTypes';
 
 export const githubRepositoryStatuses: GitHubRepositoryStatus[] = [
   {
+    repositoryFullName: 'Matthewalbin1/Vyra-Part-1',
     repositoryName: 'Vyra-Part-1',
+    repositoryOwner: 'Matthewalbin1',
     remoteUrl: 'https://github.com/Matthewalbin1/Vyra-Part-1',
     defaultBranch: 'main',
     latestCommit: 'remote synced through 20260628193000 migrations',
@@ -16,7 +18,9 @@ export const githubRepositoryStatuses: GitHubRepositoryStatus[] = [
     healthStatus: 'warning',
   },
   {
+    repositoryFullName: 'unpaidintern9/Vyra-Software',
     repositoryName: 'Vyra-Software',
+    repositoryOwner: 'unpaidintern9',
     remoteUrl: 'pending local remote discovery',
     defaultBranch: 'main',
     latestCommit: 'mock status',
@@ -30,7 +34,9 @@ export const githubRepositoryStatuses: GitHubRepositoryStatus[] = [
     healthStatus: 'prepared',
   },
   {
+    repositoryFullName: 'unpaidintern9/vyra-website',
     repositoryName: 'vyra-website',
+    repositoryOwner: 'unpaidintern9',
     remoteUrl: 'pending local remote discovery',
     defaultBranch: 'main',
     latestCommit: 'mock status',
@@ -44,7 +50,9 @@ export const githubRepositoryStatuses: GitHubRepositoryStatus[] = [
     healthStatus: 'prepared',
   },
   {
+    repositoryFullName: 'unpaidintern9/vyra-agents',
     repositoryName: 'vyra-agents',
+    repositoryOwner: 'unpaidintern9',
     remoteUrl: 'https://github.com/unpaidintern9/vyra-agents',
     defaultBranch: 'main',
     latestCommit: '91dcfd2',

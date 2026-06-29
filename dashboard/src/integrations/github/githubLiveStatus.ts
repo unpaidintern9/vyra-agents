@@ -1,5 +1,7 @@
 import { githubGet } from './githubClient';
+import { defaultGitHubOwner, parseGitHubRepos } from './githubRepoConfig';
 import type { GitHubRepositoryStatus, GitHubStatusResult } from './githubTypes';
+import type { GitHubRepoConfig } from './githubRepoConfig';
 
 interface GitHubRepoResponse {
   default_branch: string;
@@ -29,8 +31,8 @@ interface GitHubWorkflowRunsResponse {
 }
 
 export async function getLiveGitHubStatus(): Promise<GitHubStatusResult> {
-  const owner = import.meta.env.VITE_GITHUB_OWNER || 'unpaidintern9';
-  const repos = parseRepos(import.meta.env.VITE_GITHUB_REPOS);
+  const owner = defaultGitHubOwner();
+  const repos = parseGitHubRepos(import.meta.env.VITE_GITHUB_REPOS, owner);
   const token = import.meta.env.VITE_GITHUB_TOKEN || undefined;
   const warnings: string[] = [];
 
@@ -38,7 +40,7 @@ export async function getLiveGitHubStatus(): Promise<GitHubStatusResult> {
     warnings.push('GitHub token missing; attempting public read-only GitHub API requests.');
   }
 
-  const repositories = await Promise.all(repos.map((repo) => readRepository(owner, repo, token, warnings)));
+  const repositories = await Promise.all(repos.map((repo) => readRepository(repo, token, warnings)));
 
   return {
     repositories,
@@ -48,23 +50,13 @@ export async function getLiveGitHubStatus(): Promise<GitHubStatusResult> {
   };
 }
 
-function parseRepos(value?: string): string[] {
-  const fallback = ['vyra-agents', 'Vyra-Part-1', 'Vyra-Software', 'vyra-website'];
-  return value
-    ? value
-        .split(',')
-        .map((repo) => repo.trim())
-        .filter(Boolean)
-    : fallback;
-}
-
 async function readRepository(
-  owner: string,
-  repositoryName: string,
+  repositoryConfig: GitHubRepoConfig,
   token: string | undefined,
   warnings: string[],
 ): Promise<GitHubRepositoryStatus> {
   const lastUpdated = new Date().toISOString();
+  const { fullName, name: repositoryName, owner } = repositoryConfig;
 
   try {
     const repo = await githubGet<GitHubRepoResponse>(`/repos/${owner}/${repositoryName}`, { token });
@@ -87,7 +79,9 @@ async function readRepository(
     const healthStatus = workflowConclusion === 'failure' ? 'warning' : 'healthy';
 
     return {
+      repositoryFullName: fullName,
       repositoryName: repo.name,
+      repositoryOwner: owner,
       remoteUrl: repo.html_url,
       defaultBranch: repo.default_branch,
       latestCommit: commit.sha,
@@ -102,10 +96,12 @@ async function readRepository(
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown GitHub read failure';
-    warnings.push(`${repositoryName}: ${message}`);
+    warnings.push(`${fullName}: ${message}`);
 
     return {
+      repositoryFullName: fullName,
       repositoryName,
+      repositoryOwner: owner,
       remoteUrl: `https://github.com/${owner}/${repositoryName}`,
       defaultBranch: 'unknown',
       latestCommit: 'unknown',

@@ -9,7 +9,7 @@ Create `dashboard/.env.local` locally:
 ```bash
 VITE_VYRA_INTEGRATION_MODE=live
 VITE_GITHUB_OWNER=unpaidintern9
-VITE_GITHUB_REPOS=vyra-agents,Vyra-Part-1,Vyra-Software,vyra-website
+VITE_GITHUB_REPOS=unpaidintern9/vyra-agents,Matthewalbin1/Vyra-Part-1,unpaidintern9/Vyra-Software,unpaidintern9/vyra-website
 VITE_SUPABASE_URL=<supabase-project-url>
 VITE_SUPABASE_ANON_KEY=<supabase-anon-or-publishable-key>
 VITE_SUPABASE_PROJECT_NAME=Vyra Production
