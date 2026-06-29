@@ -753,6 +753,182 @@ h2 {
   margin-top: 16px;
 }
 
+.wizard-layout {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.28fr) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.wizard-steps {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.wizard-step {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  color: #aebbd0;
+  cursor: pointer;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.wizard-step:disabled {
+  cursor: default;
+  opacity: 0.48;
+}
+
+.wizard-step span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #9ef0c8;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.wizard-step strong {
+  color: inherit;
+  font-size: 0.84rem;
+  line-height: 1.25;
+}
+
+.wizard-step.active {
+  border-color: rgba(87, 196, 164, 0.4);
+  background: rgba(87, 196, 164, 0.13);
+  color: #eefbf6;
+}
+
+.wizard-body {
+  min-width: 0;
+}
+
+.safety-strip,
+.upload-zone,
+.validation-action-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid rgba(87, 196, 164, 0.18);
+  border-radius: 8px;
+  background: rgba(87, 196, 164, 0.055);
+  padding: 13px;
+}
+
+.safety-strip {
+  justify-content: flex-start;
+  margin-bottom: 14px;
+  color: #cfe8df;
+  font-size: 0.88rem;
+}
+
+.upload-zone {
+  align-items: flex-start;
+  margin-bottom: 14px;
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.upload-zone > svg {
+  flex: 0 0 auto;
+  color: #8de0c2;
+}
+
+.upload-zone strong,
+.upload-zone p {
+  display: block;
+  margin: 0;
+}
+
+.upload-zone p {
+  color: #aebbd0;
+  line-height: 1.5;
+}
+
+.import-meta-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.column-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.column-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 58px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  padding: 11px;
+}
+
+.column-chip strong {
+  min-width: 0;
+  color: #f3f8ff;
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+
+.mapping-select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(6, 11, 16, 0.92);
+  color: #e9eef7;
+  padding: 0 10px;
+}
+
+.validation-action-panel {
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.import-review-summary {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.active-filter {
+  border-color: rgba(158, 240, 200, 0.72);
+  background: rgba(87, 196, 164, 0.22);
+}
+
+.wizard-error {
+  margin: 10px 0;
+  border-left: 2px solid rgba(255, 111, 111, 0.7);
+  color: #ffc6c6;
+  line-height: 1.5;
+  padding-left: 12px;
+}
+
+.sr-only {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  padding: 0;
+  white-space: nowrap;
+}
+
 .table-wrap {
   overflow-x: auto;
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -1171,6 +1347,14 @@ td:nth-child(6) {
     grid-template-columns: 1fr;
   }
 
+  .wizard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .wizard-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .wide-panel {
     grid-column: span 12;
   }
@@ -1196,6 +1380,7 @@ td:nth-child(6) {
   .nav-list,
   .summary-grid,
   .migration-summary,
+  .import-review-summary,
   .health-grid,
   .migration-grid,
   .integration-grid,
@@ -1217,9 +1402,16 @@ td:nth-child(6) {
   .toolbar-row,
   .table-toolbar,
   .split-panel,
-  .history-item {
+  .history-item,
+  .upload-zone,
+  .validation-action-panel {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .wizard-steps,
+  .import-meta-grid {
+    grid-template-columns: 1fr;
   }
 
   .export-group,

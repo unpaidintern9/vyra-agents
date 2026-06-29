@@ -5,6 +5,7 @@ import type { ApprovalHistoryEntry, MigrationDryRunRecord } from '../../types/lo
 import { MigrationApprovalGate } from './MigrationApprovalGate';
 import { MigrationBatchDetail } from './MigrationBatchDetail';
 import { MigrationInvitationPreview } from './MigrationInvitationPreview';
+import MigrationImportWizard from './MigrationImportWizard';
 import { MigrationMemberReview } from './MigrationMemberReview';
 import { MigrationOfflineMembers } from './MigrationOfflineMembers';
 import {
@@ -100,6 +101,7 @@ export default function MigrationPage({
     <>
       <MigrationSummaryCards summary={summary} />
       <section className="dashboard-grid">
+        <MigrationImportWizard />
         <MigrationQueue queueItems={queueItems} />
         <MigrationDryRunPanel lastDryRunAt={lastDryRunAt} onDryRun={onDryRun} />
         <MigrationReportActions disabled={!dryRuns.length} onClearDryRuns={onClearDryRuns} onExportDryRun={onExportDryRun} />

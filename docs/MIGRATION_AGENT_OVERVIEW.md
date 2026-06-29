@@ -53,6 +53,12 @@ The dashboard Migration Agent Operations UI has been modularized under `dashboar
 
 This refactor is presentation-only. The Migration Agent remains local/mock only: no production data writes, no direct business table writes, no invitation sending, and no AI behavior are introduced.
 
+## Phase 16B Import Wizard
+
+The Migration page now starts with an Import Wizard for browser-local migration file review. It supports CSV, XLSX, and XLS files, detects common gym export columns, lets staff map fields, validates imported rows with existing Migration Agent validation rules, and exports validation reports as JSON, Markdown, or CSV.
+
+The wizard persists file metadata, parsed rows, field mappings, wizard progress, and validation results in browser localStorage. It does not upload files to Supabase, write production data, create pending profiles, create organization memberships, send invitations, or call AI.
+
 ## Core Principle
 
 Members must be attached to the gym before they ever download or log into Vyra. Organization Membership is the source of truth.

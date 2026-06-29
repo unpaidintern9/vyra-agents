@@ -7,6 +7,7 @@ export const localStorageKeys = {
   auditLogs: 'vyra-agents:audit-logs',
   workflowResults: 'vyra-agents:workflow-results',
   migrationDryRuns: 'vyra-agents:migration-dry-runs',
+  migrationImportWizard: 'vyra-agents:migration-import-wizard',
   syncQueue: 'vyra-agents:sync-queue',
 } as const;
 

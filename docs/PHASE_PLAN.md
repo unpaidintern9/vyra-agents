@@ -345,6 +345,32 @@ Boundaries:
 - No invitation sending.
 - No AI is implemented.
 
+## Phase 16B
+
+Migration Import Parser MVP.
+
+Includes:
+
+- Browser-local Import Wizard at the top of the Migration page.
+- CSV, XLSX, and XLS parsing through the client-side `xlsx` parser, dynamically loaded when import parsing is used.
+- File metadata display for filename, size, detected rows, detected columns, upload time, and parser mode.
+- Automatic column detection for common gym export fields.
+- Field mapping UI with mapped, unmapped, duplicate mapping, and missing required states.
+- Local validation using existing Migration Agent validation rules.
+- Review filters for all, errors, warnings, ready, and skipped rows.
+- JSON, Markdown, and CSV validation report exports.
+- Browser localStorage persistence for metadata, mappings, parsed rows, validation results, and wizard progress.
+
+Boundaries:
+
+- Local-only import review.
+- No Supabase writes.
+- No production data changes.
+- No pending profiles are created.
+- No organization memberships are created.
+- No invitations are sent.
+- No AI is implemented.
+
 ## Phase 16
 
 Workflow engine and production action logging.
