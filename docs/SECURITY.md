@@ -62,6 +62,16 @@ The GitHub token may be used only from ignored local dashboard env files for thi
 
 GitHub issue creation does not modify Supabase RLS, business tables, app code, website code, desktop code, backend code, billing, email, or member systems.
 
+## Phase 17 Multi-Token GitHub Access
+
+`VITE_GITHUB_TOKEN` is the default GitHub token. `VITE_GITHUB_TOKEN_VYRA_PART_1` is used only for `Matthewalbin1/Vyra-Part-1`, because that repo is owned by Matthew's personal GitHub account.
+
+If the Vyra-Part-1 token is missing, the dashboard falls back to the default token. If both tokens fail, only `Matthewalbin1/Vyra-Part-1` should show a clean warning or block message.
+
+Matthew's token should be scoped only to `Matthewalbin1/Vyra-Part-1`. Neither token may be displayed, logged, committed, stored in localStorage, sent to Supabase, or included in reports.
+
+Do not commit `.env.local`, secrets, tokens, Deno binaries, or raw import files.
+
 ## Secret Handling
 
 Do not display tokens, anon keys, URLs with secrets, or full error payloads that may contain credentials. Dashboard warnings should explain the issue without leaking secrets.

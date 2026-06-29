@@ -2,7 +2,10 @@
 
 Planned workflows:
 
-- prospect-readiness-review
-- gym-onboarding-handoff
-- sales-follow-up-summary
+- sales-lead-review
+- gym-prospect-review
+- coach-prospect-review
+- quote-prep
+- follow-up-planning
 
+All workflows are review and planning only in this phase.

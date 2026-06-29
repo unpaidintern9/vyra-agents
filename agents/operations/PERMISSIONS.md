@@ -3,6 +3,7 @@
 Default permissions:
 
 - read
+- local planning notes
+- local dashboard status updates
 
-Approving or executing risky actions is planned for a later phase and must be logged.
-
+Approving, deploying, restarting, changing infrastructure, changing roles, or executing risky actions is planned for a later phase and must be approval-gated and logged.

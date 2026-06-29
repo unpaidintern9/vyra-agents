@@ -428,7 +428,25 @@ Workflow engine and production action logging.
 
 ## Phase 17
 
-Approval queue for risky actions.
+Multi-token GitHub access and multi-agent foundations.
+
+Includes:
+
+- `VITE_GITHUB_TOKEN_VYRA_PART_1` support for `Matthewalbin1/Vyra-Part-1`.
+- Repo-based GitHub token resolution for status checks, workflow status reads, duplicate checks, and approval-gated issue creation.
+- Settings page status for default GitHub token and Vyra-Part-1 GitHub token without showing token values.
+- Documentation of token resolution rules, token scoping, and secret-handling boundaries.
+- Stronger foundations for Sales, Support, Product, Operations, Finance, and Marketing agents.
+- `README.md`, `AGENT_CHARTER.md`, `PERMISSIONS.md`, `WORKFLOWS.md`, and `HARDENING.md` for those six agents.
+
+Boundaries:
+
+- No AI is implemented.
+- No autonomous write agents.
+- No production business data changes.
+- No changes to `Vyra-Part-1`.
+- No tokens, `.env.local`, Deno binaries, or raw import files committed.
+- GitHub issue creation remains approval-gated.
 
 ## Phase 18
 

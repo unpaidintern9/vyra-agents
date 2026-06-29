@@ -21,11 +21,19 @@ A live GitHub issue can be created only when all gates pass:
 - Robert explicitly clicks Create or confirms a bulk create panel
 - `VITE_GITHUB_ISSUE_CREATION_ENABLED=true`
 - `VITE_GITHUB_ISSUE_CREATION_DRY_RUN=false`
-- `VITE_GITHUB_TOKEN` is configured locally
+- a GitHub token resolves for the draft repo
 - `VITE_GITHUB_OWNER` and draft repo are known
 - duplicate check finds no issue with the same title or draft marker
 
 The dashboard does not create issues automatically.
+
+## Token Resolution
+
+`VITE_GITHUB_TOKEN` is the default token for issue creation and duplicate checks.
+
+`Matthewalbin1/Vyra-Part-1` may use `VITE_GITHUB_TOKEN_VYRA_PART_1` because it is owned by Matthew's personal GitHub account. If the repo-specific token is missing, issue creation falls back to `VITE_GITHUB_TOKEN`. If neither token is configured or the selected token lacks access, creation is blocked for that repo only.
+
+Matthew's token should be scoped only to `Matthewalbin1/Vyra-Part-1`.
 
 ## Duplicate Markers
 
@@ -50,4 +58,4 @@ Records include draft id, repo, title, status, created time, and issue URL or du
 
 ## Security
 
-The browser only receives the GitHub token when Robert places it in ignored local env files for this explicit operator workflow. Tokens are never displayed in the UI, logged, committed, or stored in localStorage by this feature.
+The browser only receives GitHub tokens when Robert places them in ignored local env files for this explicit operator workflow. Tokens are never displayed in the UI, logged, committed, or stored in localStorage by this feature.

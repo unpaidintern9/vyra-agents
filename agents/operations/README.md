@@ -1,6 +1,7 @@
 # Operations Agent
 
-Status: Ready
+Status: Foundation
 
-Purpose: Tracks workflows, approvals, integrations, and system operations.
+Purpose: Track workflows, approvals, system health, deployments, logs, and operational readiness.
 
+This foundation is read-only and planning-only. It does not deploy code or execute production operations.

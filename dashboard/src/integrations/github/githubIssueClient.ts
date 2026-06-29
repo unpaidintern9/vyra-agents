@@ -4,6 +4,7 @@ import type {
   GitHubIssueDraftPayload,
 } from './githubIssueTypes';
 import { defaultGitHubOwner, resolveGitHubRepo } from './githubRepoConfig';
+import { resolveGitHubTokenCandidatesForRepo } from './githubTokenResolver';
 
 const githubApiBase = 'https://api.github.com';
 
@@ -83,50 +84,60 @@ export async function createGitHubIssueFromDraft(
     };
   }
 
-  if (!config.token) {
+  const tokenCandidates = resolveGitHubTokenCandidatesForRepo(repo);
+  if (!tokenCandidates.length) {
     return {
       ...base,
       dryRun: false,
-      message: 'GitHub token is not configured.',
+      message: 'GitHub token is not configured for this repo.',
       status: 'blocked',
     };
   }
 
-  const duplicate = await findDuplicateIssue(draft, config, repo);
-  if (duplicate) {
-    return {
-      ...base,
-      dryRun: false,
-      existingIssueUrl: duplicate.html_url,
-      issueNumber: duplicate.number,
-      message: 'Duplicate GitHub issue found; creation skipped.',
-      status: 'duplicate_skipped',
-    };
+  let lastError: unknown;
+  for (const token of tokenCandidates) {
+    try {
+      const duplicate = await findDuplicateIssue(draft, token, repo);
+      if (duplicate) {
+        return {
+          ...base,
+          dryRun: false,
+          existingIssueUrl: duplicate.html_url,
+          issueNumber: duplicate.number,
+          message: 'Duplicate GitHub issue found; creation skipped.',
+          status: 'duplicate_skipped',
+        };
+      }
+
+      const response = await githubRequest<GitHubIssueResponse>(`/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.name)}/issues`, {
+        body: JSON.stringify({
+          body: githubIssueDraftBodyWithMarkers(draft),
+          labels: draft.labels,
+          title: draft.title,
+        }),
+        method: 'POST',
+        token,
+      });
+
+      return {
+        ...base,
+        dryRun: false,
+        issueNumber: response.number,
+        issueUrl: response.html_url,
+        message: 'GitHub issue created after explicit approval.',
+        status: 'created',
+      };
+    } catch (error) {
+      lastError = error;
+    }
   }
 
-  const response = await githubRequest<GitHubIssueResponse>(`/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.name)}/issues`, {
-    body: JSON.stringify({
-      body: githubIssueDraftBodyWithMarkers(draft),
-      labels: draft.labels,
-      title: draft.title,
-    }),
-    method: 'POST',
-    token: config.token,
-  });
-
-  return {
-    ...base,
-    dryRun: false,
-    issueNumber: response.number,
-    issueUrl: response.html_url,
-    message: 'GitHub issue created after explicit approval.',
-    status: 'created',
-  };
+  throw lastError instanceof Error ? lastError : new Error('GitHub issue creation failed for all configured tokens.');
 }
 
 async function findDuplicateIssue(
   draft: GitHubIssueDraftPayload,
-  config: GitHubIssueCreationConfig,
+  token: string,
   repo: ReturnType<typeof resolveGitHubRepo>,
 ): Promise<GitHubIssueResponse | null> {
   const marker = `<!-- vyra-agent-draft-id: ${draft.id} -->`;
@@ -134,7 +145,7 @@ async function findDuplicateIssue(
     `/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.name)}/issues?state=open&per_page=100`,
     {
       method: 'GET',
-      token: config.token,
+      token,
     },
   );
 

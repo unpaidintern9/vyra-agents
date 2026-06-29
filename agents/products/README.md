@@ -1,6 +1,7 @@
-# Products Agent
+# Product Agent
 
-Status: Ready
+Status: Foundation
 
-Purpose: Tracks product areas across mobile, desktop, website, and gym software.
+Purpose: Track features, screens, roadmap areas, product gaps, and feature requests across mobile, desktop, website, and gym software.
 
+This foundation is read-only and planning-only. It does not make product changes.

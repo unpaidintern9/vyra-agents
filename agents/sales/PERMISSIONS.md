@@ -3,6 +3,7 @@
 Default permissions:
 
 - read
+- local planning notes
+- local dashboard status updates
 
-Customer outreach, pricing changes, discounts, and contract actions require future approval.
-
+Customer outreach, pricing changes, discounts, contracts, invoices, Stripe writes, CRM writes, and commission actions require future approval and production audit logging.

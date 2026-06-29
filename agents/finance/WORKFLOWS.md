@@ -2,7 +2,10 @@
 
 Planned workflows:
 
-- billing-health-review
-- revenue-snapshot
-- finance-risk-summary
+- billing-status-review
+- revenue-event-review
+- commission-review
+- payout-readiness-review
+- subscription-risk-review
 
+All workflows are review and planning only in this phase.

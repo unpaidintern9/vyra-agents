@@ -11,4 +11,6 @@ interface ImportMetaEnv {
   readonly VITE_GITHUB_ISSUE_CREATION_DRY_RUN?: string;
   readonly VITE_GITHUB_OWNER?: string;
   readonly VITE_GITHUB_TOKEN?: string;
+  readonly VITE_GITHUB_TOKEN_VYRA_PART_1?: string;
+  readonly VITE_GITHUB_REPOS?: string;
 }

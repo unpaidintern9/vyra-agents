@@ -74,6 +74,8 @@ import {
   githubIssueCreationConfigFromEnv,
 } from '../../integrations/github/githubIssueClient';
 import type { CreatedGitHubIssueRecord, GitHubIssueCreationMode } from '../../integrations/github/githubIssueTypes';
+import { resolveGitHubRepo } from '../../integrations/github/githubRepoConfig';
+import { gitHubTokenConfigurationStatus, hasGitHubTokenForRepo } from '../../integrations/github/githubTokenResolver';
 
 interface EngineeringPageProps {
   onImpactExport(_event: {
@@ -180,6 +182,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
   const issueDrafts = useMemo(() => buildEngineeringIssueDrafts(backlogItems, issueDraftStatusOverrides), [backlogItems, issueDraftStatusOverrides]);
   const issueDraftSummary = useMemo(() => summarizeIssueDrafts(issueDrafts), [issueDrafts]);
   const githubIssueConfig = useMemo(() => githubIssueCreationConfigFromEnv(), []);
+  const githubTokenStatus = useMemo(() => gitHubTokenConfigurationStatus(), []);
   const readyIssueDrafts = useMemo(() => issueDrafts.filter((draft) => draft.readyForGitHub), [issueDrafts]);
   const readyP0P1IssueDrafts = useMemo(() => readyIssueDrafts.filter((draft) => draft.priority === 'P0' || draft.priority === 'P1'), [readyIssueDrafts]);
   const createdIssueByDraftId = useMemo(() => {
@@ -389,7 +392,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
     issueCreationBusy ||
     !githubIssueConfig.enabled ||
     githubIssueConfig.dryRun ||
-    !githubIssueConfig.token ||
+    !hasGitHubTokenForRepo(resolveGitHubRepo(draft.repo, githubIssueConfig.owner)) ||
     Boolean(createdIssueByDraftId.get(draft.id));
 
   const summaryCards: Array<[string, number]> = [
@@ -718,8 +721,12 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               <strong>{githubIssueConfig.dryRun ? 'Yes' : 'No'}</strong>
             </div>
             <div className="fact">
-              <span>Token Configured</span>
-              <strong>{githubIssueConfig.token ? 'Yes' : 'No'}</strong>
+              <span>Default Token</span>
+              <strong>{formatHealth(githubTokenStatus.defaultToken)}</strong>
+            </div>
+            <div className="fact">
+              <span>Vyra-Part-1 Token</span>
+              <strong>{formatHealth(githubTokenStatus.vyraPart1Token)}</strong>
             </div>
             <div className="fact">
               <span>Owner</span>

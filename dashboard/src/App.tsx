@@ -31,6 +31,7 @@ import { PageHeader } from './components/PageHeader';
 import { RiskBadge } from './components/RiskBadge';
 import { StatusBadge } from './components/StatusBadge';
 import { getGitHubStatus } from './integrations/github/githubStatus';
+import { gitHubTokenConfigurationStatus } from './integrations/github/githubTokenResolver';
 import type { GitHubStatusResult } from './integrations/github/githubTypes';
 import { buildIntegrationRegistry } from './integrations/integrationRegistry';
 import { getAgentMemoryFunctionConfig } from './integrations/supabase/agentMemoryFunctionClient';
@@ -1012,6 +1013,7 @@ function SettingsPage({
   syncStatus: SyncStatusSnapshot;
 }) {
   const envItems = envChecklist();
+  const githubTokenStatus = gitHubTokenConfigurationStatus();
   const supabaseEnv = getSupabaseEnvStatus();
   const functionConfig = getAgentMemoryFunctionConfig();
   return (
@@ -1020,7 +1022,8 @@ function SettingsPage({
         <div className="batch-grid supabase-detail-grid">
           <Fact label="Current Mode" value={modeLabel(snapshot.effectiveMode)} />
           <Fact label="Requested Mode" value={modeLabel(snapshot.requestedMode)} />
-          <Fact label="GitHub Token" value={envItems.VITE_GITHUB_TOKEN} />
+          <Fact label="Default GitHub Token" value={githubTokenStatus.defaultToken} />
+          <Fact label="Vyra-Part-1 GitHub Token" value={githubTokenStatus.vyraPart1Token} />
           <Fact label="GitHub Issue Creation" value={import.meta.env.VITE_GITHUB_ISSUE_CREATION_ENABLED === 'true' ? 'Enabled' : 'Disabled'} />
           <Fact label="GitHub Issue Dry Run" value={import.meta.env.VITE_GITHUB_ISSUE_CREATION_DRY_RUN === 'false' ? 'Disabled' : 'Enabled'} />
           <Fact label="GitHub Owner" value={import.meta.env.VITE_GITHUB_OWNER || 'Missing'} />
@@ -1074,7 +1077,7 @@ function SettingsPage({
         <div className="activity-list">
           <p>Copy `dashboard/.env.example` to `dashboard/.env`.</p>
           <p>Copied Vyra-Part-1 files may use EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.</p>
-          <p>Add a GitHub token only if private repos or higher rate limits are needed.</p>
+          <p>Add the default GitHub token for Robert-owned repos, and add the Vyra-Part-1 token only when Matthew-owned repo access needs its own credential.</p>
           <p>GitHub issue creation stays disabled and dry-run by default until explicitly configured.</p>
           <p>Add only Supabase URL and anon/publishable keys; service role keys are never used in browser code.</p>
           <p>Enable Edge Function writes with VITE_AGENT_MEMORY_WRITE_ENABLED and a local write token.</p>
@@ -1087,7 +1090,7 @@ function SettingsPage({
           <p>Service role keys are forbidden in browser code.</p>
           <p>Direct browser inserts remain blocked by RLS.</p>
           <p>The Edge Function is the approved server-side write path for agent memory.</p>
-          <p>GitHub issue creation requires a ready draft, explicit approval, enabled creation, dry-run disabled, a token, a repo, and duplicate protection.</p>
+          <p>GitHub issue creation requires a ready draft, explicit approval, enabled creation, dry-run disabled, a repo-resolved token, and duplicate protection.</p>
           <p>Production business data remains out of scope.</p>
         </div>
       </Panel>
@@ -1632,6 +1635,7 @@ function envChecklist(): Record<string, 'configured' | 'missing' | 'invalid/unkn
   return {
     VITE_VYRA_INTEGRATION_MODE: import.meta.env.VITE_VYRA_INTEGRATION_MODE ? 'configured' : 'missing',
     VITE_GITHUB_TOKEN: import.meta.env.VITE_GITHUB_TOKEN ? 'configured' : 'missing',
+    VITE_GITHUB_TOKEN_VYRA_PART_1: import.meta.env.VITE_GITHUB_TOKEN_VYRA_PART_1 ? 'configured' : 'missing',
     VITE_GITHUB_OWNER: import.meta.env.VITE_GITHUB_OWNER ? 'configured' : 'missing',
     VITE_GITHUB_REPOS: import.meta.env.VITE_GITHUB_REPOS ? 'configured' : 'missing',
     VITE_GITHUB_ISSUE_CREATION_ENABLED: import.meta.env.VITE_GITHUB_ISSUE_CREATION_ENABLED ? 'configured' : 'missing',

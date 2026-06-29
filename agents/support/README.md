@@ -1,6 +1,7 @@
 # Support Agent
 
-Status: Planned
+Status: Foundation
 
-Purpose: Track customer support queues, issue patterns, and customer communication needs in a future phase.
+Purpose: Track support tickets, product issues, customer questions, account problems, and escalation needs.
 
+This foundation is read-only and planning-only. It does not send customer replies or change customer records.
