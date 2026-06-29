@@ -34,15 +34,23 @@ Phase 12 adds:
 - Broken Relationship Report Markdown.
 - Repo Health Improvement Plan Markdown.
 
+Phase 13 adds:
+
+- Selected Issue Draft Markdown.
+- All Issue Drafts Markdown.
+- All Issue Drafts JSON.
+- Ready for GitHub Drafts Markdown.
+- P0/P1 Issue Drafts Markdown.
+
 Exports are generated in the browser from the static metadata graph and local dashboard state.
 
 ## Agent Memory Integration
 
-When an Engineering impact, ownership/health, or fix queue planning report is exported, the dashboard appends:
+When an Engineering impact, ownership/health, fix queue planning, or issue draft planning report is exported, the dashboard appends:
 
 - a local Engineering Agent event
 - a local audit log
-- a local workflow result for `engineering-impact-analysis`, `engineering-ownership-health-scan`, or `engineering-fix-queue-planning`
+- a local workflow result for `engineering-impact-analysis`, `engineering-ownership-health-scan`, `engineering-fix-queue-planning`, or `engineering-github-issue-draft-planning`
 
 If Agent Memory sync is configured, those local records sync only through the approved Edge Function path into approved `agent_*` tables. If unavailable, they remain in localStorage.
 
@@ -52,3 +60,4 @@ If Agent Memory sync is configured, those local records sync only through the ap
 - No `.env.local` values are included.
 - No service role keys are used in browser code.
 - No production business tables are written.
+- No GitHub issues are created by exports.

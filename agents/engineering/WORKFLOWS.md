@@ -107,6 +107,39 @@ Notes:
 - Broken relationship warnings require investigation.
 - Status persists locally under `vyra-agents:engineering-backlog-status`.
 
+## engineering-github-issue-draft-planning
+
+```text
+Load Engineering Fix Queue
+↓
+Group related backlog items into local GitHub issue drafts
+↓
+Review draft markdown, labels, priority, and source backlog items
+↓
+Mark draft, ready, dismissed, or exported locally
+↓
+Export selected or grouped draft reports
+↓
+Append local Agent Memory event, audit log, and workflow result
+↓
+Sync through approved agent-memory Edge Function if configured
+```
+
+Mode: local planning.
+
+Approval required: yes, before any future GitHub issue creation.
+
+Production writes: no.
+
+GitHub writes: no.
+
+Notes:
+
+- No GitHub issues are created in this phase.
+- Drafts are local/export-only.
+- Issue creation requires a future approval-gated phase.
+- Status persists locally under `vyra-agents:engineering-issue-draft-status`.
+
 ## repo-health-check
 
 ```text

@@ -11,6 +11,13 @@ import {
   summarizeEngineeringBacklog,
 } from './engineeringBacklog';
 import {
+  buildEngineeringIssueDrafts,
+  downloadIssueDraft,
+  downloadIssueDraftCollection,
+  engineeringIssueDraftStatusStorageKey,
+  summarizeIssueDrafts,
+} from './engineeringIssueDrafts';
+import {
   analyzeEngineeringImpact,
   inboundRelationships,
   migrationHistory,
@@ -59,6 +66,7 @@ import { searchEngineeringNodes } from './engineeringSearch';
 import { edgeTypes, missingRepositoryWarnings, nodeTypes, topConnectedNodes, uniqueSorted } from './engineeringSummary';
 import type { EngineeringGraph, EngineeringNode, EngineeringScanResult } from './engineeringTypes';
 import type { EngineeringBacklogStatus } from './engineeringTaskTypes';
+import type { EngineeringIssueDraftStatus } from './engineeringIssueTypes';
 import { runEngineeringScanFromDashboard } from './engineeringScanner';
 
 interface EngineeringPageProps {
@@ -95,6 +103,15 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
   const [planningRepoFilter, setPlanningRepoFilter] = useState('all');
   const [planningStatusFilter, setPlanningStatusFilter] = useState('all');
   const [planningEffortFilter, setPlanningEffortFilter] = useState('all');
+  const [issueDraftStatusOverrides, setIssueDraftStatusOverrides] = useState<Record<string, EngineeringIssueDraftStatus>>(() => loadIssueDraftStatusOverrides());
+  const [issuePriorityFilter, setIssuePriorityFilter] = useState('all');
+  const [issueRepoFilter, setIssueRepoFilter] = useState('all');
+  const [issueOwnerFilter, setIssueOwnerFilter] = useState('all');
+  const [issueFeatureFilter, setIssueFeatureFilter] = useState('all');
+  const [issueCategoryFilter, setIssueCategoryFilter] = useState('all');
+  const [issueStatusFilter, setIssueStatusFilter] = useState('all');
+  const [issueReadyFilter, setIssueReadyFilter] = useState('all');
+  const [selectedIssueDraftId, setSelectedIssueDraftId] = useState<string | null>(null);
 
   const graph = scan.graph;
   const selectedNode = selectedNodeId ? graph.nodes.find((node) => node.id === selectedNodeId) ?? null : null;
@@ -150,6 +167,23 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
   const orphanPlannerGroups = useMemo(() => groupBacklogItems(backlogItems, 'orphan_review'), [backlogItems]);
   const brokenRelationshipItems = useMemo(() => backlogItems.filter((item) => item.category === 'broken_relationship'), [backlogItems]);
   const repoHealthPlans = useMemo(() => repoHealthImprovementPlans(graph), [graph]);
+  const issueDrafts = useMemo(() => buildEngineeringIssueDrafts(backlogItems, issueDraftStatusOverrides), [backlogItems, issueDraftStatusOverrides]);
+  const issueDraftSummary = useMemo(() => summarizeIssueDrafts(issueDrafts), [issueDrafts]);
+  const filteredIssueDrafts = useMemo(
+    () =>
+      issueDrafts.filter(
+        (draft) =>
+          (issuePriorityFilter === 'all' || draft.priority === issuePriorityFilter) &&
+          (issueRepoFilter === 'all' || draft.repo === issueRepoFilter) &&
+          (issueOwnerFilter === 'all' || draft.owner === issueOwnerFilter) &&
+          (issueFeatureFilter === 'all' || draft.featureArea === issueFeatureFilter) &&
+          (issueCategoryFilter === 'all' || draft.category === issueCategoryFilter) &&
+          (issueStatusFilter === 'all' || draft.status === issueStatusFilter) &&
+          (issueReadyFilter === 'all' || String(draft.readyForGitHub) === issueReadyFilter),
+      ),
+    [issueCategoryFilter, issueDrafts, issueFeatureFilter, issueOwnerFilter, issuePriorityFilter, issueReadyFilter, issueRepoFilter, issueStatusFilter],
+  );
+  const selectedIssueDraft = selectedIssueDraftId ? issueDrafts.find((draft) => draft.id === selectedIssueDraftId) ?? null : null;
 
   useEffect(() => {
     loadEngineeringGraph().then((result) => {
@@ -226,6 +260,43 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
       nodeType: 'planning-task',
       reportType: `fix queue status ${status}`,
       riskLevel: 'low',
+    });
+  };
+
+  const exportIssueDrafts = (reportType: string, exporter: () => void) => {
+    exporter();
+    onImpactExport({
+      affectedCount: issueDrafts.length,
+      nodeLabel: 'engineering GitHub issue drafts',
+      nodeType: 'issue-draft-planning',
+      reportType,
+      riskLevel: 'medium',
+    });
+  };
+
+  const updateIssueDraftStatus = (draftId: string, status: EngineeringIssueDraftStatus) => {
+    setIssueDraftStatusOverrides((current) => {
+      const next = { ...current, [draftId]: status };
+      localStorage.setItem(engineeringIssueDraftStatusStorageKey, JSON.stringify(next));
+      return next;
+    });
+    onImpactExport({
+      affectedCount: 1,
+      nodeLabel: draftId,
+      nodeType: 'issue-draft',
+      reportType: `GitHub issue draft status ${status}`,
+      riskLevel: 'medium',
+    });
+  };
+
+  const copyIssueDraftMarkdown = (draftId: string, markdown: string) => {
+    void navigator.clipboard?.writeText(markdown);
+    onImpactExport({
+      affectedCount: 1,
+      nodeLabel: draftId,
+      nodeType: 'issue-draft',
+      reportType: 'GitHub issue draft markdown copied',
+      riskLevel: 'medium',
     });
   };
 
@@ -496,6 +567,169 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               plan.recommendedActions.slice(0, 3).join(' · '),
             ])}
           />
+        </Panel>
+
+        <Panel title="GitHub Issue Draft Planner" icon={<GitBranch size={18} />} wide>
+          <div className="summary-grid compact-summary">
+            {[
+              ['Total Drafts', issueDraftSummary.total],
+              ['P0', issueDraftSummary.p0],
+              ['P1', issueDraftSummary.p1],
+              ['P2', issueDraftSummary.p2],
+              ['P3', issueDraftSummary.p3],
+              ['Ready for GitHub', issueDraftSummary.readyForGitHub],
+              ['Approval Required', issueDraftSummary.approvalRequired],
+              ['Exported', issueDraftSummary.exported],
+            ].map(([label, value]) => (
+              <article className="metric-card" key={label}>
+                <GitBranch size={18} />
+                <span>{label}</span>
+                <strong>{String(value)}</strong>
+              </article>
+            ))}
+          </div>
+          <div className="button-row end-row">
+            <button className="report-button" disabled={!issueDrafts.length} onClick={() => exportIssueDrafts('all issue drafts JSON', () => downloadIssueDraftCollection(issueDrafts, 'all-json'))} type="button">
+              <Download size={15} />
+              <span>All Issue Drafts JSON</span>
+            </button>
+            <button className="report-button" disabled={!issueDrafts.length} onClick={() => exportIssueDrafts('all issue drafts MARKDOWN', () => downloadIssueDraftCollection(issueDrafts, 'all-markdown'))} type="button">
+              <Download size={15} />
+              <span>All Issue Drafts Markdown</span>
+            </button>
+            <button className="report-button" disabled={!issueDrafts.some((draft) => draft.readyForGitHub)} onClick={() => exportIssueDrafts('ready GitHub issue drafts MARKDOWN', () => downloadIssueDraftCollection(issueDrafts, 'ready-markdown'))} type="button">
+              <Download size={15} />
+              <span>Ready Drafts Markdown</span>
+            </button>
+            <button className="report-button" disabled={!issueDrafts.some((draft) => draft.priority === 'P0' || draft.priority === 'P1')} onClick={() => exportIssueDrafts('P0 P1 issue drafts MARKDOWN', () => downloadIssueDraftCollection(issueDrafts, 'p0-p1-markdown'))} type="button">
+              <Download size={15} />
+              <span>P0/P1 Drafts Markdown</span>
+            </button>
+          </div>
+          <p className="subtle-note">Local/export-only drafts. No GitHub issues are created from this dashboard.</p>
+          <div className="toolbar-row">
+            <div className="filter-row">
+              <select aria-label="Filter issue priority" value={issuePriorityFilter} onChange={(event) => setIssuePriorityFilter(event.target.value)}>
+                <option value="all">All priorities</option>
+                <option value="P0">P0</option>
+                <option value="P1">P1</option>
+                <option value="P2">P2</option>
+                <option value="P3">P3</option>
+              </select>
+              <select aria-label="Filter issue repo" value={issueRepoFilter} onChange={(event) => setIssueRepoFilter(event.target.value)}>
+                <option value="all">All repos</option>
+                {uniqueSorted(issueDrafts.map((draft) => draft.repo)).map((repo) => (
+                  <option key={repo} value={repo}>
+                    {repo}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Filter issue owner" value={issueOwnerFilter} onChange={(event) => setIssueOwnerFilter(event.target.value)}>
+                <option value="all">All owners</option>
+                {uniqueSorted(issueDrafts.map((draft) => draft.owner)).map((owner) => (
+                  <option key={owner} value={owner}>
+                    {owner}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Filter issue feature area" value={issueFeatureFilter} onChange={(event) => setIssueFeatureFilter(event.target.value)}>
+                <option value="all">All feature areas</option>
+                {uniqueSorted(issueDrafts.map((draft) => draft.featureArea)).map((featureArea) => (
+                  <option key={featureArea} value={featureArea}>
+                    {formatHealth(featureArea)}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Filter issue category" value={issueCategoryFilter} onChange={(event) => setIssueCategoryFilter(event.target.value)}>
+                <option value="all">All categories</option>
+                {uniqueSorted(issueDrafts.map((draft) => draft.category)).map((category) => (
+                  <option key={category} value={category}>
+                    {formatHealth(category)}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Filter issue status" value={issueStatusFilter} onChange={(event) => setIssueStatusFilter(event.target.value)}>
+                <option value="all">All statuses</option>
+                <option value="draft">Draft</option>
+                <option value="ready">Ready</option>
+                <option value="dismissed">Dismissed</option>
+                <option value="exported">Exported</option>
+                <option value="created_later">Created Later</option>
+              </select>
+              <select aria-label="Filter ready for GitHub" value={issueReadyFilter} onChange={(event) => setIssueReadyFilter(event.target.value)}>
+                <option value="all">All readiness</option>
+                <option value="true">Ready</option>
+                <option value="false">Not ready</option>
+              </select>
+            </div>
+            <StatusBadge value={`${filteredIssueDrafts.length} drafts`} />
+          </div>
+          <DataTable
+            columns={['Priority', 'Title', 'Repo', 'Owner', 'Feature Area', 'Category', 'Severity', 'Effort', 'Status', 'Ready', 'Open']}
+            rows={filteredIssueDrafts.slice(0, 60).map((draft) => [
+              <StatusBadge key={`${draft.id}-priority`} value={draft.priority} tone={draft.priority === 'P0' || draft.priority === 'P1' ? 'warn' : 'neutral'} />,
+              draft.title,
+              draft.repo,
+              draft.owner,
+              formatHealth(draft.featureArea),
+              formatHealth(draft.category),
+              formatHealth(draft.severity),
+              formatHealth(draft.effort),
+              formatHealth(draft.status),
+              draft.readyForGitHub ? 'Yes' : 'No',
+              <button className="inline-action" key={draft.id} onClick={() => setSelectedIssueDraftId(draft.id)} type="button">
+                Open
+              </button>,
+            ])}
+          />
+        </Panel>
+
+        <Panel title="Issue Draft Detail" icon={<GitBranch size={18} />} wide>
+          {selectedIssueDraft ? (
+            <div className="node-detail-grid">
+              <div className="detail-panel">
+                <div className="fact-list compact-facts">
+                  <Fact label="Title" value={selectedIssueDraft.title} />
+                  <Fact label="Priority" value={selectedIssueDraft.priority} />
+                  <Fact label="Repo" value={selectedIssueDraft.repo} />
+                  <Fact label="Owner" value={selectedIssueDraft.owner} />
+                  <Fact label="Feature Area" value={formatHealth(selectedIssueDraft.featureArea)} />
+                  <Fact label="Category" value={formatHealth(selectedIssueDraft.category)} />
+                  <Fact label="Severity" value={formatHealth(selectedIssueDraft.severity)} />
+                  <Fact label="Effort" value={formatHealth(selectedIssueDraft.effort)} />
+                  <Fact label="Status" value={formatHealth(selectedIssueDraft.status)} />
+                  <Fact label="Ready" value={selectedIssueDraft.readyForGitHub ? 'Yes' : 'No'} />
+                </div>
+                <div className="button-row">
+                  <button className="report-button" onClick={() => updateIssueDraftStatus(selectedIssueDraft.id, 'ready')} type="button">Mark Ready</button>
+                  <button className="report-button" onClick={() => updateIssueDraftStatus(selectedIssueDraft.id, 'draft')} type="button">Mark Draft</button>
+                  <button className="report-button" onClick={() => updateIssueDraftStatus(selectedIssueDraft.id, 'dismissed')} type="button">Dismiss</button>
+                  <button className="report-button" onClick={() => updateIssueDraftStatus(selectedIssueDraft.id, 'exported')} type="button">Mark Exported</button>
+                  <button className="report-button" onClick={() => copyIssueDraftMarkdown(selectedIssueDraft.id, selectedIssueDraft.bodyMarkdown)} type="button">
+                    <Copy size={15} />
+                    <span>Copy Markdown</span>
+                  </button>
+                  <button className="report-button" onClick={() => exportIssueDrafts('selected issue draft MARKDOWN', () => downloadIssueDraft(selectedIssueDraft))} type="button">
+                    <Download size={15} />
+                    <span>Export Draft Markdown</span>
+                  </button>
+                </div>
+                <div className="metadata-list">
+                  <div className="fact">
+                    <span>Labels</span>
+                    <strong>{selectedIssueDraft.labels.join(', ')}</strong>
+                  </div>
+                  <div className="fact">
+                    <span>Source Items</span>
+                    <strong>{String(selectedIssueDraft.sourceBacklogItemIds.length)}</strong>
+                  </div>
+                </div>
+              </div>
+              <pre className="markdown-preview">{selectedIssueDraft.bodyMarkdown}</pre>
+            </div>
+          ) : (
+            <EmptyState message="Open an issue draft to review markdown, labels, source backlog items, and local-only actions." />
+          )}
         </Panel>
 
         <Panel title="Repo Health Score" icon={<GitBranch size={18} />} wide>
@@ -1210,6 +1444,15 @@ function riskTone(risk: EngineeringImpactRisk): 'neutral' | 'good' | 'warn' {
 function loadBacklogStatusOverrides(): Record<string, EngineeringBacklogStatus> {
   try {
     const parsed = JSON.parse(localStorage.getItem(engineeringBacklogStatusStorageKey) || '{}') as Record<string, EngineeringBacklogStatus>;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function loadIssueDraftStatusOverrides(): Record<string, EngineeringIssueDraftStatus> {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(engineeringIssueDraftStatusStorageKey) || '{}') as Record<string, EngineeringIssueDraftStatus>;
     return parsed && typeof parsed === 'object' ? parsed : {};
   } catch {
     return {};

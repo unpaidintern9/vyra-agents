@@ -10,6 +10,8 @@ Default permissions:
 - export local ownership, repo health, risk queue, table-to-screen, function-to-table, missing-docs, and orphan-candidate reports
 - create and update local-only engineering fix queue planning statuses
 - export local engineering backlog, documentation gap, orphan review, broken relationship, and repo health improvement reports
+- create and update local-only GitHub issue draft statuses
+- export local GitHub issue draft Markdown and JSON
 
 Future high-risk actions requiring approval:
 
@@ -17,6 +19,7 @@ Future high-risk actions requiring approval:
 - database migrations
 - dependency upgrades that change production behavior
 - modifying production configuration
+- creating GitHub issues from local drafts
 
 Forbidden in this phase:
 
@@ -29,4 +32,5 @@ Forbidden in this phase:
 - modifying files based on impact analysis without explicit future approval
 - modifying files based on ownership, health, missing-doc, orphan, or broken-relationship findings without explicit future approval
 - creating GitHub issues from fix queue items
+- writing to GitHub from issue drafts
 - changing app, website, desktop, or backend code from fix queue items

@@ -13,6 +13,7 @@ The Engineering Agent is the first practical Vyra agent MVP. It is a read-only r
 - Export graph, node detail, node impact, table impact, route/screen impact, migration history, and full impact reports.
 - Map owners, feature areas, repo health scores, orphan candidates, missing docs, and relationship warnings.
 - Generate a local planning-only Engineering Fix Queue from graph findings.
+- Generate local/export-only GitHub issue drafts from fix queue groups.
 
 ## Explicit Boundaries
 
@@ -67,3 +68,7 @@ The Engineering page now turns graph findings into a local backlog Robert can re
 - high-risk node planning tasks
 
 Task actions are local only: reviewed, dismissed, planned, done, and reset. No GitHub issues are created, no app repos are modified, and no code changes are made from this queue.
+
+## Phase 13 GitHub Issue Drafts
+
+The Engineering page can group fix queue items into local GitHub issue drafts with priorities, labels, Markdown bodies, and approval-required status. Drafts can be copied or exported, but the dashboard does not create GitHub issues or write to GitHub.

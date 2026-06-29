@@ -63,3 +63,7 @@ vyra-agents:engineering-backlog-status
 - No production app tables are written.
 - Orphan candidates are review-only and must not imply deletion.
 - Broken relationship warnings require investigation before any fix is planned.
+
+## GitHub Issue Drafts
+
+Phase 13 converts groups of fix queue items into local GitHub issue drafts. Drafts are export-only and do not write to GitHub. Robert must approve any future phase that creates real GitHub issues.

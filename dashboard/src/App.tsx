@@ -451,9 +451,12 @@ function App() {
     riskLevel: 'low' | 'medium' | 'high' | 'unknown';
   }) => {
     const now = new Date().toISOString();
+    const isIssueDraftPlanning = /issue draft|github issue|ready github|p0 p1/i.test(event.reportType);
     const isFixQueuePlanning = /fix queue|backlog|documentation gap|broken relationship|orphan review|status|repo health improvement/i.test(event.reportType);
     const isOwnershipHealthReport = /ownership|repo health|risk queue|missing docs|orphan|table-to-screen|function-to-table/i.test(event.reportType);
-    const workflowKey = isFixQueuePlanning
+    const workflowKey = isIssueDraftPlanning
+      ? 'engineering-github-issue-draft-planning'
+      : isFixQueuePlanning
       ? 'engineering-fix-queue-planning'
       : isOwnershipHealthReport
         ? 'engineering-ownership-health-scan'
@@ -463,10 +466,10 @@ function App() {
         id: `workflow_engineering_impact_${Date.now()}`,
         workflowKey,
         agent: 'Engineering Agent',
-        riskLevel: event.riskLevel === 'unknown' ? 'medium' : event.riskLevel,
+        riskLevel: isIssueDraftPlanning ? 'medium' : event.riskLevel === 'unknown' ? 'medium' : event.riskLevel,
         result: `${event.reportType} exported for ${event.nodeLabel}`,
         createdAt: now,
-        approvalRequired: false,
+        approvalRequired: isIssueDraftPlanning,
         productionWritesOccurred: 'No',
       },
       ...current,
@@ -482,7 +485,8 @@ function App() {
       action: 'engineering impact report exported',
       target: `${event.nodeType}:${event.nodeLabel}`,
       result: `${event.reportType} · ${event.riskLevel} risk`,
-      riskLevel: event.riskLevel === 'unknown' ? 'medium' : event.riskLevel,
+      riskLevel: isIssueDraftPlanning ? 'medium' : event.riskLevel === 'unknown' ? 'medium' : event.riskLevel,
+      approvalRequired: isIssueDraftPlanning,
     });
   };
 

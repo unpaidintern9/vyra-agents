@@ -273,20 +273,45 @@ Boundaries:
 
 ## Phase 13
 
-Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
+Engineering Agent GitHub Issue Draft Planner.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Local GitHub issue draft generation from Engineering Fix Queue items.
+- Grouped issue templates by repo, category, owner, feature area, severity, and node type.
+- Priority buckets P0 through P3 with sensitive-domain overrides.
+- Issue Draft Planner dashboard section with summary, filters, table, and markdown preview.
+- Local-only draft status actions: ready, draft, dismissed, exported.
+- JSON and Markdown issue draft exports, including ready-for-GitHub and P0/P1 export sets.
+- `engineering-github-issue-draft-planning` workflow records for local dashboard activity and approved Agent Memory sync.
+
+Boundaries:
+
+- No GitHub writes.
+- No GitHub issues are created.
+- GitHub creation requires a future approval-gated phase.
+- No AI is implemented.
+- No app, website, desktop, or backend code is changed.
+- Draft statuses persist in browser localStorage.
 
 ## Phase 14
 
-Workflow engine and production action logging.
+Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
 
 ## Phase 15
 
-Approval queue for risky actions.
+Workflow engine and production action logging.
 
 ## Phase 16
 
-Optional AI summaries and reasoning tools.
+Approval queue for risky actions.
 
 ## Phase 17
+
+Optional AI summaries and reasoning tools.
+
+## Phase 18
 
 Additional department agents.

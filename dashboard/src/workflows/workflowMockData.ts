@@ -68,6 +68,17 @@ export const workflowMockData: WorkflowDefinition[] = [
     safeDryRun: true,
   },
   {
+    key: 'engineering-github-issue-draft-planning',
+    triggerType: 'local issue draft',
+    ownerAgent: 'Engineering Agent',
+    currentMode: 'read-only',
+    lastRun: 'Issue draft status or export',
+    nextStatus: 'approval required before future GitHub creation',
+    riskLevel: 'medium',
+    approvalRequired: true,
+    safeDryRun: true,
+  },
+  {
     key: 'integration-status-check',
     triggerType: 'manual refresh',
     ownerAgent: 'Operations Agent',
