@@ -33,10 +33,22 @@ Get the Supabase URL and anon/publishable key from the Supabase project settings
 
 `.env.local` is ignored by git and must not be committed.
 
+## Phase 8 Edge Function Write Env
+
+Agent-memory Edge Function writes are disabled by default. To enable local testing:
+
+```bash
+VITE_AGENT_MEMORY_WRITE_ENABLED=true
+VITE_AGENT_MEMORY_WRITE_FUNCTION=agent-memory-write
+VITE_AGENT_MEMORY_WRITE_TOKEN=<temporary-local-operator-token>
+```
+
+The token must match the Edge Function secret `AGENT_MEMORY_WRITE_TOKEN`. Do not commit this value and do not display it in the dashboard.
+
 ## Safety
 
 The dashboard must never display full tokens, keys, or secrets.
 
 Use only anon or publishable keys in frontend code. Service role keys are forbidden in the browser because they bypass Row Level Security.
 
-Phase 7 agent-memory sync may attempt writes only to approved `agent_*` tables. It must not write to Supabase business tables, GitHub, billing, email, or production member systems.
+Phase 8 agent-memory sync uses an Edge Function for writes to approved `agent_*` tables. It must not write to Supabase business tables, GitHub, billing, email, or production member systems.

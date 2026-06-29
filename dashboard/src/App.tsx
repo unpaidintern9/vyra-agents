@@ -30,6 +30,7 @@ import { StatusBadge } from './components/StatusBadge';
 import { getGitHubStatus } from './integrations/github/githubStatus';
 import type { GitHubStatusResult } from './integrations/github/githubTypes';
 import { buildIntegrationRegistry } from './integrations/integrationRegistry';
+import { getAgentMemoryFunctionConfig } from './integrations/supabase/agentMemoryFunctionClient';
 import { getSupabaseEnvStatus } from './integrations/supabase/supabaseClient';
 import { getSupabaseStatus } from './integrations/supabase/supabaseStatus';
 import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/supabase/supabaseTypes';
@@ -52,7 +53,7 @@ import {
   type LocalPersistenceStatus,
 } from './storage/localStorageStore';
 import { downloadReport, type ReportFormat } from './storage/reportExport';
-import { agentMemoryRecords, detectAgentMemoryConnection, syncPendingQueue } from './sync/syncManager';
+import { agentMemoryRecords, detectAgentMemoryConnection, getSyncWriteMode, syncPendingQueue } from './sync/syncManager';
 import {
   clearSyncQueueStorage,
   enqueueSyncRecords,
@@ -125,9 +126,10 @@ function App() {
   );
   const workflowRegistry = useMemo(() => getWorkflowRegistry(), []);
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
+  const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
   const syncStatus = useMemo(
-    () => buildSyncStatusSnapshot(syncQueue, syncConnectionState, lastSyncAt, syncEnabled),
-    [lastSyncAt, syncConnectionState, syncEnabled, syncQueue],
+    () => buildSyncStatusSnapshot(syncQueue, syncConnectionState, lastSyncAt, syncEnabled, syncWriteMode),
+    [lastSyncAt, syncConnectionState, syncEnabled, syncQueue, syncWriteMode],
   );
   const lastDryRunAt = migrationDryRuns[0]?.createdAt ?? null;
 
@@ -208,6 +210,17 @@ function App() {
       ...current,
     ]);
   }, []);
+
+  const testAgentMemoryWriteFunction = () => {
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Operations Agent',
+      action: 'agent memory write function test',
+      target: 'agent_logs',
+      result: 'queued edge function test',
+      riskLevel: 'low',
+    });
+  };
 
   const refreshStatus = useCallback(async () => {
     setIsRefreshing(true);
@@ -467,6 +480,7 @@ function App() {
   };
 
   const status = snapshot ?? buildLoadingSnapshot();
+  const pageWarnings = [...status.warnings, ...syncStatusWarnings(syncStatus)];
   const pageTitle = activePage === 'Migration' ? 'Migration Agent' : activePage;
 
   return (
@@ -516,7 +530,7 @@ function App() {
           }
         />
 
-        {status.warnings.length > 0 ? <WarningsPanel warnings={status.warnings} /> : null}
+        {pageWarnings.length > 0 ? <WarningsPanel warnings={pageWarnings} /> : null}
         <SyncStatusCard syncStatus={syncStatus} />
 
         {activePage === 'Migration' ? (
@@ -545,6 +559,7 @@ function App() {
             onClearQueue={clearSyncQueue}
             onRetryFailed={retryFailedSync}
             onSyncNow={syncNow}
+            onTestFunction={testAgentMemoryWriteFunction}
             snapshot={status}
             syncStatus={syncStatus}
           />
@@ -986,17 +1001,20 @@ function SettingsPage({
   onClearQueue,
   onRetryFailed,
   onSyncNow,
+  onTestFunction,
   snapshot,
   syncStatus,
 }: {
   onClearQueue(): void;
   onRetryFailed(): void;
   onSyncNow(): void;
+  onTestFunction(): void;
   snapshot: IntegrationSnapshot;
   syncStatus: SyncStatusSnapshot;
 }) {
   const envItems = envChecklist();
   const supabaseEnv = getSupabaseEnvStatus();
+  const functionConfig = getAgentMemoryFunctionConfig();
   return (
     <section className="dashboard-grid">
       <Panel title="Integration Configuration" icon={<Settings size={18} />} wide>
@@ -1014,6 +1032,9 @@ function SettingsPage({
             <Fact label="Supabase Connected" value={syncStatus.connected ? 'Yes' : 'No'} />
             <Fact label="Local Storage Enabled" value={syncStatus.localStorageEnabled ? 'Yes' : 'No'} />
             <Fact label="Sync Enabled" value={syncStatus.syncEnabled ? 'Yes' : 'No'} />
+            <Fact label="Write Mode" value={formatSyncWriteMode(syncStatus.writeMode)} />
+            <Fact label="Edge Function" value={functionConfig.functionName} />
+            <Fact label="Function Config" value={formatHealth(functionConfig.mode)} />
             <Fact label="Records Waiting" value={String(syncStatus.recordsWaiting)} />
             <Fact label="Failed Records" value={String(syncStatus.failedRecords)} />
             <Fact label="Last Sync" value={syncStatus.lastSyncAt ? formatDate(syncStatus.lastSyncAt) : 'Never'} />
@@ -1030,6 +1051,10 @@ function SettingsPage({
             <button className="clear-button" disabled={!syncStatus.recordsWaiting && !syncStatus.failedRecords} onClick={onClearQueue} type="button">
               <Trash2 size={15} />
               <span>Clear Queue</span>
+            </button>
+            <button className="report-button" disabled={syncStatus.writeMode !== 'edge_function'} onClick={onTestFunction} type="button">
+              <Database size={15} />
+              <span>Test Agent Memory Write Function</span>
             </button>
           </div>
         </div>
@@ -1049,6 +1074,7 @@ function SettingsPage({
           <p>Copied Vyra-Part-1 files may use EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.</p>
           <p>Add a GitHub token only if private repos or higher rate limits are needed.</p>
           <p>Add only Supabase URL and anon/publishable keys; service role keys are never used in browser code.</p>
+          <p>Enable Edge Function writes with VITE_AGENT_MEMORY_WRITE_ENABLED and a local write token.</p>
           <p>Run `npm run dev` from `dashboard/`.</p>
         </div>
       </Panel>
@@ -1056,7 +1082,8 @@ function SettingsPage({
         <div className="rule-list">
           <p>Frontend uses anon or publishable keys only.</p>
           <p>Service role keys are forbidden in browser code.</p>
-          <p>Only agent memory tables are writable in Phase 7.</p>
+          <p>Direct browser inserts remain blocked by RLS.</p>
+          <p>The Edge Function is the approved server-side write path for agent memory.</p>
           <p>Production business data remains out of scope.</p>
         </div>
       </Panel>
@@ -1453,6 +1480,7 @@ function SyncStatusCard({ syncStatus }: { syncStatus: SyncStatusSnapshot }) {
         <strong>Agent Memory Sync</strong>
       </div>
       <StatusBadge value={syncStatusLabel(syncStatus)} tone={syncStatusTone(syncStatus)} />
+      <span>Mode: {formatSyncWriteMode(syncStatus.writeMode)}</span>
       <span>Last Sync: {syncStatus.lastSyncAt ? formatDate(syncStatus.lastSyncAt) : 'Never'}</span>
       <span>Waiting: {syncStatus.recordsWaiting}</span>
       <span>Errors: {syncStatus.failedRecords}</span>
@@ -1479,6 +1507,7 @@ function SyncQueuePage({
         <div className="split-panel">
           <div className="batch-grid supabase-detail-grid">
             <Fact label="Connection" value={syncStatus.connectionState} />
+            <Fact label="Write Mode" value={formatSyncWriteMode(syncStatus.writeMode)} />
             <Fact label="Sync Pending" value={String(syncStatus.recordsWaiting)} />
             <Fact label="Synced Records" value={String(syncStatus.syncedRecords)} />
             <Fact label="Failed Records" value={String(syncStatus.failedRecords)} />
@@ -1664,6 +1693,9 @@ function envChecklist(): Record<string, 'configured' | 'missing' | 'invalid/unkn
     EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: import.meta.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ? 'configured' : 'missing',
     VITE_SUPABASE_PROJECT_NAME: import.meta.env.VITE_SUPABASE_PROJECT_NAME ? 'configured' : 'missing',
     VITE_SUPABASE_ENVIRONMENT: import.meta.env.VITE_SUPABASE_ENVIRONMENT ? 'configured' : 'missing',
+    VITE_AGENT_MEMORY_WRITE_ENABLED: import.meta.env.VITE_AGENT_MEMORY_WRITE_ENABLED ? 'configured' : 'missing',
+    VITE_AGENT_MEMORY_WRITE_FUNCTION: import.meta.env.VITE_AGENT_MEMORY_WRITE_FUNCTION ? 'configured' : 'missing',
+    VITE_AGENT_MEMORY_WRITE_TOKEN: import.meta.env.VITE_AGENT_MEMORY_WRITE_TOKEN ? 'configured' : 'missing',
   };
 }
 
@@ -1682,7 +1714,7 @@ function pageCopy(page: string): string {
   const copy: Record<string, string> = {
     Migration: 'Migration dry-runs, staging review, member matching, table readiness, and mock approvals.',
     Integrations: 'Read-only integration health with safe mock fallback and no production writes.',
-    Settings: 'Integration mode, env setup guidance, and safety reminders without exposing secrets.',
+    Settings: 'Integration mode, Edge Function write path, env setup guidance, and safety reminders without exposing secrets.',
     'Agent Memory': 'Local/mock runs, events, tasks, approvals, and notes before Supabase writes are enabled.',
     'Sync Queue': 'Safe Supabase agent-memory synchronization with localStorage fallback and retry controls.',
     'Audit Logs': 'Local/mock action history for agent activity, approvals, warnings, and dry checks.',
@@ -1745,6 +1777,15 @@ function syncQueueItemTone(status: SyncQueueItem['status']): 'neutral' | 'good' 
 }
 
 function syncStatusLabel(syncStatus: SyncStatusSnapshot): string {
+  if (syncStatus.writeMode === 'local_only') {
+    return 'Local Only';
+  }
+  if (syncStatus.writeMode === 'missing_token') {
+    return 'Missing Function Token';
+  }
+  if (syncStatus.writeMode === 'missing_supabase_env') {
+    return 'Missing Supabase Env';
+  }
   if (syncStatus.recordsWaiting > 0) {
     return 'Sync Pending';
   }
@@ -1761,13 +1802,34 @@ function syncStatusLabel(syncStatus: SyncStatusSnapshot): string {
 }
 
 function syncStatusTone(syncStatus: SyncStatusSnapshot): 'neutral' | 'good' | 'warn' {
-  if (syncStatus.failedRecords > 0 || syncStatus.connectionState === 'offline') {
+  if (syncStatus.failedRecords > 0 || syncStatus.connectionState === 'offline' || syncStatus.writeMode === 'missing_token') {
     return 'warn';
   }
   if (syncStatus.connectionState === 'connected' && syncStatus.recordsWaiting === 0) {
     return 'good';
   }
   return 'neutral';
+}
+
+function syncStatusWarnings(syncStatus: SyncStatusSnapshot): string[] {
+  const warnings: string[] = [];
+  if (syncStatus.writeMode === 'local_only') {
+    warnings.push('Agent memory writes are local-only. Direct browser table inserts remain disabled; the Edge Function is the approved write path.');
+  }
+  if (syncStatus.writeMode === 'missing_token') {
+    warnings.push('Agent memory Edge Function writes are enabled but the local write token is missing.');
+  }
+  if (syncStatus.failedRecords > 0) {
+    warnings.push('Some agent-memory sync records failed and remain retryable in the local queue.');
+  }
+  return warnings;
+}
+
+function formatSyncWriteMode(mode: SyncStatusSnapshot['writeMode']): string {
+  if (mode === 'edge_function') return 'Edge Function';
+  if (mode === 'missing_token') return 'Missing Token';
+  if (mode === 'missing_supabase_env') return 'Missing Supabase Env';
+  return 'Local Only';
 }
 
 function flattenAgentRun(run: AgentRun): Record<string, unknown> {

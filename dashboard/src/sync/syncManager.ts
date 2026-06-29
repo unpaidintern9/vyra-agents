@@ -1,10 +1,10 @@
-import type { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
+import { getAgentMemoryFunctionConfig, writeAgentMemoryRecord } from '../integrations/supabase/agentMemoryFunctionClient';
 import { createAgentMemorySupabaseClient } from '../integrations/supabase/supabaseClient';
 import type { AuditLogEntry } from '../state/auditLogStore';
 import type { ApprovalItem } from '../state/approvalStore';
 import type { AgentEvent, AgentRun, AgentTask } from '../state/agentRunStore';
 import type { WorkflowDryCheckRecord, MigrationDryRunRecord, ApprovalHistoryEntry } from '../types/localRecords';
-import type { SyncConnectionState, SyncQueueItem, SyncableRecord, WritableAgentTable } from './syncTypes';
+import type { SyncConnectionState, SyncQueueItem, SyncableRecord, SyncWriteMode, WritableAgentTable } from './syncTypes';
 import { writableAgentTables } from './syncTypes';
 
 const source = 'vyra-agents-dashboard';
@@ -24,9 +24,9 @@ export async function syncPendingQueue(queue: SyncQueueItem[]): Promise<{
   connectionState: SyncConnectionState;
   lastSyncAt: string | null;
 }> {
-  const client = createAgentMemorySupabaseClient();
-  if (!client) {
-    return { queue, connectionState: 'disabled', lastSyncAt: null };
+  const functionConfig = getAgentMemoryFunctionConfig();
+  if (functionConfig.mode !== 'configured') {
+    return { queue, connectionState: functionConfig.enabled ? 'offline' : 'disabled', lastSyncAt: null };
   }
 
   const connectionState = await detectAgentMemoryConnection();
@@ -41,7 +41,7 @@ export async function syncPendingQueue(queue: SyncQueueItem[]): Promise<{
         return item;
       }
 
-      const result = await uploadQueueItem(client, item);
+      const result = await uploadQueueItem(item);
       changed = true;
       return result;
     }),
@@ -52,6 +52,14 @@ export async function syncPendingQueue(queue: SyncQueueItem[]): Promise<{
     connectionState: 'connected',
     lastSyncAt: new Date().toISOString(),
   };
+}
+
+export function getSyncWriteMode(): SyncWriteMode {
+  const functionConfig = getAgentMemoryFunctionConfig();
+  if (!functionConfig.enabled) return 'local_only';
+  if (functionConfig.mode === 'missing_token') return 'missing_token';
+  if (functionConfig.mode === 'missing_supabase_env') return 'missing_supabase_env';
+  return 'edge_function';
 }
 
 export function agentMemoryRecords(input: {
@@ -76,7 +84,7 @@ export function agentMemoryRecords(input: {
   ];
 }
 
-async function uploadQueueItem(client: SupabaseClient, item: SyncQueueItem): Promise<SyncQueueItem> {
+async function uploadQueueItem(item: SyncQueueItem): Promise<SyncQueueItem> {
   if (!isWritableAgentTable(item.table)) {
     return {
       ...item,
@@ -88,15 +96,19 @@ async function uploadQueueItem(client: SupabaseClient, item: SyncQueueItem): Pro
   }
 
   const attemptedAt = new Date().toISOString();
-  const { error } = await client.from(item.table).insert(item.payload);
+  const result = await writeAgentMemoryRecord({
+    table: item.table,
+    record: item.payload,
+    requestId: item.id,
+  });
 
-  if (error) {
+  if (!result.ok) {
     return {
       ...item,
       status: 'failed',
       retryCount: item.retryCount + 1,
       lastAttemptAt: attemptedAt,
-      error: scrubSyncError(error),
+      error: result.error ?? 'function_write_failed',
     };
   }
 
@@ -254,8 +266,4 @@ function isWritableAgentTable(table: string): table is WritableAgentTable {
 
 function key(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-}
-
-function scrubSyncError(error: PostgrestError): string {
-  return `${error.code ?? 'SUPABASE_ERROR'}: ${error.message.replace(/https?:\/\/[^\s]+/g, '[url]')}`;
 }

@@ -7,6 +7,12 @@ export function getSupabaseEnvStatus(): { url: 'Found' | 'Missing'; key: 'Found'
   };
 }
 
+export function getSupabaseClientConfig(): { url: string; key: string } | null {
+  const url = supabaseUrl();
+  const key = supabaseAnonOrPublishableKey();
+  return url && key ? { url, key } : null;
+}
+
 export function createReadOnlySupabaseClient(): SupabaseClient | null {
   return createBrowserSupabaseClient();
 }

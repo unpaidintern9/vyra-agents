@@ -13,6 +13,7 @@ export const writableAgentTables = [
 export type WritableAgentTable = (typeof writableAgentTables)[number];
 export type SyncRecordStatus = 'pending' | 'synced' | 'failed' | 'local_only';
 export type SyncConnectionState = 'connected' | 'offline' | 'disabled';
+export type SyncWriteMode = 'local_only' | 'edge_function' | 'missing_token' | 'missing_supabase_env';
 
 export interface SyncQueueItem {
   id: string;
@@ -33,6 +34,7 @@ export interface SyncStatusSnapshot {
   connected: boolean;
   localStorageEnabled: boolean;
   syncEnabled: boolean;
+  writeMode: SyncWriteMode;
   lastSyncAt: string | null;
   recordsWaiting: number;
   syncedRecords: number;

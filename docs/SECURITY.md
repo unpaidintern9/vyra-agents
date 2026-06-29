@@ -44,6 +44,14 @@ If anon writes to agent tables fail with row-level security errors, treat that a
 
 Future write enablement should use authenticated admin-only RLS or a server-side path such as an Edge Function where privileged credentials never reach the browser.
 
+## Phase 8 Edge Function Writes
+
+The approved write path is the `agent-memory-write` Supabase Edge Function. It uses a temporary shared-secret header for local/operator use until proper authenticated admin auth exists.
+
+The dashboard may store only `VITE_AGENT_MEMORY_WRITE_TOKEN` locally in ignored env files. The Edge Function stores `AGENT_MEMORY_WRITE_TOKEN` as a Supabase function secret. Service role keys stay server-side only.
+
+Direct browser inserts into Supabase tables are disabled by default and should not be re-enabled for production.
+
 ## Secret Handling
 
 Do not display tokens, anon keys, URLs with secrets, or full error payloads that may contain credentials. Dashboard warnings should explain the issue without leaking secrets.

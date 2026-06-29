@@ -161,20 +161,41 @@ Result:
 
 ## Phase 8
 
-Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
+Secure Server-Side Agent Memory Writes.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Dashboard support for the `agent-memory-write` Supabase Edge Function.
+- Direct browser table inserts disabled by default.
+- Local-only queue behavior when function writes are disabled.
+- Retryable Edge Function sync attempts when enabled and configured.
+- Settings visibility for disabled, configured, missing token, and missing Supabase env states.
+
+Boundaries:
+
+- No service role keys in the browser.
+- No public anon insert policies.
+- No production business data writes.
+- No AI or autonomous agents.
 
 ## Phase 9
 
-Workflow engine and production action logging.
+Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
 
 ## Phase 10
 
-Approval queue for risky actions.
+Workflow engine and production action logging.
 
 ## Phase 11
 
-Optional AI summaries and reasoning tools.
+Approval queue for risky actions.
 
 ## Phase 12
+
+Optional AI summaries and reasoning tools.
+
+## Phase 13
 
 Additional department agents.
