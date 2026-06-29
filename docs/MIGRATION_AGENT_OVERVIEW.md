@@ -2,6 +2,12 @@
 
 The Migration Agent owns gym onboarding and member migration workflows.
 
+## Phase 2 Status
+
+Phase 2 is a local/mock MVP. It adds dashboard-side TypeScript validation and matching logic, mock imported members, and SQL foundation stubs for future Supabase tables.
+
+No production data is connected. No migrations are applied. No AI is implemented. The SQL files are foundation stubs for later review.
+
 ## Core Principle
 
 Members must be attached to the gym before they ever download or log into Vyra. Organization Membership is the source of truth.
@@ -26,4 +32,25 @@ Members should not have to manually search for a gym, enter an invitation code, 
 ## Offline Member Rule
 
 Migration must preserve gym operations even if zero members download the app on day one. Attendance, class enrollment, check-ins, staff management, billing status tracking, notes, membership status, and coach assignment must not be blocked because a member has not activated the app.
+
+## Supported Member States
+
+- active_app_user
+- pending_app_user
+- offline_non_app_member
+
+Offline/non-app members do not require `user_id`. They must remain visible and manageable from the gym dashboard.
+
+## Phase 2 Table Stubs
+
+`20260629000200_gym_migration_foundation.sql` prepares:
+
+- gym_migration_batches
+- gym_migration_staging_members
+- gym_migration_validation_issues
+- gym_migration_member_matches
+- gym_pending_member_profiles
+- gym_offline_members
+- gym_migration_review_items
+- gym_migration_invitations
 

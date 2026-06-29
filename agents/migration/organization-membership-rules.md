@@ -18,3 +18,8 @@ Example fields:
 
 Every time the member logs in, the app should reference this Organization Membership record.
 
+## Phase 2 Foundation
+
+The Migration page marks whether organization membership is ready for each mock imported member. The SQL stubs prepare fields for `organization_id`, `migration_batch_id`, staged members, pending profiles, offline members, and review items.
+
+The stubs are not applied to production.

@@ -18,10 +18,21 @@ Agent memory will eventually store observed events, workflow runs, status record
 
 The MVP includes SQL migration stubs in `supabase/migrations/`. These files are documentation-ready placeholders and must not be applied to production until reviewed.
 
+## Phase 2 Status
+
+Phase 2 adds `20260629000100_agent_memory_foundation.sql` as a more complete foundation stub. It uses `gen_random_uuid()`, timestamps, statuses, metadata JSON, and source fields where useful.
+
+This is still local/mock only:
+
+- No production Supabase project is connected.
+- No migrations are applied.
+- No agent writes are performed.
+- No AI-generated memory is stored.
+- Production connection comes later after schema review, access control, and approval logging.
+
 ## Future Requirements
 
 - Every run must be traceable.
 - Every integration read must be logged.
 - Every high-risk action must require approval.
 - AI-generated content, if added later, must be tagged, metered, and auditable.
-

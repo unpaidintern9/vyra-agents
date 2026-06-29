@@ -15,3 +15,14 @@ If a match is found:
 - Link the existing Vyra account to the new gym.
 - Preserve the member's existing profile and history.
 
+## Phase 2 Matching Logic
+
+The local dashboard service simulates:
+
+- Match by email.
+- Match by phone.
+- Existing Vyra user match.
+- Pending profile required.
+- Offline member required.
+
+This logic uses mock data only and does not query production users.

@@ -22,3 +22,8 @@ Validation must check for:
 
 Any problems discovered during validation should be presented to the gym before migration is finalized.
 
+## Phase 2 Validation Logic
+
+The local dashboard service returns mock validation issues with severity, recommended action, and status. It is intended to shape the review workflow before production data is connected.
+
+No production data is connected, no migration is applied, and no AI is implemented.

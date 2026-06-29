@@ -187,6 +187,10 @@ h1 {
   font-size: 2rem;
 }
 
+.migration-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -428,6 +432,130 @@ h2 {
   grid-column: span 2;
 }
 
+.batch-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fact {
+  min-height: 72px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.032);
+  padding: 12px;
+}
+
+.fact span,
+.fact strong {
+  display: block;
+}
+
+.fact span {
+  color: #93a5bb;
+  font-size: 0.78rem;
+}
+
+.fact strong {
+  margin-top: 6px;
+  color: #f3f8ff;
+  font-size: 0.96rem;
+}
+
+.panel-copy {
+  margin: 0;
+  color: #bac7d8;
+}
+
+.rule-list {
+  display: grid;
+  gap: 10px;
+}
+
+.rule-list p {
+  margin: 0;
+  border-left: 2px solid rgba(158, 240, 200, 0.58);
+  color: #dce6f3;
+  padding-left: 12px;
+}
+
+.offline-support-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+
+th,
+td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: #9ef0c8;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+}
+
+td {
+  color: #dbe5f1;
+  font-size: 0.84rem;
+}
+
+td:nth-child(4),
+td:nth-child(6) {
+  color: #aebbd0;
+}
+
+.checklist {
+  display: grid;
+  gap: 10px;
+}
+
+.checklist label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #dce6f3;
+}
+
+.checklist input {
+  width: 18px;
+  height: 18px;
+  accent-color: #57c4a4;
+}
+
+.approval-button {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 18px;
+  border: 1px solid rgba(87, 196, 164, 0.45);
+  border-radius: 8px;
+  background: #57c4a4;
+  color: #06110e;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.approval-button:disabled {
+  background: rgba(87, 196, 164, 0.18);
+  color: #a6f4d4;
+  cursor: default;
+}
+
 @media (max-width: 1100px) {
   .app-shell {
     display: block;
@@ -444,6 +572,10 @@ h2 {
   }
 
   .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .migration-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -471,10 +603,12 @@ h2 {
 
   .nav-list,
   .summary-grid,
+  .migration-summary,
   .health-grid,
   .migration-grid,
   .integration-grid,
   .approval-grid,
+  .batch-grid,
   .ecosystem-map {
     grid-template-columns: 1fr;
   }
@@ -483,4 +617,3 @@ h2 {
     grid-column: span 12;
   }
 }
-

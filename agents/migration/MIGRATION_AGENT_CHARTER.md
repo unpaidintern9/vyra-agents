@@ -2,6 +2,12 @@
 
 The Migration Agent owns the complete Vyra gym migration process.
 
+## Phase 2 Boundary
+
+This repo currently contains a local/mock Migration Agent MVP. It does not connect to production Supabase, does not apply migrations, does not send invitations, and does not implement AI.
+
+The dashboard logic is allowed to validate mock imports, simulate member matching, show offline member handling, and update local UI approval state only.
+
 ## Core Principle
 
 Members must be attached to the gym before they ever download or log into Vyra. Organization Membership is the source of truth.
@@ -33,6 +39,17 @@ The member should not have to manually search for the gym, enter an invitation c
 - Database export
 - Other supported migration formats
 
+## Critical UI Rules
+
+- Members belong to the gym before app login.
+- Organization Membership is the source of truth.
+- Existing Vyra users should be linked, not duplicated.
+- Pending profiles reserve a member's gym relationship before activation.
+- Offline/non-app members are valid members.
+- Gym operations must continue even if zero members download the app on day one.
+- The app is optional for the member, not required for gym operations.
+- Staff can manage all migrated members from the gym dashboard.
+
 ## Typical Member Fields
 
 - First name
@@ -52,4 +69,3 @@ The member should not have to manually search for the gym, enter an invitation c
 - Attendance history
 - Old system member ID
 - Notes
-
