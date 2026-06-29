@@ -63,6 +63,7 @@ export const workflows = [
   { name: 'engineering-ownership-health-scan', status: 'Drafted', owner: 'Engineering Agent' },
   { name: 'engineering-fix-queue-planning', status: 'Drafted', owner: 'Engineering Agent' },
   { name: 'engineering-github-issue-draft-planning', status: 'Drafted', owner: 'Engineering Agent' },
+  { name: 'engineering-github-issue-creation', status: 'Approval Gated', owner: 'Engineering Agent' },
   { name: 'migration-import-review', status: 'Drafted', owner: 'Migration Agent' },
   { name: 'migration-validation', status: 'Drafted', owner: 'Migration Agent' },
   { name: 'approval-queue', status: 'Drafted', owner: 'Operations Agent' },

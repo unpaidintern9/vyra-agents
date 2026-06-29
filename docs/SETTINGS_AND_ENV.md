@@ -45,10 +45,25 @@ VITE_AGENT_MEMORY_WRITE_TOKEN=<temporary-local-operator-token>
 
 The token must match the Edge Function secret `AGENT_MEMORY_WRITE_TOKEN`. Do not commit this value and do not display it in the dashboard.
 
+## Phase 14 GitHub Issue Creation Env
+
+GitHub issue creation remains disabled and dry-run by default:
+
+```bash
+VITE_GITHUB_ISSUE_CREATION_ENABLED=false
+VITE_GITHUB_ISSUE_CREATION_DRY_RUN=true
+VITE_GITHUB_TOKEN=
+VITE_GITHUB_OWNER=unpaidintern9
+```
+
+For live local operator testing, Robert must explicitly set creation enabled, set dry-run false, and provide a GitHub token in ignored local env only. The dashboard still requires ready drafts, explicit clicks, and duplicate checks before any GitHub write.
+
 ## Safety
 
 The dashboard must never display full tokens, keys, or secrets.
 
 Use only anon or publishable keys in frontend code. Service role keys are forbidden in the browser because they bypass Row Level Security.
 
-Phase 8 agent-memory sync uses an Edge Function for writes to approved `agent_*` tables. It must not write to Supabase business tables, GitHub, billing, email, or production member systems.
+Phase 8 agent-memory sync uses an Edge Function for writes to approved `agent_*` tables. It must not write to Supabase business tables, billing, email, or production member systems.
+
+Phase 14 GitHub issue creation can write only to the configured GitHub repo issues endpoint after explicit approval and never writes to Supabase business tables.

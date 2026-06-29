@@ -7,4 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_AGENT_MEMORY_WRITE_ENABLED?: string;
   readonly VITE_AGENT_MEMORY_WRITE_FUNCTION?: string;
   readonly VITE_AGENT_MEMORY_WRITE_TOKEN?: string;
+  readonly VITE_GITHUB_ISSUE_CREATION_ENABLED?: string;
+  readonly VITE_GITHUB_ISSUE_CREATION_DRY_RUN?: string;
+  readonly VITE_GITHUB_OWNER?: string;
+  readonly VITE_GITHUB_TOKEN?: string;
 }

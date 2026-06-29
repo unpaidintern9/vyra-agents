@@ -12,6 +12,8 @@ Default permissions:
 - export local engineering backlog, documentation gap, orphan review, broken relationship, and repo health improvement reports
 - create and update local-only GitHub issue draft statuses
 - export local GitHub issue draft Markdown and JSON
+- dry-run ready GitHub issue draft creation without GitHub writes
+- create GitHub issues only after explicit approval and only when creation is enabled, dry-run is disabled, a token is configured, repo is known, and duplicate checks pass
 
 Future high-risk actions requiring approval:
 
@@ -31,6 +33,6 @@ Forbidden in this phase:
 - autonomous code-writing
 - modifying files based on impact analysis without explicit future approval
 - modifying files based on ownership, health, missing-doc, orphan, or broken-relationship findings without explicit future approval
-- creating GitHub issues from fix queue items
-- writing to GitHub from issue drafts
+- automatically creating GitHub issues from fix queue items
+- writing to GitHub from issue drafts while dry-run is enabled or approval/configuration gates are missing
 - changing app, website, desktop, or backend code from fix queue items

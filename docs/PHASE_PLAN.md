@@ -298,20 +298,46 @@ Boundaries:
 
 ## Phase 14
 
-Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
+Approval-Gated GitHub Issue Creation.
+
+Status: In progress in this repo.
+
+Includes:
+
+- GitHub issue creation client for Engineering Agent issue drafts.
+- Dry-run default with no GitHub network write.
+- Live creation gated by ready draft status, explicit user action, creation enabled, dry-run disabled, configured token, known owner/repo, and duplicate prevention.
+- Hidden issue body markers for duplicate detection:
+  - `<!-- vyra-agent-draft-id: DRAFT_ID -->`
+  - `<!-- vyra-agent-source: engineering-agent -->`
+- Local tracking under `vyra-agents:engineering-created-github-issues`.
+- `engineering-github-issue-creation` workflow records for dry-run and live attempts.
+
+Boundaries:
+
+- No AI is implemented.
+- No automatic GitHub issues are created.
+- Default env keeps issue creation disabled and dry-run enabled.
+- No live GitHub write is performed without explicit approval.
+- No app, website, desktop, backend, database, or business data code is changed by this workflow.
+- RLS and Supabase write boundaries are unchanged.
 
 ## Phase 15
 
-Workflow engine and production action logging.
+Production-grade Migration Agent with real staged imports, validation rules, matching rules, pending profiles, offline member support, gym review, and invitation prep.
 
 ## Phase 16
 
-Approval queue for risky actions.
+Workflow engine and production action logging.
 
 ## Phase 17
 
-Optional AI summaries and reasoning tools.
+Approval queue for risky actions.
 
 ## Phase 18
+
+Optional AI summaries and reasoning tools.
+
+## Phase 19
 
 Additional department agents.

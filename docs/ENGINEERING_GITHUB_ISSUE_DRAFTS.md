@@ -79,4 +79,6 @@ The dashboard can export:
 
 ## Safety
 
-Drafts are not GitHub issues. They are planning artifacts for Robert to review before any future approval-gated GitHub creation workflow.
+Drafts are not GitHub issues until Robert marks a draft ready and uses the approval-gated creation workflow.
+
+Default local configuration keeps GitHub issue creation disabled and dry-run enabled, so draft review and dry-run actions do not write to GitHub.

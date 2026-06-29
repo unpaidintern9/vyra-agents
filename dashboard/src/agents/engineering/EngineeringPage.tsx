@@ -68,6 +68,12 @@ import type { EngineeringGraph, EngineeringNode, EngineeringScanResult } from '.
 import type { EngineeringBacklogStatus } from './engineeringTaskTypes';
 import type { EngineeringIssueDraftStatus } from './engineeringIssueTypes';
 import { runEngineeringScanFromDashboard } from './engineeringScanner';
+import {
+  createGitHubIssueFromDraft,
+  createdGitHubIssuesStorageKey,
+  githubIssueCreationConfigFromEnv,
+} from '../../integrations/github/githubIssueClient';
+import type { CreatedGitHubIssueRecord, GitHubIssueCreationMode } from '../../integrations/github/githubIssueTypes';
 
 interface EngineeringPageProps {
   onImpactExport(_event: {
@@ -112,6 +118,10 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
   const [issueStatusFilter, setIssueStatusFilter] = useState('all');
   const [issueReadyFilter, setIssueReadyFilter] = useState('all');
   const [selectedIssueDraftId, setSelectedIssueDraftId] = useState<string | null>(null);
+  const [createdGitHubIssues, setCreatedGitHubIssues] = useState<CreatedGitHubIssueRecord[]>(() => loadCreatedGitHubIssues());
+  const [bulkCreationDraftIds, setBulkCreationDraftIds] = useState<string[]>([]);
+  const [issueCreationBusy, setIssueCreationBusy] = useState(false);
+  const [issueCreationMessage, setIssueCreationMessage] = useState('No GitHub issue creation attempts this session.');
 
   const graph = scan.graph;
   const selectedNode = selectedNodeId ? graph.nodes.find((node) => node.id === selectedNodeId) ?? null : null;
@@ -169,6 +179,20 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
   const repoHealthPlans = useMemo(() => repoHealthImprovementPlans(graph), [graph]);
   const issueDrafts = useMemo(() => buildEngineeringIssueDrafts(backlogItems, issueDraftStatusOverrides), [backlogItems, issueDraftStatusOverrides]);
   const issueDraftSummary = useMemo(() => summarizeIssueDrafts(issueDrafts), [issueDrafts]);
+  const githubIssueConfig = useMemo(() => githubIssueCreationConfigFromEnv(), []);
+  const readyIssueDrafts = useMemo(() => issueDrafts.filter((draft) => draft.readyForGitHub), [issueDrafts]);
+  const readyP0P1IssueDrafts = useMemo(() => readyIssueDrafts.filter((draft) => draft.priority === 'P0' || draft.priority === 'P1'), [readyIssueDrafts]);
+  const createdIssueByDraftId = useMemo(() => {
+    const records = new Map<string, CreatedGitHubIssueRecord>();
+    for (const record of createdGitHubIssues) {
+      if (!records.has(record.draftId) && ['created', 'duplicate_skipped'].includes(record.status)) {
+        records.set(record.draftId, record);
+      }
+    }
+    return records;
+  }, [createdGitHubIssues]);
+  const createdIssueCount = createdGitHubIssues.filter((record) => record.status === 'created').length;
+  const duplicateSkipCount = createdGitHubIssues.filter((record) => record.status === 'duplicate_skipped').length;
   const filteredIssueDrafts = useMemo(
     () =>
       issueDrafts.filter(
@@ -184,6 +208,11 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
     [issueCategoryFilter, issueDrafts, issueFeatureFilter, issueOwnerFilter, issuePriorityFilter, issueReadyFilter, issueRepoFilter, issueStatusFilter],
   );
   const selectedIssueDraft = selectedIssueDraftId ? issueDrafts.find((draft) => draft.id === selectedIssueDraftId) ?? null : null;
+  const selectedIssueRecord = selectedIssueDraft ? createdIssueByDraftId.get(selectedIssueDraft.id) ?? null : null;
+  const filteredReadyIssueDrafts = filteredIssueDrafts.filter((draft) => draft.readyForGitHub);
+  const pendingBulkDrafts = bulkCreationDraftIds
+    .map((draftId) => issueDrafts.find((draft) => draft.id === draftId))
+    .filter((draft): draft is NonNullable<typeof draft> => Boolean(draft));
 
   useEffect(() => {
     loadEngineeringGraph().then((result) => {
@@ -299,6 +328,69 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
       riskLevel: 'medium',
     });
   };
+
+  const runGitHubIssueCreation = async (drafts: typeof issueDrafts, mode: GitHubIssueCreationMode) => {
+    if (!drafts.length || issueCreationBusy) return;
+    setIssueCreationBusy(true);
+    setIssueCreationMessage(`${mode === 'dry-run' ? 'Dry-running' : 'Creating'} ${drafts.length} GitHub issue draft${drafts.length === 1 ? '' : 's'}...`);
+
+    const results: CreatedGitHubIssueRecord[] = [];
+    for (const draft of drafts) {
+      try {
+        const result = await createGitHubIssueFromDraft(draft, githubIssueConfig, mode);
+        results.push(result);
+        if (result.status === 'created') updateIssueDraftStatus(draft.id, 'created_later');
+        if (result.status === 'duplicate_skipped') updateIssueDraftStatus(draft.id, 'duplicate_skipped');
+        onImpactExport({
+          affectedCount: 1,
+          nodeLabel: draft.id,
+          nodeType: 'issue-draft',
+          reportType: `GitHub issue creation ${mode} ${result.status}`,
+          riskLevel: draft.priority === 'P0' || draft.priority === 'P1' ? 'high' : 'medium',
+        });
+      } catch (error) {
+        const result: CreatedGitHubIssueRecord = {
+          createdAt: new Date().toISOString(),
+          draftId: draft.id,
+          dryRun: mode === 'dry-run',
+          message: error instanceof Error ? error.message : 'GitHub issue creation failed.',
+          repo: draft.repo,
+          status: 'failed',
+          title: draft.title,
+        };
+        results.push(result);
+        onImpactExport({
+          affectedCount: 1,
+          nodeLabel: draft.id,
+          nodeType: 'issue-draft',
+          reportType: `GitHub issue creation ${mode} failed`,
+          riskLevel: draft.priority === 'P0' || draft.priority === 'P1' ? 'high' : 'medium',
+        });
+      }
+    }
+
+    persistCreatedGitHubIssues(results);
+    setIssueCreationMessage(issueCreationSummary(results));
+    setBulkCreationDraftIds([]);
+    setIssueCreationBusy(false);
+  };
+
+  const persistCreatedGitHubIssues = (records: CreatedGitHubIssueRecord[]) => {
+    setCreatedGitHubIssues((current) => {
+      const next = [...records, ...current].slice(0, 200);
+      localStorage.setItem(createdGitHubIssuesStorageKey, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const createButtonDisabled = (draft = selectedIssueDraft) =>
+    !draft ||
+    !draft.readyForGitHub ||
+    issueCreationBusy ||
+    !githubIssueConfig.enabled ||
+    githubIssueConfig.dryRun ||
+    !githubIssueConfig.token ||
+    Boolean(createdIssueByDraftId.get(draft.id));
 
   const summaryCards: Array<[string, number]> = [
     ['Repositories Indexed', graph.summary.repositoriesIndexed],
@@ -580,6 +672,8 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               ['Ready for GitHub', issueDraftSummary.readyForGitHub],
               ['Approval Required', issueDraftSummary.approvalRequired],
               ['Exported', issueDraftSummary.exported],
+              ['Created Issues', createdIssueCount],
+              ['Duplicate Skips', duplicateSkipCount],
             ].map(([label, value]) => (
               <article className="metric-card" key={label}>
                 <GitBranch size={18} />
@@ -606,7 +700,57 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               <span>P0/P1 Drafts Markdown</span>
             </button>
           </div>
-          <p className="subtle-note">Local/export-only drafts. No GitHub issues are created from this dashboard.</p>
+          <div className="metadata-list">
+            <div className="fact">
+              <span>Issue Creation Enabled</span>
+              <strong>{githubIssueConfig.enabled ? 'Yes' : 'No'}</strong>
+            </div>
+            <div className="fact">
+              <span>Dry Run</span>
+              <strong>{githubIssueConfig.dryRun ? 'Yes' : 'No'}</strong>
+            </div>
+            <div className="fact">
+              <span>Token Configured</span>
+              <strong>{githubIssueConfig.token ? 'Yes' : 'No'}</strong>
+            </div>
+            <div className="fact">
+              <span>Owner</span>
+              <strong>{githubIssueConfig.owner || 'Missing'}</strong>
+            </div>
+          </div>
+          <div className="button-row end-row">
+            <button className="report-button" disabled={!selectedIssueDraft?.readyForGitHub || issueCreationBusy} onClick={() => selectedIssueDraft && void runGitHubIssueCreation([selectedIssueDraft], 'dry-run')} type="button">
+              Dry Run Selected Draft
+            </button>
+            <button className="report-button" disabled={!readyIssueDrafts.length || issueCreationBusy} onClick={() => void runGitHubIssueCreation(readyIssueDrafts, 'dry-run')} type="button">
+              Dry Run Ready Drafts
+            </button>
+            <button className="report-button" disabled={!readyP0P1IssueDrafts.length || issueCreationBusy} onClick={() => void runGitHubIssueCreation(readyP0P1IssueDrafts, 'dry-run')} type="button">
+              Dry Run P0/P1 Ready Drafts
+            </button>
+            <button className="report-button" disabled={!filteredReadyIssueDrafts.length || filteredReadyIssueDrafts.every((draft) => createButtonDisabled(draft))} onClick={() => setBulkCreationDraftIds(filteredReadyIssueDrafts.filter((draft) => !createButtonDisabled(draft)).map((draft) => draft.id))} type="button">
+              Create Selected Ready Drafts
+            </button>
+            <button className="report-button" disabled={!readyP0P1IssueDrafts.length || readyP0P1IssueDrafts.every((draft) => createButtonDisabled(draft))} onClick={() => setBulkCreationDraftIds(readyP0P1IssueDrafts.filter((draft) => !createButtonDisabled(draft)).map((draft) => draft.id))} type="button">
+              Create P0/P1 Ready Drafts
+            </button>
+          </div>
+          {pendingBulkDrafts.length ? (
+            <div className="detail-panel">
+              <div className="split-panel">
+                <p className="panel-copy">Confirm live GitHub issue creation for {pendingBulkDrafts.length} ready draft{pendingBulkDrafts.length === 1 ? '' : 's'}.</p>
+                <div className="button-row end-row">
+                  <button className="approval-button compact-button" disabled={issueCreationBusy} onClick={() => void runGitHubIssueCreation(pendingBulkDrafts, 'live')} type="button">
+                    Confirm Create
+                  </button>
+                  <button className="clear-button" disabled={issueCreationBusy} onClick={() => setBulkCreationDraftIds([])} type="button">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          <p className="subtle-note">{issueCreationMessage}</p>
           <div className="toolbar-row">
             <div className="filter-row">
               <select aria-label="Filter issue priority" value={issuePriorityFilter} onChange={(event) => setIssuePriorityFilter(event.target.value)}>
@@ -655,6 +799,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
                 <option value="dismissed">Dismissed</option>
                 <option value="exported">Exported</option>
                 <option value="created_later">Created Later</option>
+                <option value="duplicate_skipped">Duplicate Skipped</option>
               </select>
               <select aria-label="Filter ready for GitHub" value={issueReadyFilter} onChange={(event) => setIssueReadyFilter(event.target.value)}>
                 <option value="all">All readiness</option>
@@ -665,21 +810,35 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
             <StatusBadge value={`${filteredIssueDrafts.length} drafts`} />
           </div>
           <DataTable
-            columns={['Priority', 'Title', 'Repo', 'Owner', 'Feature Area', 'Category', 'Severity', 'Effort', 'Status', 'Ready', 'Open']}
-            rows={filteredIssueDrafts.slice(0, 60).map((draft) => [
-              <StatusBadge key={`${draft.id}-priority`} value={draft.priority} tone={draft.priority === 'P0' || draft.priority === 'P1' ? 'warn' : 'neutral'} />,
-              draft.title,
-              draft.repo,
-              draft.owner,
-              formatHealth(draft.featureArea),
-              formatHealth(draft.category),
-              formatHealth(draft.severity),
-              formatHealth(draft.effort),
-              formatHealth(draft.status),
-              draft.readyForGitHub ? 'Yes' : 'No',
-              <button className="inline-action" key={draft.id} onClick={() => setSelectedIssueDraftId(draft.id)} type="button">
-                Open
-              </button>,
+            columns={['Priority', 'Title', 'Repo', 'Owner', 'Feature Area', 'Category', 'Severity', 'Effort', 'Status', 'Ready', 'GitHub', 'Open']}
+            rows={filteredIssueDrafts.slice(0, 60).map((draft) => {
+              const record = createdIssueByDraftId.get(draft.id);
+              return [
+                <StatusBadge key={`${draft.id}-priority`} value={draft.priority} tone={draft.priority === 'P0' || draft.priority === 'P1' ? 'warn' : 'neutral'} />,
+                draft.title,
+                draft.repo,
+                draft.owner,
+                formatHealth(draft.featureArea),
+                formatHealth(draft.category),
+                formatHealth(draft.severity),
+                formatHealth(draft.effort),
+                formatHealth(draft.status),
+                draft.readyForGitHub ? 'Yes' : 'No',
+                record ? issueRecordLabel(record) : 'Not created',
+                <button className="inline-action" key={draft.id} onClick={() => setSelectedIssueDraftId(draft.id)} type="button">
+                  Open
+                </button>,
+              ];
+            })}
+          />
+          <DataTable
+            columns={['Status', 'Draft', 'Repo', 'Issue', 'Created At']}
+            rows={createdGitHubIssues.slice(0, 10).map((record) => [
+              formatHealth(record.status),
+              record.draftId,
+              record.repo,
+              record.issueUrl || record.existingIssueUrl || record.message,
+              formatDate(record.createdAt),
             ])}
           />
         </Panel>
@@ -699,6 +858,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
                   <Fact label="Effort" value={formatHealth(selectedIssueDraft.effort)} />
                   <Fact label="Status" value={formatHealth(selectedIssueDraft.status)} />
                   <Fact label="Ready" value={selectedIssueDraft.readyForGitHub ? 'Yes' : 'No'} />
+                  <Fact label="GitHub Issue" value={selectedIssueRecord ? issueRecordLabel(selectedIssueRecord) : 'Not created'} />
                 </div>
                 <div className="button-row">
                   <button className="report-button" onClick={() => updateIssueDraftStatus(selectedIssueDraft.id, 'ready')} type="button">Mark Ready</button>
@@ -712,6 +872,12 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
                   <button className="report-button" onClick={() => exportIssueDrafts('selected issue draft MARKDOWN', () => downloadIssueDraft(selectedIssueDraft))} type="button">
                     <Download size={15} />
                     <span>Export Draft Markdown</span>
+                  </button>
+                  <button className="report-button" disabled={!selectedIssueDraft.readyForGitHub || issueCreationBusy} onClick={() => void runGitHubIssueCreation([selectedIssueDraft], 'dry-run')} type="button">
+                    Dry Run Selected Draft
+                  </button>
+                  <button className="approval-button compact-button" disabled={createButtonDisabled(selectedIssueDraft)} onClick={() => void runGitHubIssueCreation([selectedIssueDraft], 'live')} type="button">
+                    Create GitHub Issue
                   </button>
                 </div>
                 <div className="metadata-list">
@@ -1435,6 +1601,21 @@ function shortSha(value: string): string {
   return value && value !== 'unknown' ? value.slice(0, 7) : value;
 }
 
+function issueRecordLabel(record: CreatedGitHubIssueRecord): string {
+  if (record.issueNumber && record.issueUrl) return `#${record.issueNumber} ${record.issueUrl}`;
+  if (record.existingIssueUrl) return `Duplicate ${record.existingIssueUrl}`;
+  return formatHealth(record.status);
+}
+
+function issueCreationSummary(records: CreatedGitHubIssueRecord[]): string {
+  const created = records.filter((record) => record.status === 'created').length;
+  const dryRuns = records.filter((record) => record.status === 'dry_run').length;
+  const duplicates = records.filter((record) => record.status === 'duplicate_skipped').length;
+  const blocked = records.filter((record) => record.status === 'blocked').length;
+  const failed = records.filter((record) => record.status === 'failed').length;
+  return `GitHub issue creation results: ${created} created, ${dryRuns} dry-run, ${duplicates} duplicate skipped, ${blocked} blocked, ${failed} failed.`;
+}
+
 function riskTone(risk: EngineeringImpactRisk): 'neutral' | 'good' | 'warn' {
   if (risk === 'low') return 'good';
   if (risk === 'medium' || risk === 'high') return 'warn';
@@ -1456,5 +1637,14 @@ function loadIssueDraftStatusOverrides(): Record<string, EngineeringIssueDraftSt
     return parsed && typeof parsed === 'object' ? parsed : {};
   } catch {
     return {};
+  }
+}
+
+function loadCreatedGitHubIssues(): CreatedGitHubIssueRecord[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(createdGitHubIssuesStorageKey) || '[]') as CreatedGitHubIssueRecord[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
   }
 }

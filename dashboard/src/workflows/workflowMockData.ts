@@ -79,6 +79,17 @@ export const workflowMockData: WorkflowDefinition[] = [
     safeDryRun: true,
   },
   {
+    key: 'engineering-github-issue-creation',
+    triggerType: 'approval-gated GitHub write',
+    ownerAgent: 'Engineering Agent',
+    currentMode: 'read-only',
+    lastRun: 'Dry-run only until explicitly enabled',
+    nextStatus: 'approval required before live GitHub write',
+    riskLevel: 'medium',
+    approvalRequired: true,
+    safeDryRun: true,
+  },
+  {
     key: 'integration-status-check',
     triggerType: 'manual refresh',
     ownerAgent: 'Operations Agent',

@@ -140,6 +140,39 @@ Notes:
 - Issue creation requires a future approval-gated phase.
 - Status persists locally under `vyra-agents:engineering-issue-draft-status`.
 
+## engineering-github-issue-creation
+
+```text
+Load ready Engineering GitHub issue draft
+↓
+Dry-run by default
+↓
+Require explicit create click or bulk confirmation
+↓
+Verify creation enabled, dry-run disabled, token configured, owner/repo known
+↓
+Check duplicate title or hidden draft marker
+↓
+Create GitHub issue only if all gates pass
+↓
+Track created issue or duplicate skip locally
+↓
+Append Agent Memory event, audit log, and workflow result
+```
+
+Mode: approval-gated GitHub write.
+
+Approval required: yes.
+
+Production writes: GitHub issues only, after explicit approval and configuration.
+
+Notes:
+
+- Default mode is dry-run and performs no GitHub write.
+- No automatic GitHub issues are created.
+- Duplicate skips persist under `vyra-agents:engineering-created-github-issues`.
+- Service role keys and Supabase business tables are not involved.
+
 ## repo-health-check
 
 ```text

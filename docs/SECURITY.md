@@ -52,6 +52,16 @@ The dashboard may store only `VITE_AGENT_MEMORY_WRITE_TOKEN` locally in ignored 
 
 Direct browser inserts into Supabase tables are disabled by default and should not be re-enabled for production.
 
+## Phase 14 GitHub Issue Creation
+
+GitHub issue creation is disabled by default and dry-run by default. The dashboard must not create issues automatically.
+
+Live GitHub writes require a ready draft, explicit user action, enabled creation, dry-run disabled, configured token, owner/repo configuration, and duplicate prevention.
+
+The GitHub token may be used only from ignored local dashboard env files for this operator workflow. It must never be displayed, logged, committed, stored in localStorage, or sent to Supabase.
+
+GitHub issue creation does not modify Supabase RLS, business tables, app code, website code, desktop code, backend code, billing, email, or member systems.
+
 ## Secret Handling
 
 Do not display tokens, anon keys, URLs with secrets, or full error payloads that may contain credentials. Dashboard warnings should explain the issue without leaking secrets.

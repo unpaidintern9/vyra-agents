@@ -2,7 +2,7 @@ import type { EngineeringBacklogEffort, EngineeringBacklogSeverity } from './eng
 
 export type EngineeringIssuePriority = 'P0' | 'P1' | 'P2' | 'P3';
 export type EngineeringIssueCategory = 'documentation' | 'cleanup' | 'investigation' | 'risk' | 'repo-health';
-export type EngineeringIssueDraftStatus = 'draft' | 'ready' | 'dismissed' | 'exported' | 'created_later';
+export type EngineeringIssueDraftStatus = 'draft' | 'ready' | 'dismissed' | 'exported' | 'created_later' | 'duplicate_skipped';
 
 export interface EngineeringIssueDraft {
   id: string;

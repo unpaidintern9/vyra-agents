@@ -451,10 +451,13 @@ function App() {
     riskLevel: 'low' | 'medium' | 'high' | 'unknown';
   }) => {
     const now = new Date().toISOString();
+    const isIssueCreation = /issue creation|github issue creation|dry-run|dry run|duplicate_skipped|duplicate skipped|create github/i.test(event.reportType);
     const isIssueDraftPlanning = /issue draft|github issue|ready github|p0 p1/i.test(event.reportType);
     const isFixQueuePlanning = /fix queue|backlog|documentation gap|broken relationship|orphan review|status|repo health improvement/i.test(event.reportType);
     const isOwnershipHealthReport = /ownership|repo health|risk queue|missing docs|orphan|table-to-screen|function-to-table/i.test(event.reportType);
-    const workflowKey = isIssueDraftPlanning
+    const workflowKey = isIssueCreation
+      ? 'engineering-github-issue-creation'
+      : isIssueDraftPlanning
       ? 'engineering-github-issue-draft-planning'
       : isFixQueuePlanning
       ? 'engineering-fix-queue-planning'
@@ -466,10 +469,10 @@ function App() {
         id: `workflow_engineering_impact_${Date.now()}`,
         workflowKey,
         agent: 'Engineering Agent',
-        riskLevel: isIssueDraftPlanning ? 'medium' : event.riskLevel === 'unknown' ? 'medium' : event.riskLevel,
-        result: `${event.reportType} exported for ${event.nodeLabel}`,
+        riskLevel: isIssueCreation ? event.riskLevel === 'low' || event.riskLevel === 'unknown' ? 'medium' : event.riskLevel : isIssueDraftPlanning ? 'medium' : event.riskLevel === 'unknown' ? 'medium' : event.riskLevel,
+        result: isIssueCreation ? `${event.reportType} recorded for ${event.nodeLabel}` : `${event.reportType} exported for ${event.nodeLabel}`,
         createdAt: now,
-        approvalRequired: isIssueDraftPlanning,
+        approvalRequired: isIssueDraftPlanning || isIssueCreation,
         productionWritesOccurred: 'No',
       },
       ...current,
@@ -477,16 +480,16 @@ function App() {
     appendAgentEvent({
       agent: 'Engineering Agent',
       event: workflowKey,
-      detail: `${event.reportType} exported for ${event.nodeType} ${event.nodeLabel}; ${event.affectedCount} related nodes detected.`,
+      detail: `${event.reportType} ${isIssueCreation ? 'recorded' : 'exported'} for ${event.nodeType} ${event.nodeLabel}; ${event.affectedCount} related nodes detected.`,
     });
     appendAudit({
       actor: 'Robert',
       agent: 'Engineering Agent',
-      action: 'engineering impact report exported',
+      action: isIssueCreation ? 'engineering github issue creation attempt recorded' : 'engineering impact report exported',
       target: `${event.nodeType}:${event.nodeLabel}`,
       result: `${event.reportType} · ${event.riskLevel} risk`,
-      riskLevel: isIssueDraftPlanning ? 'medium' : event.riskLevel === 'unknown' ? 'medium' : event.riskLevel,
-      approvalRequired: isIssueDraftPlanning,
+      riskLevel: isIssueCreation ? event.riskLevel === 'low' || event.riskLevel === 'unknown' ? 'medium' : event.riskLevel : isIssueDraftPlanning ? 'medium' : event.riskLevel === 'unknown' ? 'medium' : event.riskLevel,
+      approvalRequired: isIssueDraftPlanning || isIssueCreation,
     });
   };
 
@@ -1176,6 +1179,9 @@ function SettingsPage({
           <Fact label="Current Mode" value={modeLabel(snapshot.effectiveMode)} />
           <Fact label="Requested Mode" value={modeLabel(snapshot.requestedMode)} />
           <Fact label="GitHub Token" value={envItems.VITE_GITHUB_TOKEN} />
+          <Fact label="GitHub Issue Creation" value={import.meta.env.VITE_GITHUB_ISSUE_CREATION_ENABLED === 'true' ? 'Enabled' : 'Disabled'} />
+          <Fact label="GitHub Issue Dry Run" value={import.meta.env.VITE_GITHUB_ISSUE_CREATION_DRY_RUN === 'false' ? 'Disabled' : 'Enabled'} />
+          <Fact label="GitHub Owner" value={import.meta.env.VITE_GITHUB_OWNER || 'Missing'} />
           <Fact label="Supabase URL" value={supabaseEnv.url} />
           <Fact label="Supabase Anon/Publishable Key" value={supabaseEnv.key} />
         </div>
@@ -1227,6 +1233,7 @@ function SettingsPage({
           <p>Copy `dashboard/.env.example` to `dashboard/.env`.</p>
           <p>Copied Vyra-Part-1 files may use EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.</p>
           <p>Add a GitHub token only if private repos or higher rate limits are needed.</p>
+          <p>GitHub issue creation stays disabled and dry-run by default until explicitly configured.</p>
           <p>Add only Supabase URL and anon/publishable keys; service role keys are never used in browser code.</p>
           <p>Enable Edge Function writes with VITE_AGENT_MEMORY_WRITE_ENABLED and a local write token.</p>
           <p>Run `npm run dev` from `dashboard/`.</p>
@@ -1238,6 +1245,7 @@ function SettingsPage({
           <p>Service role keys are forbidden in browser code.</p>
           <p>Direct browser inserts remain blocked by RLS.</p>
           <p>The Edge Function is the approved server-side write path for agent memory.</p>
+          <p>GitHub issue creation requires a ready draft, explicit approval, enabled creation, dry-run disabled, a token, a repo, and duplicate protection.</p>
           <p>Production business data remains out of scope.</p>
         </div>
       </Panel>
@@ -1842,6 +1850,8 @@ function envChecklist(): Record<string, 'configured' | 'missing' | 'invalid/unkn
     VITE_GITHUB_TOKEN: import.meta.env.VITE_GITHUB_TOKEN ? 'configured' : 'missing',
     VITE_GITHUB_OWNER: import.meta.env.VITE_GITHUB_OWNER ? 'configured' : 'missing',
     VITE_GITHUB_REPOS: import.meta.env.VITE_GITHUB_REPOS ? 'configured' : 'missing',
+    VITE_GITHUB_ISSUE_CREATION_ENABLED: import.meta.env.VITE_GITHUB_ISSUE_CREATION_ENABLED ? 'configured' : 'missing',
+    VITE_GITHUB_ISSUE_CREATION_DRY_RUN: import.meta.env.VITE_GITHUB_ISSUE_CREATION_DRY_RUN ? 'configured' : 'missing',
     VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL ? 'configured' : 'missing',
     VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'configured' : 'missing',
     VITE_SUPABASE_PUBLISHABLE_KEY: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'configured' : 'missing',
