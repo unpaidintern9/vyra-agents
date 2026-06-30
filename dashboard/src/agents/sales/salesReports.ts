@@ -1,6 +1,6 @@
 import type { LocalReport } from '../../storage/reportExport';
 import { formatCurrency, summarizeSalesPipeline } from './salesPipeline';
-import type { ProposalPrep, SalesActivity, SalesLead } from './salesTypes';
+import type { FollowUpQueueItem, LeadScore, ProposalPrep, SalesActivity, SalesLead } from './salesTypes';
 
 export function buildSalesPipelineReport(leads: SalesLead[], activities: SalesActivity[], proposals: ProposalPrep[]): LocalReport {
   const summary = summarizeSalesPipeline(leads, proposals);
@@ -70,6 +70,86 @@ export function buildProposalReport(leads: SalesLead[], proposals: ProposalPrep[
         migrationNeeded: proposal.migrationNeeded ? 'Yes' : 'No',
         status: proposal.status,
         notes: proposal.notes,
+      };
+    }),
+  };
+}
+
+export function buildLeadScoringReport(leads: SalesLead[], scores: LeadScore[]): LocalReport {
+  return {
+    title: 'Sales Lead Scoring Report',
+    slug: 'sales-lead-scoring-report',
+    summary: {
+      hotLeads: scores.filter((score) => score.priorityLabel === 'Hot').length,
+      warmLeads: scores.filter((score) => score.priorityLabel === 'Warm').length,
+      nurtureLeads: scores.filter((score) => score.priorityLabel === 'Nurture').length,
+      needsInfoLeads: scores.filter((score) => score.priorityLabel === 'Needs Info').length,
+      atRiskLeads: scores.filter((score) => score.priorityLabel === 'At Risk').length,
+      scoringMode: 'deterministic local rules',
+      productionWritesOccurred: 'No',
+    },
+    rows: scores.map((score) => {
+      const lead = leads.find((item) => item.id === score.leadId);
+      return {
+        lead: lead?.name ?? score.leadId,
+        segment: score.segment,
+        score: score.score,
+        priority: score.priorityLabel,
+        weightedPipelineValue: score.weightedPipelineValue,
+        recommendedAction: score.recommendedAction,
+        rationale: score.factors.map((factor) => `${factor.label}: ${factor.points} (${factor.detail})`).join('; '),
+      };
+    }),
+  };
+}
+
+export function buildFollowUpQueueReport(queue: FollowUpQueueItem[]): LocalReport {
+  return {
+    title: 'Sales Follow-Up Queue',
+    slug: 'sales-follow-up-queue',
+    summary: {
+      queueItems: queue.length,
+      overdue: queue.filter((item) => item.queue === 'overdue').length,
+      dueToday: queue.filter((item) => item.queue === 'today').length,
+      proposalNeeded: queue.filter((item) => item.queue === 'proposal_needed').length,
+      stalled: queue.filter((item) => item.queue === 'stalled').length,
+      missingInfo: queue.filter((item) => item.queue === 'missing_info').length,
+      noEmailsSent: 'Yes',
+      productionWritesOccurred: 'No',
+    },
+    rows: queue.map((item) => ({
+      lead: item.leadName,
+      queue: item.queue,
+      priority: item.priorityLabel,
+      score: item.score,
+      reason: item.reason,
+      nextAction: item.nextAction,
+      dueDate: item.dueDate ?? 'Not scheduled',
+    })),
+  };
+}
+
+export function buildWeightedPipelineReport(leads: SalesLead[], scores: LeadScore[]): LocalReport {
+  return {
+    title: 'Sales Weighted Pipeline',
+    slug: 'sales-weighted-pipeline',
+    summary: {
+      leadCount: scores.length,
+      estimatedPipelineValue: leads.reduce((total, lead) => total + lead.estimatedValue, 0),
+      estimatedWeightedPipelineValue: scores.reduce((total, score) => total + score.weightedPipelineValue, 0),
+      scoringMode: 'deterministic local rules',
+      productionWritesOccurred: 'No',
+    },
+    rows: scores.map((score) => {
+      const lead = leads.find((item) => item.id === score.leadId);
+      return {
+        leadId: score.leadId,
+        lead: lead?.name ?? score.leadId,
+        stage: lead?.pipelineStage ?? 'unknown',
+        estimatedValue: lead?.estimatedValue ?? 0,
+        score: score.score,
+        priority: score.priorityLabel,
+        weightedPipelineValue: score.weightedPipelineValue,
       };
     }),
   };

@@ -1,10 +1,15 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
-import type { SalesIntegrationSummary, SalesSummary } from '../agents/sales/salesTypes';
+import type { SalesIntegrationSummary, SalesScoringSummary, SalesSummary } from '../agents/sales/salesTypes';
 
-export const executiveRuleCount = 7;
+export const executiveRuleCount = 8;
 
-export function buildExecutivePriorities(runtime: AgentRuntimeSnapshot, salesSummary?: SalesSummary, salesIntegration?: SalesIntegrationSummary): ExecutivePriority[] {
+export function buildExecutivePriorities(
+  runtime: AgentRuntimeSnapshot,
+  salesSummary?: SalesSummary,
+  salesIntegration?: SalesIntegrationSummary,
+  salesScoringSummary?: SalesScoringSummary,
+): ExecutivePriority[] {
   const priorities: ExecutivePriority[] = [];
   const pendingApprovals = runtime.approvals.filter((approval) => approval.status === 'pending');
   const warningAgents = runtime.agents.filter((agent) => runtime.health[agent.id]?.warnings > 0);
@@ -80,6 +85,18 @@ export function buildExecutivePriorities(runtime: AgentRuntimeSnapshot, salesSum
       priority: 'medium',
       recommendedAction: 'Open Sales and clear the local follow-up planner.',
       source: 'Sales pipeline',
+    });
+  }
+
+  if (salesScoringSummary && (salesScoringSummary.overdueFollowUpCount > 0 || salesScoringSummary.atRiskLeadCount > 0)) {
+    priorities.push({
+      id: 'sales-scoring-attention',
+      agent: 'Sales Agent',
+      department: 'Sales',
+      detail: `${salesScoringSummary.overdueFollowUpCount} overdue follow-up(s) and ${salesScoringSummary.atRiskLeadCount} at-risk lead(s) need local review.`,
+      priority: salesScoringSummary.overdueFollowUpCount > 0 ? 'high' : 'medium',
+      recommendedAction: 'Open Sales and review the deterministic follow-up queue.',
+      source: 'Sales lead scoring',
     });
   }
 

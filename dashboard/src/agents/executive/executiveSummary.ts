@@ -1,7 +1,7 @@
 import { buildExecutivePriorities } from '../../runtime/executiveRules';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { LocalReport } from '../../storage/reportExport';
-import type { SalesIntegrationSummary, SalesSummary } from '../sales/salesTypes';
+import type { SalesIntegrationSummary, SalesScoringSummary, SalesSummary } from '../sales/salesTypes';
 import type {
   ExecutiveHealthRow,
   ExecutiveReportContext,
@@ -16,6 +16,7 @@ export function buildExecutiveSummary(
   integrationWarnings: string[] = [],
   salesSummary?: SalesSummary,
   salesIntegration?: SalesIntegrationSummary,
+  salesScoringSummary?: SalesScoringSummary,
 ): ExecutiveSummary {
   const healthRows = buildExecutiveHealthRows(runtime);
   const healthyAgents = healthRows.filter((agent) => agent.risk === 'low').length;
@@ -41,7 +42,7 @@ export function buildExecutiveSummary(
     migrationBatches: migrationHealth?.pendingTasks ?? 0,
     overallHealth,
     pendingApprovals,
-    priorities: buildExecutivePriorities(runtime, salesSummary, salesIntegration),
+    priorities: buildExecutivePriorities(runtime, salesSummary, salesIntegration, salesScoringSummary),
     recentRuntimeEvents: runtime.activities.length,
     registeredAgents: runtime.agents.length,
     runtime: buildRuntimeSummary(runtime),
@@ -51,6 +52,7 @@ export function buildExecutiveSummary(
     warningAgents,
     workflowsToday: countWorkflowActivity(runtime.activities),
     salesIntegration,
+    salesScoringSummary,
     salesSummary,
   };
 }
@@ -96,6 +98,10 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     salesIntegrationMode: summary.salesIntegration?.modeLabel ?? 'Not configured',
     salesPipelineValue: summary.salesSummary?.estimatedPipelineValue ?? 0,
     salesProposalNeeded: summary.salesSummary?.proposalNeeded ?? 0,
+    salesScoredHotLeads: summary.salesScoringSummary?.hotLeadCount ?? 0,
+    salesScoredAtRiskLeads: summary.salesScoringSummary?.atRiskLeadCount ?? 0,
+    salesOverdueFollowUps: summary.salesScoringSummary?.overdueFollowUpCount ?? 0,
+    salesWeightedPipelineValue: summary.salesScoringSummary?.estimatedWeightedPipelineValue ?? 0,
     salesBlockedExternalActions: summary.salesIntegration?.blockedExternalActionCount ?? 0,
     syncQueue: summary.syncQueue,
     runtimeVersion: summary.runtimeVersion,

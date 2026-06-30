@@ -8,8 +8,15 @@ import { ExecutiveRuntime } from './ExecutiveRuntime';
 import { ExecutiveTimeline } from './ExecutiveTimeline';
 import type { ExecutiveDashboardProps } from './executiveTypes';
 
-export default function ExecutiveDashboard({ integrationWarnings = [], onNavigate, runtime, salesIntegration, salesSummary }: ExecutiveDashboardProps) {
-  const summary = buildExecutiveSummary(runtime, integrationWarnings, salesSummary, salesIntegration);
+export default function ExecutiveDashboard({
+  integrationWarnings = [],
+  onNavigate,
+  runtime,
+  salesIntegration,
+  salesScoringSummary,
+  salesSummary,
+}: ExecutiveDashboardProps) {
+  const summary = buildExecutiveSummary(runtime, integrationWarnings, salesSummary, salesIntegration, salesScoringSummary);
   const healthRows = buildExecutiveHealthRows(runtime);
 
   return (

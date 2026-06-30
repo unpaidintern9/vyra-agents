@@ -28,9 +28,19 @@ import { summarizeMigration } from './agents/migration/migrationSummary';
 import { validateMigrationMembers } from './agents/migration/migrationValidation';
 import { matchMigrationMembers } from './agents/migration/memberMatching';
 import SalesPage from './agents/sales/SalesPage';
+import { buildSalesFollowUpQueue } from './agents/sales/salesFollowUpEngine';
 import { parseSalesLeadJson, emptySalesImportResult } from './agents/sales/salesImport';
 import { buildSalesIntegrationSummary } from './agents/sales/salesIntegrationAdapter';
-import { buildFollowUpReport, buildProposalReport, buildSalesPipelineReport, downloadSalesPipelineCsv } from './agents/sales/salesReports';
+import {
+  buildFollowUpQueueReport,
+  buildFollowUpReport,
+  buildLeadScoringReport,
+  buildProposalReport,
+  buildSalesPipelineReport,
+  buildWeightedPipelineReport,
+  downloadSalesPipelineCsv,
+} from './agents/sales/salesReports';
+import { mergeSalesScoringSummary, scoreSalesLeads, summarizeSalesScoring } from './agents/sales/salesScoring';
 import { createInitialSalesActivities, createInitialSalesLeads, createInitialSalesProposals } from './agents/sales/salesStorage';
 import type { ProposalPrep, SalesAction, SalesActivity, SalesLead } from './agents/sales/salesTypes';
 import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
@@ -149,6 +159,20 @@ function App() {
   );
   const workflowRegistry = useMemo(() => getWorkflowRegistry(), []);
   const salesSummary = useMemo(() => summarizeSalesPipeline(salesLeads, salesProposals), [salesLeads, salesProposals]);
+  const salesScores = useMemo(() => scoreSalesLeads(salesLeads, salesProposals, salesActivities), [salesActivities, salesLeads, salesProposals]);
+  const salesFollowUpQueue = useMemo(
+    () => buildSalesFollowUpQueue(salesLeads, salesProposals, salesActivities, salesScores),
+    [salesActivities, salesLeads, salesProposals, salesScores],
+  );
+  const salesScoringSummary = useMemo(() => {
+    const summary = summarizeSalesScoring(salesScores);
+    return mergeSalesScoringSummary(
+      summary,
+      salesFollowUpQueue.length,
+      salesFollowUpQueue.filter((item) => item.queue === 'overdue').length,
+      salesFollowUpQueue.filter((item) => item.queue === 'proposal_needed').length,
+    );
+  }, [salesFollowUpQueue, salesScores]);
   const salesIntegration = useMemo(() => buildSalesIntegrationSummary(requestedMode), []);
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
   const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
@@ -712,7 +736,10 @@ function App() {
     });
   };
 
-  const exportSalesReport = (format: ReportFormat | 'csv', report: 'pipeline' | 'follow_up' | 'proposal') => {
+  const exportSalesReport = (
+    format: ReportFormat | 'csv',
+    report: 'pipeline' | 'follow_up' | 'proposal' | 'lead_scoring' | 'follow_up_queue' | 'weighted_pipeline',
+  ) => {
     if (format === 'csv') {
       downloadSalesPipelineCsv(salesLeads);
       appendAgentEvent({
@@ -731,7 +758,13 @@ function App() {
       return;
     }
     const localReport =
-      report === 'follow_up'
+      report === 'follow_up_queue'
+        ? buildFollowUpQueueReport(salesFollowUpQueue)
+        : report === 'lead_scoring'
+          ? buildLeadScoringReport(salesLeads, salesScores)
+          : report === 'weighted_pipeline'
+            ? buildWeightedPipelineReport(salesLeads, salesScores)
+            : report === 'follow_up'
         ? buildFollowUpReport(salesLeads)
         : report === 'proposal'
           ? buildProposalReport(salesLeads, salesProposals)
@@ -739,7 +772,14 @@ function App() {
     downloadReport(localReport, format);
     appendAgentEvent({
       agent: 'Sales Agent',
-      event: report === 'pipeline' ? 'pipeline-summary' : report === 'follow_up' ? 'follow-up-planning' : 'quote-prep',
+      event:
+        report === 'pipeline' || report === 'weighted_pipeline'
+          ? 'pipeline-summary'
+          : report === 'follow_up' || report === 'follow_up_queue'
+            ? 'follow-up-planning'
+            : report === 'lead_scoring'
+              ? 'lead-scoring'
+              : 'quote-prep',
       detail: `${localReport.title} exported as ${format}. No email, Stripe, CRM, or production write occurred.`,
     });
     appendAudit({
@@ -970,6 +1010,7 @@ function App() {
         ) : activePage === 'Sales' ? (
           <SalesPage
             activities={salesActivities}
+            followUpQueue={salesFollowUpQueue}
             importResult={salesImportResult}
             integration={salesIntegration}
             leads={salesLeads}
@@ -977,6 +1018,8 @@ function App() {
             onExport={exportSalesReport}
             onImportJson={importSalesLeads}
             proposals={salesProposals}
+            scores={salesScores}
+            scoringSummary={salesScoringSummary}
           />
         ) : activePage === 'Integrations' ? (
           <IntegrationsPage snapshot={status} />
@@ -1032,6 +1075,7 @@ function App() {
             onNavigate={setActivePage}
             runtime={runtime}
             salesIntegration={salesIntegration}
+            salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
           />
         )}

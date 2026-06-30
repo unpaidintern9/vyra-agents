@@ -1,15 +1,38 @@
-import { CalendarClock, Download, FileText, Flame, ShieldCheck, Upload, Users } from 'lucide-react';
+import { CalendarClock, Download, FileText, Flame, ShieldCheck, Target, Upload, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { RiskBadge } from '../../components/RiskBadge';
 import { StatusBadge } from '../../components/StatusBadge';
 import { filterSalesLeads, formatCurrency, isFollowUpDue, isFollowUpThisWeek, isOverdue, pipelineStageLabels, summarizeSalesPipeline } from './salesPipeline';
-import type { SalesAction, SalesFilters, SalesLead, SalesPageProps } from './salesTypes';
+import { salesPriorityTone } from './salesScoring';
+import type { FollowUpQueueItem, LeadScore, SalesAction, SalesFilters, SalesLead, SalesPageProps } from './salesTypes';
 
-export default function SalesPage({ activities, importResult, integration, leads, onAction, onExport, onImportJson, proposals }: SalesPageProps) {
-  const [filters, setFilters] = useState<SalesFilters>({ priority: 'all', source: 'all', stage: 'all', type: 'all' });
+export default function SalesPage({
+  activities,
+  followUpQueue,
+  importResult,
+  integration,
+  leads,
+  onAction,
+  onExport,
+  onImportJson,
+  proposals,
+  scores,
+  scoringSummary,
+}: SalesPageProps) {
+  const [filters, setFilters] = useState<SalesFilters>({ priority: 'all', scorePriority: 'all', source: 'all', stage: 'all', type: 'all' });
+  const [selectedScoreId, setSelectedScoreId] = useState<string | null>(scores[0]?.leadId ?? null);
   const summary = useMemo(() => summarizeSalesPipeline(leads, proposals), [leads, proposals]);
-  const filteredLeads = useMemo(() => filterSalesLeads(leads, filters), [filters, leads]);
+  const filteredLeads = useMemo(
+    () =>
+      filterSalesLeads(leads, filters).filter((lead) => {
+        const score = scores.find((item) => item.leadId === lead.id);
+        return filters.scorePriority === 'all' || score?.priorityLabel === filters.scorePriority;
+      }),
+    [filters, leads, scores],
+  );
+  const selectedScore = scores.find((score) => score.leadId === selectedScoreId) ?? scores[0] ?? null;
+  const selectedLead = selectedScore ? leads.find((lead) => lead.id === selectedScore.leadId) ?? null : null;
   const sources = Array.from(new Set(leads.map((lead) => lead.source))).sort();
   const gymLeads = leads.filter((lead) => lead.leadType === 'gym');
   const coachLeads = leads.filter((lead) => lead.leadType === 'coach');
@@ -24,11 +47,11 @@ export default function SalesPage({ activities, importResult, integration, leads
         <SalesMetric icon={<Users size={20} />} label="Total Leads" value={String(summary.totalLeads)} />
         <SalesMetric icon={<Users size={20} />} label="Gym Leads" value={String(summary.gymLeads)} />
         <SalesMetric icon={<Users size={20} />} label="Coach Leads" value={String(summary.coachLeads)} />
-        <SalesMetric icon={<Flame size={20} />} label="Hot Leads" value={String(summary.hotLeads)} tone={summary.hotLeads ? 'warn' : 'good'} />
-        <SalesMetric icon={<CalendarClock size={20} />} label="Follow-Ups Due" value={String(summary.followUpsDue)} tone={summary.followUpsDue ? 'warn' : 'good'} />
-        <SalesMetric icon={<FileText size={20} />} label="Proposal Needed" value={String(summary.proposalNeeded)} tone={summary.proposalNeeded ? 'warn' : 'good'} />
-        <SalesMetric icon={<FileText size={20} />} label="Estimated Pipeline Value" value={formatCurrency(summary.estimatedPipelineValue)} />
-        <SalesMetric icon={<Flame size={20} />} label="Won This Month" value={String(summary.wonThisMonth)} tone="good" />
+        <SalesMetric icon={<Flame size={20} />} label="Hot Scored Leads" value={String(scoringSummary.hotLeadCount)} tone={scoringSummary.hotLeadCount ? 'warn' : 'good'} />
+        <SalesMetric icon={<CalendarClock size={20} />} label="Overdue Follow-Ups" value={String(scoringSummary.overdueFollowUpCount)} tone={scoringSummary.overdueFollowUpCount ? 'warn' : 'good'} />
+        <SalesMetric icon={<FileText size={20} />} label="Proposal Needed" value={String(scoringSummary.proposalNeededCount)} tone={scoringSummary.proposalNeededCount ? 'warn' : 'good'} />
+        <SalesMetric icon={<Target size={20} />} label="At Risk" value={String(scoringSummary.atRiskLeadCount)} tone={scoringSummary.atRiskLeadCount ? 'warn' : 'good'} />
+        <SalesMetric icon={<FileText size={20} />} label="Weighted Pipeline" value={formatCurrency(scoringSummary.estimatedWeightedPipelineValue)} />
       </section>
 
       <section className="dashboard-grid">
@@ -127,10 +150,22 @@ export default function SalesPage({ activities, importResult, integration, leads
               ))}
             </SalesSelect>
             <SalesSelect label="Priority" value={filters.priority} onChange={(value) => setFilters((current) => ({ ...current, priority: value }))}>
-              <option value="all">All priorities</option>
+              <option value="all">All risk flags</option>
               <option value="high">High</option>
               <option value="medium">Medium</option>
               <option value="low">Low</option>
+            </SalesSelect>
+            <SalesSelect
+              label="Lead Priority"
+              value={filters.scorePriority}
+              onChange={(value) => setFilters((current) => ({ ...current, scorePriority: value }))}
+            >
+              <option value="all">All scored priorities</option>
+              <option value="Hot">Hot</option>
+              <option value="Warm">Warm</option>
+              <option value="Nurture">Nurture</option>
+              <option value="Needs Info">Needs Info</option>
+              <option value="At Risk">At Risk</option>
             </SalesSelect>
             <SalesSelect label="Source" value={filters.source} onChange={(value) => setFilters((current) => ({ ...current, source: value }))}>
               <option value="all">All sources</option>
@@ -141,7 +176,33 @@ export default function SalesPage({ activities, importResult, integration, leads
               ))}
             </SalesSelect>
           </div>
-          <SalesLeadTable leads={filteredLeads} />
+          <SalesLeadTable leads={filteredLeads} onSelectScore={setSelectedScoreId} scores={scores} selectedScoreId={selectedScore?.leadId ?? null} />
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Target size={18} />
+              <h2>Why This Score?</h2>
+            </div>
+            {selectedScore ? <StatusBadge value={selectedScore.priorityLabel} tone={salesPriorityTone(selectedScore.priorityLabel)} /> : null}
+          </div>
+          <p className="panel-description">
+            Scores are deterministic local rules. They explain priority only and do not trigger email, Stripe, CRM, or production writes.
+          </p>
+          {selectedScore && selectedLead ? <ScoreDetailPanel lead={selectedLead} score={selectedScore} /> : <p className="empty-note">Select a lead to review scoring rationale.</p>}
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <CalendarClock size={18} />
+              <h2>Follow-Up Queue</h2>
+            </div>
+            <span>{followUpQueue.length} local reminder(s)</span>
+          </div>
+          <p className="panel-description">Prioritized reminders are local planning artifacts only. No messages are sent from this queue.</p>
+          <FollowUpQueueTable items={followUpQueue} />
         </section>
 
         <section className="panel wide-panel">
@@ -326,6 +387,21 @@ export default function SalesPage({ activities, importResult, integration, leads
               <span>Proposal Prep Report Markdown</span>
               <small>Quote prep without Stripe writes.</small>
             </button>
+            <button className="report-button" onClick={() => onExport('markdown', 'lead_scoring')} type="button">
+              <Download size={16} />
+              <span>Lead Scoring Report Markdown</span>
+              <small>Explainable scores and priority labels.</small>
+            </button>
+            <button className="report-button" onClick={() => onExport('markdown', 'follow_up_queue')} type="button">
+              <Download size={16} />
+              <span>Follow-Up Queue Markdown</span>
+              <small>Today, overdue, proposal, stalled, and missing-info reminders.</small>
+            </button>
+            <button className="report-button" onClick={() => onExport('json', 'weighted_pipeline')} type="button">
+              <Download size={16} />
+              <span>Weighted Pipeline JSON</span>
+              <small>Score-weighted local pipeline snapshot.</small>
+            </button>
           </div>
         </section>
       </section>
@@ -343,12 +419,24 @@ function SalesMetric({ icon, label, tone, value }: { icon: ReactNode; label: str
   );
 }
 
-function SalesLeadTable({ leads }: { leads: SalesLead[] }) {
+function SalesLeadTable({
+  leads,
+  onSelectScore,
+  scores,
+  selectedScoreId,
+}: {
+  leads: SalesLead[];
+  onSelectScore(_leadId: string): void;
+  scores: LeadScore[];
+  selectedScoreId: string | null;
+}) {
   return (
     <div className="table-wrap">
       <table>
         <thead>
           <tr>
+            <th>Score</th>
+            <th>Lead Priority</th>
             <th>Priority</th>
             <th>Lead</th>
             <th>Type</th>
@@ -361,24 +449,97 @@ function SalesLeadTable({ leads }: { leads: SalesLead[] }) {
           </tr>
         </thead>
         <tbody>
-          {leads.map((lead) => (
-            <tr key={lead.id}>
+          {leads.map((lead) => {
+            const score = scores.find((item) => item.leadId === lead.id);
+            return (
+              <tr className={selectedScoreId === lead.id ? 'selected-row' : ''} key={lead.id}>
+                <td>
+                  <button className="score-button" onClick={() => onSelectScore(lead.id)} type="button">
+                    {score?.score ?? 0}
+                  </button>
+                </td>
+                <td>{score ? <StatusBadge value={score.priorityLabel} tone={salesPriorityTone(score.priorityLabel)} /> : 'Not scored'}</td>
+                <td>
+                  <RiskBadge risk={lead.priority} />
+                </td>
+                <td>
+                  <strong>{lead.name}</strong>
+                  <span className="table-subtext">{lead.contactName}</span>
+                </td>
+                <td>{lead.leadType}</td>
+                <td>{pipelineStageLabels[lead.pipelineStage]}</td>
+                <td>{lead.source}</td>
+                <td>{formatCurrency(lead.estimatedValue)}</td>
+                <td>{lead.nextAction}</td>
+                <td>{lead.nextFollowUpDate ? formatDate(lead.nextFollowUpDate) : 'Not scheduled'}</td>
+                <td>
+                  <StatusBadge value={lead.status} tone={lead.status === 'active' || lead.status === 'won' ? 'good' : 'neutral'} />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ScoreDetailPanel({ lead, score }: { lead: SalesLead; score: LeadScore }) {
+  return (
+    <div className="score-detail-grid">
+      <div className="fact-list compact-facts">
+        <Fact label="Lead" value={lead.name} />
+        <Fact label="Segment" value={score.segment.replace(/_/g, ' ')} />
+        <Fact label="Score" value={`${score.score}/100`} />
+        <Fact label="Weighted Value" value={formatCurrency(score.weightedPipelineValue)} />
+        <Fact label="Recommended Action" value={score.recommendedAction} />
+      </div>
+      <div className="score-factor-list">
+        {score.factors.map((factor) => (
+          <article className="score-factor" key={factor.key}>
+            <div>
+              <strong>{factor.label}</strong>
+              <span>{factor.detail}</span>
+            </div>
+            <b>{factor.points > 0 ? `+${factor.points}` : factor.points}</b>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FollowUpQueueTable({ items }: { items: FollowUpQueueItem[] }) {
+  if (!items.length) {
+    return <p className="empty-note">No local follow-up reminders are currently queued.</p>;
+  }
+
+  return (
+    <div className="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Queue</th>
+            <th>Lead</th>
+            <th>Priority</th>
+            <th>Score</th>
+            <th>Reason</th>
+            <th>Next Action</th>
+            <th>Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => (
+            <tr key={`${item.leadId}-${item.queue}`}>
+              <td>{item.queue.replace(/_/g, ' ')}</td>
+              <td>{item.leadName}</td>
               <td>
-                <RiskBadge risk={lead.priority} />
+                <StatusBadge value={item.priorityLabel} tone={salesPriorityTone(item.priorityLabel)} />
               </td>
-              <td>
-                <strong>{lead.name}</strong>
-                <span className="table-subtext">{lead.contactName}</span>
-              </td>
-              <td>{lead.leadType}</td>
-              <td>{pipelineStageLabels[lead.pipelineStage]}</td>
-              <td>{lead.source}</td>
-              <td>{formatCurrency(lead.estimatedValue)}</td>
-              <td>{lead.nextAction}</td>
-              <td>{lead.nextFollowUpDate ? formatDate(lead.nextFollowUpDate) : 'Not scheduled'}</td>
-              <td>
-                <StatusBadge value={lead.status} tone={lead.status === 'active' || lead.status === 'won' ? 'good' : 'neutral'} />
-              </td>
+              <td>{item.score}</td>
+              <td>{item.reason}</td>
+              <td>{item.nextAction}</td>
+              <td>{item.dueDate ? formatDate(item.dueDate) : 'Not scheduled'}</td>
             </tr>
           ))}
         </tbody>

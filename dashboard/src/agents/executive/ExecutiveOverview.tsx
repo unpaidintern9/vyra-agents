@@ -21,10 +21,29 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
     { label: 'Recent Runtime Events', value: String(summary.recentRuntimeEvents) },
     ...(summary.salesSummary
       ? [
-          { label: 'Sales Hot Leads', value: String(summary.salesSummary.hotLeads), tone: summary.salesSummary.hotLeads ? 'warn' : 'good' },
           { label: 'Sales Follow-Ups Due', value: String(summary.salesSummary.followUpsDue), tone: summary.salesSummary.followUpsDue ? 'warn' : 'good' },
-          { label: 'Sales Proposal Needed', value: String(summary.salesSummary.proposalNeeded), tone: summary.salesSummary.proposalNeeded ? 'warn' : 'good' },
           { label: 'Sales Pipeline Value', value: formatCurrency(summary.salesSummary.estimatedPipelineValue) },
+        ]
+      : []),
+    ...(summary.salesScoringSummary
+      ? [
+          { label: 'Sales Hot Leads', value: String(summary.salesScoringSummary.hotLeadCount), tone: summary.salesScoringSummary.hotLeadCount ? 'warn' : 'good' },
+          {
+            label: 'Overdue Sales Follow-Ups',
+            value: String(summary.salesScoringSummary.overdueFollowUpCount),
+            tone: summary.salesScoringSummary.overdueFollowUpCount ? 'warn' : 'good',
+          },
+          {
+            label: 'Sales Proposal Needed',
+            value: String(summary.salesScoringSummary.proposalNeededCount),
+            tone: summary.salesScoringSummary.proposalNeededCount ? 'warn' : 'good',
+          },
+          {
+            label: 'At-Risk Sales Leads',
+            value: String(summary.salesScoringSummary.atRiskLeadCount),
+            tone: summary.salesScoringSummary.atRiskLeadCount ? 'warn' : 'good',
+          },
+          { label: 'Weighted Sales Pipeline', value: formatCurrency(summary.salesScoringSummary.estimatedWeightedPipelineValue) },
         ]
       : []),
     ...(summary.salesIntegration

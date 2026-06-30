@@ -13,12 +13,20 @@ export type PipelineStage =
   | 'lost'
   | 'paused';
 export type LeadPriority = RiskLevel;
+export type SalesPriorityLabel = 'Hot' | 'Warm' | 'Nurture' | 'Needs Info' | 'At Risk';
 export type LeadStatus = 'active' | 'won' | 'lost' | 'paused';
 export type SalesActivityType = 'note' | 'follow_up' | 'contacted' | 'proposal' | 'status_change';
 export type ProposalStatus = 'not_started' | 'needed' | 'drafted' | 'sent_mock' | 'paused';
 export type SalesAction = 'follow_up_planned' | 'contacted' | 'proposal_needed' | 'paused';
 export type SalesIntegrationMode = 'mock' | 'live_read_only';
 export type SalesReadinessStatus = 'ready' | 'not_configured' | 'blocked';
+export type SalesProspectSegment =
+  | 'gym_prospect'
+  | 'independent_coach'
+  | 'gym_affiliated_coach'
+  | 'white_label_prospect'
+  | 'migration_prospect';
+export type FollowUpQueueType = 'today' | 'overdue' | 'proposal_needed' | 'stalled' | 'missing_info';
 
 export interface SalesLead {
   businessName: string;
@@ -99,6 +107,48 @@ export interface RevenueEstimate {
   pipelineValue: number;
 }
 
+export interface LeadScoreFactor {
+  detail: string;
+  key: string;
+  label: string;
+  points: number;
+}
+
+export interface LeadScore {
+  factors: LeadScoreFactor[];
+  leadId: string;
+  missingInfo: string[];
+  priorityLabel: SalesPriorityLabel;
+  recommendedAction: string;
+  score: number;
+  segment: SalesProspectSegment;
+  stalled: boolean;
+  weightedPipelineValue: number;
+}
+
+export interface FollowUpQueueItem {
+  dueDate: string | null;
+  leadId: string;
+  leadName: string;
+  nextAction: string;
+  priorityLabel: SalesPriorityLabel;
+  queue: FollowUpQueueType;
+  reason: string;
+  score: number;
+}
+
+export interface SalesScoringSummary {
+  atRiskLeadCount: number;
+  estimatedWeightedPipelineValue: number;
+  followUpQueueCount: number;
+  hotLeadCount: number;
+  needsInfoCount: number;
+  nurtureLeadCount: number;
+  overdueFollowUpCount: number;
+  proposalNeededCount: number;
+  warmLeadCount: number;
+}
+
 export interface SalesSummary {
   coachLeads: number;
   estimatedPipelineValue: number;
@@ -130,6 +180,7 @@ export interface SalesImportResult {
 
 export interface SalesFilters {
   priority: string;
+  scorePriority: string;
   source: string;
   stage: string;
   type: string;
@@ -137,11 +188,17 @@ export interface SalesFilters {
 
 export interface SalesPageProps {
   activities: SalesActivity[];
+  followUpQueue: FollowUpQueueItem[];
   importResult: SalesImportResult;
   integration: SalesIntegrationSummary;
   leads: SalesLead[];
   onAction(_leadId: string, _action: SalesAction): void;
-  onExport(_format: 'json' | 'markdown' | 'csv', _report: 'pipeline' | 'follow_up' | 'proposal'): void;
+  onExport(
+    _format: 'json' | 'markdown' | 'csv',
+    _report: 'pipeline' | 'follow_up' | 'proposal' | 'lead_scoring' | 'follow_up_queue' | 'weighted_pipeline',
+  ): void;
   onImportJson(_content: string): void;
   proposals: ProposalPrep[];
+  scores: LeadScore[];
+  scoringSummary: SalesScoringSummary;
 }

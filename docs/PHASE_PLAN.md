@@ -562,3 +562,26 @@ Boundaries:
 - No production business tables are written.
 - No AI is implemented.
 - Live mode is read-only only.
+
+## Phase 22
+
+Sales Agent lead scoring and follow-up engine.
+
+Includes:
+
+- Deterministic local scoring rules for gym prospects, independent coaches, gym-affiliated coaches, white-label prospects, and migration prospects.
+- Transparent score factors for prospect type, estimated monthly value, urgency, due dates, proposal needs, stalled stages, missing contact info, last activity age, and Vyra product fit.
+- Priority labels for Hot, Warm, Nurture, Needs Info, and At Risk.
+- Local follow-up queue for today, overdue, proposal-needed, stalled, and missing-info reminders.
+- Sales page score column, priority filter, follow-up queue, and score rationale panel.
+- Executive Dashboard signals for hot leads, overdue follow-ups, proposal needs, at-risk leads, and weighted pipeline value.
+- Lead scoring Markdown, follow-up queue Markdown, and weighted pipeline JSON exports.
+
+Boundaries:
+
+- No AI is implemented.
+- No emails are sent.
+- No Stripe invoices are created.
+- No CRM production records are written.
+- No production business tables are written.
+- All actions remain local/mock/read-only.
