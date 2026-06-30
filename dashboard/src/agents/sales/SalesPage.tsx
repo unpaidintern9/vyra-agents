@@ -5,6 +5,7 @@ import { RiskBadge } from '../../components/RiskBadge';
 import { StatusBadge } from '../../components/StatusBadge';
 import { filterSalesLeads, formatCurrency, isFollowUpDue, isFollowUpThisWeek, isOverdue, pipelineStageLabels, summarizeSalesPipeline } from './salesPipeline';
 import { generateSalesProposalDraft, inferProposalTemplate, salesProposalTemplateLabels } from './salesProposalBuilder';
+import { emptyProspectIntakeDraft, labelBusinessType, missingInfoForIntake } from './salesProspectDossiers';
 import { salesPriorityTone } from './salesScoring';
 import type {
   FollowUpQueueItem,
@@ -13,10 +14,14 @@ import type {
   SalesFilters,
   SalesLead,
   SalesPageProps,
+  SalesProspectBusinessType,
   SalesProspectCategory,
+  SalesProspectIntake,
+  SalesProspectIntakeDraft,
   SalesProspectResearchRecord,
   SalesProposalDraft,
   SalesProposalTemplateType,
+  SalesResearchDossier,
   SalesTeamAgentDefinition,
 } from './salesTypes';
 
@@ -28,12 +33,17 @@ export default function SalesPage({
   leads,
   onAction,
   onExport,
+  onExportResearchDossier,
   onExportProposalDraft,
   onGenerateProposalDraft,
   onImportJson,
+  onSaveProspectIntake,
   proposalDrafts,
   proposalSummary,
   proposals,
+  prospectDossierSummary,
+  prospectDossiers,
+  prospectIntakes,
   prospectResearch,
   scores,
   teamAgents,
@@ -44,6 +54,8 @@ export default function SalesPage({
   const [prospectMarketFilter, setProspectMarketFilter] = useState('all');
   const [prospectCategoryFilter, setProspectCategoryFilter] = useState('all');
   const [selectedScoreId, setSelectedScoreId] = useState<string | null>(scores[0]?.leadId ?? null);
+  const [selectedDossierId, setSelectedDossierId] = useState<string | null>(prospectDossiers[0]?.dossierId ?? null);
+  const [intakeDraft, setIntakeDraft] = useState<SalesProspectIntakeDraft>(emptyProspectIntakeDraft);
   const [selectedProposalLeadId, setSelectedProposalLeadId] = useState<string>(leads[0]?.id ?? '');
   const [selectedProposalType, setSelectedProposalType] = useState<SalesProposalTemplateType>(
     leads[0] ? inferProposalTemplate(leads[0], proposals.find((proposal) => proposal.leadId === leads[0].id)) : 'gym_os',
@@ -75,6 +87,8 @@ export default function SalesPage({
     );
   });
   const selectedProposalLead = leads.find((lead) => lead.id === selectedProposalLeadId) ?? leads[0] ?? null;
+  const selectedDossier = prospectDossiers.find((dossier) => dossier.dossierId === selectedDossierId) ?? prospectDossiers[0] ?? null;
+  const selectedDossierIntake = selectedDossier ? prospectIntakes.find((intake) => intake.id === selectedDossier.intakeId) ?? null : null;
   const selectedProposalPrep = selectedProposalLead ? proposalForLead(proposals, selectedProposalLead.id) : undefined;
   const savedProposalDraft = proposalDrafts.find((draft) => draft.leadId === selectedProposalLead?.id && draft.templateType === selectedProposalType);
   const previewProposalDraft = selectedProposalLead
@@ -102,6 +116,9 @@ export default function SalesPage({
         <SalesMetric icon={<Brain size={20} />} label="Sales Sub-Agents" value={`${teamSummary.activeAgents}/${teamSummary.totalAgents}`} tone="good" />
         <SalesMetric icon={<Search size={20} />} label="High-Fit Prospects" value={String(teamSummary.highFitProspects)} tone={teamSummary.highFitProspects ? 'good' : undefined} />
         <SalesMetric icon={<Target size={20} />} label="Needs Research" value={String(teamSummary.needsResearch)} tone={teamSummary.needsResearch ? 'warn' : 'good'} />
+        <SalesMetric icon={<FileText size={20} />} label="Saved Prospects" value={String(prospectDossierSummary.savedProspects)} />
+        <SalesMetric icon={<FileText size={20} />} label="Research Dossiers" value={String(prospectDossierSummary.dossiersCreated)} />
+        <SalesMetric icon={<Target size={20} />} label="Migration Opportunities" value={String(prospectDossierSummary.migrationOpportunityProspects)} tone={prospectDossierSummary.migrationOpportunityProspects ? 'warn' : 'good'} />
       </section>
 
       <section className="dashboard-grid">
@@ -196,6 +213,50 @@ export default function SalesPage({
             <span>{teamSummary.targetMarkets} target market(s)</span>
           </div>
           <SalesIntelligenceBrief prospects={prospectResearch} summary={teamSummary} />
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <FileText size={18} />
+              <h2>Prospect Intake + Research Dossiers</h2>
+            </div>
+            <StatusBadge value="Local dossier generator" tone="good" />
+          </div>
+          <p className="panel-description">
+            Save gym prospect details locally and generate deterministic research dossiers. No external browsing, email, Stripe, CRM, or production writes occur.
+          </p>
+          <ProspectIntakeForm
+            draft={intakeDraft}
+            onChange={setIntakeDraft}
+            onSubmit={() => {
+              onSaveProspectIntake(intakeDraft);
+              setIntakeDraft(emptyProspectIntakeDraft);
+            }}
+          />
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Search size={18} />
+              <h2>Saved Prospect Dossiers</h2>
+            </div>
+            <span>{prospectDossiers.length} dossier(s)</span>
+          </div>
+          <div className="dossier-layout">
+            <SavedProspectList
+              dossiers={prospectDossiers}
+              intakes={prospectIntakes}
+              onSelect={setSelectedDossierId}
+              selectedDossierId={selectedDossier?.dossierId ?? null}
+            />
+            <DossierPreview
+              dossier={selectedDossier}
+              intake={selectedDossierIntake}
+              onExport={(format) => selectedDossier && onExportResearchDossier(selectedDossier.dossierId, format)}
+            />
+          </div>
         </section>
 
         <section className="panel wide-panel">
@@ -714,6 +775,222 @@ function bestMarket(prospects: SalesProspectResearchRecord[]): string {
   return market ?? 'No prospects';
 }
 
+function ProspectIntakeForm({
+  draft,
+  onChange,
+  onSubmit,
+}: {
+  draft: SalesProspectIntakeDraft;
+  onChange(_draft: SalesProspectIntakeDraft): void;
+  onSubmit(): void;
+}) {
+  const missing = draftMissingFields(draft);
+  const update = <Key extends keyof SalesProspectIntakeDraft>(key: Key, value: SalesProspectIntakeDraft[Key]) => onChange({ ...draft, [key]: value });
+
+  return (
+    <div className="prospect-intake-grid">
+      <div className="prospect-intake-form">
+        <TextInput label="Gym Name" value={draft.gymName} onChange={(value) => update('gymName', value)} />
+        <div className="intake-two-column">
+          <TextInput label="City" value={draft.city} onChange={(value) => update('city', value)} />
+          <TextInput label="State" value={draft.state} onChange={(value) => update('state', value)} />
+        </div>
+        <SalesSelect label="Business Type" value={draft.businessType} onChange={(value) => update('businessType', value as SalesProspectBusinessType)}>
+          <option value="mma_bjj">MMA / BJJ</option>
+          <option value="crossfit">CrossFit</option>
+          <option value="small_gym">Small gym</option>
+          <option value="boutique_fitness">Boutique fitness</option>
+          <option value="sports_performance">Sports performance</option>
+          <option value="independent_coach">Independent coach</option>
+          <option value="multi_location_gym">Multi-location gym</option>
+          <option value="unknown">Unknown</option>
+        </SalesSelect>
+        <div className="intake-two-column">
+          <TextInput label="Website" value={draft.websiteUrl} onChange={(value) => update('websiteUrl', value)} />
+          <TextInput label="Instagram / Social" value={draft.instagramUrl} onChange={(value) => update('instagramUrl', value)} />
+        </div>
+        <div className="intake-two-column">
+          <TextInput label="Owner / Contact" value={draft.contactName} onChange={(value) => update('contactName', value)} />
+          <TextInput label="Current Software" value={draft.currentSoftware} onChange={(value) => update('currentSoftware', value)} />
+        </div>
+        <div className="intake-two-column">
+          <TextInput label="Contact Email" value={draft.contactEmail} onChange={(value) => update('contactEmail', value)} />
+          <TextInput label="Contact Phone" value={draft.contactPhone} onChange={(value) => update('contactPhone', value)} />
+        </div>
+        <div className="intake-three-column">
+          <NumberInput label="Estimated Members" value={draft.estimatedMembers} onChange={(value) => update('estimatedMembers', value)} />
+          <NumberInput label="Estimated Coaches" value={draft.estimatedCoaches} onChange={(value) => update('estimatedCoaches', value)} />
+          <SalesSelect label="Migration Complexity" value={draft.migrationComplexity} onChange={(value) => update('migrationComplexity', value as SalesProspectIntakeDraft['migrationComplexity'])}>
+            <option value="unknown">Unknown</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </SalesSelect>
+        </div>
+        <TextareaInput
+          label="Pain Points"
+          value={draft.painPoints.join('\n')}
+          onChange={(value) =>
+            update(
+              'painPoints',
+              value
+                .split(/\n|,/)
+                .map((item) => item.trim())
+                .filter(Boolean),
+            )
+          }
+        />
+        <TextareaInput label="Notes" value={draft.notes} onChange={(value) => update('notes', value)} />
+        <div className="button-row sales-action-row">
+          <button className="report-button" disabled={!draft.gymName.trim()} onClick={onSubmit} type="button">
+            Generate Local Dossier
+          </button>
+          <button className="clear-button" onClick={() => onChange(emptyProspectIntakeDraft)} type="button">
+            Clear Intake
+          </button>
+        </div>
+      </div>
+      <div className="proposal-preview-card">
+        <h3>Missing Info Checklist</h3>
+        {missing.length ? (
+          <ul className="checklist">
+            {missing.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className="empty-note">Core intake fields are ready for a stronger local dossier.</p>
+        )}
+        <div className="safety-badge-row">
+          <StatusBadge value="Local only" tone="good" />
+          <StatusBadge value="No browsing" tone="good" />
+          <StatusBadge value="No CRM write" tone="good" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SavedProspectList({
+  dossiers,
+  intakes,
+  onSelect,
+  selectedDossierId,
+}: {
+  dossiers: SalesResearchDossier[];
+  intakes: SalesProspectIntake[];
+  onSelect(_dossierId: string): void;
+  selectedDossierId: string | null;
+}) {
+  if (!dossiers.length) {
+    return <p className="empty-note">No saved prospect dossiers yet.</p>;
+  }
+
+  return (
+    <div className="history-list">
+      {dossiers.map((dossier) => {
+        const intake = intakes.find((item) => item.id === dossier.intakeId);
+        return (
+          <button
+            className={`dossier-list-item ${selectedDossierId === dossier.dossierId ? 'selected' : ''}`}
+            key={dossier.dossierId}
+            onClick={() => onSelect(dossier.dossierId)}
+            type="button"
+          >
+            <strong>{intake?.gymName ?? 'Unknown prospect'}</strong>
+            <span>{intake ? `${intake.city}, ${intake.state} · ${labelBusinessType(intake.businessType)}` : 'Missing intake'}</span>
+            <small>{dossier.fitScore}/100 · {dossier.icpFit.replace(/_/g, ' ')}</small>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function DossierPreview({
+  dossier,
+  intake,
+  onExport,
+}: {
+  dossier: SalesResearchDossier | null;
+  intake: SalesProspectIntake | null;
+  onExport(_format: 'json' | 'markdown'): void;
+}) {
+  if (!dossier || !intake) {
+    return <p className="empty-note">Save a prospect intake to preview a deterministic research dossier.</p>;
+  }
+
+  return (
+    <div className="dossier-preview">
+      <div className="fact-list compact-facts">
+        <Fact label="Prospect" value={intake.gymName} />
+        <Fact label="Market" value={`${intake.city}, ${intake.state}`} />
+        <Fact label="Business Type" value={labelBusinessType(intake.businessType)} />
+        <Fact label="Fit Score" value={`${dossier.fitScore}/100`} />
+        <Fact label="ICP Fit" value={dossier.icpFit.replace(/_/g, ' ')} />
+        <Fact label="Product" value={dossier.recommendedVyraProduct} />
+      </div>
+      <div className="score-factor-list">
+        <DossierBlock title="Business Overview" value={dossier.businessOverview} />
+        <DossierBlock title="Migration Opportunity" value={dossier.migrationOpportunity} />
+        <DossierBlock title="Outreach Angle" value={dossier.outreachAngle} />
+        <DossierBlock title="Proposal Angle" value={dossier.proposalAngle} />
+      </div>
+      <div className="score-factor-list">
+        {dossier.fitFactors.map((factor) => (
+          <article className="score-factor" key={factor.key}>
+            <div>
+              <strong>{factor.label}</strong>
+              <span>{factor.detail}</span>
+            </div>
+            <b>{factor.points > 0 ? `+${factor.points}` : factor.points}</b>
+          </article>
+        ))}
+      </div>
+      <div className="intake-two-column">
+        <Checklist title="Missing Info" items={dossier.missingInfo} empty="No missing info detected." />
+        <Checklist title="Next Steps" items={dossier.nextSteps} empty="No next steps queued." />
+      </div>
+      <div className="button-row sales-action-row">
+        <button className="report-button small" onClick={() => onExport('markdown')} type="button">
+          Export Dossier Markdown
+        </button>
+        <button className="report-button small" onClick={() => onExport('json')} type="button">
+          Export Dossier JSON
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DossierBlock({ title, value }: { title: string; value: string }) {
+  return (
+    <article className="score-factor">
+      <div>
+        <strong>{title}</strong>
+        <span>{value}</span>
+      </div>
+    </article>
+  );
+}
+
+function Checklist({ empty, items, title }: { empty: string; items: string[]; title: string }) {
+  return (
+    <div className="proposal-preview-card">
+      <h3>{title}</h3>
+      {items.length ? (
+        <ul className="checklist">
+          {items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="empty-note">{empty}</p>
+      )}
+    </div>
+  );
+}
+
 function SalesLeadTable({
   leads,
   onSelectScore,
@@ -944,8 +1221,50 @@ function SalesSelect({
   );
 }
 
+function TextInput({ label, onChange, value }: { label: string; onChange(_value: string): void; value: string }) {
+  return (
+    <label className="input-control">
+      <span>{label}</span>
+      <input value={value} onChange={(event) => onChange(event.target.value)} />
+    </label>
+  );
+}
+
+function NumberInput({ label, onChange, value }: { label: string; onChange(_value: number | null): void; value: number | null }) {
+  return (
+    <label className="input-control">
+      <span>{label}</span>
+      <input
+        min="0"
+        type="number"
+        value={value ?? ''}
+        onChange={(event) => onChange(event.target.value === '' ? null : Number(event.target.value))}
+      />
+    </label>
+  );
+}
+
+function TextareaInput({ label, onChange, value }: { label: string; onChange(_value: string): void; value: string }) {
+  return (
+    <label className="input-control">
+      <span>{label}</span>
+      <textarea value={value} onChange={(event) => onChange(event.target.value)} />
+    </label>
+  );
+}
+
 function proposalForLead(proposals: SalesPageProps['proposals'], leadId: string) {
   return proposals.find((proposal) => proposal.leadId === leadId);
+}
+
+function draftMissingFields(draft: SalesProspectIntakeDraft): string[] {
+  return missingInfoForIntake({
+    ...draft,
+    createdAt: '',
+    id: 'draft',
+    localOnly: true,
+    updatedAt: '',
+  });
 }
 
 function formatDate(value: string): string {

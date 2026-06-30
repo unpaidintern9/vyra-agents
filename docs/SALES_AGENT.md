@@ -30,6 +30,8 @@ The Sales Agent MVP includes:
 - Sales Agent Team roster with Head Sales and specialized local sub-agents.
 - Local Prospect Research Command Center for MMA/BJJ, CrossFit, small gym, boutique fitness, and sports performance targets.
 - Seed target-market slots for Louisville, Cincinnati, Los Angeles, and New York.
+- Prospect Intake form for structured local gym prospect capture.
+- Deterministic Research Dossier generator with fit explanation, missing-info checklist, and Markdown/JSON exports.
 - Disabled future external action placeholders for email, Stripe, and CRM writes.
 
 ## Local Storage
@@ -40,6 +42,8 @@ Sales records persist in browser localStorage:
 - `vyra-agents:sales-activities`
 - `vyra-agents:sales-proposals`
 - `vyra-agents:sales-prospect-research`
+- `vyra-agents:sales-prospect-intakes`
+- `vyra-agents:sales-prospect-dossiers`
 
 These are local browser records, not CRM records.
 
@@ -101,6 +105,12 @@ The Sales page now models a Head Sales Agent plus specialized sub-agents for pro
 These are Vyra dashboard modules, not Codex background threads. They do not send messages, scrape websites, create invoices, or write CRM records.
 
 See `docs/SALES_PROSPECT_RESEARCH.md`.
+
+## Prospect Intake And Research Dossiers
+
+The Sales page can save structured prospect intake records and generate deterministic research dossiers from those local fields. Dossiers include business overview, ICP fit, likely pain points, recommended Vyra product, migration opportunity, outreach angle, proposal angle, missing info, risks, and next steps.
+
+See `docs/SALES_PROSPECT_INTAKE.md` and `docs/SALES_RESEARCH_DOSSIERS.md`.
 
 ## Integration Readiness
 

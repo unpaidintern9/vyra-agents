@@ -1,6 +1,13 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
-import type { SalesAgentTeamSummary, SalesIntegrationSummary, SalesProposalSummary, SalesScoringSummary, SalesSummary } from '../agents/sales/salesTypes';
+import type {
+  SalesAgentTeamSummary,
+  SalesIntegrationSummary,
+  SalesProposalSummary,
+  SalesProspectDossierSummary,
+  SalesScoringSummary,
+  SalesSummary,
+} from '../agents/sales/salesTypes';
 
 export const executiveRuleCount = 9;
 
@@ -11,6 +18,7 @@ export function buildExecutivePriorities(
   salesScoringSummary?: SalesScoringSummary,
   salesProposalSummary?: SalesProposalSummary,
   salesAgentTeamSummary?: SalesAgentTeamSummary,
+  salesProspectDossierSummary?: SalesProspectDossierSummary,
 ): ExecutivePriority[] {
   const priorities: ExecutivePriority[] = [];
   const pendingApprovals = runtime.approvals.filter((approval) => approval.status === 'pending');
@@ -135,6 +143,18 @@ export function buildExecutivePriorities(
       priority: 'medium',
       recommendedAction: 'Open Sales and review the Prospect Research Command Center before adding verified sources.',
       source: 'Sales agent team',
+    });
+  }
+
+  if (salesProspectDossierSummary && (salesProspectDossierSummary.missingInfoProspects > 0 || salesProspectDossierSummary.highFitDossiers > 0)) {
+    priorities.push({
+      id: 'sales-research-dossier-review',
+      agent: 'Sales Intelligence Agent',
+      department: 'Sales',
+      detail: `${salesProspectDossierSummary.highFitDossiers} high-fit dossier(s) and ${salesProspectDossierSummary.missingInfoProspects} prospect(s) with missing info are ready for local review.`,
+      priority: salesProspectDossierSummary.highFitDossiers > 0 ? 'medium' : 'low',
+      recommendedAction: 'Open Sales and review the Research Dossier preview before any outreach planning.',
+      source: 'Sales research dossiers',
     });
   }
 

@@ -1,7 +1,14 @@
 import { buildExecutivePriorities } from '../../runtime/executiveRules';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { LocalReport } from '../../storage/reportExport';
-import type { SalesAgentTeamSummary, SalesIntegrationSummary, SalesProposalSummary, SalesScoringSummary, SalesSummary } from '../sales/salesTypes';
+import type {
+  SalesAgentTeamSummary,
+  SalesIntegrationSummary,
+  SalesProposalSummary,
+  SalesProspectDossierSummary,
+  SalesScoringSummary,
+  SalesSummary,
+} from '../sales/salesTypes';
 import type {
   ExecutiveHealthRow,
   ExecutiveReportContext,
@@ -19,6 +26,7 @@ export function buildExecutiveSummary(
   salesScoringSummary?: SalesScoringSummary,
   salesProposalSummary?: SalesProposalSummary,
   salesAgentTeamSummary?: SalesAgentTeamSummary,
+  salesProspectDossierSummary?: SalesProspectDossierSummary,
 ): ExecutiveSummary {
   const healthRows = buildExecutiveHealthRows(runtime);
   const healthyAgents = healthRows.filter((agent) => agent.risk === 'low').length;
@@ -44,7 +52,15 @@ export function buildExecutiveSummary(
     migrationBatches: migrationHealth?.pendingTasks ?? 0,
     overallHealth,
     pendingApprovals,
-    priorities: buildExecutivePriorities(runtime, salesSummary, salesIntegration, salesScoringSummary, salesProposalSummary, salesAgentTeamSummary),
+    priorities: buildExecutivePriorities(
+      runtime,
+      salesSummary,
+      salesIntegration,
+      salesScoringSummary,
+      salesProposalSummary,
+      salesAgentTeamSummary,
+      salesProspectDossierSummary,
+    ),
     recentRuntimeEvents: runtime.activities.length,
     registeredAgents: runtime.agents.length,
     runtime: buildRuntimeSummary(runtime),
@@ -56,6 +72,7 @@ export function buildExecutiveSummary(
     salesIntegration,
     salesAgentTeamSummary,
     salesProposalSummary,
+    salesProspectDossierSummary,
     salesScoringSummary,
     salesSummary,
   };
@@ -117,6 +134,11 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     salesHighFitProspects: summary.salesAgentTeamSummary?.highFitProspects ?? 0,
     salesProspectsNeedResearch: summary.salesAgentTeamSummary?.needsResearch ?? 0,
     salesAverageProspectFit: summary.salesAgentTeamSummary?.averageFitScore ?? 0,
+    salesSavedProspects: summary.salesProspectDossierSummary?.savedProspects ?? 0,
+    salesResearchDossiersCreated: summary.salesProspectDossierSummary?.dossiersCreated ?? 0,
+    salesHighFitDossiers: summary.salesProspectDossierSummary?.highFitDossiers ?? 0,
+    salesMissingInfoProspects: summary.salesProspectDossierSummary?.missingInfoProspects ?? 0,
+    salesMigrationOpportunityProspects: summary.salesProspectDossierSummary?.migrationOpportunityProspects ?? 0,
     syncQueue: summary.syncQueue,
     runtimeVersion: summary.runtimeVersion,
     productionWritesOccurred: 'No',

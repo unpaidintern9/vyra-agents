@@ -34,6 +34,12 @@ import { parseSalesLeadJson, emptySalesImportResult } from './agents/sales/sales
 import { buildSalesIntegrationSummary } from './agents/sales/salesIntegrationAdapter';
 import { buildProposalDraftReport, generateSalesProposalDraft, summarizeSalesProposalDrafts } from './agents/sales/salesProposalBuilder';
 import {
+  buildResearchDossierReport,
+  createSalesProspectIntake,
+  generateResearchDossier,
+  summarizeProspectDossiers,
+} from './agents/sales/salesProspectDossiers';
+import {
   buildFollowUpQueueReport,
   buildFollowUpReport,
   buildLeadScoringReport,
@@ -49,9 +55,12 @@ import type {
   SalesAction,
   SalesActivity,
   SalesLead,
+  SalesProspectIntake,
+  SalesProspectIntakeDraft,
   SalesProposalDraft,
   SalesProposalTemplateType,
   SalesProspectResearchRecord,
+  SalesResearchDossier,
 } from './agents/sales/salesTypes';
 import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
 import { EmptyState } from './components/EmptyState';
@@ -151,6 +160,12 @@ function App() {
   const [salesProspectResearch] = useState(() =>
     loadLocalState<SalesProspectResearchRecord[]>(localStorageKeys.salesProspectResearch, createInitialSalesProspects),
   );
+  const [salesProspectIntakes, setSalesProspectIntakes] = useState(() =>
+    loadLocalState<SalesProspectIntake[]>(localStorageKeys.salesProspectIntakes, () => []),
+  );
+  const [salesResearchDossiers, setSalesResearchDossiers] = useState(() =>
+    loadLocalState<SalesResearchDossier[]>(localStorageKeys.salesProspectDossiers, () => []),
+  );
   const [salesImportResult, setSalesImportResult] = useState(emptySalesImportResult);
   const [workflowRuns, setWorkflowRuns] = useState(() =>
     loadLocalState<WorkflowDryCheckRecord[]>(localStorageKeys.workflowResults, () => []),
@@ -192,6 +207,10 @@ function App() {
   const salesIntegration = useMemo(() => buildSalesIntegrationSummary(requestedMode), []);
   const salesProposalSummary = useMemo(() => summarizeSalesProposalDrafts(salesProposalDrafts), [salesProposalDrafts]);
   const salesAgentTeamSummary = useMemo(() => summarizeSalesAgentTeam(salesTeamAgents, salesProspectResearch), [salesProspectResearch]);
+  const salesProspectDossierSummary = useMemo(
+    () => summarizeProspectDossiers(salesProspectIntakes, salesResearchDossiers),
+    [salesProspectIntakes, salesResearchDossiers],
+  );
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
   const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
   const syncStatus = useMemo(
@@ -239,6 +258,8 @@ function App() {
   useEffect(() => saveLocalState(localStorageKeys.salesProposals, salesProposals), [salesProposals]);
   useEffect(() => saveLocalState(localStorageKeys.salesProposalDrafts, salesProposalDrafts), [salesProposalDrafts]);
   useEffect(() => saveLocalState(localStorageKeys.salesProspectResearch, salesProspectResearch), [salesProspectResearch]);
+  useEffect(() => saveLocalState(localStorageKeys.salesProspectIntakes, salesProspectIntakes), [salesProspectIntakes]);
+  useEffect(() => saveLocalState(localStorageKeys.salesProspectDossiers, salesResearchDossiers), [salesResearchDossiers]);
   useEffect(() => saveLocalState(localStorageKeys.workflowResults, workflowRuns), [workflowRuns]);
   useEffect(() => saveLocalState(localStorageKeys.migrationDryRuns, migrationDryRuns), [migrationDryRuns]);
   useEffect(() => saveLocalState(localStorageKeys.approvalHistory, approvalHistory), [approvalHistory]);
@@ -756,6 +777,26 @@ function App() {
     });
   };
 
+  const saveProspectIntake = (draft: SalesProspectIntakeDraft) => {
+    const intake = createSalesProspectIntake(draft, localId('sales_prospect'));
+    const dossier = generateResearchDossier(intake);
+    setSalesProspectIntakes((current) => [intake, ...current]);
+    setSalesResearchDossiers((current) => [dossier, ...current]);
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: 'prospect-dossier-generated',
+      detail: `${intake.gymName} intake saved locally and research dossier generated. No browsing, email, CRM, Stripe, or production write occurred.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Agent',
+      action: 'sales prospect intake saved',
+      target: intake.gymName,
+      result: `local intake and deterministic dossier saved; fit score ${dossier.fitScore}`,
+      riskLevel: dossier.missingInfo.length ? 'medium' : 'low',
+    });
+  };
+
   const generateProposalDraft = (leadId: string, templateType: SalesProposalTemplateType) => {
     const lead = salesLeads.find((item) => item.id === leadId);
     if (!lead) return;
@@ -793,6 +834,28 @@ function App() {
       agent: 'Sales Agent',
       action: 'sales proposal draft exported',
       target: draft.title,
+      result: `${format} downloaded locally`,
+      riskLevel: 'low',
+    });
+  };
+
+  const exportResearchDossier = (dossierId: string, format: ReportFormat) => {
+    const dossier = salesResearchDossiers.find((item) => item.dossierId === dossierId);
+    if (!dossier) return;
+    const intake = salesProspectIntakes.find((item) => item.id === dossier.intakeId);
+    if (!intake) return;
+    const report = buildResearchDossierReport(intake, dossier);
+    downloadReport(report, format);
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: 'research-dossier-exported',
+      detail: `${report.title} exported as ${format}. No browsing, email, CRM, Stripe, or production write occurred.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Agent',
+      action: 'sales research dossier exported',
+      target: report.title,
       result: `${format} downloaded locally`,
       riskLevel: 'low',
     });
@@ -1078,12 +1141,17 @@ function App() {
             leads={salesLeads}
             onAction={recordSalesAction}
             onExport={exportSalesReport}
+            onExportResearchDossier={exportResearchDossier}
             onExportProposalDraft={exportProposalDraft}
             onGenerateProposalDraft={generateProposalDraft}
             onImportJson={importSalesLeads}
+            onSaveProspectIntake={saveProspectIntake}
             proposalDrafts={salesProposalDrafts}
             proposalSummary={salesProposalSummary}
             proposals={salesProposals}
+            prospectDossierSummary={salesProspectDossierSummary}
+            prospectDossiers={salesResearchDossiers}
+            prospectIntakes={salesProspectIntakes}
             prospectResearch={salesProspectResearch}
             scores={salesScores}
             teamAgents={salesTeamAgents}
@@ -1145,6 +1213,7 @@ function App() {
             runtime={runtime}
             salesIntegration={salesIntegration}
             salesAgentTeamSummary={salesAgentTeamSummary}
+            salesProspectDossierSummary={salesProspectDossierSummary}
             salesProposalSummary={salesProposalSummary}
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}

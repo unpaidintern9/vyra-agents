@@ -630,3 +630,28 @@ Boundaries:
 - No production business tables are written.
 - No automated scraping jobs run.
 - All prospect research records remain local/mock/read-only.
+
+## Phase 25
+
+Sales Prospect Intake and Research Dossiers.
+
+Includes:
+
+- Structured Prospect Intake form on the Sales page.
+- Local fields for gym name, market, business type, website, social link, owner/contact, email/phone, current software, pain points, member and coach estimates, migration complexity, and notes.
+- Deterministic Research Dossier generator.
+- Dossier sections for business overview, ICP fit, likely pain points, recommended Vyra product, migration opportunity, outreach angle, proposal angle, missing info, risks, and next steps.
+- Explainable fit score factors and missing-info checklist.
+- Saved prospect list and dossier preview.
+- Markdown and JSON dossier exports.
+- Executive Dashboard signals for saved prospects, dossiers created, high-fit dossiers, missing-info prospects, and migration-opportunity prospects.
+
+Boundaries:
+
+- No external browsing.
+- No emails are sent.
+- No Stripe invoices are created.
+- No CRM production records are written.
+- No production business tables are written.
+- No automated scraping jobs run.
+- All prospect intake and dossier records remain local/mock/read-only.

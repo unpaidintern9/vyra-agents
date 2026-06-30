@@ -95,6 +95,27 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           { label: 'Average Prospect Fit', value: `${summary.salesAgentTeamSummary.averageFitScore}/100` },
         ]
       : []),
+    ...(summary.salesProspectDossierSummary
+      ? [
+          { label: 'Saved Prospects', value: String(summary.salesProspectDossierSummary.savedProspects) },
+          { label: 'Research Dossiers', value: String(summary.salesProspectDossierSummary.dossiersCreated) },
+          {
+            label: 'High-Fit Dossiers',
+            value: String(summary.salesProspectDossierSummary.highFitDossiers),
+            tone: summary.salesProspectDossierSummary.highFitDossiers ? 'good' : 'neutral',
+          },
+          {
+            label: 'Missing-Info Prospects',
+            value: String(summary.salesProspectDossierSummary.missingInfoProspects),
+            tone: summary.salesProspectDossierSummary.missingInfoProspects ? 'warn' : 'good',
+          },
+          {
+            label: 'Migration Opportunities',
+            value: String(summary.salesProspectDossierSummary.migrationOpportunityProspects),
+            tone: summary.salesProspectDossierSummary.migrationOpportunityProspects ? 'warn' : 'good',
+          },
+        ]
+      : []),
   ];
 
   return (

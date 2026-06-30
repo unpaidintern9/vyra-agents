@@ -47,6 +47,8 @@ export type SalesTeamAgentStatus = 'active_local' | 'planned' | 'blocked_externa
 export type SalesProspectCategory = 'mma_bjj' | 'crossfit' | 'small_gym' | 'boutique_fitness' | 'sports_performance';
 export type SalesProspectFitTier = 'prime_target' | 'good_fit' | 'research_needed' | 'low_fit';
 export type SalesProspectSourceStatus = 'mock_seed' | 'needs_public_research' | 'public_research_ready';
+export type SalesProspectBusinessType = SalesProspectCategory | 'independent_coach' | 'multi_location_gym' | 'unknown';
+export type SalesMigrationComplexity = 'unknown' | 'low' | 'medium' | 'high';
 
 export interface SalesLead {
   businessName: string;
@@ -247,6 +249,59 @@ export interface SalesAgentTeamSummary {
   totalProspects: number;
 }
 
+export interface SalesProspectIntake {
+  businessType: SalesProspectBusinessType;
+  city: string;
+  contactEmail: string;
+  contactName: string;
+  contactPhone: string;
+  createdAt: string;
+  currentSoftware: string;
+  estimatedCoaches: number | null;
+  estimatedMembers: number | null;
+  gymName: string;
+  id: string;
+  instagramUrl: string;
+  localOnly: true;
+  migrationComplexity: SalesMigrationComplexity;
+  notes: string;
+  painPoints: string[];
+  state: string;
+  updatedAt: string;
+  websiteUrl: string;
+}
+
+export interface SalesResearchDossier {
+  businessOverview: string;
+  createdAt: string;
+  dossierId: string;
+  fitFactors: LeadScoreFactor[];
+  fitScore: number;
+  highFit: boolean;
+  icpFit: SalesProspectFitTier;
+  intakeId: string;
+  likelyPainPoints: string[];
+  localOnly: true;
+  migrationOpportunity: string;
+  missingInfo: string[];
+  nextSteps: string[];
+  notBrowsedExternally: true;
+  notSyncedToCrm: true;
+  outreachAngle: string;
+  proposalAngle: string;
+  recommendedVyraProduct: string;
+  risks: string[];
+  updatedAt: string;
+}
+
+export interface SalesProspectDossierSummary {
+  dossiersCreated: number;
+  highFitDossiers: number;
+  migrationOpportunityProspects: number;
+  missingInfoProspects: number;
+  savedProspects: number;
+}
+
 export interface SalesSummary {
   coachLeads: number;
   estimatedPipelineValue: number;
@@ -295,15 +350,22 @@ export interface SalesPageProps {
     _format: 'json' | 'markdown' | 'csv',
     _report: 'pipeline' | 'follow_up' | 'proposal' | 'lead_scoring' | 'follow_up_queue' | 'weighted_pipeline',
   ): void;
+  onExportResearchDossier(_dossierId: string, _format: 'json' | 'markdown'): void;
   onExportProposalDraft(_draftId: string, _format: 'json' | 'markdown'): void;
   onGenerateProposalDraft(_leadId: string, _templateType: SalesProposalTemplateType): void;
+  onSaveProspectIntake(_draft: SalesProspectIntakeDraft): void;
   onImportJson(_content: string): void;
   proposalDrafts: SalesProposalDraft[];
   proposalSummary: SalesProposalSummary;
   proposals: ProposalPrep[];
+  prospectDossierSummary: SalesProspectDossierSummary;
+  prospectDossiers: SalesResearchDossier[];
+  prospectIntakes: SalesProspectIntake[];
   prospectResearch: SalesProspectResearchRecord[];
   scores: LeadScore[];
   teamAgents: SalesTeamAgentDefinition[];
   teamSummary: SalesAgentTeamSummary;
   scoringSummary: SalesScoringSummary;
 }
+
+export type SalesProspectIntakeDraft = Omit<SalesProspectIntake, 'createdAt' | 'id' | 'localOnly' | 'updatedAt'>;
