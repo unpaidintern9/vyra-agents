@@ -71,6 +71,10 @@ Reports include only local queue state and safety metadata.
 
 Task actions only modify local ignored task files. They never perform the work described by a task.
 
+## Engineering Task Candidates
+
+Phase 39 adds an Engineering Task Generator that recommends local Engineering task candidates from Repository Intelligence, GitHub Plans, Executive priorities, and blocked Sales/Migration work. These candidates are not Shared Task Queue records until a human creates or approves a task through the queue workflow.
+
 External work remains blocked:
 
 - no email

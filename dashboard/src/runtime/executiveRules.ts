@@ -1,6 +1,7 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { ConnectorReadinessSummary } from './connectorReadiness';
 import type { CrossAgentCollaborationSummary } from './crossAgentCollaboration';
+import type { EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
 import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
@@ -16,7 +17,7 @@ import type {
   SalesSummary,
 } from '../agents/sales/salesTypes';
 
-export const executiveRuleCount = 11;
+export const executiveRuleCount = 12;
 
 export function buildExecutivePriorities(
   runtime: AgentRuntimeSnapshot,
@@ -29,6 +30,7 @@ export function buildExecutivePriorities(
   salesIntelligenceSummary?: SalesIntelligenceSummary,
   crossAgentSummary?: CrossAgentCollaborationSummary,
   connectorReadiness?: ConnectorReadinessSummary,
+  engineeringTasks?: EngineeringTaskGeneratorSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
@@ -234,6 +236,18 @@ export function buildExecutivePriorities(
       priority: 'medium',
       recommendedAction: 'Open Operator and review Connector Readiness before enabling any future live tool access.',
       source: 'Connector readiness',
+    });
+  }
+
+  if (engineeringTasks && (engineeringTasks.criticalEngineeringTasks > 0 || engineeringTasks.salesBlockingEngineeringTasks > 0 || engineeringTasks.migrationBlockingEngineeringTasks > 0)) {
+    priorities.push({
+      id: 'engineering-task-generator-review',
+      agent: 'Engineering Agent',
+      department: 'Engineering',
+      detail: `${engineeringTasks.generatedTasks} engineering task candidate(s), including ${engineeringTasks.criticalEngineeringTasks} critical, ${engineeringTasks.salesBlockingEngineeringTasks} sales-blocking, and ${engineeringTasks.migrationBlockingEngineeringTasks} migration-blocking item(s).`,
+      priority: engineeringTasks.criticalEngineeringTasks > 0 ? 'high' : 'medium',
+      recommendedAction: 'Open Engineering and review generated task candidates before creating any shared work queue records.',
+      source: 'Engineering Task Generator',
     });
   }
 

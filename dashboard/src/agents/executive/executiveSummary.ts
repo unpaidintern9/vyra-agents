@@ -1,6 +1,7 @@
 import { buildExecutivePriorities } from '../../runtime/executiveRules';
 import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness';
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
+import type { EngineeringTaskGeneratorSummary } from '../../runtime/engineeringTaskGenerator';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
 import type { RepositoryIntelligenceDashboardSummary } from '../../runtime/repositoryIntelligence';
@@ -37,6 +38,7 @@ export function buildExecutiveSummary(
   salesIntelligenceSummary?: SalesIntelligenceSummary,
   crossAgentSummary?: CrossAgentCollaborationSummary,
   connectorReadiness?: ConnectorReadinessSummary,
+  engineeringTasks?: EngineeringTaskGeneratorSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
@@ -77,6 +79,7 @@ export function buildExecutiveSummary(
       salesIntelligenceSummary,
       crossAgentSummary,
       connectorReadiness,
+      engineeringTasks,
       githubPlanning,
       githubReadOnly,
       repositoryIntelligence,
@@ -92,6 +95,7 @@ export function buildExecutiveSummary(
     workflowsToday: countWorkflowActivity(runtime.activities),
     crossAgentSummary,
     salesIntegration,
+    engineeringTasks,
     salesAgentTeamSummary,
     salesIntelligenceSummary,
     salesProposalSummary,
@@ -182,6 +186,11 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     connectorBlockedWrites: summary.connectorReadiness?.blockedWriteActionCount ?? 0,
     connectorApprovalMappedActions: summary.connectorReadiness?.approvalMappedActionCount ?? 0,
     connectorExecutiveRiskLevel: summary.connectorReadiness?.riskSummary.executiveRiskLevel ?? 'Not configured',
+    engineeringGeneratedTasks: summary.engineeringTasks?.generatedTasks ?? 0,
+    engineeringCriticalTasks: summary.engineeringTasks?.criticalEngineeringTasks ?? 0,
+    engineeringSalesBlockingTasks: summary.engineeringTasks?.salesBlockingEngineeringTasks ?? 0,
+    engineeringMigrationBlockingTasks: summary.engineeringTasks?.migrationBlockingEngineeringTasks ?? 0,
+    engineeringReleaseReadinessTasks: summary.engineeringTasks?.releaseReadinessTasks ?? 0,
     sharedOpenTasks: summary.sharedTaskSummary?.openTasks ?? 0,
     sharedBlockedTasks: summary.sharedTaskSummary?.blockedTasks ?? 0,
     sharedOverdueTasks: summary.sharedTaskSummary?.overdueTasks ?? 0,

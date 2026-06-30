@@ -11,6 +11,7 @@ import type { ExecutiveDashboardProps } from './executiveTypes';
 export default function ExecutiveDashboard({
   connectorReadiness,
   crossAgentSummary,
+  engineeringTasks,
   githubPlanning,
   githubReadOnly,
   integrationWarnings = [],
@@ -38,6 +39,7 @@ export default function ExecutiveDashboard({
     salesIntelligenceSummary,
     crossAgentSummary,
     connectorReadiness,
+    engineeringTasks,
     githubPlanning,
     githubReadOnly,
     repositoryIntelligence,

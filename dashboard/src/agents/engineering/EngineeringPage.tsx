@@ -3,7 +3,10 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { EmptyState } from '../../components/EmptyState';
 import { StatusBadge } from '../../components/StatusBadge';
+import { buildDashboardEngineeringTaskSummary } from '../../runtime/engineeringTaskGenerator';
+import { buildDashboardGitHubPlanningSummary } from '../../runtime/githubPlanning';
 import { summarizeRepositoryIntelligence } from '../../runtime/repositoryIntelligence';
+import { buildDashboardSharedTaskSummary } from '../../runtime/sharedTaskQueue';
 import { loadEngineeringGraph } from './engineeringGraph';
 import { engineeringMockGraph } from './engineeringMockData';
 import {
@@ -128,6 +131,15 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
 
   const graph = scan.graph;
   const repositoryIntelligence = useMemo(() => summarizeRepositoryIntelligence(graph), [graph]);
+  const engineeringTaskSummary = useMemo(
+    () =>
+      buildDashboardEngineeringTaskSummary({
+        githubPlanning: buildDashboardGitHubPlanningSummary(),
+        repositoryIntelligence,
+        sharedTasks: buildDashboardSharedTaskSummary(),
+      }),
+    [repositoryIntelligence],
+  );
   const selectedNode = selectedNodeId ? graph.nodes.find((node) => node.id === selectedNodeId) ?? null : null;
   const searchResults = useMemo(() => searchEngineeringNodes(graph, query), [graph, query]);
   const impact = selectedNode ? analyzeEngineeringImpact(graph, selectedNode) : null;
@@ -540,6 +552,47 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
             ]}
           />
           <p className="subtle-note">Use repo:scan and repo:validate from the root CLI for generated intelligence reports. No repository files or GitHub records are modified.</p>
+        </Panel>
+
+        <Panel title="Engineering Task Generator" icon={<ListChecks size={18} />} wide>
+          <p className="panel-description">
+            Deterministic task candidates generated from repository health, dependency warnings, orphaned modules, missing documentation, GitHub plans, Executive priorities, and blocked Sales or Migration work. Candidates stay local and approval-only.
+          </p>
+          <div className="summary-grid compact-summary">
+            {[
+              ['Generated Candidates', engineeringTaskSummary.generatedTasks],
+              ['Critical', engineeringTaskSummary.criticalEngineeringTasks],
+              ['Sales Blocking', engineeringTaskSummary.salesBlockingEngineeringTasks],
+              ['Migration Blocking', engineeringTaskSummary.migrationBlockingEngineeringTasks],
+              ['Release Readiness', engineeringTaskSummary.releaseReadinessTasks],
+              ['Linked GitHub Plans', engineeringTaskSummary.linkedGitHubPlans],
+              ['Linked Repo Risks', engineeringTaskSummary.linkedRepoRisks],
+              ['Executive Priorities', engineeringTaskSummary.linkedExecutivePriorities],
+            ].map(([label, value]) => (
+              <article className="metric-card" key={label}>
+                <ListChecks size={18} />
+                <span>{label}</span>
+                <strong>{String(value)}</strong>
+              </article>
+            ))}
+          </div>
+          <DataTable
+            columns={['Candidate', 'Category', 'Priority', 'Repo Risk', 'GitHub Plan', 'Blocker', 'Reason']}
+            rows={engineeringTaskSummary.candidates.map((candidate) => [
+              candidate.title,
+              candidate.category,
+              candidate.recommendedPriority,
+              candidate.linkedRepoRisk ?? 'None',
+              candidate.linkedGitHubPlan ?? 'None',
+              candidate.linkedSalesMigrationBlocker ?? 'None',
+              candidate.reason,
+            ])}
+          />
+          <div className="safety-badge-row">
+            {engineeringTaskSummary.safetyLabels.map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
         </Panel>
 
         <Panel title="Ownership Overview" icon={<Network size={18} />} wide>

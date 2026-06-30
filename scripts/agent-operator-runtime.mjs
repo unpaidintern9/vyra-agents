@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCommunicationDraftStatus, buildCommunicationProviderReadiness } from './comms-draft-runtime.mjs';
 import { buildConnectorReadinessStatus } from './connector-readiness-runtime.mjs';
+import { buildEngineeringTaskCandidateSet } from './engineering-task-generator-runtime.mjs';
 import { buildGitHubPlanningStatus } from './github-planning-runtime.mjs';
 import { getGitHubReadOnlyConfig, getGitHubSafetyCheck } from './github-readonly-runtime.mjs';
 import { buildRepositoryIntelligence } from './repository-intelligence-runtime.mjs';
@@ -124,6 +125,7 @@ export function buildOperatorSnapshot(options = {}) {
   const githubPlanning = buildGitHubPlanningStatus();
   const sharedTasks = buildSharedTaskStatus();
   const repositoryIntelligence = safeRepositoryIntelligence();
+  const engineeringTasks = safeEngineeringTasks();
   const threadPriority =
     threadBridge.pendingOutboxItems > 0
       ? [`Review ${threadBridge.pendingOutboxItems} pending Codex thread outbox item(s) from ${threadBridge.latestThread}.`]
@@ -143,6 +145,12 @@ export function buildOperatorSnapshot(options = {}) {
       : [];
   const githubPlanningPriority =
     githubPlanning.plansNeedingReview > 0 ? [`Review ${githubPlanning.plansNeedingReview} local GitHub issue/PR plan(s).`] : [];
+  const engineeringTaskPriority =
+    engineeringTasks?.summary?.criticalEngineeringTasks > 0 || engineeringTasks?.summary?.salesBlockingEngineeringTasks > 0 || engineeringTasks?.summary?.migrationBlockingEngineeringTasks > 0
+      ? [
+          `Review ${engineeringTasks.summary.generatedTasks} Engineering task candidate(s), including ${engineeringTasks.summary.criticalEngineeringTasks} critical candidate(s).`,
+        ]
+      : [];
 
   return {
     operator,
@@ -164,6 +172,7 @@ export function buildOperatorSnapshot(options = {}) {
         ...taskPriority,
         ...connectorPriority,
         ...githubPlanningPriority,
+        ...engineeringTaskPriority,
         'Review cross-agent collaboration before approving proposal, migration, or follow-up work.',
         'Keep Sales external actions disabled until CRM/email/Stripe approval gates exist.',
         'Review Engineering warnings before future live issue creation.',
@@ -178,6 +187,10 @@ export function buildOperatorSnapshot(options = {}) {
       repositoryRisk: repositoryIntelligence?.summary?.repositoryRisk ?? 'Unknown',
       documentationCompleteness: repositoryIntelligence?.summary?.documentationCompleteness ?? 0,
       dependencyHealth: repositoryIntelligence?.summary?.dependencyHealth ?? 'Unknown',
+      generatedTaskCandidates: engineeringTasks?.summary?.generatedTasks ?? 0,
+      criticalTaskCandidates: engineeringTasks?.summary?.criticalEngineeringTasks ?? 0,
+      salesBlockingTaskCandidates: engineeringTasks?.summary?.salesBlockingEngineeringTasks ?? 0,
+      migrationBlockingTaskCandidates: engineeringTasks?.summary?.migrationBlockingEngineeringTasks ?? 0,
       blockers: engineeringRepo
         ? [`${engineeringRepo.name} health score ${engineeringRepo.healthScore}, risk ${engineeringRepo.riskLevel}`]
         : ['Engineering graph not generated yet; run node scripts/engineering-scan.mjs.'],
@@ -212,8 +225,9 @@ export function buildOperatorSnapshot(options = {}) {
     githubReadOnly,
     githubPlanning,
     repositoryIntelligence: repositoryIntelligence?.summary ?? null,
+    engineeringTasks: engineeringTasks?.summary ?? null,
     sharedTasks,
-    graph: buildCrossAgentGraph(operator, crossAgent, sharedTasks, connectorReadiness, githubReadOnly, githubPlanning),
+    graph: buildCrossAgentGraph(operator, crossAgent, sharedTasks, connectorReadiness, githubReadOnly, githubPlanning, engineeringTasks?.summary),
   };
 }
 
@@ -259,6 +273,7 @@ export function writeReportSet(snapshot) {
     writeReport('runtime', 'github-read-only-status', { title: 'GitHub Read-Only Status', operator: snapshot.operator, summary: snapshot.githubReadOnly }),
     writeReport('runtime', 'github-planning-status', { title: 'GitHub Planning Status', operator: snapshot.operator, summary: snapshot.githubPlanning }),
     writeReport('engineering', 'repository-intelligence-status', { title: 'Repository Intelligence Status', operator: snapshot.operator, summary: snapshot.repositoryIntelligence }),
+    writeReport('engineering', 'engineering-task-candidate-status', { title: 'Engineering Task Candidate Status', operator: snapshot.operator, summary: snapshot.engineeringTasks }),
   ].flat();
 }
 
@@ -302,6 +317,7 @@ export function buildExecutiveRunSummary(snapshot) {
     githubReadOnly: snapshot.githubReadOnly,
     githubPlanning: snapshot.githubPlanning,
     repositoryIntelligence: snapshot.repositoryIntelligence,
+    engineeringTasks: snapshot.engineeringTasks,
     sharedTasks: snapshot.sharedTasks,
     safetyWarnings: snapshot.safety.warnings,
     validation: snapshot.safety,
@@ -338,6 +354,14 @@ function safeRepositoryIntelligence() {
   }
 }
 
+function safeEngineeringTasks() {
+  try {
+    return buildEngineeringTaskCandidateSet();
+  } catch {
+    return null;
+  }
+}
+
 export function buildCrossAgentGraph(
   operator,
   summary,
@@ -345,6 +369,7 @@ export function buildCrossAgentGraph(
   connectorReadiness = { connectors: [], blockedWriteActionCount: 0 },
   githubReadOnly = { status: 'missing_config' },
   githubPlanning = { totalPlans: 0, plansNeedingReview: 0 },
+  engineeringTasks = { generatedTasks: 0, criticalEngineeringTasks: 0 },
 ) {
   return {
     title: 'Cross-Agent Operator Graph',
@@ -358,6 +383,7 @@ export function buildCrossAgentGraph(
       { id: 'migration', type: 'agent', label: 'Migration Agent' },
       { id: 'shared-work-queue', type: 'coordination_system', label: 'Shared Work Queue' },
       { id: 'connector-readiness', type: 'approval_system', label: 'Connector Readiness' },
+      { id: 'repository-intelligence', type: 'knowledge_source', label: 'Repository Intelligence Engine' },
       {
         id: 'github-read-only',
         type: 'connector',
@@ -369,6 +395,12 @@ export function buildCrossAgentGraph(
         type: 'planning_queue',
         label: 'GitHub Planning Queue',
         status: githubPlanning.queueHealth,
+      },
+      {
+        id: 'engineering-task-generator',
+        type: 'planning_queue',
+        label: 'Engineering Task Generator',
+        candidates: engineeringTasks.generatedTasks,
       },
       { id: 'safety', type: 'control', label: operator.safetyMode },
       ...connectorReadiness.connectors.map((connector) => ({
@@ -393,6 +425,9 @@ export function buildCrossAgentGraph(
       { from: 'executive', to: 'github-planning', relationship: 'reviews_github_plans' },
       { from: 'connector-readiness', to: 'github-read-only', relationship: 'enforces_read_only' },
       { from: 'github-read-only', to: 'github-planning', relationship: 'informs_local_plans' },
+      { from: 'repository-intelligence', to: 'engineering-task-generator', relationship: 'generates_task_candidates' },
+      { from: 'github-planning', to: 'engineering-task-generator', relationship: 'links_plan_candidates' },
+      { from: 'engineering-task-generator', to: 'shared-work-queue', relationship: 'candidate_for_future_task' },
       ...connectorReadiness.connectors.map((connector) => ({
         from: 'connector-readiness',
         to: `connector:${connector.connector.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
@@ -407,6 +442,8 @@ export function buildCrossAgentGraph(
       blockedConnectorWrites: connectorReadiness.blockedWriteActionCount,
       githubReadOnlyStatus: githubReadOnly.status,
       githubPlansNeedingReview: githubPlanning.plansNeedingReview,
+      engineeringTaskCandidates: engineeringTasks.generatedTasks,
+      criticalEngineeringTaskCandidates: engineeringTasks.criticalEngineeringTasks,
     },
   };
 }
@@ -451,6 +488,7 @@ function buildRuntimeReport(snapshot) {
     githubReadOnly: snapshot.githubReadOnly,
     githubPlanning: snapshot.githubPlanning,
     repositoryIntelligence: snapshot.repositoryIntelligence,
+    engineeringTasks: snapshot.engineeringTasks,
     sharedTasks: snapshot.sharedTasks,
     agents,
     workflows,

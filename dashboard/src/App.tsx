@@ -87,6 +87,7 @@ import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/s
 import { buildAgentRuntime } from './runtime/agentRuntime';
 import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } from './runtime/aiOperatorRuntime';
 import { buildDashboardConnectorReadiness } from './runtime/connectorReadiness';
+import { buildDashboardEngineeringTaskSummary } from './runtime/engineeringTaskGenerator';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
 import { defaultRepositoryIntelligenceSummary, summarizeRepositoryIntelligence } from './runtime/repositoryIntelligence';
@@ -1227,6 +1228,7 @@ function App() {
   const githubReadOnly = buildDashboardGitHubReadOnlySummary();
   const repositoryIntelligence = latestEngineeringGraph ? summarizeRepositoryIntelligence(latestEngineeringGraph) : defaultRepositoryIntelligenceSummary();
   const sharedTaskSummary = buildDashboardSharedTaskSummary();
+  const engineeringTasks = buildDashboardEngineeringTaskSummary({ githubPlanning, repositoryIntelligence, sharedTasks: sharedTaskSummary });
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
     communicationDraftCounts: operatorDashboard.communicationDraftCounts,
     communicationDraftsByType: operatorDashboard.communicationDraftsByType,
@@ -1245,6 +1247,7 @@ function App() {
     threadDueSchedules: operatorDashboard.threadDueSchedules,
     runtime,
     connectorReadiness,
+    engineeringTasks,
     githubPlanning,
     githubReadOnly,
     repositoryIntelligence,
@@ -1535,6 +1538,7 @@ function App() {
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
             connectorReadiness={connectorReadiness}
+            engineeringTasks={engineeringTasks}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
             repositoryIntelligence={repositoryIntelligence}
@@ -1734,6 +1738,7 @@ function OperatorPage({
         <Metric icon={<GitBranch size={20} />} label="GitHub Read-Only" value={operator.githubReadOnly.status.replace(/_/g, ' ')} />
         <Metric icon={<GitBranch size={20} />} label="GitHub Plans" value={String(operator.githubPlanning.totalPlans)} />
         <Metric icon={<Network size={20} />} label="Repo Intelligence" value={operator.repositoryIntelligence.validationTrend} />
+        <Metric icon={<ListChecks size={20} />} label="Engineering Candidates" value={String(operator.engineeringTasks.generatedTasks)} />
         <Metric icon={<ListChecks size={20} />} label="Open Tasks" value={String(operator.sharedTasks.openTasks)} />
         <Metric icon={<ShieldCheck size={20} />} label="Task Queue Health" value={operator.sharedTasks.queueHealth} />
       </section>
@@ -1959,6 +1964,39 @@ function OperatorPage({
             rows={operator.repositoryIntelligence.commands.map((command) => [command, operatorCommandPurpose(command)])}
           />
           <p className="subtle-note">Repository commands read local metadata and write ignored local reports only. No GitHub writes or repository modifications occur.</p>
+        </Panel>
+
+        <Panel title="Engineering Task Generator" icon={<ListChecks size={18} />} wide>
+          <p className="panel-description">
+            Generates local engineering task candidates from Repository Intelligence, GitHub plans, Executive priorities, and blocked Sales or Migration work. Candidates are not shared tasks until a human reviews and creates them separately.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Generated Candidates" value={String(operator.engineeringTasks.generatedTasks)} />
+            <Fact label="Critical" value={String(operator.engineeringTasks.criticalEngineeringTasks)} />
+            <Fact label="Sales Blocking" value={String(operator.engineeringTasks.salesBlockingEngineeringTasks)} />
+            <Fact label="Migration Blocking" value={String(operator.engineeringTasks.migrationBlockingEngineeringTasks)} />
+            <Fact label="Release Readiness" value={String(operator.engineeringTasks.releaseReadinessTasks)} />
+            <Fact label="Linked GitHub Plans" value={String(operator.engineeringTasks.linkedGitHubPlans)} />
+          </div>
+          <DataTable
+            columns={['Candidate', 'Category', 'Priority', 'Reason']}
+            rows={operator.engineeringTasks.candidates.slice(0, 8).map((candidate) => [
+              candidate.title,
+              candidate.category,
+              candidate.recommendedPriority,
+              candidate.reason,
+            ])}
+            emptyMessage="No local engineering task candidates generated."
+          />
+          <DataTable
+            columns={['Command', 'Purpose']}
+            rows={operator.engineeringTasks.commands.map((command) => [command, operatorCommandPurpose(command)])}
+          />
+          <div className="safety-badge-row">
+            {operator.engineeringTasks.safetyLabels.map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
         </Panel>
 
         <Panel title="Thread Outbox Bridge" icon={<FileClock size={18} />} wide>
@@ -3327,6 +3365,10 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('repo:health')) return 'Generate Engineering health analysis from local repository intelligence.';
   if (command.endsWith('repo:owners')) return 'Generate repository ownership and related documentation/task/plan links.';
   if (command.endsWith('repo:validate')) return 'Validate repository intelligence models, graph output, reports, and safety gates.';
+  if (command.endsWith('engineering:tasks')) return 'List local Engineering task candidates without creating shared tasks.';
+  if (command.endsWith('engineering:generate-tasks')) return 'Generate deterministic Engineering task candidate reports from local intelligence signals.';
+  if (command.endsWith('engineering:task-report')) return 'Write Engineering Task Candidate and Executive Engineering Task Summary reports.';
+  if (command.endsWith('engineering:validate')) return 'Validate Engineering task candidate categories, links, reports, and safety rails.';
   return 'Shared local operator command.';
 }
 

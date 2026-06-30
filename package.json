@@ -68,6 +68,10 @@
     "repo:graph": "node scripts/repository-intelligence.mjs graph",
     "repo:health": "node scripts/repository-intelligence.mjs health",
     "repo:owners": "node scripts/repository-intelligence.mjs owners",
-    "repo:validate": "node scripts/repository-intelligence.mjs validate"
+    "repo:validate": "node scripts/repository-intelligence.mjs validate",
+    "engineering:tasks": "node scripts/engineering-tasks.mjs tasks",
+    "engineering:generate-tasks": "node scripts/engineering-tasks.mjs generate-tasks",
+    "engineering:task-report": "node scripts/engineering-tasks.mjs task-report",
+    "engineering:validate": "node scripts/engineering-tasks.mjs validate"
   }
 }

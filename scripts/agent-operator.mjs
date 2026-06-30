@@ -30,6 +30,7 @@ switch (command) {
       githubReadOnly: snapshot.githubReadOnly,
       githubPlanning: snapshot.githubPlanning,
       repositoryIntelligence: snapshot.repositoryIntelligence,
+      engineeringTasks: snapshot.engineeringTasks,
       sharedTasks: snapshot.sharedTasks,
       activeAgents: snapshot.runtime.agentsReady,
       plannedAgents: snapshot.runtime.agentsPlanned,

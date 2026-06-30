@@ -973,3 +973,28 @@ Boundaries:
 - No GitHub writes.
 - No external service writes.
 - No secrets committed.
+
+## Phase 39
+
+Engineering Task Generator.
+
+Includes:
+
+- Local Engineering Task Generator model and runtime.
+- Deterministic task categories for bug fixes, refactors, documentation, test coverage, dependency cleanup, migration support, sales blockers, release readiness, and security/safety review.
+- Root npm scripts for `engineering:tasks`, `engineering:generate-tasks`, `engineering:task-report`, and `engineering:validate`.
+- Candidate generation from Repository Intelligence, GitHub Plans, Executive priorities, and blocked Sales/Migration work.
+- Engineering Dashboard generated candidate table with linked repo risk, GitHub plan, Executive priority, Sales/Migration blocker, recommended priority, and reason.
+- Executive Dashboard engineering task health signals.
+- Operator Dashboard Engineering Task Generator command/status section.
+- Engineering Task Candidate and Executive Engineering Task Summary reports under ignored local reports.
+
+Boundaries:
+
+- Local candidate generation only.
+- No code modifications.
+- No Shared Task Queue records created automatically.
+- No GitHub issues.
+- No pull requests.
+- No production data writes.
+- No secrets committed.

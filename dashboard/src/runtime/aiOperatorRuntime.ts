@@ -1,5 +1,6 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import { buildDashboardConnectorReadiness, type ConnectorReadinessSummary } from './connectorReadiness';
+import { defaultEngineeringTaskSummary, type EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
 import { buildDashboardGitHubPlanningSummary, type GitHubPlanningDashboardSummary } from './githubPlanning';
 import { buildDashboardGitHubReadOnlySummary, type GitHubReadOnlyDashboardSummary } from './githubReadOnly';
 import { defaultRepositoryIntelligenceSummary, type RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
@@ -29,6 +30,7 @@ export interface AiOperatorDashboardSnapshot {
   communicationDrafts: AiCommunicationDraftSnapshot;
   communicationProviders: AiCommunicationProviderSnapshot;
   connectorReadiness: ConnectorReadinessSummary;
+  engineeringTasks: EngineeringTaskGeneratorSummary;
   githubPlanning: GitHubPlanningDashboardSummary;
   githubReadOnly: GitHubReadOnlyDashboardSummary;
   repositoryIntelligence: RepositoryIntelligenceDashboardSummary;
@@ -168,6 +170,10 @@ export const aiOperatorCommands = [
   'npm run repo:health',
   'npm run repo:owners',
   'npm run repo:validate',
+  'npm run engineering:tasks',
+  'npm run engineering:generate-tasks',
+  'npm run engineering:task-report',
+  'npm run engineering:validate',
 ];
 
 export const aiOperatorBlockedActions = [
@@ -222,6 +228,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   threadDueSchedules?: number;
   runtime: AgentRuntimeSnapshot;
   connectorReadiness?: ConnectorReadinessSummary;
+  engineeringTasks?: EngineeringTaskGeneratorSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
@@ -232,6 +239,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   const blockedAgents = input.runtime.agents.filter((agent) => input.runtime.health[agent.id]?.errors > 0).length;
   const runtimeHealth = blockedAgents > 0 ? 'Attention' : warningAgents > 0 ? 'Watch' : 'Ready';
   const connectorReadiness = input.connectorReadiness ?? buildDashboardConnectorReadiness();
+  const engineeringTasks = input.engineeringTasks ?? defaultEngineeringTaskSummary();
   const githubPlanning = input.githubPlanning ?? buildDashboardGitHubPlanningSummary();
   const githubReadOnly = input.githubReadOnly ?? buildDashboardGitHubReadOnlySummary();
   const repositoryIntelligence = input.repositoryIntelligence ?? defaultRepositoryIntelligenceSummary();
@@ -284,6 +292,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
       sendingDisabled: true,
     },
     connectorReadiness,
+    engineeringTasks,
     githubPlanning,
     githubReadOnly,
     repositoryIntelligence,

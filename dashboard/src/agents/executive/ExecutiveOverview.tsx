@@ -242,6 +242,27 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           { label: 'Validation Trend', value: summary.repositoryIntelligence.validationTrend },
         ]
       : []),
+    ...(summary.engineeringTasks
+      ? [
+          { label: 'Engineering Tasks Generated', value: String(summary.engineeringTasks.generatedTasks), tone: summary.engineeringTasks.generatedTasks ? 'warn' : 'good' },
+          {
+            label: 'Critical Engineering Tasks',
+            value: String(summary.engineeringTasks.criticalEngineeringTasks),
+            tone: summary.engineeringTasks.criticalEngineeringTasks ? 'warn' : 'good',
+          },
+          {
+            label: 'Sales-Blocking Eng Tasks',
+            value: String(summary.engineeringTasks.salesBlockingEngineeringTasks),
+            tone: summary.engineeringTasks.salesBlockingEngineeringTasks ? 'warn' : 'good',
+          },
+          {
+            label: 'Migration-Blocking Eng Tasks',
+            value: String(summary.engineeringTasks.migrationBlockingEngineeringTasks),
+            tone: summary.engineeringTasks.migrationBlockingEngineeringTasks ? 'warn' : 'good',
+          },
+          { label: 'Release Readiness Tasks', value: String(summary.engineeringTasks.releaseReadinessTasks), tone: summary.engineeringTasks.releaseReadinessTasks ? 'warn' : 'good' },
+        ]
+      : []),
   ];
 
   return (
