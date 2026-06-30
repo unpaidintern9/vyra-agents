@@ -50,5 +50,6 @@ function targetForDepartment(department: string): string {
   if (normalized.includes('engineering')) return 'Engineering';
   if (normalized.includes('migration')) return 'Migration';
   if (normalized.includes('product')) return 'Products';
+  if (normalized.includes('sales')) return 'Sales';
   return 'Runtime';
 }

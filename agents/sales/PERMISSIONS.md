@@ -1,9 +1,22 @@
 # Sales Agent Permissions
 
-Default permissions:
+## Current Permissions
 
-- read
-- local planning notes
-- local dashboard status updates
+- Read local/mock sales records.
+- Write browser localStorage records.
+- Append local Agent Runtime activity.
+- Append local audit logs.
+- Export local JSON and Markdown reports.
 
-Customer outreach, pricing changes, discounts, contracts, invoices, Stripe writes, CRM writes, and commission actions require future approval and production audit logging.
+## Explicitly Disabled
+
+- Email sends.
+- SMS sends.
+- Stripe invoice creation.
+- CRM production updates.
+- Production business table writes.
+- Direct browser writes to protected Supabase business tables.
+
+## Future Permissions
+
+Any future external send, CRM write, billing action, or production write must be approval-gated and auditable.

@@ -34,11 +34,11 @@ const registeredAgents: AgentRegistration[] = [
   {
     id: 'sales',
     name: 'Sales Agent',
-    description: 'Future lead review and revenue workflow planning.',
+    description: 'Local lead queue, prospect tracking, follow-up planning, and proposal prep.',
     owner: 'Sales',
     permissions: createPermissions({ approvalRequired: true, risk: 'medium' }),
-    health: 'planned',
-    activity: 'Awaiting CRM scope',
+    health: 'ready',
+    activity: 'Local lead queue and proposal prep ready',
   },
   {
     id: 'support',

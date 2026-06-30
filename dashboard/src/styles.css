@@ -297,6 +297,10 @@ h1 {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
+.sales-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .executive-summary-grid {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
@@ -1185,7 +1189,8 @@ td:nth-child(6) {
   gap: 6px;
 }
 
-.report-button.small {
+.report-button.small,
+.clear-button.small {
   min-height: 30px;
   padding: 0 9px;
 }
@@ -1339,6 +1344,18 @@ td:nth-child(6) {
   line-height: 1.2;
 }
 
+.sales-filter-grid {
+  margin-bottom: 16px;
+}
+
+.sales-filter-grid label {
+  display: grid;
+  gap: 7px;
+  color: #aebbd0;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .filter-row select,
 .filter-grid select,
 .input-control input {
@@ -1418,6 +1435,79 @@ td:nth-child(6) {
 .executive-timeline {
   display: grid;
   gap: 10px;
+}
+
+.prospect-grid,
+.follow-up-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.prospect-card,
+.follow-up-column {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-height: 180px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  padding: 15px;
+}
+
+.prospect-card strong,
+.follow-up-column strong,
+.button-group > span {
+  color: #f3f8ff;
+  font-size: 0.92rem;
+}
+
+.prospect-card span,
+.prospect-card p,
+.follow-up-column span,
+.follow-up-item small,
+.table-subtext {
+  color: #94a4b8;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.prospect-card p {
+  margin: 0;
+}
+
+.compact-facts {
+  gap: 8px;
+}
+
+.compact-facts .fact {
+  min-height: auto;
+  padding: 10px;
+}
+
+.follow-up-item {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  border: 1px solid rgba(87, 196, 164, 0.22);
+  border-radius: 8px;
+  background: rgba(87, 196, 164, 0.08);
+  color: #dce6f3;
+  cursor: pointer;
+  padding: 10px;
+  text-align: left;
+}
+
+.sales-action-row {
+  align-items: flex-start;
+  margin-top: 16px;
+}
+
+.sales-action-row .button-group {
+  align-items: flex-start;
+  display: grid;
+  min-width: min(100%, 320px);
 }
 
 .history-item {

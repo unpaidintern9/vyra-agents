@@ -27,6 +27,11 @@ import { migrationRules } from './agents/migration/migrationRules';
 import { summarizeMigration } from './agents/migration/migrationSummary';
 import { validateMigrationMembers } from './agents/migration/migrationValidation';
 import { matchMigrationMembers } from './agents/migration/memberMatching';
+import SalesPage from './agents/sales/SalesPage';
+import { buildFollowUpReport, buildProposalReport, buildSalesPipelineReport } from './agents/sales/salesReports';
+import { createInitialSalesActivities, createInitialSalesLeads, createInitialSalesProposals } from './agents/sales/salesStorage';
+import type { ProposalPrep, SalesAction, SalesActivity, SalesLead } from './agents/sales/salesTypes';
+import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
 import { EmptyState } from './components/EmptyState';
 import { PageHeader } from './components/PageHeader';
 import { RiskBadge } from './components/RiskBadge';
@@ -93,6 +98,13 @@ interface IntegrationSnapshot {
 const requestedMode = import.meta.env.VITE_VYRA_INTEGRATION_MODE === 'live' ? 'live' : 'mock';
 const EngineeringPage = lazy(() => import('./agents/engineering/EngineeringPage'));
 
+function localId(prefix: string): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return `${prefix}_${crypto.randomUUID()}`;
+  }
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
 function App() {
   const [activePage, setActivePage] = useState('Overview');
   const [reviewApproved, setReviewApproved] = useState(false);
@@ -104,6 +116,13 @@ function App() {
   const [agentNotes] = useState(createInitialAgentNotes);
   const [auditLogs, setAuditLogs] = useState(() => loadLocalState(localStorageKeys.auditLogs, createInitialAuditLogs));
   const [approvalItems, setApprovalItems] = useState(() => loadLocalState(localStorageKeys.approvals, createInitialApprovals));
+  const [salesLeads, setSalesLeads] = useState(() => loadLocalState<SalesLead[]>(localStorageKeys.salesLeads, createInitialSalesLeads));
+  const [salesActivities, setSalesActivities] = useState(() =>
+    loadLocalState<SalesActivity[]>(localStorageKeys.salesActivities, createInitialSalesActivities),
+  );
+  const [salesProposals, setSalesProposals] = useState(() =>
+    loadLocalState<ProposalPrep[]>(localStorageKeys.salesProposals, createInitialSalesProposals),
+  );
   const [workflowRuns, setWorkflowRuns] = useState(() =>
     loadLocalState<WorkflowDryCheckRecord[]>(localStorageKeys.workflowResults, () => []),
   );
@@ -126,6 +145,7 @@ function App() {
     [memberMatches, migrationIssues],
   );
   const workflowRegistry = useMemo(() => getWorkflowRegistry(), []);
+  const salesSummary = useMemo(() => summarizeSalesPipeline(salesLeads, salesProposals), [salesLeads, salesProposals]);
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
   const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
   const syncStatus = useMemo(
@@ -168,6 +188,9 @@ function App() {
   useEffect(() => saveLocalState(localStorageKeys.agentTasks, agentTasks), [agentTasks]);
   useEffect(() => saveLocalState(localStorageKeys.auditLogs, auditLogs), [auditLogs]);
   useEffect(() => saveLocalState(localStorageKeys.approvals, approvalItems), [approvalItems]);
+  useEffect(() => saveLocalState(localStorageKeys.salesLeads, salesLeads), [salesLeads]);
+  useEffect(() => saveLocalState(localStorageKeys.salesActivities, salesActivities), [salesActivities]);
+  useEffect(() => saveLocalState(localStorageKeys.salesProposals, salesProposals), [salesProposals]);
   useEffect(() => saveLocalState(localStorageKeys.workflowResults, workflowRuns), [workflowRuns]);
   useEffect(() => saveLocalState(localStorageKeys.migrationDryRuns, migrationDryRuns), [migrationDryRuns]);
   useEffect(() => saveLocalState(localStorageKeys.approvalHistory, approvalHistory), [approvalHistory]);
@@ -205,7 +228,7 @@ function App() {
     if (shouldAuditSync) {
       setAuditLogs((current) => [
         {
-          id: `audit_sync_${Date.now()}`,
+          id: localId('audit_sync'),
           timestamp: new Date().toISOString(),
           actor: 'System',
           agent: 'Operations Agent',
@@ -242,7 +265,7 @@ function App() {
   const appendAudit = useCallback((entry: Omit<AuditLogEntry, 'id' | 'timestamp'>) => {
     setAuditLogs((current) => [
       {
-        id: `audit_${Date.now()}`,
+        id: localId('audit'),
         timestamp: new Date().toISOString(),
         ...entry,
       },
@@ -253,7 +276,7 @@ function App() {
   const appendAgentEvent = useCallback((event: Omit<AgentEvent, 'id' | 'timestamp'>) => {
     setAgentEvents((current) => [
       {
-        id: `evt_${Date.now()}`,
+        id: localId('evt'),
         timestamp: new Date().toISOString(),
         ...event,
       },
@@ -352,7 +375,7 @@ function App() {
   const runMigrationDryRun = () => {
     const now = new Date().toISOString();
     const run: AgentRun = {
-      id: `run_${Date.now()}`,
+      id: localId('run'),
       agent: 'Migration Agent',
       workflow: 'migration-validation-dry-run',
       status: 'completed',
@@ -361,7 +384,7 @@ function App() {
       summary: migrationSummary,
     };
     const dryRun: MigrationDryRunRecord = {
-      id: `migration_dry_run_${Date.now()}`,
+      id: localId('migration_dry_run'),
       createdAt: now,
       agent: 'Migration Agent',
       workflow: 'migration-validation-dry-run',
@@ -427,7 +450,7 @@ function App() {
     if (item?.status === 'pending') {
       setApprovalHistory((current) => [
         {
-          id: `approval_history_${Date.now()}`,
+          id: localId('approval_history'),
           approvalId: item.id,
           title: item.title,
           requestedBy: item.requestedBy,
@@ -459,7 +482,7 @@ function App() {
     const now = new Date().toISOString();
     setWorkflowRuns((current) => [
       {
-        id: `workflow_dry_check_${Date.now()}`,
+        id: localId('workflow_dry_check'),
         workflowKey: workflow.key,
         agent: workflow.ownerAgent,
         riskLevel: workflow.riskLevel,
@@ -499,7 +522,7 @@ function App() {
       productionWritesOccurred: 'No',
     };
     const run: AgentRun = {
-      id: `run_engineering_scan_${Date.now()}`,
+      id: localId('run_engineering_scan'),
       agent: 'Engineering Agent',
       workflow: 'engineering-knowledge-graph-scan',
       status: 'completed',
@@ -511,7 +534,7 @@ function App() {
     setSelectedRunId(run.id);
     setWorkflowRuns((current) => [
       {
-        id: `workflow_engineering_scan_${Date.now()}`,
+        id: localId('workflow_engineering_scan'),
         workflowKey: 'engineering-knowledge-graph-scan',
         agent: 'Engineering Agent',
         riskLevel: 'low',
@@ -521,7 +544,7 @@ function App() {
         productionWritesOccurred: 'No',
       },
       {
-        id: `workflow_engineering_health_${Date.now()}`,
+        id: localId('workflow_engineering_health'),
         workflowKey: 'engineering-ownership-health-scan',
         agent: 'Engineering Agent',
         riskLevel: 'low',
@@ -575,7 +598,7 @@ function App() {
         : 'engineering-impact-analysis';
     setWorkflowRuns((current) => [
       {
-        id: `workflow_engineering_impact_${Date.now()}`,
+        id: localId('workflow_engineering_impact'),
         workflowKey,
         agent: 'Engineering Agent',
         riskLevel: isIssueCreation ? event.riskLevel === 'low' || event.riskLevel === 'unknown' ? 'medium' : event.riskLevel : isIssueDraftPlanning ? 'medium' : event.riskLevel === 'unknown' ? 'medium' : event.riskLevel,
@@ -599,6 +622,82 @@ function App() {
       result: `${event.reportType} · ${event.riskLevel} risk`,
       riskLevel: isIssueCreation ? event.riskLevel === 'low' || event.riskLevel === 'unknown' ? 'medium' : event.riskLevel : isIssueDraftPlanning ? 'medium' : event.riskLevel === 'unknown' ? 'medium' : event.riskLevel,
       approvalRequired: isIssueDraftPlanning || isIssueCreation,
+    });
+  };
+
+  const recordSalesAction = (leadId: string, action: SalesAction) => {
+    const now = new Date().toISOString();
+    const lead = salesLeads.find((item) => item.id === leadId);
+    if (!lead) {
+      return;
+    }
+    const actionLabel = salesActionLabel(action);
+    const workflowKey = salesWorkflowForAction(action);
+    setSalesLeads((current) =>
+      current.map((item) => (item.id === leadId ? applySalesActionToLead(item, action, now) : item)),
+    );
+    setSalesProposals((current) => updateSalesProposals(current, lead, action));
+    setSalesActivities((current) => [
+      {
+        id: localId('sales_activity'),
+        leadId,
+        activityType: salesActivityType(action),
+        summary: `${actionLabel} for ${lead.name}`,
+        timestamp: now,
+        outcome: 'Local Sales Agent state updated only',
+        nextAction: action === 'paused' ? 'Paused until Robert resumes' : lead.nextAction,
+      },
+      ...current,
+    ]);
+    setWorkflowRuns((current) => [
+      {
+        id: localId('workflow_sales'),
+        workflowKey,
+        agent: 'Sales Agent',
+        riskLevel: action === 'paused' ? 'low' : 'medium',
+        result: `${actionLabel} recorded for ${lead.name}`,
+        createdAt: now,
+        approvalRequired: workflowKey !== 'pipeline-summary',
+        productionWritesOccurred: 'No',
+      },
+      ...current,
+    ]);
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: workflowKey,
+      detail: `${actionLabel} recorded for ${lead.name}. No email, Stripe, CRM, or production write occurred.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Agent',
+      action: `sales ${actionLabel.toLowerCase()}`,
+      target: lead.name,
+      result: 'local/mock state updated; no external send or production write',
+      riskLevel: action === 'paused' ? 'low' : 'medium',
+      approvalRequired: true,
+    });
+  };
+
+  const exportSalesReport = (format: ReportFormat, report: 'pipeline' | 'follow_up' | 'proposal') => {
+    const localReport =
+      report === 'follow_up'
+        ? buildFollowUpReport(salesLeads)
+        : report === 'proposal'
+          ? buildProposalReport(salesLeads, salesProposals)
+          : buildSalesPipelineReport(salesLeads, salesActivities, salesProposals);
+    downloadReport(localReport, format);
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: report === 'pipeline' ? 'pipeline-summary' : report === 'follow_up' ? 'follow-up-planning' : 'quote-prep',
+      detail: `${localReport.title} exported as ${format}. No email, Stripe, CRM, or production write occurred.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Agent',
+      action: 'sales report exported',
+      target: localReport.title,
+      result: `${format} downloaded locally`,
+      riskLevel: 'low',
     });
   };
 
@@ -733,7 +832,14 @@ function App() {
 
   const status = snapshot ?? buildLoadingSnapshot();
   const pageWarnings = [...status.warnings, ...syncStatusWarnings(syncStatus)];
-  const pageTitle = activePage === 'Overview' ? 'Executive Agent' : activePage === 'Migration' ? 'Migration Agent' : activePage;
+  const pageTitle =
+    activePage === 'Overview'
+      ? 'Executive Agent'
+      : activePage === 'Migration'
+        ? 'Migration Agent'
+        : activePage === 'Sales'
+          ? 'Sales Agent'
+          : activePage;
 
   return (
     <div className="app-shell">
@@ -810,6 +916,14 @@ function App() {
             onDryRun={runMigrationDryRun}
             summary={migrationSummary}
           />
+        ) : activePage === 'Sales' ? (
+          <SalesPage
+            activities={salesActivities}
+            leads={salesLeads}
+            onAction={recordSalesAction}
+            onExport={exportSalesReport}
+            proposals={salesProposals}
+          />
         ) : activePage === 'Integrations' ? (
           <IntegrationsPage snapshot={status} />
         ) : activePage === 'Settings' ? (
@@ -859,7 +973,7 @@ function App() {
         ) : activePage === 'Runtime' ? (
           <RuntimePage runtime={runtime} syncStatus={syncStatus} />
         ) : (
-          <ExecutiveDashboard integrationWarnings={status.warnings} onNavigate={setActivePage} runtime={runtime} />
+          <ExecutiveDashboard integrationWarnings={status.warnings} onNavigate={setActivePage} runtime={runtime} salesSummary={salesSummary} />
         )}
       </main>
     </div>
@@ -1777,6 +1891,7 @@ function envChecklist(): Record<string, 'configured' | 'missing' | 'invalid/unkn
 function pageCopy(page: string): string {
   const copy: Record<string, string> = {
     Migration: 'Migration dry-runs, staging review, member matching, table readiness, and mock approvals.',
+    Sales: 'Local lead queue, prospect tracking, follow-up planning, and proposal prep without emails, Stripe, or CRM writes.',
     Engineering: 'Read-only repository knowledge graph for files, routes, components, Supabase assets, dependencies, and docs.',
     Integrations: 'Read-only integration health with safe mock fallback and no production writes.',
     Runtime: 'Shared Agent OS for registry, lifecycle, permissions, health, workflows, memory, approvals, and sync.',
@@ -1787,6 +1902,95 @@ function pageCopy(page: string): string {
     Workflows: 'Workflow registry with safe local dry checks and approval-risk visibility.',
   };
   return copy[page] ?? 'Read-only command center for the Vyra ecosystem. No AI or production write workflows are enabled.';
+}
+
+function applySalesActionToLead(lead: SalesLead, action: SalesAction, timestamp: string): SalesLead {
+  if (action === 'follow_up_planned') {
+    return {
+      ...lead,
+      nextAction: 'Follow-up planned locally',
+      nextFollowUpDate: nextDayIso(),
+      status: 'active',
+      updatedAt: timestamp,
+    };
+  }
+  if (action === 'contacted') {
+    return {
+      ...lead,
+      nextAction: 'Capture response and decide next pipeline step',
+      pipelineStage: lead.pipelineStage === 'new' ? 'contacted' : lead.pipelineStage,
+      status: 'active',
+      updatedAt: timestamp,
+    };
+  }
+  if (action === 'proposal_needed') {
+    return {
+      ...lead,
+      nextAction: 'Prepare quote/proposal draft locally',
+      pipelineStage: 'proposal_needed',
+      status: 'active',
+      updatedAt: timestamp,
+    };
+  }
+  return {
+    ...lead,
+    nextAction: 'Paused locally; no follow-up will be sent',
+    pipelineStage: 'paused',
+    status: 'paused',
+    updatedAt: timestamp,
+  };
+}
+
+function updateSalesProposals(proposals: ProposalPrep[], lead: SalesLead, action: SalesAction): ProposalPrep[] {
+  if (action !== 'proposal_needed') {
+    return proposals;
+  }
+  if (proposals.some((proposal) => proposal.leadId === lead.id)) {
+    return proposals.map((proposal) => (proposal.leadId === lead.id ? { ...proposal, status: 'needed' } : proposal));
+  }
+  return [
+    {
+      leadId: lead.id,
+      recommendedProduct: lead.likelyProductFit ?? (lead.leadType === 'coach' ? 'Coach starter plan' : 'Gym dashboard'),
+      pricingTier: lead.leadType === 'coach' ? 'Coach Pro' : 'Growth Gym',
+      setupFee: lead.leadType === 'coach' ? 250 : 1000,
+      monthlyFee: lead.leadType === 'coach' ? 300 : 900,
+      migrationFee: lead.leadType === 'gym' ? 750 : 0,
+      migrationNeeded: lead.leadType === 'gym',
+      notes: 'Local proposal prep only. No Stripe invoice or external send.',
+      status: 'needed',
+    },
+    ...proposals,
+  ];
+}
+
+function salesWorkflowForAction(action: SalesAction): string {
+  if (action === 'follow_up_planned' || action === 'contacted') return 'follow-up-planning';
+  if (action === 'proposal_needed') return 'quote-prep';
+  return 'sales-lead-review';
+}
+
+function salesActivityType(action: SalesAction): SalesActivity['activityType'] {
+  if (action === 'contacted') return 'contacted';
+  if (action === 'proposal_needed') return 'proposal';
+  if (action === 'follow_up_planned') return 'follow_up';
+  return 'status_change';
+}
+
+function salesActionLabel(action: SalesAction): string {
+  const labels: Record<SalesAction, string> = {
+    contacted: 'Contacted',
+    follow_up_planned: 'Follow-up planned',
+    paused: 'Paused',
+    proposal_needed: 'Proposal needed',
+  };
+  return labels[action];
+}
+
+function nextDayIso(): string {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  return date.toISOString();
 }
 
 function runtimeAgentStatus(status: string): string {

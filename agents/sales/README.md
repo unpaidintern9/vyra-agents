@@ -1,7 +1,5 @@
 # Sales Agent
 
-Status: Foundation
+The Sales Agent tracks gym leads, coach leads, pipeline status, follow-ups, proposal prep, and sales activity for Robert.
 
-Purpose: Track leads, gyms, coaches, sales pipeline, quotes, invoices, referrals, and future commission events.
-
-This foundation is read-only and planning-only. It does not send email, write to Stripe, change CRM records, or create customer commitments.
+Current implementation is local/mock only inside the Vyra Agents dashboard. It does not send emails, create Stripe invoices, update CRM records, or write production business data.

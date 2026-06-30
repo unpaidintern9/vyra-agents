@@ -1,9 +1,10 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
+import type { SalesSummary } from '../agents/sales/salesTypes';
 
-export const executiveRuleCount = 6;
+export const executiveRuleCount = 7;
 
-export function buildExecutivePriorities(runtime: AgentRuntimeSnapshot): ExecutivePriority[] {
+export function buildExecutivePriorities(runtime: AgentRuntimeSnapshot, salesSummary?: SalesSummary): ExecutivePriority[] {
   const priorities: ExecutivePriority[] = [];
   const pendingApprovals = runtime.approvals.filter((approval) => approval.status === 'pending');
   const warningAgents = runtime.agents.filter((agent) => runtime.health[agent.id]?.warnings > 0);
@@ -67,6 +68,18 @@ export function buildExecutivePriorities(runtime: AgentRuntimeSnapshot): Executi
       priority: 'medium',
       recommendedAction: 'Run Sync Now when the Edge Function path is configured.',
       source: 'Runtime sync',
+    });
+  }
+
+  if (salesSummary && salesSummary.followUpsDue > 0) {
+    priorities.push({
+      id: 'sales-follow-ups-due',
+      agent: 'Sales Agent',
+      department: 'Sales',
+      detail: `${salesSummary.followUpsDue} sales follow-up(s) are due or overdue.`,
+      priority: 'medium',
+      recommendedAction: 'Open Sales and clear the local follow-up planner.',
+      source: 'Sales pipeline',
     });
   }
 

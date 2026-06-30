@@ -1,6 +1,7 @@
 import { buildExecutivePriorities } from '../../runtime/executiveRules';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { LocalReport } from '../../storage/reportExport';
+import type { SalesSummary } from '../sales/salesTypes';
 import type {
   ExecutiveHealthRow,
   ExecutiveReportContext,
@@ -10,7 +11,7 @@ import type {
   ExecutiveTimelineItem,
 } from './executiveTypes';
 
-export function buildExecutiveSummary(runtime: AgentRuntimeSnapshot, integrationWarnings: string[] = []): ExecutiveSummary {
+export function buildExecutiveSummary(runtime: AgentRuntimeSnapshot, integrationWarnings: string[] = [], salesSummary?: SalesSummary): ExecutiveSummary {
   const healthRows = buildExecutiveHealthRows(runtime);
   const healthyAgents = healthRows.filter((agent) => agent.risk === 'low').length;
   const criticalAgents = healthRows.filter((agent) => agent.risk === 'high').length;
@@ -35,7 +36,7 @@ export function buildExecutiveSummary(runtime: AgentRuntimeSnapshot, integration
     migrationBatches: migrationHealth?.pendingTasks ?? 0,
     overallHealth,
     pendingApprovals,
-    priorities: buildExecutivePriorities(runtime),
+    priorities: buildExecutivePriorities(runtime, salesSummary),
     recentRuntimeEvents: runtime.activities.length,
     registeredAgents: runtime.agents.length,
     runtime: buildRuntimeSummary(runtime),
@@ -44,6 +45,7 @@ export function buildExecutiveSummary(runtime: AgentRuntimeSnapshot, integration
     timeline: buildExecutiveTimeline(runtime.activities),
     warningAgents,
     workflowsToday: countWorkflowActivity(runtime.activities),
+    salesSummary,
   };
 }
 
@@ -83,6 +85,10 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     warningAgents: summary.warningAgents,
     criticalAgents: summary.criticalAgents,
     pendingApprovals: summary.pendingApprovals,
+    salesFollowUpsDue: summary.salesSummary?.followUpsDue ?? 0,
+    salesHotLeads: summary.salesSummary?.hotLeads ?? 0,
+    salesPipelineValue: summary.salesSummary?.estimatedPipelineValue ?? 0,
+    salesProposalNeeded: summary.salesSummary?.proposalNeeded ?? 0,
     syncQueue: summary.syncQueue,
     runtimeVersion: summary.runtimeVersion,
     productionWritesOccurred: 'No',
@@ -181,7 +187,7 @@ function navigationTargetForAgent(agentId: string): string {
     migration: 'Migration',
     operations: 'Runtime',
     product: 'Products',
-    sales: 'Runtime',
+    sales: 'Sales',
     support: 'Runtime',
   };
   return targets[agentId] ?? 'Runtime';

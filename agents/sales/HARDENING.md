@@ -1,7 +1,19 @@
 # Sales Agent Hardening
 
-- Treat sales records, quotes, invoices, referrals, and commission notes as sensitive operational data.
-- Do not expose customer contact details in exported summaries unless a future approved workflow requires it.
-- Keep quote and follow-up outputs in draft form only.
-- Never send outreach, create invoices, update Stripe, or update CRM records from this phase.
-- Record missing approvals as blockers instead of attempting a write.
+## Current Hardening
+
+- Local-first records only.
+- No CRM write client.
+- No email send path.
+- No Stripe invoice path.
+- Reports include no production-write behavior.
+- Audit entries state that external sends and production writes did not occur.
+
+## Future Hardening Requirements
+
+- Approval gates before CRM writes.
+- Approval gates before external emails or SMS.
+- Approval gates before Stripe actions.
+- Secret redaction in all settings and reports.
+- Dry-run previews before every external action.
+- Audit log and Agent Runtime event for every approval decision.

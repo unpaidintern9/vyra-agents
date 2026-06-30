@@ -1,0 +1,64 @@
+# Sales Agent
+
+The Sales Agent is the first local business department agent in the Vyra Agents dashboard.
+
+It helps Robert track leads, prospects, pipeline stage, follow-ups, proposal prep, and sales activity without contacting anyone or writing to production systems.
+
+## Current Scope
+
+The Sales Agent MVP includes:
+
+- Sales summary cards.
+- Local lead queue.
+- Gym prospect tracker.
+- Coach prospect tracker.
+- Quote and proposal prep.
+- Follow-up planner.
+- Local sales activity timeline.
+- JSON and Markdown report exports.
+- Shared runtime workflows for Sales activity.
+
+## Local Storage
+
+Sales records persist in browser localStorage:
+
+- `vyra-agents:sales-leads`
+- `vyra-agents:sales-activities`
+- `vyra-agents:sales-proposals`
+
+These are local browser records, not CRM records.
+
+## Pipeline Stages
+
+Supported stages are:
+
+- `new`
+- `contacted`
+- `qualified`
+- `demo_scheduled`
+- `proposal_needed`
+- `proposal_sent`
+- `negotiating`
+- `won`
+- `lost`
+- `paused`
+
+## Safety Boundaries
+
+- No AI.
+- No emails sent.
+- No Stripe invoices created.
+- No CRM production writes.
+- No production business table writes.
+- No changes to `Vyra-Part-1`.
+- Proposal and quote prep are local planning records only.
+
+## Runtime Integration
+
+Sales local actions append normal Agent Runtime activity, audit logs, and workflow dry-check records. Those records can sync through the approved agent-memory Edge Function path when configured, or fall back to localStorage.
+
+Sales lead and proposal records themselves are not written to production.
+
+## Future Integrations
+
+Future CRM, email, Stripe, or external-send workflows must be approval-gated and must preserve the current local preview-first behavior.

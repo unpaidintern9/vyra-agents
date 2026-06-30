@@ -1,4 +1,5 @@
 import { Activity, Clock, GitBranch, ListChecks, ShieldCheck, Workflow } from 'lucide-react';
+import { formatCurrency } from '../sales/salesPipeline';
 import type { ExecutiveSummary } from './executiveTypes';
 
 const metricIcons = [Activity, ListChecks, ShieldCheck, Workflow, GitBranch, Clock];
@@ -18,6 +19,14 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
     { label: 'Migration Batches', value: String(summary.migrationBatches) },
     { label: 'GitHub Drafts', value: String(summary.githubDrafts) },
     { label: 'Recent Runtime Events', value: String(summary.recentRuntimeEvents) },
+    ...(summary.salesSummary
+      ? [
+          { label: 'Sales Hot Leads', value: String(summary.salesSummary.hotLeads), tone: summary.salesSummary.hotLeads ? 'warn' : 'good' },
+          { label: 'Sales Follow-Ups Due', value: String(summary.salesSummary.followUpsDue), tone: summary.salesSummary.followUpsDue ? 'warn' : 'good' },
+          { label: 'Sales Proposal Needed', value: String(summary.salesSummary.proposalNeeded), tone: summary.salesSummary.proposalNeeded ? 'warn' : 'good' },
+          { label: 'Sales Pipeline Value', value: formatCurrency(summary.salesSummary.estimatedPipelineValue) },
+        ]
+      : []),
   ];
 
   return (

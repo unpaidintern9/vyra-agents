@@ -513,3 +513,29 @@ Boundaries:
 - No changes to `Vyra-Part-1`.
 - Existing Engineering and Migration behavior is preserved.
 - Executive Agent summarizes the shared runtime instead of duplicating agent logic.
+
+## Phase 20
+
+Sales Agent MVP.
+
+Includes:
+
+- Local Sales Agent page in the dashboard.
+- Local lead queue with type, stage, priority, and source filters.
+- Gym and coach prospect trackers.
+- Quote and proposal prep panel without Stripe or invoice creation.
+- Follow-up planner with local-only actions.
+- Sales activity timeline.
+- Sales pipeline, follow-up, and proposal report exports.
+- Browser localStorage persistence for sales leads, sales activities, and proposal prep.
+- Sales workflows registered through the shared runtime.
+- Executive Dashboard Sales signals for hot leads, follow-ups due, proposal needs, and pipeline value.
+
+Boundaries:
+
+- No AI is implemented.
+- No emails are sent.
+- No Stripe invoices are created.
+- No CRM production data is modified.
+- No production business tables are written.
+- No changes to `Vyra-Part-1`.
