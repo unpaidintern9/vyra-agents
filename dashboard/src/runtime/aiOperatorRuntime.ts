@@ -1,6 +1,7 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import { buildDashboardConnectorReadiness, type ConnectorReadinessSummary } from './connectorReadiness';
 import { defaultEngineeringTaskSummary, type EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
+import { buildDashboardExecutiveAutomationSummary, type ExecutiveAutomationSummary } from './executiveAutomation';
 import { buildDashboardGmailEmailSummary, type GmailEmailDashboardSummary } from './gmailEmail';
 import { buildDashboardGitHubPlanningSummary, type GitHubPlanningDashboardSummary } from './githubPlanning';
 import { buildDashboardGitHubReadOnlySummary, type GitHubReadOnlyDashboardSummary } from './githubReadOnly';
@@ -33,6 +34,7 @@ export interface AiOperatorDashboardSnapshot {
   connectorReadiness: ConnectorReadinessSummary;
   email: GmailEmailDashboardSummary;
   engineeringTasks: EngineeringTaskGeneratorSummary;
+  executiveAutomation: ExecutiveAutomationSummary;
   githubPlanning: GitHubPlanningDashboardSummary;
   githubReadOnly: GitHubReadOnlyDashboardSummary;
   repositoryIntelligence: RepositoryIntelligenceDashboardSummary;
@@ -184,6 +186,12 @@ export const aiOperatorCommands = [
   'npm run engineering:generate-tasks',
   'npm run engineering:task-report',
   'npm run engineering:validate',
+  'npm run executive:automation-status',
+  'npm run executive:automation-run',
+  'npm run executive:automation-rules',
+  'npm run executive:automation-report',
+  'npm run executive:automation-validate',
+  'npm run executive:automation-safety-check',
 ];
 
 export const aiOperatorBlockedActions = [
@@ -240,6 +248,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   connectorReadiness?: ConnectorReadinessSummary;
   email?: GmailEmailDashboardSummary;
   engineeringTasks?: EngineeringTaskGeneratorSummary;
+  executiveAutomation?: ExecutiveAutomationSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
@@ -256,6 +265,18 @@ export function buildAiOperatorDashboardSnapshot(input: {
   const githubReadOnly = input.githubReadOnly ?? buildDashboardGitHubReadOnlySummary();
   const repositoryIntelligence = input.repositoryIntelligence ?? defaultRepositoryIntelligenceSummary();
   const sharedTasks = input.sharedTasks ?? buildDashboardSharedTaskSummary();
+  const executiveAutomation =
+    input.executiveAutomation ??
+    buildDashboardExecutiveAutomationSummary({
+      connectorReadiness,
+      email,
+      engineeringTasks,
+      githubPlanning,
+      githubReadOnly,
+      repositoryIntelligence,
+      runtime: input.runtime,
+      sharedTasks,
+    });
 
   return {
     activeOperator: `${metadata.operatorName} / ${metadata.operatorTool}`,
@@ -306,6 +327,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
     connectorReadiness,
     email,
     engineeringTasks,
+    executiveAutomation,
     githubPlanning,
     githubReadOnly,
     repositoryIntelligence,

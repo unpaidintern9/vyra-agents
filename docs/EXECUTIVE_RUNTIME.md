@@ -70,3 +70,11 @@ Phase 38 adds Repository Intelligence to Executive summaries:
 - validation trend
 
 These signals come from local Engineering graph metadata and local repository intelligence reports. They do not trigger GitHub writes, repository modifications, or external service writes.
+
+## Executive Automation
+
+Phase 41 adds the Executive Automation Engine. The engine reads local runtime, task, Gmail, GitHub planning, connector readiness, repository intelligence, Engineering task, and cross-agent signals to decide what needs attention.
+
+Automation can create ignored local shared tasks, GitHub plans, Gmail drafts, Executive review items, and reports. It cannot perform GitHub writes, CRM writes, Stripe writes, Supabase production writes, external marketing email, bulk sending, or secret output.
+
+See `docs/EXECUTIVE_AUTOMATION_ENGINE.md`, `docs/EXECUTIVE_AUTOMATION_RULES.md`, and `docs/AUTOMATION_SAFETY.md`.

@@ -2,6 +2,7 @@ import { buildExecutivePriorities } from '../../runtime/executiveRules';
 import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness';
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { EngineeringTaskGeneratorSummary } from '../../runtime/engineeringTaskGenerator';
+import type { ExecutiveAutomationSummary } from '../../runtime/executiveAutomation';
 import type { GmailEmailDashboardSummary } from '../../runtime/gmailEmail';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
@@ -41,6 +42,7 @@ export function buildExecutiveSummary(
   connectorReadiness?: ConnectorReadinessSummary,
   email?: GmailEmailDashboardSummary,
   engineeringTasks?: EngineeringTaskGeneratorSummary,
+  executiveAutomation?: ExecutiveAutomationSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
@@ -83,6 +85,7 @@ export function buildExecutiveSummary(
       connectorReadiness,
       email,
       engineeringTasks,
+      executiveAutomation,
       githubPlanning,
       githubReadOnly,
       repositoryIntelligence,
@@ -99,6 +102,7 @@ export function buildExecutiveSummary(
     crossAgentSummary,
     salesIntegration,
     engineeringTasks,
+    executiveAutomation,
     salesAgentTeamSummary,
     salesIntelligenceSummary,
     salesProposalSummary,
@@ -196,6 +200,11 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     skippedEmailAttempts: summary.email?.skippedEmailCount ?? 0,
     emailAutomationHealth: summary.email?.automationHealthStatus ?? 'Not configured',
     engineeringGeneratedTasks: summary.engineeringTasks?.generatedTasks ?? 0,
+    executiveAutomationTriggeredRules: summary.executiveAutomation?.triggeredRules.length ?? 0,
+    executiveAutomationGeneratedTasks: summary.executiveAutomation?.generatedTasks ?? 0,
+    executiveAutomationGeneratedEmails: summary.executiveAutomation?.generatedEmails ?? 0,
+    executiveAutomationSkippedActions: summary.executiveAutomation?.skippedOrBlockedActions ?? 0,
+    executiveAutomationHealth: summary.executiveAutomation?.automationHealth ?? 'Not configured',
     engineeringCriticalTasks: summary.engineeringTasks?.criticalEngineeringTasks ?? 0,
     engineeringSalesBlockingTasks: summary.engineeringTasks?.salesBlockingEngineeringTasks ?? 0,
     engineeringMigrationBlockingTasks: summary.engineeringTasks?.migrationBlockingEngineeringTasks ?? 0,

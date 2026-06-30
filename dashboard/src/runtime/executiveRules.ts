@@ -2,6 +2,7 @@ import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { ConnectorReadinessSummary } from './connectorReadiness';
 import type { CrossAgentCollaborationSummary } from './crossAgentCollaboration';
 import type { EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
+import type { ExecutiveAutomationSummary } from './executiveAutomation';
 import type { GmailEmailDashboardSummary } from './gmailEmail';
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
@@ -33,6 +34,7 @@ export function buildExecutivePriorities(
   connectorReadiness?: ConnectorReadinessSummary,
   email?: GmailEmailDashboardSummary,
   engineeringTasks?: EngineeringTaskGeneratorSummary,
+  executiveAutomation?: ExecutiveAutomationSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
@@ -262,6 +264,18 @@ export function buildExecutivePriorities(
       priority: engineeringTasks.criticalEngineeringTasks > 0 ? 'high' : 'medium',
       recommendedAction: 'Open Engineering and review generated task candidates before creating any shared work queue records.',
       source: 'Engineering Task Generator',
+    });
+  }
+
+  if (executiveAutomation && executiveAutomation.unresolvedAutomationItems > 0) {
+    priorities.push({
+      id: 'executive-automation-engine-review',
+      agent: 'Executive Agent',
+      department: 'Executive',
+      detail: `${executiveAutomation.triggeredRules.length} automation rule(s) triggered with ${executiveAutomation.skippedOrBlockedActions} skipped or blocked action(s).`,
+      priority: executiveAutomation.automationHealth === 'Attention' ? 'high' : 'medium',
+      recommendedAction: executiveAutomation.nextRecommendedAction,
+      source: 'Executive Automation Engine',
     });
   }
 

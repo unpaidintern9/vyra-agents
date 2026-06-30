@@ -208,3 +208,18 @@ Phase 40A adds Gmail commands for internal agent report email:
 - `npm run email:safety-check`
 
 Gmail sending is auto-enabled once configured with safe environment variable names and `VYRA_GMAIL_SEND_ENABLED` is not `false`. Allowed senders are `admin@vyraapp.fit` and `robert.sorenson@vyraapp.fit`. Robert defaults to `robert.sorenson@vyraapp.fit`; Matthew is skipped until `VYRA_EMAIL_MATTHEW` is configured. All sends, skips, and failures are audited.
+
+## Executive Automation
+
+Phase 41 adds Executive automation commands:
+
+```bash
+npm run executive:automation-status
+npm run executive:automation-run
+npm run executive:automation-rules
+npm run executive:automation-report
+npm run executive:automation-validate
+npm run executive:automation-safety-check
+```
+
+The automation engine evaluates deterministic local signals and generates safe local tasks, GitHub plans, Gmail drafts, Executive review items, and reports. Configured internal email sends remain gated by the existing Gmail safety checks and audit logging. No GitHub, CRM, Stripe, Supabase production, external marketing, bulk send, or secret-output action is available.

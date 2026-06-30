@@ -1025,3 +1025,29 @@ Boundaries:
 - No Stripe writes.
 - No Supabase production writes.
 - No secrets committed.
+
+## Phase 41
+
+Executive Automation Engine.
+
+Includes:
+
+- Executive automation rules for engineering warnings, failed validations, GitHub repo changes, blocked/overdue tasks, high-value Sales opportunities, migration blockers, connector readiness failures, email failures/skips, and cross-agent review needs.
+- Trigger types for manual, scheduled, event-detected, threshold-crossed, validation-failed, and report-ready signals.
+- Action types for local agent workflow runs, shared tasks, GitHub plans, email drafts, configured internal email sends, Executive review items, low-priority archiving, and reports.
+- Root npm scripts for `executive:automation-status`, `executive:automation-run`, `executive:automation-rules`, `executive:automation-report`, `executive:automation-validate`, and `executive:automation-safety-check`.
+- Operator Dashboard Executive Automation Engine section.
+- Executive Dashboard Automation Engine section.
+- Executive Automation Report, Executive Automation JSON, Triggered Rules Report, and Skipped/Blocked Actions Report.
+
+Boundaries:
+
+- No external marketing emails.
+- No bulk sending.
+- No CRM writes.
+- No Stripe writes.
+- No Supabase production writes.
+- No GitHub writes.
+- No secrets output.
+- Gmail sends must use existing safety checks and audit logging.
+- Automatic emails only target approved internal recipients.

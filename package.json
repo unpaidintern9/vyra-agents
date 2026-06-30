@@ -80,6 +80,12 @@
     "engineering:tasks": "node scripts/engineering-tasks.mjs tasks",
     "engineering:generate-tasks": "node scripts/engineering-tasks.mjs generate-tasks",
     "engineering:task-report": "node scripts/engineering-tasks.mjs task-report",
-    "engineering:validate": "node scripts/engineering-tasks.mjs validate"
+    "engineering:validate": "node scripts/engineering-tasks.mjs validate",
+    "executive:automation-status": "node scripts/executive-automation.mjs status",
+    "executive:automation-run": "node scripts/executive-automation.mjs run",
+    "executive:automation-rules": "node scripts/executive-automation.mjs rules",
+    "executive:automation-report": "node scripts/executive-automation.mjs report",
+    "executive:automation-validate": "node scripts/executive-automation.mjs validate",
+    "executive:automation-safety-check": "node scripts/executive-automation.mjs safety-check"
   }
 }

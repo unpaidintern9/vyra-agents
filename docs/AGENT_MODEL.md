@@ -49,6 +49,10 @@ As of Phase 19, the Executive Agent owns the Overview screen. It consumes the sh
 
 The Executive Agent does not replace Engineering or Migration. It orchestrates their runtime signals and links back into those dedicated pages.
 
+As of Phase 41, the Executive Agent also owns the Executive Automation Engine. It proactively evaluates local agent/runtime data, triggers deterministic automation rules, and creates safe local follow-up artifacts through existing shared systems.
+
+Automation outputs remain local: shared tasks, GitHub plans, Gmail drafts, Executive review items, and reports. The engine does not write GitHub, CRM, Stripe, Supabase production data, external marketing email, or secrets.
+
 ## Sales Agent
 
 As of Phase 20, the Sales Agent is a local/mock department agent. It owns lead queue review, gym and coach prospect tracking, quote/proposal preparation, follow-up planning, activity timeline, and local report exports.
@@ -113,3 +117,9 @@ Phase 18 does not add AI and does not enable production writes. Production write
 Phase 38 adds Repository Intelligence as the Engineering Agent's primary local knowledge source. It normalizes repositories, modules, packages, applications, services, libraries, documentation, migrations, configuration, scripts, ownership, dependency relationships, health, and technical debt signals.
 
 Repository entities are published into the local Vyra Knowledge Graph and linked to shared tasks, GitHub plans, Engineering blockers, Executive priorities, and documentation. The engine is local/read-only and performs no repository modifications or GitHub writes.
+
+## Executive Automation
+
+The Executive Automation Engine is the orchestration layer above the shared runtime. It reads existing agent outputs and decides whether to run a local workflow, create a local task, prepare a local GitHub plan, draft an internal email, create an Executive review item, archive low-priority local items, or generate reports.
+
+See `docs/EXECUTIVE_AUTOMATION_ENGINE.md`, `docs/EXECUTIVE_AUTOMATION_RULES.md`, and `docs/AUTOMATION_SAFETY.md`.

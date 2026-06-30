@@ -88,6 +88,7 @@ import { buildAgentRuntime } from './runtime/agentRuntime';
 import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } from './runtime/aiOperatorRuntime';
 import { buildDashboardConnectorReadiness } from './runtime/connectorReadiness';
 import { buildDashboardEngineeringTaskSummary } from './runtime/engineeringTaskGenerator';
+import { buildDashboardExecutiveAutomationSummary } from './runtime/executiveAutomation';
 import { buildDashboardGmailEmailSummary } from './runtime/gmailEmail';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
@@ -1231,6 +1232,17 @@ function App() {
   const sharedTaskSummary = buildDashboardSharedTaskSummary();
   const engineeringTasks = buildDashboardEngineeringTaskSummary({ githubPlanning, repositoryIntelligence, sharedTasks: sharedTaskSummary });
   const emailSummary = buildDashboardGmailEmailSummary();
+  const executiveAutomation = buildDashboardExecutiveAutomationSummary({
+    connectorReadiness,
+    crossAgentSummary,
+    email: emailSummary,
+    engineeringTasks,
+    githubPlanning,
+    githubReadOnly,
+    repositoryIntelligence,
+    runtime,
+    sharedTasks: sharedTaskSummary,
+  });
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
     communicationDraftCounts: operatorDashboard.communicationDraftCounts,
     communicationDraftsByType: operatorDashboard.communicationDraftsByType,
@@ -1251,6 +1263,7 @@ function App() {
     connectorReadiness,
     email: emailSummary,
     engineeringTasks,
+    executiveAutomation,
     githubPlanning,
     githubReadOnly,
     repositoryIntelligence,
@@ -1543,6 +1556,7 @@ function App() {
             connectorReadiness={connectorReadiness}
             email={emailSummary}
             engineeringTasks={engineeringTasks}
+            executiveAutomation={executiveAutomation}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
             repositoryIntelligence={repositoryIntelligence}
@@ -1738,6 +1752,8 @@ function OperatorPage({
         <Metric icon={<ShieldCheck size={20} />} label="Human-Marked Sent" value={String(operator.communicationDrafts.manuallyMarkedSentDrafts)} />
         <Metric icon={<Network size={20} />} label="Provider Readiness" value={operator.communicationProviders.sendingDisabled ? 'Send Disabled' : 'Review'} />
         <Metric icon={<FileClock size={20} />} label="Gmail Automation" value={operator.email.automationStatus} />
+        <Metric icon={<Workflow size={20} />} label="Executive Automation" value={operator.executiveAutomation.automationEnabled ? 'Enabled' : 'Disabled'} />
+        <Metric icon={<ListChecks size={20} />} label="Automation Rules" value={String(operator.executiveAutomation.triggeredRules.length)} />
         <Metric icon={<ShieldCheck size={20} />} label="Email Sent / Skipped" value={`${operator.email.sentEmailCount}/${operator.email.skippedEmailCount}`} />
         <Metric icon={<Network size={20} />} label="Connector Templates" value={String(operator.connectorReadiness.connectorCount)} />
         <Metric icon={<ShieldCheck size={20} />} label="Connector Writes" value="Blocked" />
@@ -1786,6 +1802,49 @@ function OperatorPage({
               operatorCommandPurpose(command),
             ])}
           />
+        </Panel>
+
+        <Panel title="Executive Automation Engine" icon={<Workflow size={18} />} wide>
+          <p className="panel-description">
+            The Executive Agent evaluates local runtime, task, email, connector, GitHub planning, repository, and cross-agent signals to decide what needs attention. Generated actions stay local unless Gmail's existing internal-recipient safety gates explicitly allow a configured send.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Automation Status" value={operator.executiveAutomation.automationEnabled ? 'Enabled' : 'Disabled'} />
+            <Fact label="Latest Run" value={formatDate(operator.executiveAutomation.latestAutomationRun)} />
+            <Fact label="Triggered Rules" value={String(operator.executiveAutomation.triggeredRules.length)} />
+            <Fact label="Generated Tasks" value={String(operator.executiveAutomation.generatedTasks)} />
+            <Fact label="Generated Reports" value={String(operator.executiveAutomation.generatedReports)} />
+            <Fact label="Generated Emails" value={String(operator.executiveAutomation.generatedEmails)} />
+            <Fact label="Skipped / Blocked" value={String(operator.executiveAutomation.skippedOrBlockedActions)} />
+            <Fact label="Safety Status" value={operator.executiveAutomation.safetyStatus} />
+          </div>
+          <DataTable
+            columns={['Rule', 'Trigger', 'Actions', 'Signal']}
+            rows={operator.executiveAutomation.triggeredRules.map((rule) => [
+              rule.category,
+              rule.trigger.replace(/-/g, ' '),
+              rule.actions.join(', '),
+              rule.signals[0] ?? 'No signal',
+            ])}
+            emptyMessage="No Executive automation rules are currently triggered."
+          />
+          <DataTable
+            columns={['Trigger Type']}
+            rows={operator.executiveAutomation.triggerTypes.map((trigger) => [trigger.replace(/-/g, ' ')])}
+          />
+          <DataTable
+            columns={['Action Type']}
+            rows={operator.executiveAutomation.actionTypes.map((action) => [action])}
+          />
+          <div className="activity-list">
+            <p>Next recommended action: {operator.executiveAutomation.nextRecommendedAction}</p>
+            <p>Unresolved automation items: {operator.executiveAutomation.unresolvedAutomationItems}</p>
+          </div>
+          <div className="safety-badge-row">
+            {['No external marketing emails', 'No bulk sending', 'No CRM/Stripe/Supabase writes', 'No GitHub writes', 'Gmail safety checks required'].map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
         </Panel>
 
         <Panel title="Shared Work Queue" icon={<ListChecks size={18} />} wide>
@@ -3435,6 +3494,12 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('engineering:generate-tasks')) return 'Generate deterministic Engineering task candidate reports from local intelligence signals.';
   if (command.endsWith('engineering:task-report')) return 'Write Engineering Task Candidate and Executive Engineering Task Summary reports.';
   if (command.endsWith('engineering:validate')) return 'Validate Engineering task candidate categories, links, reports, and safety rails.';
+  if (command.endsWith('executive:automation-status')) return 'Print Executive automation status, triggered rules, safety status, and next action.';
+  if (command.endsWith('executive:automation-run')) return 'Run the local Executive automation engine and generate safe local tasks, plans, drafts, and reports.';
+  if (command.endsWith('executive:automation-rules')) return 'List supported Executive automation rules, triggers, actions, and safety gates.';
+  if (command.endsWith('executive:automation-report')) return 'Generate Executive Automation, Triggered Rules, and Skipped/Blocked Actions reports.';
+  if (command.endsWith('executive:automation-validate')) return 'Validate automation rule models, reports, commands, and safety gates.';
+  if (command.endsWith('executive:automation-safety-check')) return 'Verify automation cannot perform external marketing, bulk, GitHub, CRM, Stripe, or Supabase writes.';
   return 'Shared local operator command.';
 }
 
