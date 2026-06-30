@@ -1542,6 +1542,17 @@ td:nth-child(6) {
   gap: 8px;
 }
 
+.cross-agent-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.cross-agent-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .relationship-item {
   display: grid;
   gap: 3px;
@@ -1775,6 +1786,7 @@ td:nth-child(6) {
   .proposal-builder-grid,
   .prospect-intake-grid,
   .sales-intelligence-layout,
+  .cross-agent-panel-grid,
   .score-detail-grid {
     grid-template-columns: 1fr;
   }

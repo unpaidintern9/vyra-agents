@@ -1,4 +1,5 @@
 import type { RiskLevel } from '../../components/RiskBadge';
+import type { CrossAgentCollaborationGraph, CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 
 export type LeadType = 'gym' | 'coach' | 'organization' | 'referral';
 export type PipelineStage =
@@ -424,6 +425,8 @@ export interface SalesFilters {
 
 export interface SalesPageProps {
   activities: SalesActivity[];
+  crossAgentGraph: CrossAgentCollaborationGraph;
+  crossAgentSummary: CrossAgentCollaborationSummary;
   followUpQueue: FollowUpQueueItem[];
   importResult: SalesImportResult;
   integration: SalesIntegrationSummary;
@@ -435,6 +438,7 @@ export interface SalesPageProps {
   ): void;
   onExportResearchDossier(_dossierId: string, _format: 'json' | 'markdown'): void;
   onExportSalesIntelligence(_report: 'organization_intelligence' | 'graph' | 'timeline', _organizationId: string | null): void;
+  onExportCrossAgent(_report: 'collaboration' | 'graph' | 'priority_queue'): void;
   onExportProposalDraft(_draftId: string, _format: 'json' | 'markdown'): void;
   onGenerateProposalDraft(_leadId: string, _templateType: SalesProposalTemplateType): void;
   onSaveProspectIntake(_draft: SalesProspectIntakeDraft): void;

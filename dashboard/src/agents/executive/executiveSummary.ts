@@ -1,4 +1,5 @@
 import { buildExecutivePriorities } from '../../runtime/executiveRules';
+import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { LocalReport } from '../../storage/reportExport';
 import type {
@@ -29,6 +30,7 @@ export function buildExecutiveSummary(
   salesAgentTeamSummary?: SalesAgentTeamSummary,
   salesProspectDossierSummary?: SalesProspectDossierSummary,
   salesIntelligenceSummary?: SalesIntelligenceSummary,
+  crossAgentSummary?: CrossAgentCollaborationSummary,
 ): ExecutiveSummary {
   const healthRows = buildExecutiveHealthRows(runtime);
   const healthyAgents = healthRows.filter((agent) => agent.risk === 'low').length;
@@ -63,6 +65,7 @@ export function buildExecutiveSummary(
       salesAgentTeamSummary,
       salesProspectDossierSummary,
       salesIntelligenceSummary,
+      crossAgentSummary,
     ),
     recentRuntimeEvents: runtime.activities.length,
     registeredAgents: runtime.agents.length,
@@ -72,6 +75,7 @@ export function buildExecutiveSummary(
     timeline: buildExecutiveTimeline(runtime.activities),
     warningAgents,
     workflowsToday: countWorkflowActivity(runtime.activities),
+    crossAgentSummary,
     salesIntegration,
     salesAgentTeamSummary,
     salesIntelligenceSummary,
@@ -149,6 +153,11 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     salesProposalCoverage: summary.salesIntelligenceSummary?.proposalCoverage ?? 0,
     salesMigrationReadyOrganizations: summary.salesIntelligenceSummary?.migrationReadyOrganizations ?? 0,
     salesIntelligenceCompletenessScore: summary.salesIntelligenceSummary?.intelligenceCompletenessScore ?? 0,
+    crossAgentHighValueOpportunitiesBlockedByEngineering: summary.crossAgentSummary?.highValueOpportunitiesBlockedByEngineering ?? 0,
+    crossAgentMigrationsTiedToActiveOpportunities: summary.crossAgentSummary?.migrationsTiedToActiveSalesOpportunities ?? 0,
+    crossAgentProposalsNeedingApproval: summary.crossAgentSummary?.proposalsNeedingApproval ?? 0,
+    crossAgentFeatureRequestsTiedToProspects: summary.crossAgentSummary?.featureRequestsTiedToProspects ?? 0,
+    crossAgentOrganizationsNeedingExecutiveReview: summary.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0,
     syncQueue: summary.syncQueue,
     runtimeVersion: summary.runtimeVersion,
     productionWritesOccurred: 'No',

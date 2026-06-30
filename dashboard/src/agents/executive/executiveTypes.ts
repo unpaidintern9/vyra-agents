@@ -1,4 +1,5 @@
 import type { RiskLevel } from '../../components/RiskBadge';
+import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry, RuntimeApproval } from '../../runtime/runtimeTypes';
 import type { LocalReport } from '../../storage/reportExport';
 import type {
@@ -84,6 +85,7 @@ export interface ExecutiveSummary {
   timeline: ExecutiveTimelineItem[];
   warningAgents: number;
   workflowsToday: number;
+  crossAgentSummary?: CrossAgentCollaborationSummary;
   salesSummary?: SalesSummary;
   salesAgentTeamSummary?: SalesAgentTeamSummary;
   salesIntegration?: SalesIntegrationSummary;
@@ -95,6 +97,7 @@ export interface ExecutiveSummary {
 
 export interface ExecutiveDashboardProps {
   integrationWarnings?: string[];
+  crossAgentSummary?: CrossAgentCollaborationSummary;
   onNavigate(_page: string): void;
   runtime: AgentRuntimeSnapshot;
   salesAgentTeamSummary?: SalesAgentTeamSummary;

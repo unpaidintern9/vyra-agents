@@ -134,6 +134,35 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           { label: 'Intel Completeness', value: `${summary.salesIntelligenceSummary.intelligenceCompletenessScore}/100` },
         ]
       : []),
+    ...(summary.crossAgentSummary
+      ? [
+          {
+            label: 'Blocked Sales Opportunities',
+            value: String(summary.crossAgentSummary.highValueOpportunitiesBlockedByEngineering),
+            tone: summary.crossAgentSummary.highValueOpportunitiesBlockedByEngineering ? 'warn' : 'good',
+          },
+          {
+            label: 'Sales-Linked Migrations',
+            value: String(summary.crossAgentSummary.migrationsTiedToActiveSalesOpportunities),
+            tone: summary.crossAgentSummary.migrationsTiedToActiveSalesOpportunities ? 'good' : 'neutral',
+          },
+          {
+            label: 'Proposals Need Approval',
+            value: String(summary.crossAgentSummary.proposalsNeedingApproval),
+            tone: summary.crossAgentSummary.proposalsNeedingApproval ? 'warn' : 'good',
+          },
+          {
+            label: 'Prospect Feature Requests',
+            value: String(summary.crossAgentSummary.featureRequestsTiedToProspects),
+            tone: summary.crossAgentSummary.featureRequestsTiedToProspects ? 'warn' : 'neutral',
+          },
+          {
+            label: 'Executive Review Orgs',
+            value: String(summary.crossAgentSummary.organizationsNeedingExecutiveReview),
+            tone: summary.crossAgentSummary.organizationsNeedingExecutiveReview ? 'warn' : 'good',
+          },
+        ]
+      : []),
   ];
 
   return (

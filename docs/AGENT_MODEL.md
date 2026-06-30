@@ -24,6 +24,10 @@ Agent Runtime
   -> Sync
 ```
 
+As of Phase 27, agents can also contribute to a local Cross-Agent Collaboration graph. The graph links shared planning entities such as organizations, prospects, proposals, migration plans, feature requests, engineering blockers, follow-ups, activities, and Executive priorities.
+
+The collaboration graph is read-only and derived from local/mock dashboard state. It is a planning layer, not a production write path.
+
 ## Immediate Agents
 
 - Executive Agent: Aggregates shared runtime status into a deterministic operations dashboard for Robert.
@@ -44,6 +48,21 @@ The Executive Agent does not replace Engineering or Migration. It orchestrates t
 As of Phase 20, the Sales Agent is a local/mock department agent. It owns lead queue review, gym and coach prospect tracking, quote/proposal preparation, follow-up planning, activity timeline, and local report exports.
 
 The Sales Agent does not send emails, create Stripe invoices, update CRM records, or write production business data. Future external actions must be approval-gated.
+
+As of Phase 27, Sales can publish local opportunity, proposal, follow-up, and requested-feature signals into the Cross-Agent Collaboration graph for Executive review.
+
+## Cross-Agent Collaboration
+
+The Cross-Agent Collaboration layer connects department signals without enabling external action.
+
+- Sales publishes opportunity and proposal review signals.
+- Migration publishes readiness signals.
+- Engineering publishes blocker signals.
+- Executive reads combined priorities.
+
+Supported relationship types include `requested_feature`, `blocked_by`, `related_to_migration`, `sales_opportunity_for`, `executive_priority_for`, `requires_follow_up`, `needs_approval`, and `ready_for_review`.
+
+See `docs/CROSS_AGENT_COLLABORATION.md` and `docs/VYRA_KNOWLEDGE_GRAPH.md`.
 
 ## Planned Agents
 

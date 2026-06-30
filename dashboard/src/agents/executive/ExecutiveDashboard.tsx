@@ -9,6 +9,7 @@ import { ExecutiveTimeline } from './ExecutiveTimeline';
 import type { ExecutiveDashboardProps } from './executiveTypes';
 
 export default function ExecutiveDashboard({
+  crossAgentSummary,
   integrationWarnings = [],
   onNavigate,
   runtime,
@@ -30,6 +31,7 @@ export default function ExecutiveDashboard({
     salesAgentTeamSummary,
     salesProspectDossierSummary,
     salesIntelligenceSummary,
+    crossAgentSummary,
   );
   const healthRows = buildExecutiveHealthRows(runtime);
 

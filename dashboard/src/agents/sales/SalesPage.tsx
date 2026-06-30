@@ -1,8 +1,9 @@
-import { Brain, CalendarClock, Download, FileText, Flame, Search, ShieldCheck, Target, Upload, Users } from 'lucide-react';
+import { Brain, CalendarClock, Download, FileText, Flame, Search, ShieldCheck, Target, Upload, Users, Workflow } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { RiskBadge } from '../../components/RiskBadge';
 import { StatusBadge } from '../../components/StatusBadge';
+import type { CrossAgentCollaborationGraph, CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import { filterSalesLeads, formatCurrency, isFollowUpDue, isFollowUpThisWeek, isOverdue, pipelineStageLabels, summarizeSalesPipeline } from './salesPipeline';
 import { generateSalesProposalDraft, inferProposalTemplate, salesProposalTemplateLabels } from './salesProposalBuilder';
 import { emptyProspectIntakeDraft, labelBusinessType, missingInfoForIntake } from './salesProspectDossiers';
@@ -29,12 +30,15 @@ import type {
 
 export default function SalesPage({
   activities,
+  crossAgentGraph,
+  crossAgentSummary,
   followUpQueue,
   importResult,
   integration,
   leads,
   onAction,
   onExport,
+  onExportCrossAgent,
   onExportResearchDossier,
   onExportSalesIntelligence,
   onExportProposalDraft,
@@ -131,6 +135,7 @@ export default function SalesPage({
         <SalesMetric icon={<Target size={20} />} label="Migration Opportunities" value={String(prospectDossierSummary.migrationOpportunityProspects)} tone={prospectDossierSummary.migrationOpportunityProspects ? 'warn' : 'good'} />
         <SalesMetric icon={<Brain size={20} />} label="Organizations Tracked" value={String(salesIntelligenceSummary.organizationsTracked)} />
         <SalesMetric icon={<Target size={20} />} label="Intel Completeness" value={`${salesIntelligenceSummary.intelligenceCompletenessScore}/100`} />
+        <SalesMetric icon={<Workflow size={20} />} label="Cross-Agent Signals" value={String(crossAgentSummary.activeSignals)} tone={crossAgentSummary.activeSignals ? 'warn' : 'good'} />
       </section>
 
       <section className="dashboard-grid">
@@ -246,6 +251,20 @@ export default function SalesPage({
               setIntakeDraft(emptyProspectIntakeDraft);
             }}
           />
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Workflow size={18} />
+              <h2>Cross-Agent Collaboration</h2>
+            </div>
+            <StatusBadge value="Local shared graph" tone="good" />
+          </div>
+          <p className="panel-description">
+            Sales, Migration, Engineering, and Executive signals are linked locally for review. No agent sends, invoices, browses, or writes production records.
+          </p>
+          <CrossAgentCollaborationPanel graph={crossAgentGraph} onExport={onExportCrossAgent} summary={crossAgentSummary} />
         </section>
 
         <section className="panel wide-panel">
@@ -990,6 +1009,97 @@ function DossierPreview({
           Export Dossier JSON
         </button>
       </div>
+    </div>
+  );
+}
+
+function CrossAgentCollaborationPanel({
+  graph,
+  onExport,
+  summary,
+}: {
+  graph: CrossAgentCollaborationGraph;
+  onExport(_report: 'collaboration' | 'graph' | 'priority_queue'): void;
+  summary: CrossAgentCollaborationSummary;
+}) {
+  const engineeringBlockers = graph.entities.filter((item) => item.type === 'engineering_blocker');
+  const migrationPlans = graph.entities.filter((item) => item.type === 'migration_plan');
+  const executivePriorities = graph.entities.filter((item) => item.type === 'executive_priority');
+  const featureRequests = graph.entities.filter((item) => item.type === 'feature_request');
+  const approvalItems = graph.relationships.filter((item) => item.relationship === 'needs_approval' || item.relationship === 'ready_for_review');
+
+  return (
+    <div className="cross-agent-grid">
+      <div className="fact-list compact-facts">
+        <Fact label="Active Signals" value={String(summary.activeSignals)} />
+        <Fact label="Relationships" value={String(summary.relationshipCount)} />
+        <Fact label="Blocked Opportunities" value={String(summary.highValueOpportunitiesBlockedByEngineering)} />
+        <Fact label="Migration Links" value={String(summary.migrationsTiedToActiveSalesOpportunities)} />
+        <Fact label="Approval Needed" value={String(summary.approvalNeededItems)} />
+        <Fact label="Feature Requests" value={String(summary.featureRequestsTiedToProspects)} />
+      </div>
+      <div className="cross-agent-panel-grid">
+        <CrossAgentSignalList empty="No engineering blockers linked to sales opportunities." items={engineeringBlockers} title="Linked Engineering Blockers" />
+        <CrossAgentSignalList empty="No migration readiness signals linked yet." items={migrationPlans} title="Linked Migration Readiness" />
+        <CrossAgentSignalList empty="No executive priority signals linked yet." items={executivePriorities} title="Linked Executive Priorities" />
+        <CrossAgentSignalList empty="No requested feature signals linked yet." items={featureRequests} title="Requested Features" />
+      </div>
+      <div className="proposal-preview-card">
+        <h3>Approval-Needed Items</h3>
+        {approvalItems.length ? (
+          <div className="relationship-list">
+            {approvalItems.slice(0, 6).map((item) => (
+              <article className="relationship-item" key={item.id}>
+                <strong>{item.relationship.replace(/_/g, ' ')}</strong>
+                <span>{item.from} {'->'} {item.to}</span>
+                <small>{item.explanation}</small>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="empty-note">No local approvals are currently linked.</p>
+        )}
+      </div>
+      <div className="button-row sales-action-row">
+        <button className="report-button small" onClick={() => onExport('collaboration')} type="button">
+          Cross-Agent Collaboration Report
+        </button>
+        <button className="report-button small" onClick={() => onExport('graph')} type="button">
+          Cross-Agent Graph JSON
+        </button>
+        <button className="report-button small" onClick={() => onExport('priority_queue')} type="button">
+          Executive Priority Queue
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CrossAgentSignalList({
+  empty,
+  items,
+  title,
+}: {
+  empty: string;
+  items: CrossAgentCollaborationGraph['entities'];
+  title: string;
+}) {
+  return (
+    <div className="proposal-preview-card">
+      <h3>{title}</h3>
+      {items.length ? (
+        <div className="relationship-list">
+          {items.slice(0, 5).map((item) => (
+            <article className="relationship-item" key={item.id}>
+              <strong>{item.label}</strong>
+              <span>{item.agent} - {item.type.replace(/_/g, ' ')}</span>
+              <small>Local/mock only - no external action</small>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="empty-note">{empty}</p>
+      )}
     </div>
   );
 }

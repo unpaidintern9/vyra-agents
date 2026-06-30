@@ -677,3 +677,25 @@ Boundaries:
 - No CRM production records are written.
 - No production business tables are written.
 - All intelligence graph records are derived from local/mock/read-only state.
+
+## Phase 27
+
+Cross-Agent Collaboration Foundation.
+
+Includes:
+
+- Shared local cross-agent entity model for organizations, prospects, coaches, gyms, proposals, migration plans, feature requests, engineering blockers, follow-ups, activities, and Executive priorities.
+- Cross-agent relationship types for requested feature, blocked by, related to migration, sales opportunity for, Executive priority for, requires follow-up, needs approval, and ready for review.
+- Local collaboration layer where Sales publishes opportunity signals, Migration publishes readiness signals, Engineering publishes blocker signals, and Executive reads combined priorities.
+- Sales page Cross-Agent Collaboration section for linked Engineering blockers, Migration readiness, Executive priorities, requested features, and approval-needed items.
+- Executive Dashboard signals for high-value opportunities blocked by Engineering, migrations tied to Sales opportunities, proposals needing approval, feature requests tied to prospects, and organizations needing Executive review.
+- Local exports for Cross-Agent Collaboration Report Markdown, Cross-Agent Graph JSON, and Executive Priority Queue Markdown.
+
+Boundaries:
+
+- No external browsing.
+- No emails are sent.
+- No Stripe invoices are created.
+- No CRM production records are written.
+- No production business tables are written.
+- All cross-agent graph records are derived from local/mock/read-only state.

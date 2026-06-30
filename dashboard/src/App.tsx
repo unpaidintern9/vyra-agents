@@ -83,6 +83,13 @@ import { getSupabaseEnvStatus } from './integrations/supabase/supabaseClient';
 import { getSupabaseStatus } from './integrations/supabase/supabaseStatus';
 import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/supabase/supabaseTypes';
 import { buildAgentRuntime } from './runtime/agentRuntime';
+import {
+  buildCrossAgentCollaborationGraph,
+  buildCrossAgentCollaborationReport,
+  buildCrossAgentGraphReport,
+  buildExecutivePriorityQueueReport,
+  summarizeCrossAgentCollaboration,
+} from './runtime/crossAgentCollaboration';
 import type { AgentRuntimeSnapshot } from './runtime/runtimeTypes';
 import {
   createInitialAgentEvents,
@@ -267,6 +274,21 @@ function App() {
       workflowRegistry,
     ],
   );
+  const crossAgentGraph = useMemo(
+    () =>
+      buildCrossAgentCollaborationGraph({
+        executivePriorities: [],
+        followUps: salesFollowUpQueue,
+        migrationSummary,
+        proposals: salesProposals,
+        proposalDrafts: salesProposalDrafts,
+        runtime,
+        salesDossiers: salesResearchDossiers,
+        salesGraph: salesIntelligenceGraph,
+      }),
+    [migrationSummary, runtime, salesFollowUpQueue, salesIntelligenceGraph, salesProposalDrafts, salesProposals, salesResearchDossiers],
+  );
+  const crossAgentSummary = useMemo(() => summarizeCrossAgentCollaboration(crossAgentGraph), [crossAgentGraph]);
   const lastDryRunAt = migrationDryRuns[0]?.createdAt ?? null;
 
   useEffect(() => saveLocalState(localStorageKeys.agentRuns, agentRuns), [agentRuns]);
@@ -909,6 +931,29 @@ function App() {
     });
   };
 
+  const exportCrossAgentCollaboration = (report: 'collaboration' | 'graph' | 'priority_queue') => {
+    const localReport =
+      report === 'graph'
+        ? buildCrossAgentGraphReport(crossAgentGraph)
+        : report === 'priority_queue'
+          ? buildExecutivePriorityQueueReport(crossAgentGraph)
+          : buildCrossAgentCollaborationReport(crossAgentGraph, crossAgentSummary);
+    downloadReport(localReport, report === 'graph' ? 'json' : 'markdown');
+    appendAgentEvent({
+      agent: 'Executive Agent',
+      event: 'cross-agent-collaboration-exported',
+      detail: `${localReport.title} exported locally. No browsing, email, Stripe, CRM, or production write occurred.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Executive Agent',
+      action: 'cross-agent collaboration exported',
+      target: localReport.title,
+      result: 'local report downloaded',
+      riskLevel: 'low',
+    });
+  };
+
   const exportSalesReport = (
     format: ReportFormat | 'csv',
     report: 'pipeline' | 'follow_up' | 'proposal' | 'lead_scoring' | 'follow_up_queue' | 'weighted_pipeline',
@@ -1183,12 +1228,15 @@ function App() {
         ) : activePage === 'Sales' ? (
           <SalesPage
             activities={salesActivities}
+            crossAgentGraph={crossAgentGraph}
+            crossAgentSummary={crossAgentSummary}
             followUpQueue={salesFollowUpQueue}
             importResult={salesImportResult}
             integration={salesIntegration}
             leads={salesLeads}
             onAction={recordSalesAction}
             onExport={exportSalesReport}
+            onExportCrossAgent={exportCrossAgentCollaboration}
             onExportResearchDossier={exportResearchDossier}
             onExportSalesIntelligence={exportSalesIntelligence}
             onExportProposalDraft={exportProposalDraft}
@@ -1262,6 +1310,7 @@ function App() {
             integrationWarnings={status.warnings}
             onNavigate={setActivePage}
             runtime={runtime}
+            crossAgentSummary={crossAgentSummary}
             salesIntegration={salesIntegration}
             salesAgentTeamSummary={salesAgentTeamSummary}
             salesIntelligenceSummary={salesIntelligenceSummary}

@@ -1,4 +1,5 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
+import type { CrossAgentCollaborationSummary } from './crossAgentCollaboration';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
 import type {
   SalesAgentTeamSummary,
@@ -21,6 +22,7 @@ export function buildExecutivePriorities(
   salesAgentTeamSummary?: SalesAgentTeamSummary,
   salesProspectDossierSummary?: SalesProspectDossierSummary,
   salesIntelligenceSummary?: SalesIntelligenceSummary,
+  crossAgentSummary?: CrossAgentCollaborationSummary,
 ): ExecutivePriority[] {
   const priorities: ExecutivePriority[] = [];
   const pendingApprovals = runtime.approvals.filter((approval) => approval.status === 'pending');
@@ -169,6 +171,23 @@ export function buildExecutivePriorities(
       priority: 'medium',
       recommendedAction: 'Open Sales and review the Organization Intelligence dashboard for missing relationships, proposals, or migration readiness.',
       source: 'Sales intelligence graph',
+    });
+  }
+
+  if (
+    crossAgentSummary &&
+    (crossAgentSummary.highValueOpportunitiesBlockedByEngineering > 0 ||
+      crossAgentSummary.proposalsNeedingApproval > 0 ||
+      crossAgentSummary.organizationsNeedingExecutiveReview > 0)
+  ) {
+    priorities.push({
+      id: 'cross-agent-collaboration-review',
+      agent: 'Executive Agent',
+      department: 'Operations',
+      detail: `${crossAgentSummary.highValueOpportunitiesBlockedByEngineering} opportunity blocker(s), ${crossAgentSummary.proposalsNeedingApproval} approval item(s), and ${crossAgentSummary.organizationsNeedingExecutiveReview} organization review item(s) are linked across agents.`,
+      priority: crossAgentSummary.highValueOpportunitiesBlockedByEngineering > 0 ? 'high' : 'medium',
+      recommendedAction: 'Open Sales and review Cross-Agent Collaboration before approving follow-up, proposal, or migration work.',
+      source: 'Cross-agent collaboration graph',
     });
   }
 

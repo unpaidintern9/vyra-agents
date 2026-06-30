@@ -33,6 +33,7 @@ The Sales Agent MVP includes:
 - Prospect Intake form for structured local gym prospect capture.
 - Deterministic Research Dossier generator with fit explanation, missing-info checklist, and Markdown/JSON exports.
 - Unified Sales Intelligence dashboard with organization profiles, relationship graph, organization timeline, connected records, and migration readiness.
+- Cross-Agent Collaboration section linking Sales opportunities to Engineering blockers, Migration readiness, Executive priorities, requested features, and approval-needed items.
 - Disabled future external action placeholders for email, Stripe, and CRM writes.
 
 ## Local Storage
@@ -118,6 +119,14 @@ See `docs/SALES_PROSPECT_INTAKE.md` and `docs/SALES_RESEARCH_DOSSIERS.md`.
 The Sales Intelligence layer links local prospects, organizations, coaches, proposals, follow-ups, migration plans, research dossiers, and activities. It powers organization profiles, relationship depth, timeline events, proposal coverage, migration readiness, and Executive completeness signals.
 
 See `docs/SALES_INTELLIGENCE_GRAPH.md` and `docs/SALES_ORGANIZATION_GRAPH.md`.
+
+## Cross-Agent Collaboration
+
+Sales now contributes local opportunity, proposal, follow-up, requested-feature, and approval-needed signals to the Cross-Agent Collaboration graph. Executive reads those signals alongside Engineering and Migration status to identify blocked opportunities, migration-linked opportunities, proposals needing approval, and organizations needing review.
+
+Exports include Cross-Agent Collaboration Report Markdown, Cross-Agent Graph JSON, and Executive Priority Queue Markdown.
+
+See `docs/CROSS_AGENT_COLLABORATION.md` and `docs/VYRA_KNOWLEDGE_GRAPH.md`.
 
 ## Integration Readiness
 
