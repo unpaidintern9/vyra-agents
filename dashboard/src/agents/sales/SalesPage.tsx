@@ -1,4 +1,4 @@
-import { CalendarClock, Download, FileText, Flame, Users } from 'lucide-react';
+import { CalendarClock, Download, FileText, Flame, ShieldCheck, Upload, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { RiskBadge } from '../../components/RiskBadge';
@@ -6,7 +6,7 @@ import { StatusBadge } from '../../components/StatusBadge';
 import { filterSalesLeads, formatCurrency, isFollowUpDue, isFollowUpThisWeek, isOverdue, pipelineStageLabels, summarizeSalesPipeline } from './salesPipeline';
 import type { SalesAction, SalesFilters, SalesLead, SalesPageProps } from './salesTypes';
 
-export default function SalesPage({ activities, leads, onAction, onExport, proposals }: SalesPageProps) {
+export default function SalesPage({ activities, importResult, integration, leads, onAction, onExport, onImportJson, proposals }: SalesPageProps) {
   const [filters, setFilters] = useState<SalesFilters>({ priority: 'all', source: 'all', stage: 'all', type: 'all' });
   const summary = useMemo(() => summarizeSalesPipeline(leads, proposals), [leads, proposals]);
   const filteredLeads = useMemo(() => filterSalesLeads(leads, filters), [filters, leads]);
@@ -32,6 +32,73 @@ export default function SalesPage({ activities, leads, onAction, onExport, propo
       </section>
 
       <section className="dashboard-grid">
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <ShieldCheck size={18} />
+              <h2>Sales Integration Readiness</h2>
+            </div>
+            <StatusBadge value={integration.modeLabel} tone={integration.mode === 'live_read_only' ? 'warn' : 'good'} />
+          </div>
+          <p className="panel-description">{integration.safetyLabel}</p>
+          <div className="batch-grid">
+            <Fact label="CRM Readiness" value={integration.crmReadinessStatus.replace(/_/g, ' ')} />
+            <Fact label="Read-Only" value={integration.readOnly ? 'Yes' : 'No'} />
+            <Fact label="External Actions" value={integration.externalActionsEnabled ? 'Enabled' : 'Blocked'} />
+            <Fact label="Blocked Actions" value={String(integration.blockedExternalActionCount)} />
+          </div>
+          <div className="button-row sales-action-row">
+            <button className="clear-button small" disabled type="button">
+              Send Email
+            </button>
+            <button className="clear-button small" disabled type="button">
+              Create Stripe Invoice
+            </button>
+            <button className="clear-button small" disabled type="button">
+              Write CRM Record
+            </button>
+          </div>
+          <p className="subtle-note">Future write actions require an explicit approval gate and are disabled in mock and live read-only modes.</p>
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Upload size={18} />
+              <h2>Sales Lead Import</h2>
+            </div>
+            <span>JSON validation before save</span>
+          </div>
+          <p className="panel-description">
+            Import accepts a JSON array of leads or an object with a <code>leads</code> array. Invalid rows are rejected before local persistence.
+          </p>
+          <label className="import-file-control">
+            <Upload size={16} />
+            <span>Choose JSON File</span>
+            <input
+              accept="application/json,.json"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+                file.text().then(onImportJson);
+                event.currentTarget.value = '';
+              }}
+              type="file"
+            />
+          </label>
+          {importResult.status !== 'idle' ? (
+            <div className={`parser-message ${importResult.status === 'success' ? 'success' : 'error'}`}>
+              <strong>{importResult.status === 'success' ? `${importResult.importedCount} lead(s) imported locally` : 'Import rejected'}</strong>
+              {importResult.errors.map((error) => (
+                <span key={error}>{error}</span>
+              ))}
+              {importResult.warnings.map((warning) => (
+                <small key={warning}>{warning}</small>
+              ))}
+            </div>
+          ) : null}
+        </section>
+
         <section className="panel wide-panel">
           <div className="panel-header">
             <div>
@@ -238,6 +305,11 @@ export default function SalesPage({ activities, leads, onAction, onExport, propo
               <Download size={16} />
               <span>Sales Pipeline JSON</span>
               <small>Pipeline, activity, and proposal snapshot.</small>
+            </button>
+            <button className="report-button" onClick={() => onExport('csv', 'pipeline')} type="button">
+              <Download size={16} />
+              <span>Sales Pipeline CSV</span>
+              <small>Spreadsheet-safe pipeline export.</small>
             </button>
             <button className="report-button" onClick={() => onExport('markdown', 'pipeline')} type="button">
               <Download size={16} />

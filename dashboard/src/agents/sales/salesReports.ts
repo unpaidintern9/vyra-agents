@@ -74,3 +74,33 @@ export function buildProposalReport(leads: SalesLead[], proposals: ProposalPrep[
     }),
   };
 }
+
+export function downloadSalesPipelineCsv(leads: SalesLead[]): void {
+  const headers = ['Priority', 'Lead', 'Type', 'Stage', 'Source', 'Value', 'Next Action', 'Follow-Up Date', 'Status'];
+  const rows = leads.map((lead) => [
+    lead.priority,
+    lead.name,
+    lead.leadType,
+    lead.pipelineStage,
+    lead.source,
+    String(lead.estimatedValue),
+    lead.nextAction,
+    lead.nextFollowUpDate ?? '',
+    lead.status,
+  ]);
+  const content = [headers, ...rows].map((row) => row.map(escapeCsvCell).join(',')).join('\n');
+  const blob = new Blob([`${content}\n`], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `sales-pipeline-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function escapeCsvCell(value: string): string {
+  const safeValue = /^[=+\-@]/.test(value) ? `'${value}` : value;
+  return `"${safeValue.replace(/"/g, '""')}"`;
+}

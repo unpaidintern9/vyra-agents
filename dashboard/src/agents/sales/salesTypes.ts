@@ -17,6 +17,8 @@ export type LeadStatus = 'active' | 'won' | 'lost' | 'paused';
 export type SalesActivityType = 'note' | 'follow_up' | 'contacted' | 'proposal' | 'status_change';
 export type ProposalStatus = 'not_started' | 'needed' | 'drafted' | 'sent_mock' | 'paused';
 export type SalesAction = 'follow_up_planned' | 'contacted' | 'proposal_needed' | 'paused';
+export type SalesIntegrationMode = 'mock' | 'live_read_only';
+export type SalesReadinessStatus = 'ready' | 'not_configured' | 'blocked';
 
 export interface SalesLead {
   businessName: string;
@@ -43,6 +45,24 @@ export interface SalesLead {
   updatedAt: string;
 }
 
+export interface SalesGym {
+  id: string;
+  leadId: string;
+  memberCount: number | null;
+  migrationNeeded: boolean;
+  name: string;
+  productFit: string;
+}
+
+export interface SalesCoach {
+  clientCount: number | null;
+  id: string;
+  leadId: string;
+  name: string;
+  niche: string;
+  planFit: string;
+}
+
 export interface SalesActivity {
   activityType: SalesActivityType;
   id: string;
@@ -65,6 +85,20 @@ export interface ProposalPrep {
   status: ProposalStatus;
 }
 
+export interface FollowUpPlan {
+  dueDate: string | null;
+  leadId: string;
+  nextAction: string;
+  status: 'due' | 'this_week' | 'overdue' | 'unscheduled' | 'planned';
+}
+
+export interface RevenueEstimate {
+  leadId: string;
+  monthlyRecurringRevenue: number;
+  oneTimeRevenue: number;
+  pipelineValue: number;
+}
+
 export interface SalesSummary {
   coachLeads: number;
   estimatedPipelineValue: number;
@@ -76,6 +110,24 @@ export interface SalesSummary {
   wonThisMonth: number;
 }
 
+export interface SalesIntegrationSummary {
+  blockedExternalActionCount: number;
+  crmReadinessStatus: SalesReadinessStatus;
+  externalActionsEnabled: boolean;
+  mode: SalesIntegrationMode;
+  modeLabel: string;
+  readOnly: boolean;
+  safetyLabel: string;
+}
+
+export interface SalesImportResult {
+  errors: string[];
+  importedCount: number;
+  skippedCount: number;
+  status: 'idle' | 'success' | 'error';
+  warnings: string[];
+}
+
 export interface SalesFilters {
   priority: string;
   source: string;
@@ -85,8 +137,11 @@ export interface SalesFilters {
 
 export interface SalesPageProps {
   activities: SalesActivity[];
+  importResult: SalesImportResult;
+  integration: SalesIntegrationSummary;
   leads: SalesLead[];
   onAction(_leadId: string, _action: SalesAction): void;
-  onExport(_format: 'json' | 'markdown', _report: 'pipeline' | 'follow_up' | 'proposal'): void;
+  onExport(_format: 'json' | 'markdown' | 'csv', _report: 'pipeline' | 'follow_up' | 'proposal'): void;
+  onImportJson(_content: string): void;
   proposals: ProposalPrep[];
 }

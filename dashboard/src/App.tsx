@@ -28,7 +28,9 @@ import { summarizeMigration } from './agents/migration/migrationSummary';
 import { validateMigrationMembers } from './agents/migration/migrationValidation';
 import { matchMigrationMembers } from './agents/migration/memberMatching';
 import SalesPage from './agents/sales/SalesPage';
-import { buildFollowUpReport, buildProposalReport, buildSalesPipelineReport } from './agents/sales/salesReports';
+import { parseSalesLeadJson, emptySalesImportResult } from './agents/sales/salesImport';
+import { buildSalesIntegrationSummary } from './agents/sales/salesIntegrationAdapter';
+import { buildFollowUpReport, buildProposalReport, buildSalesPipelineReport, downloadSalesPipelineCsv } from './agents/sales/salesReports';
 import { createInitialSalesActivities, createInitialSalesLeads, createInitialSalesProposals } from './agents/sales/salesStorage';
 import type { ProposalPrep, SalesAction, SalesActivity, SalesLead } from './agents/sales/salesTypes';
 import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
@@ -123,6 +125,7 @@ function App() {
   const [salesProposals, setSalesProposals] = useState(() =>
     loadLocalState<ProposalPrep[]>(localStorageKeys.salesProposals, createInitialSalesProposals),
   );
+  const [salesImportResult, setSalesImportResult] = useState(emptySalesImportResult);
   const [workflowRuns, setWorkflowRuns] = useState(() =>
     loadLocalState<WorkflowDryCheckRecord[]>(localStorageKeys.workflowResults, () => []),
   );
@@ -146,6 +149,7 @@ function App() {
   );
   const workflowRegistry = useMemo(() => getWorkflowRegistry(), []);
   const salesSummary = useMemo(() => summarizeSalesPipeline(salesLeads, salesProposals), [salesLeads, salesProposals]);
+  const salesIntegration = useMemo(() => buildSalesIntegrationSummary(requestedMode), []);
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
   const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
   const syncStatus = useMemo(
@@ -678,7 +682,54 @@ function App() {
     });
   };
 
-  const exportSalesReport = (format: ReportFormat, report: 'pipeline' | 'follow_up' | 'proposal') => {
+  const importSalesLeads = (content: string) => {
+    const parsed = parseSalesLeadJson(content, salesLeads.map((lead) => lead.id));
+    setSalesImportResult(parsed.result);
+    if (parsed.result.status !== 'success') {
+      appendAudit({
+        actor: 'Robert',
+        agent: 'Sales Agent',
+        action: 'sales lead import rejected',
+        target: 'JSON import',
+        result: `${parsed.result.errors.length} validation error(s)`,
+        riskLevel: 'low',
+      });
+      return;
+    }
+    setSalesLeads((current) => [...parsed.leads, ...current]);
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: 'sales-lead-review',
+      detail: `${parsed.result.importedCount} lead(s) imported after validation. Local storage only.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Agent',
+      action: 'sales lead import completed',
+      target: 'JSON import',
+      result: `${parsed.result.importedCount} local lead(s) saved after validation`,
+      riskLevel: 'low',
+    });
+  };
+
+  const exportSalesReport = (format: ReportFormat | 'csv', report: 'pipeline' | 'follow_up' | 'proposal') => {
+    if (format === 'csv') {
+      downloadSalesPipelineCsv(salesLeads);
+      appendAgentEvent({
+        agent: 'Sales Agent',
+        event: 'pipeline-summary',
+        detail: 'Sales Pipeline CSV exported locally. No CRM, email, Stripe, or production write occurred.',
+      });
+      appendAudit({
+        actor: 'Robert',
+        agent: 'Sales Agent',
+        action: 'sales csv exported',
+        target: 'Sales Pipeline CSV',
+        result: 'CSV downloaded locally',
+        riskLevel: 'low',
+      });
+      return;
+    }
     const localReport =
       report === 'follow_up'
         ? buildFollowUpReport(salesLeads)
@@ -919,9 +970,12 @@ function App() {
         ) : activePage === 'Sales' ? (
           <SalesPage
             activities={salesActivities}
+            importResult={salesImportResult}
+            integration={salesIntegration}
             leads={salesLeads}
             onAction={recordSalesAction}
             onExport={exportSalesReport}
+            onImportJson={importSalesLeads}
             proposals={salesProposals}
           />
         ) : activePage === 'Integrations' ? (
@@ -973,7 +1027,13 @@ function App() {
         ) : activePage === 'Runtime' ? (
           <RuntimePage runtime={runtime} syncStatus={syncStatus} />
         ) : (
-          <ExecutiveDashboard integrationWarnings={status.warnings} onNavigate={setActivePage} runtime={runtime} salesSummary={salesSummary} />
+          <ExecutiveDashboard
+            integrationWarnings={status.warnings}
+            onNavigate={setActivePage}
+            runtime={runtime}
+            salesIntegration={salesIntegration}
+            salesSummary={salesSummary}
+          />
         )}
       </main>
     </div>

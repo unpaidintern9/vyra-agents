@@ -17,6 +17,10 @@ The Sales Agent MVP includes:
 - Local sales activity timeline.
 - JSON and Markdown report exports.
 - Shared runtime workflows for Sales activity.
+- Integration readiness panel for mock and live read-only modes.
+- JSON lead import with validation before local persistence.
+- CSV pipeline export.
+- Disabled future external action placeholders for email, Stripe, and CRM writes.
 
 ## Local Storage
 
@@ -52,12 +56,18 @@ Supported stages are:
 - No production business table writes.
 - No changes to `Vyra-Part-1`.
 - Proposal and quote prep are local planning records only.
+- Live mode remains read-only.
+- Future external actions are blocked until explicit approval gates exist.
 
 ## Runtime Integration
 
 Sales local actions append normal Agent Runtime activity, audit logs, and workflow dry-check records. Those records can sync through the approved agent-memory Edge Function path when configured, or fall back to localStorage.
 
 Sales lead and proposal records themselves are not written to production.
+
+## Integration Readiness
+
+The Sales integration adapter reports whether the Sales Agent is in local mock mode or live read-only mode. Live mode is readiness-only and does not create a write path.
 
 ## Future Integrations
 

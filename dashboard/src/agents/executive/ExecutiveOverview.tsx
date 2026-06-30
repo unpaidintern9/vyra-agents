@@ -27,6 +27,14 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           { label: 'Sales Pipeline Value', value: formatCurrency(summary.salesSummary.estimatedPipelineValue) },
         ]
       : []),
+    ...(summary.salesIntegration
+      ? [
+          { label: 'Sales Integration Mode', value: summary.salesIntegration.modeLabel, tone: summary.salesIntegration.mode === 'live_read_only' ? 'warn' : 'good' },
+          { label: 'CRM Readiness', value: summary.salesIntegration.crmReadinessStatus.replace(/_/g, ' ') },
+          { label: 'Sales Read-Only', value: summary.salesIntegration.readOnly ? 'Yes' : 'No', tone: summary.salesIntegration.readOnly ? 'good' : 'warn' },
+          { label: 'Blocked Sales Actions', value: String(summary.salesIntegration.blockedExternalActionCount), tone: 'warn' },
+        ]
+      : []),
   ];
 
   return (
