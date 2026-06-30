@@ -32,6 +32,7 @@ The Sales Agent MVP includes:
 - Seed target-market slots for Louisville, Cincinnati, Los Angeles, and New York.
 - Prospect Intake form for structured local gym prospect capture.
 - Deterministic Research Dossier generator with fit explanation, missing-info checklist, and Markdown/JSON exports.
+- Unified Sales Intelligence dashboard with organization profiles, relationship graph, organization timeline, connected records, and migration readiness.
 - Disabled future external action placeholders for email, Stripe, and CRM writes.
 
 ## Local Storage
@@ -111,6 +112,12 @@ See `docs/SALES_PROSPECT_RESEARCH.md`.
 The Sales page can save structured prospect intake records and generate deterministic research dossiers from those local fields. Dossiers include business overview, ICP fit, likely pain points, recommended Vyra product, migration opportunity, outreach angle, proposal angle, missing info, risks, and next steps.
 
 See `docs/SALES_PROSPECT_INTAKE.md` and `docs/SALES_RESEARCH_DOSSIERS.md`.
+
+## Sales Intelligence Graph
+
+The Sales Intelligence layer links local prospects, organizations, coaches, proposals, follow-ups, migration plans, research dossiers, and activities. It powers organization profiles, relationship depth, timeline events, proposal coverage, migration readiness, and Executive completeness signals.
+
+See `docs/SALES_INTELLIGENCE_GRAPH.md` and `docs/SALES_ORGANIZATION_GRAPH.md`.
 
 ## Integration Readiness
 

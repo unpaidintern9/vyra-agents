@@ -1471,6 +1471,13 @@ td:nth-child(6) {
   align-items: start;
 }
 
+.sales-intelligence-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.7fr) minmax(420px, 1.3fr);
+  gap: 16px;
+  align-items: start;
+}
+
 .prospect-intake-form,
 .dossier-preview {
   display: grid;
@@ -1528,6 +1535,32 @@ td:nth-child(6) {
 .checklist {
   margin: 0;
   padding-left: 18px;
+}
+
+.relationship-list {
+  display: grid;
+  gap: 8px;
+}
+
+.relationship-item {
+  display: grid;
+  gap: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+}
+
+.relationship-item strong {
+  color: #f3f8ff;
+  font-size: 0.86rem;
+}
+
+.relationship-item span,
+.relationship-item small {
+  color: #94a4b8;
+  font-size: 0.8rem;
+  line-height: 1.45;
 }
 
 .proposal-builder-grid {
@@ -1741,6 +1774,7 @@ td:nth-child(6) {
   .intake-two-column,
   .proposal-builder-grid,
   .prospect-intake-grid,
+  .sales-intelligence-layout,
   .score-detail-grid {
     grid-template-columns: 1fr;
   }

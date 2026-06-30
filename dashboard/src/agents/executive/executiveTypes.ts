@@ -4,6 +4,7 @@ import type { LocalReport } from '../../storage/reportExport';
 import type {
   SalesAgentTeamSummary,
   SalesIntegrationSummary,
+  SalesIntelligenceSummary,
   SalesProposalSummary,
   SalesProspectDossierSummary,
   SalesScoringSummary,
@@ -86,6 +87,7 @@ export interface ExecutiveSummary {
   salesSummary?: SalesSummary;
   salesAgentTeamSummary?: SalesAgentTeamSummary;
   salesIntegration?: SalesIntegrationSummary;
+  salesIntelligenceSummary?: SalesIntelligenceSummary;
   salesProposalSummary?: SalesProposalSummary;
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesScoringSummary?: SalesScoringSummary;
@@ -97,6 +99,7 @@ export interface ExecutiveDashboardProps {
   runtime: AgentRuntimeSnapshot;
   salesAgentTeamSummary?: SalesAgentTeamSummary;
   salesIntegration?: SalesIntegrationSummary;
+  salesIntelligenceSummary?: SalesIntelligenceSummary;
   salesProposalSummary?: SalesProposalSummary;
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesScoringSummary?: SalesScoringSummary;

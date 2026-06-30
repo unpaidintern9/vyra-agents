@@ -13,6 +13,7 @@ export default function ExecutiveDashboard({
   onNavigate,
   runtime,
   salesAgentTeamSummary,
+  salesIntelligenceSummary,
   salesIntegration,
   salesProposalSummary,
   salesProspectDossierSummary,
@@ -28,6 +29,7 @@ export default function ExecutiveDashboard({
     salesProposalSummary,
     salesAgentTeamSummary,
     salesProspectDossierSummary,
+    salesIntelligenceSummary,
   );
   const healthRows = buildExecutiveHealthRows(runtime);
 

@@ -3,6 +3,7 @@ import type { ExecutivePriority } from '../agents/executive/executiveTypes';
 import type {
   SalesAgentTeamSummary,
   SalesIntegrationSummary,
+  SalesIntelligenceSummary,
   SalesProposalSummary,
   SalesProspectDossierSummary,
   SalesScoringSummary,
@@ -19,6 +20,7 @@ export function buildExecutivePriorities(
   salesProposalSummary?: SalesProposalSummary,
   salesAgentTeamSummary?: SalesAgentTeamSummary,
   salesProspectDossierSummary?: SalesProspectDossierSummary,
+  salesIntelligenceSummary?: SalesIntelligenceSummary,
 ): ExecutivePriority[] {
   const priorities: ExecutivePriority[] = [];
   const pendingApprovals = runtime.approvals.filter((approval) => approval.status === 'pending');
@@ -155,6 +157,18 @@ export function buildExecutivePriorities(
       priority: salesProspectDossierSummary.highFitDossiers > 0 ? 'medium' : 'low',
       recommendedAction: 'Open Sales and review the Research Dossier preview before any outreach planning.',
       source: 'Sales research dossiers',
+    });
+  }
+
+  if (salesIntelligenceSummary && salesIntelligenceSummary.organizationsTracked > 0 && salesIntelligenceSummary.intelligenceCompletenessScore < 75) {
+    priorities.push({
+      id: 'sales-intelligence-completeness',
+      agent: 'Sales Intelligence Agent',
+      department: 'Sales',
+      detail: `${salesIntelligenceSummary.organizationsTracked} organization(s) are tracked with ${salesIntelligenceSummary.intelligenceCompletenessScore}/100 average intelligence completeness.`,
+      priority: 'medium',
+      recommendedAction: 'Open Sales and review the Organization Intelligence dashboard for missing relationships, proposals, or migration readiness.',
+      source: 'Sales intelligence graph',
     });
   }
 

@@ -49,6 +49,32 @@ export type SalesProspectFitTier = 'prime_target' | 'good_fit' | 'research_neede
 export type SalesProspectSourceStatus = 'mock_seed' | 'needs_public_research' | 'public_research_ready';
 export type SalesProspectBusinessType = SalesProspectCategory | 'independent_coach' | 'multi_location_gym' | 'unknown';
 export type SalesMigrationComplexity = 'unknown' | 'low' | 'medium' | 'high';
+export type SalesIntelligenceNodeType =
+  | 'prospect'
+  | 'organization'
+  | 'coach'
+  | 'proposal'
+  | 'follow_up'
+  | 'migration_plan'
+  | 'research_dossier'
+  | 'activity';
+export type SalesIntelligenceRelationshipType =
+  | 'owns'
+  | 'employs'
+  | 'manages'
+  | 'interested_in'
+  | 'migration_target'
+  | 'proposal_for'
+  | 'follow_up_for'
+  | 'referred_by'
+  | 'competitor_of';
+export type SalesOrganizationTimelineType =
+  | 'intake_created'
+  | 'research_completed'
+  | 'proposal_drafted'
+  | 'follow_up_scheduled'
+  | 'migration_planned'
+  | 'executive_review';
 
 export interface SalesLead {
   businessName: string;
@@ -302,6 +328,63 @@ export interface SalesProspectDossierSummary {
   savedProspects: number;
 }
 
+export interface SalesIntelligenceNode {
+  id: string;
+  label: string;
+  localOnly: true;
+  metadata: Record<string, string | number | boolean | null>;
+  type: SalesIntelligenceNodeType;
+}
+
+export interface SalesIntelligenceEdge {
+  explanation: string;
+  from: string;
+  id: string;
+  relationship: SalesIntelligenceRelationshipType;
+  to: string;
+}
+
+export interface SalesOrganizationTimelineItem {
+  detail: string;
+  id: string;
+  organizationId: string;
+  timestamp: string;
+  title: string;
+  type: SalesOrganizationTimelineType;
+}
+
+export interface SalesOrganizationProfile {
+  activeOpportunity: boolean;
+  completenessScore: number;
+  connectedDossierIds: string[];
+  connectedFollowUpIds: string[];
+  connectedProposalIds: string[];
+  id: string;
+  label: string;
+  localOnly: true;
+  migrationReadiness: 'ready' | 'planned' | 'needs_info' | 'not_applicable';
+  profileSummary: string;
+  relationshipDepth: number;
+  timeline: SalesOrganizationTimelineItem[];
+}
+
+export interface SalesIntelligenceGraph {
+  edges: SalesIntelligenceEdge[];
+  generatedAt: string;
+  localOnly: true;
+  nodes: SalesIntelligenceNode[];
+  organizationProfiles: SalesOrganizationProfile[];
+}
+
+export interface SalesIntelligenceSummary {
+  activeOpportunities: number;
+  averageRelationshipDepth: number;
+  intelligenceCompletenessScore: number;
+  migrationReadyOrganizations: number;
+  organizationsTracked: number;
+  proposalCoverage: number;
+}
+
 export interface SalesSummary {
   coachLeads: number;
   estimatedPipelineValue: number;
@@ -351,6 +434,7 @@ export interface SalesPageProps {
     _report: 'pipeline' | 'follow_up' | 'proposal' | 'lead_scoring' | 'follow_up_queue' | 'weighted_pipeline',
   ): void;
   onExportResearchDossier(_dossierId: string, _format: 'json' | 'markdown'): void;
+  onExportSalesIntelligence(_report: 'organization_intelligence' | 'graph' | 'timeline', _organizationId: string | null): void;
   onExportProposalDraft(_draftId: string, _format: 'json' | 'markdown'): void;
   onGenerateProposalDraft(_leadId: string, _templateType: SalesProposalTemplateType): void;
   onSaveProspectIntake(_draft: SalesProspectIntakeDraft): void;
@@ -363,6 +447,8 @@ export interface SalesPageProps {
   prospectIntakes: SalesProspectIntake[];
   prospectResearch: SalesProspectResearchRecord[];
   scores: LeadScore[];
+  salesIntelligenceGraph: SalesIntelligenceGraph;
+  salesIntelligenceSummary: SalesIntelligenceSummary;
   teamAgents: SalesTeamAgentDefinition[];
   teamSummary: SalesAgentTeamSummary;
   scoringSummary: SalesScoringSummary;

@@ -655,3 +655,25 @@ Boundaries:
 - No production business tables are written.
 - No automated scraping jobs run.
 - All prospect intake and dossier records remain local/mock/read-only.
+
+## Phase 26
+
+Unified Sales Intelligence and Organization Graph.
+
+Includes:
+
+- Derived local Sales Intelligence Graph linking prospects, organizations, coaches, proposals, follow-ups, migration plans, research dossiers, and activities.
+- Relationship types for owns, employs, manages, interested in, migration target, proposal for, follow-up for, referred by, and competitor of.
+- Organization Timeline events for intake created, research completed, proposal drafted, follow-up scheduled, migration planned, and Executive review.
+- Sales page intelligence dashboard with organization profile, relationship graph list/tree view, timeline, connected records, and migration readiness.
+- Executive Dashboard signals for organizations tracked, active opportunities, average relationship depth, proposal coverage, migration readiness, and intelligence completeness score.
+- Local exports for Organization Intelligence Report, Sales Intelligence Graph JSON, and Organization Timeline.
+
+Boundaries:
+
+- No external browsing.
+- No emails are sent.
+- No Stripe invoices are created.
+- No CRM production records are written.
+- No production business tables are written.
+- All intelligence graph records are derived from local/mock/read-only state.

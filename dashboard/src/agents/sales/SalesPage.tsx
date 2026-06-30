@@ -14,6 +14,7 @@ import type {
   SalesFilters,
   SalesLead,
   SalesPageProps,
+  SalesIntelligenceGraph,
   SalesProspectBusinessType,
   SalesProspectCategory,
   SalesProspectIntake,
@@ -23,6 +24,7 @@ import type {
   SalesProposalTemplateType,
   SalesResearchDossier,
   SalesTeamAgentDefinition,
+  SalesOrganizationProfile,
 } from './salesTypes';
 
 export default function SalesPage({
@@ -34,6 +36,7 @@ export default function SalesPage({
   onAction,
   onExport,
   onExportResearchDossier,
+  onExportSalesIntelligence,
   onExportProposalDraft,
   onGenerateProposalDraft,
   onImportJson,
@@ -46,6 +49,8 @@ export default function SalesPage({
   prospectIntakes,
   prospectResearch,
   scores,
+  salesIntelligenceGraph,
+  salesIntelligenceSummary,
   teamAgents,
   teamSummary,
   scoringSummary,
@@ -55,6 +60,7 @@ export default function SalesPage({
   const [prospectCategoryFilter, setProspectCategoryFilter] = useState('all');
   const [selectedScoreId, setSelectedScoreId] = useState<string | null>(scores[0]?.leadId ?? null);
   const [selectedDossierId, setSelectedDossierId] = useState<string | null>(prospectDossiers[0]?.dossierId ?? null);
+  const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(salesIntelligenceGraph.organizationProfiles[0]?.id ?? null);
   const [intakeDraft, setIntakeDraft] = useState<SalesProspectIntakeDraft>(emptyProspectIntakeDraft);
   const [selectedProposalLeadId, setSelectedProposalLeadId] = useState<string>(leads[0]?.id ?? '');
   const [selectedProposalType, setSelectedProposalType] = useState<SalesProposalTemplateType>(
@@ -89,6 +95,10 @@ export default function SalesPage({
   const selectedProposalLead = leads.find((lead) => lead.id === selectedProposalLeadId) ?? leads[0] ?? null;
   const selectedDossier = prospectDossiers.find((dossier) => dossier.dossierId === selectedDossierId) ?? prospectDossiers[0] ?? null;
   const selectedDossierIntake = selectedDossier ? prospectIntakes.find((intake) => intake.id === selectedDossier.intakeId) ?? null : null;
+  const selectedOrganization =
+    salesIntelligenceGraph.organizationProfiles.find((profile) => profile.id === selectedOrganizationId) ??
+    salesIntelligenceGraph.organizationProfiles[0] ??
+    null;
   const selectedProposalPrep = selectedProposalLead ? proposalForLead(proposals, selectedProposalLead.id) : undefined;
   const savedProposalDraft = proposalDrafts.find((draft) => draft.leadId === selectedProposalLead?.id && draft.templateType === selectedProposalType);
   const previewProposalDraft = selectedProposalLead
@@ -119,6 +129,8 @@ export default function SalesPage({
         <SalesMetric icon={<FileText size={20} />} label="Saved Prospects" value={String(prospectDossierSummary.savedProspects)} />
         <SalesMetric icon={<FileText size={20} />} label="Research Dossiers" value={String(prospectDossierSummary.dossiersCreated)} />
         <SalesMetric icon={<Target size={20} />} label="Migration Opportunities" value={String(prospectDossierSummary.migrationOpportunityProspects)} tone={prospectDossierSummary.migrationOpportunityProspects ? 'warn' : 'good'} />
+        <SalesMetric icon={<Brain size={20} />} label="Organizations Tracked" value={String(salesIntelligenceSummary.organizationsTracked)} />
+        <SalesMetric icon={<Target size={20} />} label="Intel Completeness" value={`${salesIntelligenceSummary.intelligenceCompletenessScore}/100`} />
       </section>
 
       <section className="dashboard-grid">
@@ -257,6 +269,25 @@ export default function SalesPage({
               onExport={(format) => selectedDossier && onExportResearchDossier(selectedDossier.dossierId, format)}
             />
           </div>
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Brain size={18} />
+              <h2>Unified Sales Intelligence</h2>
+            </div>
+            <StatusBadge value="Local graph" tone="good" />
+          </div>
+          <p className="panel-description">
+            Internal organization graph linking prospects, organizations, coaches, proposals, follow-ups, migration plans, dossiers, and activity. Relationships are deterministic and local only.
+          </p>
+          <SalesIntelligenceDashboard
+            graph={salesIntelligenceGraph}
+            onExport={onExportSalesIntelligence}
+            onSelectOrganization={setSelectedOrganizationId}
+            selectedOrganization={selectedOrganization}
+          />
         </section>
 
         <section className="panel wide-panel">
@@ -959,6 +990,148 @@ function DossierPreview({
           Export Dossier JSON
         </button>
       </div>
+    </div>
+  );
+}
+
+function SalesIntelligenceDashboard({
+  graph,
+  onExport,
+  onSelectOrganization,
+  selectedOrganization,
+}: {
+  graph: SalesIntelligenceGraph;
+  onExport(_report: 'organization_intelligence' | 'graph' | 'timeline', _organizationId: string | null): void;
+  onSelectOrganization(_organizationId: string): void;
+  selectedOrganization: SalesOrganizationProfile | null;
+}) {
+  if (!graph.organizationProfiles.length) {
+    return <p className="empty-note">No organization intelligence is available yet. Save a prospect intake or add a local lead to build the graph.</p>;
+  }
+
+  const relationshipEdges = selectedOrganization
+    ? graph.edges.filter((edge) => edge.from === selectedOrganization.id || edge.to === selectedOrganization.id)
+    : [];
+  const connectedNodes = relationshipEdges
+    .flatMap((edge) => [edge.from, edge.to])
+    .filter((id) => id !== selectedOrganization?.id)
+    .map((id) => graph.nodes.find((node) => node.id === id))
+    .filter(Boolean);
+
+  return (
+    <div className="sales-intelligence-layout">
+      <div className="history-list">
+        {graph.organizationProfiles.map((profile) => (
+          <button
+            className={`dossier-list-item ${selectedOrganization?.id === profile.id ? 'selected' : ''}`}
+            key={profile.id}
+            onClick={() => onSelectOrganization(profile.id)}
+            type="button"
+          >
+            <strong>{profile.label}</strong>
+            <span>{profile.profileSummary}</span>
+            <small>{profile.completenessScore}/100 complete · {profile.migrationReadiness.replace(/_/g, ' ')}</small>
+          </button>
+        ))}
+      </div>
+      <div className="dossier-preview">
+        {selectedOrganization ? (
+          <>
+            <div className="fact-list compact-facts">
+              <Fact label="Organization" value={selectedOrganization.label} />
+              <Fact label="Relationship Depth" value={String(selectedOrganization.relationshipDepth)} />
+              <Fact label="Completeness" value={`${selectedOrganization.completenessScore}/100`} />
+              <Fact label="Migration Readiness" value={selectedOrganization.migrationReadiness.replace(/_/g, ' ')} />
+              <Fact label="Connected Proposals" value={String(selectedOrganization.connectedProposalIds.length)} />
+              <Fact label="Connected Dossiers" value={String(selectedOrganization.connectedDossierIds.length)} />
+            </div>
+            <div className="intake-two-column">
+              <RelationshipList graph={graph} relationships={relationshipEdges} />
+              <ConnectedNodeList nodes={connectedNodes as SalesIntelligenceGraph['nodes']} />
+            </div>
+            <TimelineList timeline={selectedOrganization.timeline} />
+            <div className="button-row sales-action-row">
+              <button className="report-button small" onClick={() => onExport('organization_intelligence', selectedOrganization.id)} type="button">
+                Organization Intelligence Report
+              </button>
+              <button className="report-button small" onClick={() => onExport('timeline', selectedOrganization.id)} type="button">
+                Organization Timeline
+              </button>
+              <button className="report-button small" onClick={() => onExport('graph', selectedOrganization.id)} type="button">
+                Sales Intelligence Graph JSON
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="empty-note">Select an organization to review intelligence.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RelationshipList({ graph, relationships }: { graph: SalesIntelligenceGraph; relationships: SalesIntelligenceGraph['edges'] }) {
+  return (
+    <div className="proposal-preview-card">
+      <h3>Relationship Graph</h3>
+      {relationships.length ? (
+        <div className="relationship-list">
+          {relationships.map((edge) => {
+            const from = graph.nodes.find((node) => node.id === edge.from);
+            const to = graph.nodes.find((node) => node.id === edge.to);
+            return (
+              <article className="relationship-item" key={edge.id}>
+                <strong>{from?.label ?? edge.from} → {to?.label ?? edge.to}</strong>
+                <span>{edge.relationship.replace(/_/g, ' ')}</span>
+                <small>{edge.explanation}</small>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="empty-note">No relationships linked yet.</p>
+      )}
+    </div>
+  );
+}
+
+function ConnectedNodeList({ nodes }: { nodes: SalesIntelligenceGraph['nodes'] }) {
+  return (
+    <div className="proposal-preview-card">
+      <h3>Connected Records</h3>
+      {nodes.length ? (
+        <div className="relationship-list">
+          {nodes.map((node) => (
+            <article className="relationship-item" key={node.id}>
+              <strong>{node.label}</strong>
+              <span>{node.type.replace(/_/g, ' ')}</span>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="empty-note">No connected records yet.</p>
+      )}
+    </div>
+  );
+}
+
+function TimelineList({ timeline }: { timeline: SalesOrganizationProfile['timeline'] }) {
+  return (
+    <div className="proposal-preview-card">
+      <h3>Organization Timeline</h3>
+      {timeline.length ? (
+        <div className="relationship-list">
+          {timeline.map((item) => (
+            <article className="relationship-item" key={item.id}>
+              <strong>{item.title}</strong>
+              <span>{formatDate(item.timestamp)}</span>
+              <small>{item.detail}</small>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="empty-note">No timeline items yet.</p>
+      )}
     </div>
   );
 }

@@ -32,6 +32,13 @@ import { salesTeamAgents, summarizeSalesAgentTeam } from './agents/sales/salesAg
 import { buildSalesFollowUpQueue } from './agents/sales/salesFollowUpEngine';
 import { parseSalesLeadJson, emptySalesImportResult } from './agents/sales/salesImport';
 import { buildSalesIntegrationSummary } from './agents/sales/salesIntegrationAdapter';
+import {
+  buildOrganizationIntelligenceReport,
+  buildOrganizationTimelineReport,
+  buildSalesIntelligenceGraph,
+  buildSalesIntelligenceGraphReport,
+  summarizeSalesIntelligenceGraph,
+} from './agents/sales/salesIntelligenceGraph';
 import { buildProposalDraftReport, generateSalesProposalDraft, summarizeSalesProposalDrafts } from './agents/sales/salesProposalBuilder';
 import {
   buildResearchDossierReport,
@@ -211,6 +218,20 @@ function App() {
     () => summarizeProspectDossiers(salesProspectIntakes, salesResearchDossiers),
     [salesProspectIntakes, salesResearchDossiers],
   );
+  const salesIntelligenceGraph = useMemo(
+    () =>
+      buildSalesIntelligenceGraph({
+        activities: salesActivities,
+        followUpQueue: salesFollowUpQueue,
+        leads: salesLeads,
+        proposalDrafts: salesProposalDrafts,
+        proposals: salesProposals,
+        prospectDossiers: salesResearchDossiers,
+        prospectIntakes: salesProspectIntakes,
+      }),
+    [salesActivities, salesFollowUpQueue, salesLeads, salesProposalDrafts, salesProposals, salesProspectIntakes, salesResearchDossiers],
+  );
+  const salesIntelligenceSummary = useMemo(() => summarizeSalesIntelligenceGraph(salesIntelligenceGraph), [salesIntelligenceGraph]);
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
   const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
   const syncStatus = useMemo(
@@ -861,6 +882,33 @@ function App() {
     });
   };
 
+  const exportSalesIntelligence = (
+    report: 'organization_intelligence' | 'graph' | 'timeline',
+    organizationId: string | null,
+  ) => {
+    const selectedOrganizationId = organizationId ?? salesIntelligenceGraph.organizationProfiles[0]?.id ?? '';
+    const localReport =
+      report === 'graph'
+        ? buildSalesIntelligenceGraphReport(salesIntelligenceGraph)
+        : report === 'timeline'
+          ? buildOrganizationTimelineReport(salesIntelligenceGraph, selectedOrganizationId)
+          : buildOrganizationIntelligenceReport(salesIntelligenceGraph, selectedOrganizationId);
+    downloadReport(localReport, report === 'graph' ? 'json' : 'markdown');
+    appendAgentEvent({
+      agent: 'Sales Intelligence Agent',
+      event: 'sales-intelligence-exported',
+      detail: `${localReport.title} exported locally. No browsing, email, Stripe, CRM, or production write occurred.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Intelligence Agent',
+      action: 'sales intelligence exported',
+      target: localReport.title,
+      result: 'local report downloaded',
+      riskLevel: 'low',
+    });
+  };
+
   const exportSalesReport = (
     format: ReportFormat | 'csv',
     report: 'pipeline' | 'follow_up' | 'proposal' | 'lead_scoring' | 'follow_up_queue' | 'weighted_pipeline',
@@ -1142,6 +1190,7 @@ function App() {
             onAction={recordSalesAction}
             onExport={exportSalesReport}
             onExportResearchDossier={exportResearchDossier}
+            onExportSalesIntelligence={exportSalesIntelligence}
             onExportProposalDraft={exportProposalDraft}
             onGenerateProposalDraft={generateProposalDraft}
             onImportJson={importSalesLeads}
@@ -1154,6 +1203,8 @@ function App() {
             prospectIntakes={salesProspectIntakes}
             prospectResearch={salesProspectResearch}
             scores={salesScores}
+            salesIntelligenceGraph={salesIntelligenceGraph}
+            salesIntelligenceSummary={salesIntelligenceSummary}
             teamAgents={salesTeamAgents}
             teamSummary={salesAgentTeamSummary}
             scoringSummary={salesScoringSummary}
@@ -1213,6 +1264,7 @@ function App() {
             runtime={runtime}
             salesIntegration={salesIntegration}
             salesAgentTeamSummary={salesAgentTeamSummary}
+            salesIntelligenceSummary={salesIntelligenceSummary}
             salesProspectDossierSummary={salesProspectDossierSummary}
             salesProposalSummary={salesProposalSummary}
             salesScoringSummary={salesScoringSummary}

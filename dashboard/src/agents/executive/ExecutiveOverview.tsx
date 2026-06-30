@@ -116,6 +116,24 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           },
         ]
       : []),
+    ...(summary.salesIntelligenceSummary
+      ? [
+          { label: 'Organizations Tracked', value: String(summary.salesIntelligenceSummary.organizationsTracked) },
+          {
+            label: 'Active Opportunities',
+            value: String(summary.salesIntelligenceSummary.activeOpportunities),
+            tone: summary.salesIntelligenceSummary.activeOpportunities ? 'warn' : 'neutral',
+          },
+          { label: 'Avg Relationship Depth', value: String(summary.salesIntelligenceSummary.averageRelationshipDepth) },
+          { label: 'Proposal Coverage', value: `${summary.salesIntelligenceSummary.proposalCoverage}%` },
+          {
+            label: 'Migration Readiness',
+            value: String(summary.salesIntelligenceSummary.migrationReadyOrganizations),
+            tone: summary.salesIntelligenceSummary.migrationReadyOrganizations ? 'good' : 'neutral',
+          },
+          { label: 'Intel Completeness', value: `${summary.salesIntelligenceSummary.intelligenceCompletenessScore}/100` },
+        ]
+      : []),
   ];
 
   return (

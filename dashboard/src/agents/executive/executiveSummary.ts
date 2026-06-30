@@ -4,6 +4,7 @@ import type { LocalReport } from '../../storage/reportExport';
 import type {
   SalesAgentTeamSummary,
   SalesIntegrationSummary,
+  SalesIntelligenceSummary,
   SalesProposalSummary,
   SalesProspectDossierSummary,
   SalesScoringSummary,
@@ -27,6 +28,7 @@ export function buildExecutiveSummary(
   salesProposalSummary?: SalesProposalSummary,
   salesAgentTeamSummary?: SalesAgentTeamSummary,
   salesProspectDossierSummary?: SalesProspectDossierSummary,
+  salesIntelligenceSummary?: SalesIntelligenceSummary,
 ): ExecutiveSummary {
   const healthRows = buildExecutiveHealthRows(runtime);
   const healthyAgents = healthRows.filter((agent) => agent.risk === 'low').length;
@@ -60,6 +62,7 @@ export function buildExecutiveSummary(
       salesProposalSummary,
       salesAgentTeamSummary,
       salesProspectDossierSummary,
+      salesIntelligenceSummary,
     ),
     recentRuntimeEvents: runtime.activities.length,
     registeredAgents: runtime.agents.length,
@@ -71,6 +74,7 @@ export function buildExecutiveSummary(
     workflowsToday: countWorkflowActivity(runtime.activities),
     salesIntegration,
     salesAgentTeamSummary,
+    salesIntelligenceSummary,
     salesProposalSummary,
     salesProspectDossierSummary,
     salesScoringSummary,
@@ -139,6 +143,12 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     salesHighFitDossiers: summary.salesProspectDossierSummary?.highFitDossiers ?? 0,
     salesMissingInfoProspects: summary.salesProspectDossierSummary?.missingInfoProspects ?? 0,
     salesMigrationOpportunityProspects: summary.salesProspectDossierSummary?.migrationOpportunityProspects ?? 0,
+    salesOrganizationsTracked: summary.salesIntelligenceSummary?.organizationsTracked ?? 0,
+    salesActiveOpportunities: summary.salesIntelligenceSummary?.activeOpportunities ?? 0,
+    salesAverageRelationshipDepth: summary.salesIntelligenceSummary?.averageRelationshipDepth ?? 0,
+    salesProposalCoverage: summary.salesIntelligenceSummary?.proposalCoverage ?? 0,
+    salesMigrationReadyOrganizations: summary.salesIntelligenceSummary?.migrationReadyOrganizations ?? 0,
+    salesIntelligenceCompletenessScore: summary.salesIntelligenceSummary?.intelligenceCompletenessScore ?? 0,
     syncQueue: summary.syncQueue,
     runtimeVersion: summary.runtimeVersion,
     productionWritesOccurred: 'No',
