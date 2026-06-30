@@ -10,6 +10,8 @@ export const threadDirectories = {
   inbox: path.join(sharedRoot, 'inbox'),
   outbox: path.join(sharedRoot, 'outbox'),
   archive: path.join(sharedRoot, 'archive'),
+  schedules: path.join(sharedRoot, 'schedules'),
+  approvalQueue: path.join(sharedRoot, 'approval-queue'),
 };
 
 const supportedSchemaTypes = new Set([
@@ -19,6 +21,16 @@ const supportedSchemaTypes = new Set([
   'sales_research_note',
   'customer_research_note',
   'executive_summary_item',
+]);
+
+const supportedApprovalTypes = new Set([
+  'email_draft_request',
+  'sms_draft_request',
+  'crm_write_request',
+  'stripe_invoice_request',
+  'supabase_write_request',
+  'executive_review_request',
+  'sales_follow_up_request',
 ]);
 
 const blockedActions = [
@@ -58,10 +70,24 @@ export function listArchiveItems() {
   return listPayloadFiles(threadDirectories.archive).map(readPayloadFile);
 }
 
+export function listScheduleDefinitions() {
+  ensureThreadBridgeDirectories();
+  return listPayloadFiles(threadDirectories.schedules).map(readPayloadFile);
+}
+
+export function listApprovalQueueItems() {
+  ensureThreadBridgeDirectories();
+  return listPayloadFiles(threadDirectories.approvalQueue).map(readPayloadFile);
+}
+
 export function buildThreadBridgeStatus() {
   const outbox = listOutboxItems();
   const inbox = listInboxItems();
   const archive = listArchiveItems();
+  const schedules = listScheduleDefinitions().filter((item) => validateScheduleDefinition(item.parsed).valid);
+  const approvals = listApprovalQueueItems().filter((item) => validateApprovalQueueItem(item.parsed).valid);
+  const dueSchedules = getDueSchedules(new Date());
+  const approvalSummary = summarizeApprovalQueueItems(approvals.map((item) => item.parsed));
   const index = readThreadIndex();
   const latest = [...outbox, ...archive]
     .filter((item) => item.parsed)
@@ -73,6 +99,14 @@ export function buildThreadBridgeStatus() {
     pendingOutboxItems: outbox.length,
     inboxItems: inbox.length,
     archivedItems: archive.length,
+    schedulesConfigured: schedules.length,
+    dueSchedules: dueSchedules.length,
+    pendingApprovals: approvalSummary.pending,
+    approvalsByType: approvalSummary.pendingByType,
+    approvalDecisions: {
+      approved: approvalSummary.approved,
+      rejected: approvalSummary.rejected,
+    },
     latestThread: latest?.parsed?.sourceThread?.name ?? 'none',
     latestItem: latest?.parsed?.title ?? latest?.fileName ?? 'none',
     safetyMode: index.safety?.mode ?? 'local/mock/read-only',
@@ -83,18 +117,42 @@ export function buildThreadBridgeStatus() {
 export function validateThreadBridge() {
   ensureThreadBridgeDirectories();
   const outbox = listOutboxItems();
+  const schedules = listScheduleDefinitions();
+  const approvalItems = listApprovalQueueItems();
   const example = path.join(sharedRoot, 'examples/thread-output.example.json');
+  const approvalExample = path.join(sharedRoot, 'examples/approval-queue.example.json');
   const exampleValidation = existsSync(example) ? validateThreadPayload(readPayloadFile(example).parsed) : { valid: false, errors: ['missing example payload'] };
+  const approvalExampleValidation = existsSync(approvalExample)
+    ? validateApprovalQueueItem(readPayloadFile(approvalExample).parsed)
+    : { valid: false, errors: ['missing approval queue example payload'] };
   const validations = outbox.map((item) => ({
     file: path.relative(repoRoot, item.path),
     ...validateThreadPayload(item.parsed),
   }));
-  const status = validations.every((item) => item.valid) && exampleValidation.valid ? 'pass' : 'fail';
+  const scheduleValidations = schedules.map((item) => ({
+    file: path.relative(repoRoot, item.path),
+    ...validateScheduleDefinition(item.parsed),
+  }));
+  const approvalValidations = approvalItems.map((item) => ({
+    file: path.relative(repoRoot, item.path),
+    ...validateApprovalQueueItem(item.parsed),
+  }));
+  const status =
+    validations.every((item) => item.valid) &&
+    scheduleValidations.every((item) => item.valid) &&
+    approvalValidations.every((item) => item.valid) &&
+    exampleValidation.valid &&
+    approvalExampleValidation.valid
+      ? 'pass'
+      : 'fail';
   return {
     status,
     pendingOutboxItems: outbox.length,
     exampleValidation,
+    approvalExampleValidation,
     validations,
+    scheduleValidations,
+    approvalValidations,
     directoriesReady: Object.fromEntries(Object.entries(threadDirectories).map(([key, directory]) => [key, existsSync(directory)])),
   };
 }
@@ -161,6 +219,130 @@ export function archiveThreadOutbox() {
   return payload;
 }
 
+export function getThreadSchedules() {
+  const now = new Date();
+  const definitions = listScheduleDefinitions();
+  const schedules = definitions.map((item) => ({
+    file: path.relative(repoRoot, item.path),
+    schedule: item.parsed,
+    validation: validateScheduleDefinition(item.parsed),
+    due: validateScheduleDefinition(item.parsed).valid ? isScheduleDue(item.parsed, now) : false,
+  }));
+  const payload = {
+    title: 'Scheduled Thread Definitions',
+    generatedAt: now.toISOString(),
+    scheduleCount: schedules.length,
+    dueCount: schedules.filter((item) => item.due).length,
+    schedules: schedules.map((item) => ({
+      file: item.file,
+      id: item.schedule?.id,
+      name: item.schedule?.name,
+      cadence: item.schedule?.cadence,
+      nextRunAt: item.schedule?.nextRunAt,
+      runMode: item.schedule?.runMode,
+      enabled: item.schedule?.enabled,
+      due: item.due,
+      valid: item.validation.valid,
+      errors: item.validation.errors,
+    })),
+    safety: 'Manual schedule inspection only. No background jobs or external actions.',
+  };
+  writeThreadReport('scheduled-thread-definitions', payload);
+  return payload;
+}
+
+export function runDueThreadSchedules() {
+  const now = new Date();
+  const due = getDueSchedules(now);
+  const createdOutboxItems = due.map((item) => writeScheduledRunOutboxItem(item.parsed, now));
+  const payload = {
+    title: 'Scheduled Thread Run Report',
+    generatedAt: now.toISOString(),
+    dueScheduleCount: due.length,
+    createdOutboxItems,
+    skippedMessage: due.length === 0 ? 'No due schedules. Nothing was run.' : 'Manual local run completed for due schedule definitions.',
+    safety: {
+      backgroundJobsStarted: false,
+      externalActions: 'none',
+      productionWrites: false,
+      blockedActions,
+    },
+  };
+  writeThreadReport('scheduled-thread-run-report', payload);
+  return payload;
+}
+
+export function getApprovalQueueReport() {
+  const items = listApprovalQueueItems();
+  const validItems = items.filter((item) => validateApprovalQueueItem(item.parsed).valid).map((item) => item.parsed);
+  const summary = summarizeApprovalQueueItems(validItems);
+  const payload = {
+    title: 'Approval Queue Report',
+    generatedAt: new Date().toISOString(),
+    approvalCount: validItems.length,
+    pendingApprovals: summary.pending,
+    pendingByType: summary.pendingByType,
+    approved: summary.approved,
+    rejected: summary.rejected,
+    items: validItems.map((item) => ({
+      id: item.id,
+      type: item.type,
+      title: item.title,
+      requestingAgent: item.requestingAgent,
+      status: item.status,
+      risk: item.risk,
+      decisionAt: item.decision?.decidedAt ?? null,
+    })),
+    safety: 'Local approval state only. Approval does not perform the requested external action.',
+  };
+  writeThreadReport('approval-queue-report', payload);
+  return payload;
+}
+
+export function decideApprovalQueueItem({ id, decision, operator = 'local operator', reason = 'Local operator decision.' }) {
+  if (!['approved', 'rejected'].includes(decision)) {
+    return { status: 'fail', errors: [`Unsupported decision: ${decision}`] };
+  }
+  const items = listApprovalQueueItems();
+  const item = items.find((candidate) => candidate.parsed?.id === id || candidate.fileName === id);
+  if (!item) {
+    return {
+      status: 'fail',
+      errors: [`Approval queue item not found: ${id}. Add a local item under codex-agent-threads/shared/approval-queue/ first.`],
+    };
+  }
+  const validation = validateApprovalQueueItem(item.parsed);
+  if (!validation.valid) return { status: 'fail', errors: validation.errors };
+
+  const decided = {
+    ...item.parsed,
+    status: decision,
+    decision: {
+      decidedAt: new Date().toISOString(),
+      decidedBy: operator,
+      decision,
+      reason,
+      externalActionPerformed: false,
+      productionWritePerformed: false,
+    },
+  };
+  writeFileSync(item.path, `${JSON.stringify(decided, null, 2)}\n`);
+  const payload = {
+    title: `Approval Queue ${decision === 'approved' ? 'Approval' : 'Rejection'} Result`,
+    generatedAt: decided.decision.decidedAt,
+    item: {
+      id: decided.id,
+      type: decided.type,
+      title: decided.title,
+      status: decided.status,
+      decision: decided.decision,
+    },
+    safety: 'Local approval-state update only. No email, SMS, CRM, Stripe, Supabase, or production write occurred.',
+  };
+  writeThreadReport(`approval-queue-${decision}`, payload);
+  return { status: 'pass', ...payload };
+}
+
 export function validateThreadPayload(payload) {
   const errors = [];
   if (!payload || typeof payload !== 'object') {
@@ -199,12 +381,106 @@ export function validateThreadPayload(payload) {
   return { valid: errors.length === 0, errors };
 }
 
+export function validateScheduleDefinition(payload) {
+  const errors = [];
+  if (!payload || typeof payload !== 'object') return { valid: false, errors: ['Schedule must be a JSON object.'] };
+  if (payload.schemaType !== 'scheduled_thread_run') errors.push(`Unsupported schedule schemaType: ${payload.schemaType ?? 'missing'}`);
+  if (!nonEmpty(payload.id)) errors.push('id is required.');
+  if (!nonEmpty(payload.name)) errors.push('name is required.');
+  if (!payload.sourceThread || !nonEmpty(payload.sourceThread.name) || !nonEmpty(payload.sourceThread.slug)) {
+    errors.push('sourceThread.name and sourceThread.slug are required.');
+  }
+  if (!nonEmpty(payload.cadence)) errors.push('cadence is required.');
+  if (!nonEmpty(payload.timezone)) errors.push('timezone is required.');
+  if (!nonEmpty(payload.nextRunAt) || Number.isNaN(Date.parse(payload.nextRunAt))) errors.push('nextRunAt must be an ISO date.');
+  if (!Array.isArray(payload.targetAgents) || payload.targetAgents.length === 0) errors.push('targetAgents must be a non-empty array.');
+  if (payload.runMode !== 'manual') errors.push('runMode must be manual.');
+  if (typeof payload.enabled !== 'boolean') errors.push('enabled must be boolean.');
+  if (!payload.safety || payload.safety.externalActions !== 'none' || payload.safety.productionWrites !== false || payload.safety.secretsIncluded !== false) {
+    errors.push('safety must declare externalActions none, productionWrites false, and secretsIncluded false.');
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+export function validateApprovalQueueItem(payload) {
+  const errors = [];
+  if (!payload || typeof payload !== 'object') return { valid: false, errors: ['Approval queue item must be a JSON object.'] };
+  if (payload.schemaType !== 'approval_queue_item') errors.push(`Unsupported approval schemaType: ${payload.schemaType ?? 'missing'}`);
+  if (!nonEmpty(payload.id)) errors.push('id is required.');
+  if (!supportedApprovalTypes.has(payload.type)) errors.push(`Unsupported approval type: ${payload.type ?? 'missing'}`);
+  if (!nonEmpty(payload.title)) errors.push('title is required.');
+  if (!nonEmpty(payload.requestingAgent)) errors.push('requestingAgent is required.');
+  if (!nonEmpty(payload.requestedAt) || Number.isNaN(Date.parse(payload.requestedAt))) errors.push('requestedAt must be an ISO date.');
+  if (!['pending', 'approved', 'rejected'].includes(payload.status)) errors.push('status must be pending, approved, or rejected.');
+  if (!['low', 'medium', 'high'].includes(payload.risk)) errors.push('risk must be low, medium, or high.');
+  if (!payload.safety || !['none', 'blocked_until_approved'].includes(payload.safety.externalActions) || payload.safety.productionWrites !== false || payload.safety.secretsIncluded !== false) {
+    errors.push('safety must block external actions, production writes, and secrets.');
+  }
+  return { valid: errors.length === 0, errors };
+}
+
 function listPayloadFiles(directory) {
   if (!existsSync(directory)) return [];
   return readdirSync(directory)
     .filter((file) => file.endsWith('.json'))
     .map((file) => path.join(directory, file))
     .sort();
+}
+
+function getDueSchedules(now) {
+  return listScheduleDefinitions().filter((item) => validateScheduleDefinition(item.parsed).valid && isScheduleDue(item.parsed, now));
+}
+
+function isScheduleDue(schedule, now) {
+  return schedule.enabled === true && schedule.runMode === 'manual' && Date.parse(schedule.nextRunAt) <= now.getTime();
+}
+
+function writeScheduledRunOutboxItem(schedule, now) {
+  const payload = {
+    schemaType: 'thread_output',
+    id: `scheduled-run:${schedule.sourceThread.slug}:${compactStamp(now.toISOString())}`,
+    sourceThread: schedule.sourceThread,
+    targetAgents: schedule.targetAgents,
+    createdAt: now.toISOString(),
+    title: `${schedule.name} Scheduled Local Run`,
+    summary: `Manual due-run placeholder for ${schedule.name}. This creates a local outbox item only; no background job or external action ran.`,
+    recommendations: [
+      {
+        priority: 'medium',
+        detail: `Review ${schedule.name} output locally and create explicit approval queue items for any future external action.`,
+      },
+    ],
+    schedule: {
+      id: schedule.id,
+      cadence: schedule.cadence,
+      nextRunAt: schedule.nextRunAt,
+      runMode: schedule.runMode,
+    },
+    safety: {
+      externalActions: 'none',
+      productionWrites: false,
+      secretsIncluded: false,
+    },
+  };
+  const fileName = `${compactStamp(now.toISOString())}-${schedule.sourceThread.slug}-scheduled-run.json`;
+  const filePath = path.join(threadDirectories.outbox, fileName);
+  writeFileSync(filePath, `${JSON.stringify(payload, null, 2)}\n`);
+  return path.relative(repoRoot, filePath);
+}
+
+function summarizeApprovalQueueItems(items) {
+  return items.reduce(
+    (summary, item) => {
+      if (item.status === 'pending') {
+        summary.pending += 1;
+        summary.pendingByType[item.type] = (summary.pendingByType[item.type] ?? 0) + 1;
+      }
+      if (item.status === 'approved') summary.approved += 1;
+      if (item.status === 'rejected') summary.rejected += 1;
+      return summary;
+    },
+    { pending: 0, pendingByType: {}, approved: 0, rejected: 0 },
+  );
 }
 
 function readPayloadFile(filePath) {

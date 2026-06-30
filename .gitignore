@@ -21,6 +21,8 @@ codex-agent-threads/shared/inbox/**/*.json
 codex-agent-threads/shared/inbox/**/*.md
 codex-agent-threads/shared/archive/**/*.json
 codex-agent-threads/shared/archive/**/*.md
+codex-agent-threads/shared/approval-queue/**/*.json
+codex-agent-threads/shared/approval-queue/**/*.md
 !codex-agent-threads/shared/**/.gitkeep
 !codex-agent-threads/shared/examples/**/*.json
 !codex-agent-threads/shared/examples/**/*.md

@@ -1,0 +1,21 @@
+{
+  "schemaType": "scheduled_thread_run",
+  "id": "schedule:sales-company-research:twice-weekly",
+  "name": "Sales Company Research",
+  "sourceThread": {
+    "name": "Sales Company Research",
+    "slug": "sales-company-research"
+  },
+  "cadence": "twice-weekly",
+  "timezone": "America/New_York",
+  "nextRunAt": "2026-07-02T14:00:00.000Z",
+  "targetAgents": ["sales", "operations", "executive"],
+  "runMode": "manual",
+  "enabled": true,
+  "summaryPrompt": "Prepare local-only company research notes for sales prospect review.",
+  "safety": {
+    "externalActions": "none",
+    "productionWrites": false,
+    "secretsIncluded": false
+  }
+}

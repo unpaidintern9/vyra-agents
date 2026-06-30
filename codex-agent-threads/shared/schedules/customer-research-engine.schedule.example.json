@@ -1,0 +1,21 @@
+{
+  "schemaType": "scheduled_thread_run",
+  "id": "schedule:customer-research-engine:weekly",
+  "name": "Customer Research Engine",
+  "sourceThread": {
+    "name": "Customer Research Engine",
+    "slug": "customer-research-engine"
+  },
+  "cadence": "weekly",
+  "timezone": "America/New_York",
+  "nextRunAt": "2026-07-03T15:00:00.000Z",
+  "targetAgents": ["sales", "support", "executive"],
+  "runMode": "manual",
+  "enabled": true,
+  "summaryPrompt": "Generate local customer research notes from already-provided/local inputs only.",
+  "safety": {
+    "externalActions": "none",
+    "productionWrites": false,
+    "secretsIncluded": false
+  }
+}

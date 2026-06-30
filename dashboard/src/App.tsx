@@ -134,12 +134,20 @@ type IntegrationMode = 'mock' | 'live';
 type EffectiveMode = 'mock' | 'live' | 'fallback';
 
 interface OperatorDashboardState {
+  lastScheduledRun: string | null;
   lastReport: string | null;
   lastRun: string;
   lastThreadArchive: string | null;
   lastThreadIngest: string | null;
   lastValidation: string | null;
+  pendingApprovalCount: number;
+  pendingApprovalsByType: Record<string, number>;
   pendingThreadOutputs: number;
+  threadApprovalDecisionCounts: {
+    approved: number;
+    rejected: number;
+  };
+  threadDueSchedules: number;
 }
 
 interface IntegrationSnapshot {
@@ -208,12 +216,20 @@ function App() {
   const [syncEnabled] = useState(true);
   const [operatorDashboard, setOperatorDashboard] = useState(() =>
     loadLocalState<OperatorDashboardState>(localStorageKeys.operatorDashboard, () => ({
+      lastScheduledRun: null,
       lastReport: null,
       lastRun: new Date().toISOString(),
       lastThreadArchive: null,
       lastThreadIngest: null,
       lastValidation: null,
+      pendingApprovalCount: 0,
+      pendingApprovalsByType: {},
       pendingThreadOutputs: 0,
+      threadApprovalDecisionCounts: {
+        approved: 0,
+        rejected: 0,
+      },
+      threadDueSchedules: 0,
     })),
   );
 
@@ -1165,12 +1181,17 @@ function App() {
   const pageWarnings = [...status.warnings, ...syncStatusWarnings(syncStatus)];
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
     integrationMode: modeLabel(status.effectiveMode),
+    lastScheduledRun: operatorDashboard.lastScheduledRun,
     lastReport: operatorDashboard.lastReport,
     lastRun: operatorDashboard.lastRun,
     lastThreadArchive: operatorDashboard.lastThreadArchive,
     lastThreadIngest: operatorDashboard.lastThreadIngest,
     lastValidation: operatorDashboard.lastValidation,
+    pendingApprovalCount: operatorDashboard.pendingApprovalCount,
+    pendingApprovalsByType: operatorDashboard.pendingApprovalsByType,
     pendingThreadOutputs: operatorDashboard.pendingThreadOutputs,
+    threadApprovalDecisionCounts: operatorDashboard.threadApprovalDecisionCounts,
+    threadDueSchedules: operatorDashboard.threadDueSchedules,
     runtime,
   });
   const recordOperatorRun = () => setOperatorDashboard((current) => ({ ...current, lastRun: new Date().toISOString() }));
@@ -1187,6 +1208,22 @@ function App() {
       ...current,
       lastThreadArchive: new Date().toISOString(),
       pendingThreadOutputs: 0,
+    }));
+  const recordScheduledThreadRun = () =>
+    setOperatorDashboard((current) => ({
+      ...current,
+      lastScheduledRun: new Date().toISOString(),
+      pendingThreadOutputs: current.pendingThreadOutputs + Math.max(current.threadDueSchedules, 1),
+      threadDueSchedules: 0,
+    }));
+  const recordApprovalDecision = (decision: 'approved' | 'rejected') =>
+    setOperatorDashboard((current) => ({
+      ...current,
+      pendingApprovalCount: Math.max(current.pendingApprovalCount - 1, 0),
+      threadApprovalDecisionCounts: {
+        ...current.threadApprovalDecisionCounts,
+        [decision]: current.threadApprovalDecisionCounts[decision] + 1,
+      },
     }));
   const pageTitle =
     activePage === 'Overview'
@@ -1354,8 +1391,10 @@ function App() {
           />
         ) : activePage === 'Operator' ? (
           <OperatorPage
+            onRecordApprovalDecision={recordApprovalDecision}
             onRecordReport={recordOperatorReport}
             onRecordRun={recordOperatorRun}
+            onRecordScheduledThreadRun={recordScheduledThreadRun}
             onRecordThreadArchive={recordThreadArchive}
             onRecordThreadIngest={recordThreadIngest}
             onRecordValidation={recordOperatorValidation}
@@ -1525,16 +1564,20 @@ function RuntimePage({ runtime, syncStatus }: { runtime: AgentRuntimeSnapshot; s
 }
 
 function OperatorPage({
+  onRecordApprovalDecision,
   onRecordReport,
   onRecordRun,
+  onRecordScheduledThreadRun,
   onRecordThreadArchive,
   onRecordThreadIngest,
   onRecordValidation,
   operator,
   runtime,
 }: {
+  onRecordApprovalDecision: (_decision: 'approved' | 'rejected') => void;
   onRecordReport(): void;
   onRecordRun(): void;
+  onRecordScheduledThreadRun(): void;
   onRecordThreadArchive(): void;
   onRecordThreadIngest(): void;
   onRecordValidation(): void;
@@ -1548,6 +1591,8 @@ function OperatorPage({
         <Metric icon={<ShieldCheck size={20} />} label="Safety Mode" value={operator.safetyMode} />
         <Metric icon={<Network size={20} />} label="Integration Mode" value={operator.integrationMode} />
         <Metric icon={<ListChecks size={20} />} label="Runtime Health" value={operator.agentRuntimeHealth} />
+        <Metric icon={<FileClock size={20} />} label="Due Schedules" value={String(operator.threadBridge.dueSchedules)} />
+        <Metric icon={<ShieldCheck size={20} />} label="Pending Approvals" value={String(operator.threadBridge.approvalQueue.pendingCount)} />
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -1595,13 +1640,19 @@ function OperatorPage({
           </p>
           <div className="batch-grid supabase-detail-grid">
             <Fact label="Pending Thread Outputs" value={String(operator.threadBridge.pendingThreadOutputs)} />
+            <Fact label="Due Schedules" value={String(operator.threadBridge.dueSchedules)} />
+            <Fact label="Last Scheduled Run" value={formatOptionalDate(operator.threadBridge.lastScheduledRun)} />
             <Fact label="Latest Ingested Thread" value={formatOptionalDate(operator.threadBridge.latestIngestedThread)} />
             <Fact label="Outbox Path" value={operator.threadBridge.outboxPath} />
             <Fact label="Inbox Path" value={operator.threadBridge.inboxPath} />
+            <Fact label="Schedule Path" value={operator.threadBridge.schedulePath} />
             <Fact label="Archive Status" value={formatOptionalDate(operator.threadBridge.archiveStatus)} />
             <Fact label="Named Agent Sources" value={operator.threadBridge.namedAgentSources.join(', ')} />
           </div>
           <div className="button-row sales-action-row">
+            <button className="report-button small" onClick={onRecordScheduledThreadRun} type="button">
+              Record Manual Due Run
+            </button>
             <button className="report-button small" onClick={onRecordThreadIngest} type="button">
               Record Local Thread Ingest
             </button>
@@ -1614,6 +1665,31 @@ function OperatorPage({
               <p key={action}>{action}</p>
             ))}
           </div>
+        </Panel>
+
+        <Panel title="Approval Queue" icon={<ShieldCheck size={18} />} wide>
+          <p className="panel-description">
+            Approval records are local decisions only. Approving an item never sends the email, SMS, CRM write, Stripe invoice, or Supabase write it describes.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Pending Approvals" value={String(operator.threadBridge.approvalQueue.pendingCount)} />
+            <Fact label="Approved Local Decisions" value={String(operator.threadBridge.approvalQueue.approvedCount)} />
+            <Fact label="Rejected Local Decisions" value={String(operator.threadBridge.approvalQueue.rejectedCount)} />
+            <Fact label="Pending By Type" value={formatPendingApprovalTypes(operator.threadBridge.approvalQueue.pendingByType)} />
+          </div>
+          <div className="button-row sales-action-row">
+            <button className="report-button small" onClick={() => onRecordApprovalDecision('approved')} type="button">
+              Record Local Approval
+            </button>
+            <button className="secondary-button small" onClick={() => onRecordApprovalDecision('rejected')} type="button">
+              Record Local Rejection
+            </button>
+          </div>
+          <DataTable
+            columns={['Approval Type', 'Pending']}
+            rows={Object.entries(operator.threadBridge.approvalQueue.pendingByType).map(([type, count]) => [type.replace(/_/g, ' '), String(count)])}
+            emptyMessage="No pending local approval items recorded in dashboard metadata."
+          />
         </Panel>
 
         <Panel title="Safety Controls" icon={<ShieldCheck size={18} />} wide>
@@ -2294,7 +2370,13 @@ function formatWarningMessage(warning: string): string {
   return warning;
 }
 
-function DataTable({ columns, rows }: { columns: string[]; rows: ReactNode[][] }) {
+function formatPendingApprovalTypes(pendingByType: Record<string, number>): string {
+  const entries = Object.entries(pendingByType);
+  if (entries.length === 0) return 'None';
+  return entries.map(([type, count]) => `${type.replace(/_/g, ' ')}: ${count}`).join(', ');
+}
+
+function DataTable({ columns, emptyMessage, rows }: { columns: string[]; emptyMessage?: string; rows: ReactNode[][] }) {
   return (
     <div className="table-wrap">
       <table>
@@ -2306,13 +2388,19 @@ function DataTable({ columns, rows }: { columns: string[]; rows: ReactNode[][] }
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, rowIndex) => (
-            <tr key={`${row[0]}-${rowIndex}`}>
-              {row.map((cell, cellIndex) => (
-                <td key={`${rowIndex}-${cellIndex}`}>{cell}</td>
-              ))}
+          {rows.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length}>{emptyMessage ?? 'No records to display.'}</td>
             </tr>
-          ))}
+          ) : (
+            rows.map((row, rowIndex) => (
+              <tr key={`${row[0]}-${rowIndex}`}>
+                {row.map((cell, cellIndex) => (
+                  <td key={`${rowIndex}-${cellIndex}`}>{cell}</td>
+                ))}
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
@@ -2743,6 +2831,11 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('threads:ingest')) return 'Read valid pending outbox items and create local Executive review summaries.';
   if (command.endsWith('threads:summary')) return 'Summarize pending local thread outputs by named agent source.';
   if (command.endsWith('threads:archive')) return 'Move consumed local outbox items into the local archive folder.';
+  if (command.endsWith('threads:schedules')) return 'Inspect local scheduled thread definitions and due status.';
+  if (command.endsWith('threads:run-due')) return 'Manually create local outbox items for due schedules; no background job starts.';
+  if (command.endsWith('threads:approval-queue')) return 'Summarize local approval requests and decisions.';
+  if (command.endsWith('threads:approve')) return 'Mark one local approval queue item approved without performing the external action.';
+  if (command.endsWith('threads:reject')) return 'Mark one local approval queue item rejected without performing the external action.';
   if (command.endsWith('threads:validate')) return 'Validate thread bridge directories, schemas, and pending outbox payloads.';
   return 'Shared local operator command.';
 }

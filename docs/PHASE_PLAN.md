@@ -748,3 +748,28 @@ Boundaries:
 - No production business table writes.
 - No secret output.
 - Generated inbox, outbox, archive, and report payloads remain ignored unless they are templates or examples.
+
+## Phase 30
+
+Scheduled Thread Runner and Approval Queue.
+
+Includes:
+
+- Local schedule templates for Sales Tips, Sales Company Research, Customer Research Engine, Executive Summary, and Cross-Agent Review.
+- Root npm scripts for `threads:schedules`, `threads:run-due`, `threads:approval-queue`, `threads:approve`, and `threads:reject`.
+- Manual due-run support that creates local outbox items only when explicitly triggered.
+- Local approval queue model for email draft, SMS draft, CRM write, Stripe invoice, Supabase write, Executive review, and Sales follow-up requests.
+- Local approval and rejection decisions that never perform the requested external action.
+- Operator Dashboard schedule and approval queue signals.
+- Scheduled Thread Run Report, Approval Queue Report, and Approval Queue JSON generation under ignored local reports.
+
+Boundaries:
+
+- No automatic background jobs.
+- No email or SMS sends.
+- No CRM writes.
+- No Stripe writes.
+- No Supabase production writes.
+- No production business table writes.
+- No secret output.
+- Approval only changes local approval state.

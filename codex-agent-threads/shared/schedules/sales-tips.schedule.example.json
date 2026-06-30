@@ -1,0 +1,21 @@
+{
+  "schemaType": "scheduled_thread_run",
+  "id": "schedule:sales-tips:weekly",
+  "name": "Sales Tips",
+  "sourceThread": {
+    "name": "Sales Tips",
+    "slug": "sales-tips"
+  },
+  "cadence": "weekly",
+  "timezone": "America/New_York",
+  "nextRunAt": "2026-07-01T13:00:00.000Z",
+  "targetAgents": ["sales", "executive"],
+  "runMode": "manual",
+  "enabled": true,
+  "summaryPrompt": "Summarize local sales tips and suggest safe follow-up ideas for Executive review.",
+  "safety": {
+    "externalActions": "none",
+    "productionWrites": false,
+    "secretsIncluded": false
+  }
+}

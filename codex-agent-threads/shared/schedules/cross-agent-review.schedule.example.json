@@ -1,0 +1,21 @@
+{
+  "schemaType": "scheduled_thread_run",
+  "id": "schedule:cross-agent-review:weekly",
+  "name": "Cross-Agent Review",
+  "sourceThread": {
+    "name": "Cross-Agent Review",
+    "slug": "cross-agent-review"
+  },
+  "cadence": "weekly",
+  "timezone": "America/New_York",
+  "nextRunAt": "2026-07-06T17:00:00.000Z",
+  "targetAgents": ["executive", "sales", "engineering", "migration"],
+  "runMode": "manual",
+  "enabled": true,
+  "summaryPrompt": "Review local cross-agent blockers, approvals, and handoffs.",
+  "safety": {
+    "externalActions": "none",
+    "productionWrites": false,
+    "secretsIncluded": false
+  }
+}

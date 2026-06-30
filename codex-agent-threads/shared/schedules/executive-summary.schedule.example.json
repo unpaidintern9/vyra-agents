@@ -1,0 +1,21 @@
+{
+  "schemaType": "scheduled_thread_run",
+  "id": "schedule:executive-summary:daily",
+  "name": "Executive Summary",
+  "sourceThread": {
+    "name": "Executive Summary",
+    "slug": "executive-summary"
+  },
+  "cadence": "daily",
+  "timezone": "America/New_York",
+  "nextRunAt": "2026-06-30T16:00:00.000Z",
+  "targetAgents": ["executive"],
+  "runMode": "manual",
+  "enabled": true,
+  "summaryPrompt": "Compile local cross-agent priorities, safety warnings, and review items.",
+  "safety": {
+    "externalActions": "none",
+    "productionWrites": false,
+    "secretsIncluded": false
+  }
+}

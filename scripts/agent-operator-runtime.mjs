@@ -115,6 +115,8 @@ export function buildOperatorSnapshot(options = {}) {
     threadBridge.pendingOutboxItems > 0
       ? [`Review ${threadBridge.pendingOutboxItems} pending Codex thread outbox item(s) from ${threadBridge.latestThread}.`]
       : [];
+  const schedulePriority = threadBridge.dueSchedules > 0 ? [`Review ${threadBridge.dueSchedules} due scheduled thread run(s).`] : [];
+  const approvalPriority = threadBridge.pendingApprovals > 0 ? [`Resolve ${threadBridge.pendingApprovals} local approval queue item(s).`] : [];
 
   return {
     operator,
@@ -130,6 +132,8 @@ export function buildOperatorSnapshot(options = {}) {
     executive: {
       priorities: [
         ...threadPriority,
+        ...schedulePriority,
+        ...approvalPriority,
         'Review cross-agent collaboration before approving proposal, migration, or follow-up work.',
         'Keep Sales external actions disabled until CRM/email/Stripe approval gates exist.',
         'Review Engineering warnings before future live issue creation.',

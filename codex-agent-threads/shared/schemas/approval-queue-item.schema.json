@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/approval-queue-item.schema.json",
+  "title": "Approval Queue Item",
+  "type": "object",
+  "required": ["schemaType", "id", "type", "title", "requestingAgent", "requestedAt", "status", "risk", "safety"],
+  "properties": {
+    "schemaType": { "const": "approval_queue_item" },
+    "id": { "type": "string" },
+    "type": {
+      "enum": [
+        "email_draft_request",
+        "sms_draft_request",
+        "crm_write_request",
+        "stripe_invoice_request",
+        "supabase_write_request",
+        "executive_review_request",
+        "sales_follow_up_request"
+      ]
+    },
+    "title": { "type": "string" },
+    "requestingAgent": { "type": "string" },
+    "target": { "type": "string" },
+    "summary": { "type": "string" },
+    "requestedAt": { "type": "string", "format": "date-time" },
+    "status": { "enum": ["pending", "approved", "rejected"] },
+    "risk": { "enum": ["low", "medium", "high"] },
+    "decision": { "type": ["object", "null"] },
+    "safety": { "$ref": "./shared-definitions.schema.json#/$defs/safety" }
+  },
+  "additionalProperties": true
+}

@@ -20,6 +20,11 @@ npm run threads:status
 npm run threads:ingest
 npm run threads:summary
 npm run threads:archive
+npm run threads:schedules
+npm run threads:run-due
+npm run threads:approval-queue
+npm run threads:approve
+npm run threads:reject
 npm run threads:validate
 ```
 
@@ -78,3 +83,14 @@ Future external actions must remain explicit placeholders behind approval gates.
 Phase 29 adds the `threads:*` commands for local named Codex thread outbox ingestion. These commands validate local payloads in `codex-agent-threads/shared/outbox/`, create ignored local summaries, and archive consumed files.
 
 See `docs/CODEX_THREAD_BRIDGE.md` and `docs/THREAD_OUTBOX_WORKFLOW.md`.
+
+## Scheduled Runs And Approvals
+
+Phase 30 adds manual scheduled thread runs and a local approval queue:
+
+- `npm run threads:schedules` reports configured local schedule templates.
+- `npm run threads:run-due` manually creates local outbox items for due schedules.
+- `npm run threads:approval-queue` reports pending local approval requests.
+- `npm run threads:approve` and `npm run threads:reject` record local decisions only.
+
+No command starts a background job or performs email, SMS, CRM, Stripe, Supabase, or production business writes.

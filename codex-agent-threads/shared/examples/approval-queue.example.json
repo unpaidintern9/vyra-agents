@@ -1,0 +1,18 @@
+{
+  "schemaType": "approval_queue_item",
+  "id": "approval:example:email-draft",
+  "type": "email_draft_request",
+  "title": "Review draft follow-up email",
+  "requestingAgent": "Sales Agent",
+  "target": "Example Gym",
+  "summary": "A local-only email draft request that requires human review before any external action.",
+  "requestedAt": "2026-06-30T18:00:00.000Z",
+  "status": "pending",
+  "risk": "medium",
+  "decision": null,
+  "safety": {
+    "externalActions": "blocked_until_approved",
+    "productionWrites": false,
+    "secretsIncluded": false
+  }
+}

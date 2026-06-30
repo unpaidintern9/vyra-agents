@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/scheduled-thread-run.schema.json",
+  "title": "Scheduled Thread Run",
+  "type": "object",
+  "required": ["schemaType", "id", "name", "sourceThread", "cadence", "timezone", "nextRunAt", "targetAgents", "runMode", "enabled", "safety"],
+  "properties": {
+    "schemaType": { "const": "scheduled_thread_run" },
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "sourceThread": { "$ref": "./shared-definitions.schema.json#/$defs/sourceThread" },
+    "cadence": { "type": "string" },
+    "timezone": { "type": "string" },
+    "nextRunAt": { "type": "string", "format": "date-time" },
+    "targetAgents": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "runMode": { "const": "manual" },
+    "enabled": { "type": "boolean" },
+    "summaryPrompt": { "type": "string" },
+    "safety": { "$ref": "./shared-definitions.schema.json#/$defs/safety" }
+  },
+  "additionalProperties": true
+}

@@ -48,10 +48,35 @@ npm run threads:status
 npm run threads:ingest
 npm run threads:summary
 npm run threads:archive
+npm run threads:schedules
+npm run threads:run-due
+npm run threads:approval-queue
+npm run threads:approve
+npm run threads:reject
 npm run threads:validate
 ```
 
 The commands are local-only. They read files, write ignored local reports, and move consumed outbox files into the local archive.
+
+## Scheduled Runs
+
+Phase 30 adds local schedule templates under:
+
+```text
+codex-agent-threads/shared/schedules/
+```
+
+Schedules are examples/templates only and use `runMode: "manual"`. `npm run threads:run-due` can be manually invoked to create local outbox items for due schedules, but no background job starts automatically.
+
+## Approval Queue
+
+Phase 30 also adds a local approval queue under:
+
+```text
+codex-agent-threads/shared/approval-queue/
+```
+
+Approval items can represent future email, SMS, CRM, Stripe, Supabase, executive review, or sales follow-up requests. Approving or rejecting an item only updates local approval state. It never performs the requested external action.
 
 ## Vyra Agent Behavior
 
@@ -67,4 +92,4 @@ They cannot send email, send SMS, write CRM records, create Stripe records, writ
 
 ## Generated Payloads
 
-Generated inbox, outbox, and archive payloads are ignored by Git. Only schemas, examples, `.gitkeep` files, and durable thread metadata should be committed.
+Generated inbox, outbox, archive, and approval queue payloads are ignored by Git. Only schemas, examples, `.gitkeep` files, schedule templates, and durable thread metadata should be committed.
