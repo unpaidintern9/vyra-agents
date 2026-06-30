@@ -56,6 +56,12 @@
     "github:issues": "node scripts/github-readonly.mjs issues",
     "github:prs": "node scripts/github-readonly.mjs prs",
     "github:safety-check": "node scripts/github-readonly.mjs safety-check",
-    "github:validate": "node scripts/github-readonly.mjs validate"
+    "github:validate": "node scripts/github-readonly.mjs validate",
+    "github:plans": "node scripts/github-planning.mjs plans",
+    "github:create-plan": "node scripts/github-planning.mjs create-plan",
+    "github:review-plan": "node scripts/github-planning.mjs review-plan",
+    "github:archive-plan": "node scripts/github-planning.mjs archive-plan",
+    "github:plan-report": "node scripts/github-planning.mjs plan-report",
+    "github:planning-validate": "node scripts/github-planning.mjs planning-validate"
   }
 }

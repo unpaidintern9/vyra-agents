@@ -86,6 +86,7 @@ import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/s
 import { buildAgentRuntime } from './runtime/agentRuntime';
 import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } from './runtime/aiOperatorRuntime';
 import { buildDashboardConnectorReadiness } from './runtime/connectorReadiness';
+import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
 import { buildDashboardSharedTaskSummary } from './runtime/sharedTaskQueue';
 import {
@@ -1214,6 +1215,7 @@ function App() {
   const status = snapshot ?? buildLoadingSnapshot();
   const pageWarnings = [...status.warnings, ...syncStatusWarnings(syncStatus)];
   const connectorReadiness = buildDashboardConnectorReadiness();
+  const githubPlanning = buildDashboardGitHubPlanningSummary();
   const githubReadOnly = buildDashboardGitHubReadOnlySummary();
   const sharedTaskSummary = buildDashboardSharedTaskSummary();
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
@@ -1234,6 +1236,7 @@ function App() {
     threadDueSchedules: operatorDashboard.threadDueSchedules,
     runtime,
     connectorReadiness,
+    githubPlanning,
     githubReadOnly,
     sharedTasks: sharedTaskSummary,
   });
@@ -1522,6 +1525,7 @@ function App() {
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
             connectorReadiness={connectorReadiness}
+            githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
             sharedTaskSummary={sharedTaskSummary}
           />
@@ -1717,6 +1721,7 @@ function OperatorPage({
         <Metric icon={<Network size={20} />} label="Connector Templates" value={String(operator.connectorReadiness.connectorCount)} />
         <Metric icon={<ShieldCheck size={20} />} label="Connector Writes" value="Blocked" />
         <Metric icon={<GitBranch size={20} />} label="GitHub Read-Only" value={operator.githubReadOnly.status.replace(/_/g, ' ')} />
+        <Metric icon={<GitBranch size={20} />} label="GitHub Plans" value={String(operator.githubPlanning.totalPlans)} />
         <Metric icon={<ListChecks size={20} />} label="Open Tasks" value={String(operator.sharedTasks.openTasks)} />
         <Metric icon={<ShieldCheck size={20} />} label="Task Queue Health" value={operator.sharedTasks.queueHealth} />
       </section>
@@ -1868,6 +1873,41 @@ function OperatorPage({
           />
           <div className="safety-badge-row">
             {['GET-only', 'No GitHub writes', 'No token output', 'No workflow dispatch', 'No branch changes'].map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="GitHub Planning Queue" icon={<ListChecks size={18} />} wide>
+          <p className="panel-description">
+            Vyra agents can prepare local GitHub issue and PR plans from tasks, blockers, and Executive priorities. Plans include branch, commit, and release-note suggestions, but no GitHub issue, PR, branch, commit, or write endpoint is called.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Planning Queue" value={operator.githubPlanning.queueHealth} />
+            <Fact label="Total Plans" value={String(operator.githubPlanning.totalPlans)} />
+            <Fact label="Needs Review" value={String(operator.githubPlanning.plansNeedingReview)} />
+            <Fact label="Issue Plans" value={String(operator.githubPlanning.issuePlans)} />
+            <Fact label="PR Plans" value={String(operator.githubPlanning.prPlans)} />
+            <Fact label="GitHub Writes" value={operator.githubPlanning.githubWritesEnabled ? 'Enabled' : 'Blocked'} />
+          </div>
+          <DataTable
+            columns={['Plan', 'Type', 'Approval', 'Linked Task', 'Executive Priority', 'Branch Suggestion']}
+            rows={operator.githubPlanning.plans.map((plan) => [
+              plan.title,
+              plan.planType.toUpperCase(),
+              plan.approvalStatus.replace(/_/g, ' '),
+              plan.linkedTask,
+              plan.linkedExecutivePriority,
+              plan.branchNameSuggestion,
+            ])}
+            emptyMessage="No local GitHub plans recorded in dashboard metadata."
+          />
+          <DataTable
+            columns={['Command', 'Purpose']}
+            rows={operator.githubPlanning.commands.map((command) => [command, operatorCommandPurpose(command)])}
+          />
+          <div className="safety-badge-row">
+            {operator.githubPlanning.safetyLabels.map((label) => (
               <StatusBadge key={label} value={label} tone="good" />
             ))}
           </div>
@@ -3227,6 +3267,12 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('github:prs')) return 'Read open pull requests without creating, updating, merging, or commenting.';
   if (command.endsWith('github:safety-check')) return 'Verify GitHub write endpoints, token output, workflow dispatch, and repo writes remain blocked.';
   if (command.endsWith('github:validate')) return 'Validate GitHub read-only command availability and missing-config safety.';
+  if (command.endsWith('github:plans')) return 'Print the local GitHub issue/PR planning queue.';
+  if (command.endsWith('github:create-plan')) return 'Create a local GitHub issue or PR plan from a task or supplied metadata.';
+  if (command.endsWith('github:review-plan')) return 'Record local review status for a GitHub plan without calling GitHub.';
+  if (command.endsWith('github:archive-plan')) return 'Archive a local GitHub plan without deleting or changing GitHub records.';
+  if (command.endsWith('github:plan-report')) return 'Generate GitHub Planning Queue and GitHub Plan Review reports.';
+  if (command.endsWith('github:planning-validate')) return 'Validate local GitHub planning schemas, examples, and safety gates.';
   return 'Shared local operator command.';
 }
 

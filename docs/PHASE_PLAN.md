@@ -923,3 +923,29 @@ Boundaries:
 - No token output.
 - No production writes.
 - No external non-GitHub calls.
+
+## Phase 37
+
+GitHub Planning Layer.
+
+Includes:
+
+- Local GitHub issue and PR planning models.
+- Branch name, commit message, and release note suggestions.
+- Links to shared tasks, Engineering blockers, and Executive priorities.
+- Local approval statuses: draft, needs review, approved local, rejected local, and archived.
+- Root npm scripts for `github:plans`, `github:create-plan`, `github:review-plan`, `github:archive-plan`, `github:plan-report`, and `github:planning-validate`.
+- Operator Dashboard GitHub planning queue.
+- Executive Dashboard GitHub plans needing review.
+- GitHub Planning Queue and GitHub Plan Review reports under ignored local reports.
+
+Boundaries:
+
+- No GitHub issue creation.
+- No pull request creation.
+- No commits pushed.
+- No branches created.
+- No workflow dispatch.
+- No GitHub write endpoints.
+- Planning remains local only.
+- No secrets committed.

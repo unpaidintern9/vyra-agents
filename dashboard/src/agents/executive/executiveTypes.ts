@@ -1,6 +1,7 @@
 import type { RiskLevel } from '../../components/RiskBadge';
 import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness';
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
+import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry, RuntimeApproval } from '../../runtime/runtimeTypes';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
@@ -97,6 +98,7 @@ export interface ExecutiveSummary {
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesScoringSummary?: SalesScoringSummary;
   connectorReadiness?: ConnectorReadinessSummary;
+  githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
 }
@@ -114,6 +116,7 @@ export interface ExecutiveDashboardProps {
   salesScoringSummary?: SalesScoringSummary;
   salesSummary?: SalesSummary;
   connectorReadiness?: ConnectorReadinessSummary;
+  githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
 }

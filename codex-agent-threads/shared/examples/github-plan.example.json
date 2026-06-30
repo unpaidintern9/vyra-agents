@@ -1,0 +1,36 @@
+{
+  "id": "github-plan-example",
+  "planType": "issue",
+  "title": "Investigate local dashboard warning state",
+  "summary": "Local GitHub issue plan example for review. No GitHub issue is created.",
+  "bodyMarkdown": "## Context\nLocal planning only.\n\n## Proposed Work\nReview the linked warning and decide whether it should become a GitHub issue later.",
+  "branchNameSuggestion": "fix/local-dashboard-warning-state",
+  "commitMessageSuggestion": "Investigate local dashboard warning state",
+  "releaseNoteSuggestion": "Improves local dashboard warning review planning.",
+  "linkedTask": {
+    "id": "example-task",
+    "title": "Example shared task",
+    "status": "Needs Review"
+  },
+  "linkedEngineeringBlocker": {
+    "id": "engineering-warning-example",
+    "title": "Example engineering warning"
+  },
+  "linkedExecutivePriority": {
+    "id": "executive-priority-example",
+    "title": "Review example GitHub plan"
+  },
+  "approvalStatus": "needs_review",
+  "reviewNotes": [],
+  "createdAt": "2026-06-30T00:00:00.000Z",
+  "updatedAt": "2026-06-30T00:00:00.000Z",
+  "archivedAt": null,
+  "localOnly": true,
+  "safety": {
+    "githubWritesEnabled": false,
+    "createsIssue": false,
+    "createsPullRequest": false,
+    "pushesCommits": false,
+    "createsBranches": false
+  }
+}

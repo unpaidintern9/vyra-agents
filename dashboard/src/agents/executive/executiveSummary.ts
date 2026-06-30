@@ -1,6 +1,7 @@
 import { buildExecutivePriorities } from '../../runtime/executiveRules';
 import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness';
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
+import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
@@ -35,6 +36,7 @@ export function buildExecutiveSummary(
   salesIntelligenceSummary?: SalesIntelligenceSummary,
   crossAgentSummary?: CrossAgentCollaborationSummary,
   connectorReadiness?: ConnectorReadinessSummary,
+  githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutiveSummary {
@@ -73,6 +75,7 @@ export function buildExecutiveSummary(
       salesIntelligenceSummary,
       crossAgentSummary,
       connectorReadiness,
+      githubPlanning,
       githubReadOnly,
       sharedTaskSummary,
     ),
@@ -93,6 +96,7 @@ export function buildExecutiveSummary(
     salesScoringSummary,
     salesSummary,
     connectorReadiness,
+    githubPlanning,
     githubReadOnly,
     sharedTaskSummary,
   };

@@ -1,6 +1,7 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { ConnectorReadinessSummary } from './connectorReadiness';
 import type { CrossAgentCollaborationSummary } from './crossAgentCollaboration';
+import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
@@ -27,6 +28,7 @@ export function buildExecutivePriorities(
   salesIntelligenceSummary?: SalesIntelligenceSummary,
   crossAgentSummary?: CrossAgentCollaborationSummary,
   connectorReadiness?: ConnectorReadinessSummary,
+  githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutivePriority[] {
@@ -242,6 +244,18 @@ export function buildExecutivePriorities(
       priority: 'medium',
       recommendedAction: 'Use npm run github:validate and configure VYRA_GITHUB_* locally before live read-only inspection.',
       source: 'GitHub read-only connector',
+    });
+  }
+
+  if (githubPlanning && githubPlanning.plansNeedingReview > 0) {
+    priorities.push({
+      id: 'github-plans-need-review',
+      agent: 'Engineering Agent',
+      department: 'Engineering',
+      detail: `${githubPlanning.plansNeedingReview} local GitHub issue/PR plan(s) need Executive review.`,
+      priority: 'medium',
+      recommendedAction: 'Review the GitHub planning queue before approving any future GitHub write workflow.',
+      source: 'GitHub planning layer',
     });
   }
 

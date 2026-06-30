@@ -42,3 +42,16 @@ If `VYRA_GITHUB_OWNER`, `VYRA_GITHUB_REPO`, or `VYRA_GITHUB_TOKEN` is missing, c
 ## Safety
 
 The connector uses only `GET` requests. It does not expose token values, does not write production data, and does not call non-GitHub services.
+
+## Planning Layer
+
+Phase 37 adds local GitHub planning commands for issue and PR plans. These commands create local planning records only and do not change GitHub. The read-only connector remains read-only.
+
+Planning commands:
+
+- `npm run github:plans`
+- `npm run github:create-plan`
+- `npm run github:review-plan`
+- `npm run github:archive-plan`
+- `npm run github:plan-report`
+- `npm run github:planning-validate`

@@ -216,6 +216,23 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           },
         ]
       : []),
+    ...(summary.githubPlanning
+      ? [
+          { label: 'GitHub Plans', value: String(summary.githubPlanning.totalPlans) },
+          {
+            label: 'GitHub Plans Need Review',
+            value: String(summary.githubPlanning.plansNeedingReview),
+            tone: summary.githubPlanning.plansNeedingReview ? 'warn' : 'good',
+          },
+          { label: 'GitHub Issue Plans', value: String(summary.githubPlanning.issuePlans) },
+          { label: 'GitHub PR Plans', value: String(summary.githubPlanning.prPlans) },
+          {
+            label: 'GitHub Planning Writes',
+            value: summary.githubPlanning.githubWritesEnabled ? 'Enabled' : 'Blocked',
+            tone: summary.githubPlanning.githubWritesEnabled ? 'warn' : 'good',
+          },
+        ]
+      : []),
   ];
 
   return (

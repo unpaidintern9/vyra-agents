@@ -111,6 +111,21 @@ Use ignored local environment variables only: `VYRA_GITHUB_OWNER`, `VYRA_GITHUB_
 
 The adapter performs GitHub REST `GET` requests only when config is present. Missing config returns a safe readiness state and performs no network call. No GitHub write endpoints are available.
 
+## GitHub Planning
+
+Phase 37 adds local GitHub planning commands:
+
+```bash
+npm run github:plans
+npm run github:create-plan
+npm run github:review-plan
+npm run github:archive-plan
+npm run github:plan-report
+npm run github:planning-validate
+```
+
+Plans can link shared tasks, Engineering blockers, and Executive priorities. Plans may include issue/PR text, branch name suggestions, commit message suggestions, and release note suggestions. They remain local records only; no GitHub issue, pull request, branch, commit, workflow, comment, or label is created.
+
 ## Thread Bridge
 
 Phase 29 adds the `threads:*` commands for local named Codex thread outbox ingestion. These commands validate local payloads in `codex-agent-threads/shared/outbox/`, create ignored local summaries, and archive consumed files.
