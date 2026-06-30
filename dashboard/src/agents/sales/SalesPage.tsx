@@ -1,4 +1,4 @@
-import { CalendarClock, Download, FileText, Flame, ShieldCheck, Target, Upload, Users } from 'lucide-react';
+import { Brain, CalendarClock, Download, FileText, Flame, Search, ShieldCheck, Target, Upload, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { RiskBadge } from '../../components/RiskBadge';
@@ -13,8 +13,11 @@ import type {
   SalesFilters,
   SalesLead,
   SalesPageProps,
+  SalesProspectCategory,
+  SalesProspectResearchRecord,
   SalesProposalDraft,
   SalesProposalTemplateType,
+  SalesTeamAgentDefinition,
 } from './salesTypes';
 
 export default function SalesPage({
@@ -31,10 +34,15 @@ export default function SalesPage({
   proposalDrafts,
   proposalSummary,
   proposals,
+  prospectResearch,
   scores,
+  teamAgents,
+  teamSummary,
   scoringSummary,
 }: SalesPageProps) {
   const [filters, setFilters] = useState<SalesFilters>({ priority: 'all', scorePriority: 'all', source: 'all', stage: 'all', type: 'all' });
+  const [prospectMarketFilter, setProspectMarketFilter] = useState('all');
+  const [prospectCategoryFilter, setProspectCategoryFilter] = useState('all');
   const [selectedScoreId, setSelectedScoreId] = useState<string | null>(scores[0]?.leadId ?? null);
   const [selectedProposalLeadId, setSelectedProposalLeadId] = useState<string>(leads[0]?.id ?? '');
   const [selectedProposalType, setSelectedProposalType] = useState<SalesProposalTemplateType>(
@@ -58,6 +66,14 @@ export default function SalesPage({
     .map((proposal) => ({ lead: leads.find((item) => item.id === proposal.leadId), proposal }))
     .filter((row) => row.lead);
   const activeLeads = leads.filter((lead) => lead.status === 'active');
+  const prospectMarkets = Array.from(new Set(prospectResearch.map((prospect) => `${prospect.city}, ${prospect.state}`))).sort();
+  const filteredProspects = prospectResearch.filter((prospect) => {
+    const market = `${prospect.city}, ${prospect.state}`;
+    return (
+      (prospectMarketFilter === 'all' || market === prospectMarketFilter) &&
+      (prospectCategoryFilter === 'all' || prospect.category === prospectCategoryFilter)
+    );
+  });
   const selectedProposalLead = leads.find((lead) => lead.id === selectedProposalLeadId) ?? leads[0] ?? null;
   const selectedProposalPrep = selectedProposalLead ? proposalForLead(proposals, selectedProposalLead.id) : undefined;
   const savedProposalDraft = proposalDrafts.find((draft) => draft.leadId === selectedProposalLead?.id && draft.templateType === selectedProposalType);
@@ -83,6 +99,9 @@ export default function SalesPage({
         <SalesMetric icon={<FileText size={20} />} label="Weighted Pipeline" value={formatCurrency(scoringSummary.estimatedWeightedPipelineValue)} />
         <SalesMetric icon={<FileText size={20} />} label="Proposal Drafts" value={String(proposalSummary.draftsCreated)} />
         <SalesMetric icon={<ShieldCheck size={20} />} label="Ready For Review" value={String(proposalSummary.readyForReview)} tone={proposalSummary.readyForReview ? 'good' : undefined} />
+        <SalesMetric icon={<Brain size={20} />} label="Sales Sub-Agents" value={`${teamSummary.activeAgents}/${teamSummary.totalAgents}`} tone="good" />
+        <SalesMetric icon={<Search size={20} />} label="High-Fit Prospects" value={String(teamSummary.highFitProspects)} tone={teamSummary.highFitProspects ? 'good' : undefined} />
+        <SalesMetric icon={<Target size={20} />} label="Needs Research" value={String(teamSummary.needsResearch)} tone={teamSummary.needsResearch ? 'warn' : 'good'} />
       </section>
 
       <section className="dashboard-grid">
@@ -113,6 +132,70 @@ export default function SalesPage({
             </button>
           </div>
           <p className="subtle-note">Future write actions require an explicit approval gate and are disabled in mock and live read-only modes.</p>
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Brain size={18} />
+              <h2>Sales Agent Team</h2>
+            </div>
+            <StatusBadge value="Local / mock only" tone="good" />
+          </div>
+          <p className="panel-description">
+            Head Sales coordinates the sub-agents below. They currently produce local plans, prospect lists, research briefs, and safety checks only.
+          </p>
+          <div className="safety-badge-row">
+            <StatusBadge value={`${teamSummary.localOnlyAgents} local-only agents`} tone="good" />
+            <StatusBadge value={`${teamSummary.blockedExternalActions} external actions blocked`} tone="warn" />
+            <StatusBadge value="No email" tone="good" />
+            <StatusBadge value="No CRM writes" tone="good" />
+            <StatusBadge value="No scraping jobs" tone="neutral" />
+          </div>
+          <SalesAgentTeamGrid agents={teamAgents} />
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Search size={18} />
+              <h2>Prospect Research Command Center</h2>
+            </div>
+            <span>{prospectResearch.length} local prospect slot(s)</span>
+          </div>
+          <p className="panel-description">
+            Local prospect slots for MMA gyms, CrossFit boxes, and small gyms in Louisville, Cincinnati, Los Angeles, and New York. Public research is planned, not automated.
+          </p>
+          <div className="filter-grid compact-filter-grid sales-filter-grid">
+            <SalesSelect label="Market" value={prospectMarketFilter} onChange={setProspectMarketFilter}>
+              <option value="all">All markets</option>
+              {prospectMarkets.map((market) => (
+                <option key={market} value={market}>
+                  {market}
+                </option>
+              ))}
+            </SalesSelect>
+            <SalesSelect label="Category" value={prospectCategoryFilter} onChange={setProspectCategoryFilter}>
+              <option value="all">All categories</option>
+              <option value="mma_bjj">MMA / BJJ</option>
+              <option value="crossfit">CrossFit</option>
+              <option value="small_gym">Small gym</option>
+              <option value="boutique_fitness">Boutique fitness</option>
+              <option value="sports_performance">Sports performance</option>
+            </SalesSelect>
+          </div>
+          <ProspectResearchTable prospects={filteredProspects} />
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Target size={18} />
+              <h2>Sales Intelligence Brief</h2>
+            </div>
+            <span>{teamSummary.targetMarkets} target market(s)</span>
+          </div>
+          <SalesIntelligenceBrief prospects={prospectResearch} summary={teamSummary} />
         </section>
 
         <section className="panel wide-panel">
@@ -503,6 +586,132 @@ function SalesMetric({ icon, label, tone, value }: { icon: ReactNode; label: str
       <strong>{value}</strong>
     </article>
   );
+}
+
+function SalesAgentTeamGrid({ agents }: { agents: SalesTeamAgentDefinition[] }) {
+  return (
+    <div className="sales-agent-grid">
+      {agents.map((agent) => (
+        <article className="sales-agent-card" key={agent.id}>
+          <div>
+            <strong>{agent.name}</strong>
+            <StatusBadge value={agent.status.replace(/_/g, ' ')} tone={agent.status === 'active_local' ? 'good' : 'neutral'} />
+          </div>
+          <p>{agent.description}</p>
+          <small>{agent.output}</small>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function ProspectResearchTable({ prospects }: { prospects: SalesProspectResearchRecord[] }) {
+  if (!prospects.length) {
+    return <p className="empty-note">No prospects match the current filters.</p>;
+  }
+
+  return (
+    <div className="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fit</th>
+            <th>Prospect</th>
+            <th>Category</th>
+            <th>Market</th>
+            <th>Locations</th>
+            <th>Why Fit</th>
+            <th>Next Research</th>
+            <th>Source Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {prospects.map((prospect) => (
+            <tr key={prospect.id}>
+              <td>
+                <button className="score-button" disabled type="button">
+                  {prospect.fitScore}
+                </button>
+              </td>
+              <td>
+                <strong>{prospect.prospectName}</strong>
+                <span className="table-subtext">{prospect.estimatedSizeLabel}</span>
+              </td>
+              <td>{formatProspectCategory(prospect.category)}</td>
+              <td>{`${prospect.city}, ${prospect.state}`}</td>
+              <td>{prospect.estimatedLocationCount ?? 'Verify'}</td>
+              <td>{prospect.fitReasons.join('; ')}</td>
+              <td>{prospect.recommendedNextResearch}</td>
+              <td>
+                <StatusBadge value={prospect.sourceStatus.replace(/_/g, ' ')} tone={prospect.sourceStatus === 'needs_public_research' ? 'warn' : 'good'} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function SalesIntelligenceBrief({
+  prospects,
+  summary,
+}: {
+  prospects: SalesProspectResearchRecord[];
+  summary: SalesPageProps['teamSummary'];
+}) {
+  const strongestProspect = [...prospects].sort((a, b) => b.fitScore - a.fitScore)[0];
+  const strongestMarket = bestMarket(prospects);
+  return (
+    <div className="score-detail-grid">
+      <div className="fact-list compact-facts">
+        <Fact label="Best Market" value={strongestMarket} />
+        <Fact label="Top Prospect Slot" value={strongestProspect?.prospectName ?? 'None'} />
+        <Fact label="Average Fit" value={`${summary.averageFitScore}/100`} />
+        <Fact label="Ready Prospects" value={String(summary.readyProspects)} />
+        <Fact label="Needs Research" value={String(summary.needsResearch)} />
+      </div>
+      <div className="score-factor-list">
+        <article className="score-factor">
+          <div>
+            <strong>Recommended Next Move</strong>
+            <span>Verify public websites and social profiles for the highest-fit Louisville and Cincinnati slots before expanding broad LA/NY research.</span>
+          </div>
+          <b>Local</b>
+        </article>
+        <article className="score-factor">
+          <div>
+            <strong>Safety Boundary</strong>
+            <span>No automated scraping, emails, invoices, CRM writes, or production business writes are enabled from this page.</span>
+          </div>
+          <b>Blocked</b>
+        </article>
+      </div>
+    </div>
+  );
+}
+
+function formatProspectCategory(category: SalesProspectCategory): string {
+  const labels: Record<SalesProspectCategory, string> = {
+    boutique_fitness: 'Boutique fitness',
+    crossfit: 'CrossFit',
+    mma_bjj: 'MMA / BJJ',
+    small_gym: 'Small gym',
+    sports_performance: 'Sports performance',
+  };
+  return labels[category];
+}
+
+function bestMarket(prospects: SalesProspectResearchRecord[]): string {
+  const marketScores = prospects.reduce<Record<string, { count: number; score: number }>>((result, prospect) => {
+    const market = `${prospect.city}, ${prospect.state}`;
+    const current = result[market] ?? { count: 0, score: 0 };
+    result[market] = { count: current.count + 1, score: current.score + prospect.fitScore };
+    return result;
+  }, {});
+  const [market] =
+    Object.entries(marketScores).sort(([, first], [, second]) => second.score / second.count - first.score / first.count)[0] ?? [];
+  return market ?? 'No prospects';
 }
 
 function SalesLeadTable({

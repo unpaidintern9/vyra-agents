@@ -74,6 +74,27 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           { label: 'Blocked Sales Actions', value: String(summary.salesIntegration.blockedExternalActionCount), tone: 'warn' },
         ]
       : []),
+    ...(summary.salesAgentTeamSummary
+      ? [
+          {
+            label: 'Sales Agent Team',
+            value: `${summary.salesAgentTeamSummary.activeAgents}/${summary.salesAgentTeamSummary.totalAgents}`,
+            tone: 'good',
+          },
+          { label: 'Prospect Research Slots', value: String(summary.salesAgentTeamSummary.totalProspects) },
+          {
+            label: 'High-Fit Prospects',
+            value: String(summary.salesAgentTeamSummary.highFitProspects),
+            tone: summary.salesAgentTeamSummary.highFitProspects ? 'good' : 'neutral',
+          },
+          {
+            label: 'Prospects Need Research',
+            value: String(summary.salesAgentTeamSummary.needsResearch),
+            tone: summary.salesAgentTeamSummary.needsResearch ? 'warn' : 'good',
+          },
+          { label: 'Average Prospect Fit', value: `${summary.salesAgentTeamSummary.averageFitScore}/100` },
+        ]
+      : []),
   ];
 
   return (

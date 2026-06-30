@@ -606,3 +606,27 @@ Boundaries:
 - No CRM production records are written.
 - No production business tables are written.
 - All proposal drafts remain local/mock/read-only.
+
+## Phase 24
+
+Sales Agent Team and prospect research foundation.
+
+Includes:
+
+- Head Sales Agent plus specialized local sub-agents for prospect discovery, public research planning, data organization, ICP fit scoring, outreach prep, meeting prep, proposal building, migration planning, CRM design, follow-up, sales intelligence, and safety approval.
+- Local Prospect Research Command Center on the Sales page.
+- Seed local prospect slots for Louisville, Cincinnati, Los Angeles, and New York.
+- First-target categories for MMA/BJJ gyms, CrossFit boxes, small gyms, boutique fitness, and sports performance gyms.
+- Deterministic ICP fit scoring for prospect slots.
+- Executive Dashboard signals for Sales Agent Team readiness, high-fit prospects, research backlog, and average prospect fit.
+- Documentation for prospect research boundaries and future public-source automation.
+
+Boundaries:
+
+- No AI is implemented.
+- No emails are sent.
+- No Stripe invoices are created.
+- No CRM production records are written.
+- No production business tables are written.
+- No automated scraping jobs run.
+- All prospect research records remain local/mock/read-only.

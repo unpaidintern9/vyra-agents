@@ -1421,6 +1421,48 @@ td:nth-child(6) {
   margin: 0 0 16px;
 }
 
+.sales-agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.sales-agent-card {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 150px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  padding: 14px;
+}
+
+.sales-agent-card > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sales-agent-card strong {
+  color: #f3f8ff;
+  font-size: 0.94rem;
+}
+
+.sales-agent-card p,
+.sales-agent-card small {
+  color: #94a4b8;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.sales-agent-card small {
+  color: #9ef0c8;
+  font-weight: 800;
+}
+
 .proposal-builder-grid {
   display: grid;
   grid-template-columns: minmax(280px, 0.82fr) minmax(320px, 1.18fr);

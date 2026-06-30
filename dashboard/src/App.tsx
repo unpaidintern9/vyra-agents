@@ -28,6 +28,7 @@ import { summarizeMigration } from './agents/migration/migrationSummary';
 import { validateMigrationMembers } from './agents/migration/migrationValidation';
 import { matchMigrationMembers } from './agents/migration/memberMatching';
 import SalesPage from './agents/sales/SalesPage';
+import { salesTeamAgents, summarizeSalesAgentTeam } from './agents/sales/salesAgentTeam';
 import { buildSalesFollowUpQueue } from './agents/sales/salesFollowUpEngine';
 import { parseSalesLeadJson, emptySalesImportResult } from './agents/sales/salesImport';
 import { buildSalesIntegrationSummary } from './agents/sales/salesIntegrationAdapter';
@@ -42,8 +43,16 @@ import {
   downloadSalesPipelineCsv,
 } from './agents/sales/salesReports';
 import { mergeSalesScoringSummary, scoreSalesLeads, summarizeSalesScoring } from './agents/sales/salesScoring';
-import { createInitialSalesActivities, createInitialSalesLeads, createInitialSalesProposals } from './agents/sales/salesStorage';
-import type { ProposalPrep, SalesAction, SalesActivity, SalesLead, SalesProposalDraft, SalesProposalTemplateType } from './agents/sales/salesTypes';
+import { createInitialSalesActivities, createInitialSalesLeads, createInitialSalesProposals, createInitialSalesProspects } from './agents/sales/salesStorage';
+import type {
+  ProposalPrep,
+  SalesAction,
+  SalesActivity,
+  SalesLead,
+  SalesProposalDraft,
+  SalesProposalTemplateType,
+  SalesProspectResearchRecord,
+} from './agents/sales/salesTypes';
 import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
 import { EmptyState } from './components/EmptyState';
 import { PageHeader } from './components/PageHeader';
@@ -139,6 +148,9 @@ function App() {
   const [salesProposalDrafts, setSalesProposalDrafts] = useState(() =>
     loadLocalState<SalesProposalDraft[]>(localStorageKeys.salesProposalDrafts, () => []),
   );
+  const [salesProspectResearch] = useState(() =>
+    loadLocalState<SalesProspectResearchRecord[]>(localStorageKeys.salesProspectResearch, createInitialSalesProspects),
+  );
   const [salesImportResult, setSalesImportResult] = useState(emptySalesImportResult);
   const [workflowRuns, setWorkflowRuns] = useState(() =>
     loadLocalState<WorkflowDryCheckRecord[]>(localStorageKeys.workflowResults, () => []),
@@ -179,6 +191,7 @@ function App() {
   }, [salesFollowUpQueue, salesScores]);
   const salesIntegration = useMemo(() => buildSalesIntegrationSummary(requestedMode), []);
   const salesProposalSummary = useMemo(() => summarizeSalesProposalDrafts(salesProposalDrafts), [salesProposalDrafts]);
+  const salesAgentTeamSummary = useMemo(() => summarizeSalesAgentTeam(salesTeamAgents, salesProspectResearch), [salesProspectResearch]);
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
   const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
   const syncStatus = useMemo(
@@ -225,6 +238,7 @@ function App() {
   useEffect(() => saveLocalState(localStorageKeys.salesActivities, salesActivities), [salesActivities]);
   useEffect(() => saveLocalState(localStorageKeys.salesProposals, salesProposals), [salesProposals]);
   useEffect(() => saveLocalState(localStorageKeys.salesProposalDrafts, salesProposalDrafts), [salesProposalDrafts]);
+  useEffect(() => saveLocalState(localStorageKeys.salesProspectResearch, salesProspectResearch), [salesProspectResearch]);
   useEffect(() => saveLocalState(localStorageKeys.workflowResults, workflowRuns), [workflowRuns]);
   useEffect(() => saveLocalState(localStorageKeys.migrationDryRuns, migrationDryRuns), [migrationDryRuns]);
   useEffect(() => saveLocalState(localStorageKeys.approvalHistory, approvalHistory), [approvalHistory]);
@@ -1070,7 +1084,10 @@ function App() {
             proposalDrafts={salesProposalDrafts}
             proposalSummary={salesProposalSummary}
             proposals={salesProposals}
+            prospectResearch={salesProspectResearch}
             scores={salesScores}
+            teamAgents={salesTeamAgents}
+            teamSummary={salesAgentTeamSummary}
             scoringSummary={salesScoringSummary}
           />
         ) : activePage === 'Integrations' ? (
@@ -1127,6 +1144,7 @@ function App() {
             onNavigate={setActivePage}
             runtime={runtime}
             salesIntegration={salesIntegration}
+            salesAgentTeamSummary={salesAgentTeamSummary}
             salesProposalSummary={salesProposalSummary}
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}

@@ -1,7 +1,7 @@
 import { buildExecutivePriorities } from '../../runtime/executiveRules';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { LocalReport } from '../../storage/reportExport';
-import type { SalesIntegrationSummary, SalesProposalSummary, SalesScoringSummary, SalesSummary } from '../sales/salesTypes';
+import type { SalesAgentTeamSummary, SalesIntegrationSummary, SalesProposalSummary, SalesScoringSummary, SalesSummary } from '../sales/salesTypes';
 import type {
   ExecutiveHealthRow,
   ExecutiveReportContext,
@@ -18,6 +18,7 @@ export function buildExecutiveSummary(
   salesIntegration?: SalesIntegrationSummary,
   salesScoringSummary?: SalesScoringSummary,
   salesProposalSummary?: SalesProposalSummary,
+  salesAgentTeamSummary?: SalesAgentTeamSummary,
 ): ExecutiveSummary {
   const healthRows = buildExecutiveHealthRows(runtime);
   const healthyAgents = healthRows.filter((agent) => agent.risk === 'low').length;
@@ -43,7 +44,7 @@ export function buildExecutiveSummary(
     migrationBatches: migrationHealth?.pendingTasks ?? 0,
     overallHealth,
     pendingApprovals,
-    priorities: buildExecutivePriorities(runtime, salesSummary, salesIntegration, salesScoringSummary, salesProposalSummary),
+    priorities: buildExecutivePriorities(runtime, salesSummary, salesIntegration, salesScoringSummary, salesProposalSummary, salesAgentTeamSummary),
     recentRuntimeEvents: runtime.activities.length,
     registeredAgents: runtime.agents.length,
     runtime: buildRuntimeSummary(runtime),
@@ -53,6 +54,7 @@ export function buildExecutiveSummary(
     warningAgents,
     workflowsToday: countWorkflowActivity(runtime.activities),
     salesIntegration,
+    salesAgentTeamSummary,
     salesProposalSummary,
     salesScoringSummary,
     salesSummary,
@@ -109,6 +111,12 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     salesProposalsReadyForReview: summary.salesProposalSummary?.readyForReview ?? 0,
     salesProposalRiskCount: summary.salesProposalSummary?.riskCount ?? 0,
     salesBlockedExternalActions: summary.salesIntegration?.blockedExternalActionCount ?? 0,
+    salesAgentTeamActiveAgents: summary.salesAgentTeamSummary?.activeAgents ?? 0,
+    salesAgentTeamTotalAgents: summary.salesAgentTeamSummary?.totalAgents ?? 0,
+    salesProspectResearchSlots: summary.salesAgentTeamSummary?.totalProspects ?? 0,
+    salesHighFitProspects: summary.salesAgentTeamSummary?.highFitProspects ?? 0,
+    salesProspectsNeedResearch: summary.salesAgentTeamSummary?.needsResearch ?? 0,
+    salesAverageProspectFit: summary.salesAgentTeamSummary?.averageFitScore ?? 0,
     syncQueue: summary.syncQueue,
     runtimeVersion: summary.runtimeVersion,
     productionWritesOccurred: 'No',

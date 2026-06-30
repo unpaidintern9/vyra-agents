@@ -29,6 +29,24 @@ export type SalesProspectSegment =
 export type FollowUpQueueType = 'today' | 'overdue' | 'proposal_needed' | 'stalled' | 'missing_info';
 export type SalesProposalTemplateType = 'independent_coach' | 'gym_os' | 'app_for_gyms' | 'white_label' | 'migration_data_import';
 export type SalesProposalDraftStatus = 'draft_only' | 'ready_for_review' | 'needs_pricing' | 'risk_review';
+export type SalesTeamAgentId =
+  | 'head_sales'
+  | 'prospect_discovery'
+  | 'public_research'
+  | 'data_organization'
+  | 'icp_fit_scoring'
+  | 'outreach_prep'
+  | 'meeting_prep'
+  | 'proposal_builder'
+  | 'migration_planning'
+  | 'crm_design'
+  | 'follow_up'
+  | 'sales_intelligence'
+  | 'safety_approval';
+export type SalesTeamAgentStatus = 'active_local' | 'planned' | 'blocked_external';
+export type SalesProspectCategory = 'mma_bjj' | 'crossfit' | 'small_gym' | 'boutique_fitness' | 'sports_performance';
+export type SalesProspectFitTier = 'prime_target' | 'good_fit' | 'research_needed' | 'low_fit';
+export type SalesProspectSourceStatus = 'mock_seed' | 'needs_public_research' | 'public_research_ready';
 
 export interface SalesLead {
   businessName: string;
@@ -182,6 +200,53 @@ export interface SalesProposalSummary {
   riskCount: number;
 }
 
+export interface SalesTeamAgentDefinition {
+  blockedActions: string[];
+  description: string;
+  handoffTo: SalesTeamAgentId[];
+  id: SalesTeamAgentId;
+  localOnly: true;
+  name: string;
+  output: string;
+  responsibilities: string[];
+  status: SalesTeamAgentStatus;
+}
+
+export interface SalesProspectResearchRecord {
+  category: SalesProspectCategory;
+  city: string;
+  confidence: 'high' | 'medium' | 'low';
+  estimatedLocationCount: number | null;
+  estimatedSizeLabel: string;
+  firstOutreachAngle: string;
+  fitReasons: string[];
+  fitScore: number;
+  fitTier: SalesProspectFitTier;
+  id: string;
+  lastReviewedAt: string;
+  localOnly: true;
+  notes: string;
+  prospectName: string;
+  publicSocialUrl?: string;
+  recommendedNextResearch: string;
+  sourceStatus: SalesProspectSourceStatus;
+  state: string;
+  websiteUrl?: string;
+}
+
+export interface SalesAgentTeamSummary {
+  activeAgents: number;
+  averageFitScore: number;
+  blockedExternalActions: number;
+  highFitProspects: number;
+  localOnlyAgents: number;
+  needsResearch: number;
+  readyProspects: number;
+  targetMarkets: number;
+  totalAgents: number;
+  totalProspects: number;
+}
+
 export interface SalesSummary {
   coachLeads: number;
   estimatedPipelineValue: number;
@@ -236,6 +301,9 @@ export interface SalesPageProps {
   proposalDrafts: SalesProposalDraft[];
   proposalSummary: SalesProposalSummary;
   proposals: ProposalPrep[];
+  prospectResearch: SalesProspectResearchRecord[];
   scores: LeadScore[];
+  teamAgents: SalesTeamAgentDefinition[];
+  teamSummary: SalesAgentTeamSummary;
   scoringSummary: SalesScoringSummary;
 }

@@ -11,6 +11,7 @@ export const localStorageKeys = {
   migrationBatchPreview: 'vyra-agents:migration-batch-preview',
   salesActivities: 'vyra-agents:sales-activities',
   salesLeads: 'vyra-agents:sales-leads',
+  salesProspectResearch: 'vyra-agents:sales-prospect-research',
   salesProposalDrafts: 'vyra-agents:sales-proposal-drafts',
   salesProposals: 'vyra-agents:sales-proposals',
   syncQueue: 'vyra-agents:sync-queue',

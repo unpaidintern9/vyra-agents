@@ -1,6 +1,6 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
-import type { SalesIntegrationSummary, SalesProposalSummary, SalesScoringSummary, SalesSummary } from '../agents/sales/salesTypes';
+import type { SalesAgentTeamSummary, SalesIntegrationSummary, SalesProposalSummary, SalesScoringSummary, SalesSummary } from '../agents/sales/salesTypes';
 
 export const executiveRuleCount = 9;
 
@@ -10,6 +10,7 @@ export function buildExecutivePriorities(
   salesIntegration?: SalesIntegrationSummary,
   salesScoringSummary?: SalesScoringSummary,
   salesProposalSummary?: SalesProposalSummary,
+  salesAgentTeamSummary?: SalesAgentTeamSummary,
 ): ExecutivePriority[] {
   const priorities: ExecutivePriority[] = [];
   const pendingApprovals = runtime.approvals.filter((approval) => approval.status === 'pending');
@@ -122,6 +123,18 @@ export function buildExecutivePriorities(
       priority: 'medium',
       recommendedAction: 'Open Sales and review the integration readiness panel.',
       source: 'Sales integration adapter',
+    });
+  }
+
+  if (salesAgentTeamSummary && salesAgentTeamSummary.highFitProspects > 0 && salesAgentTeamSummary.needsResearch > 0) {
+    priorities.push({
+      id: 'sales-prospect-research',
+      agent: 'Head Sales Agent',
+      department: 'Sales',
+      detail: `${salesAgentTeamSummary.highFitProspects} high-fit prospect slot(s) are ready for public-source research planning.`,
+      priority: 'medium',
+      recommendedAction: 'Open Sales and review the Prospect Research Command Center before adding verified sources.',
+      source: 'Sales agent team',
     });
   }
 

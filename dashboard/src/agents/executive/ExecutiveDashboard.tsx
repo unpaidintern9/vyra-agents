@@ -12,12 +12,21 @@ export default function ExecutiveDashboard({
   integrationWarnings = [],
   onNavigate,
   runtime,
+  salesAgentTeamSummary,
   salesIntegration,
   salesProposalSummary,
   salesScoringSummary,
   salesSummary,
 }: ExecutiveDashboardProps) {
-  const summary = buildExecutiveSummary(runtime, integrationWarnings, salesSummary, salesIntegration, salesScoringSummary, salesProposalSummary);
+  const summary = buildExecutiveSummary(
+    runtime,
+    integrationWarnings,
+    salesSummary,
+    salesIntegration,
+    salesScoringSummary,
+    salesProposalSummary,
+    salesAgentTeamSummary,
+  );
   const healthRows = buildExecutiveHealthRows(runtime);
 
   return (

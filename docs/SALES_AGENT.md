@@ -27,6 +27,9 @@ The Sales Agent MVP includes:
 - Follow-up queue Markdown export.
 - Weighted pipeline JSON export.
 - Proposal draft Markdown and JSON exports.
+- Sales Agent Team roster with Head Sales and specialized local sub-agents.
+- Local Prospect Research Command Center for MMA/BJJ, CrossFit, small gym, boutique fitness, and sports performance targets.
+- Seed target-market slots for Louisville, Cincinnati, Los Angeles, and New York.
 - Disabled future external action placeholders for email, Stripe, and CRM writes.
 
 ## Local Storage
@@ -36,6 +39,7 @@ Sales records persist in browser localStorage:
 - `vyra-agents:sales-leads`
 - `vyra-agents:sales-activities`
 - `vyra-agents:sales-proposals`
+- `vyra-agents:sales-prospect-research`
 
 These are local browser records, not CRM records.
 
@@ -89,6 +93,14 @@ See `docs/SALES_FOLLOW_UP_ENGINE.md`.
 The Proposal Builder generates local draft proposals for gym, coach, white-label, app-for-gyms, and migration/import prospects. Drafts are deterministic, exportable, and clearly labeled draft only, not sent, not invoiced, and local only.
 
 See `docs/SALES_PROPOSAL_BUILDER.md`.
+
+## Sales Agent Team
+
+The Sales page now models a Head Sales Agent plus specialized sub-agents for prospect discovery, public research planning, data organization, ICP fit scoring, outreach prep, meeting prep, proposal building, migration planning, CRM design, follow-up, sales intelligence, and safety approval.
+
+These are Vyra dashboard modules, not Codex background threads. They do not send messages, scrape websites, create invoices, or write CRM records.
+
+See `docs/SALES_PROSPECT_RESEARCH.md`.
 
 ## Integration Readiness
 
