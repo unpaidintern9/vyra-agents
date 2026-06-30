@@ -48,6 +48,14 @@
     "connectors:readiness": "node scripts/connectors.mjs readiness",
     "connectors:approval-map": "node scripts/connectors.mjs approval-map",
     "connectors:safety-check": "node scripts/connectors.mjs safety-check",
-    "connectors:validate": "node scripts/connectors.mjs validate"
+    "connectors:validate": "node scripts/connectors.mjs validate",
+    "github:status": "node scripts/github-readonly.mjs status",
+    "github:repo": "node scripts/github-readonly.mjs repo",
+    "github:branches": "node scripts/github-readonly.mjs branches",
+    "github:commits": "node scripts/github-readonly.mjs commits",
+    "github:issues": "node scripts/github-readonly.mjs issues",
+    "github:prs": "node scripts/github-readonly.mjs prs",
+    "github:safety-check": "node scripts/github-readonly.mjs safety-check",
+    "github:validate": "node scripts/github-readonly.mjs validate"
   }
 }

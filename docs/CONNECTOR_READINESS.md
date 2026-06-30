@@ -50,3 +50,15 @@ The Operator Dashboard shows connector readiness, required config names, allowed
 The Executive Dashboard shows connector risk summary metrics.
 
 The Sales Dashboard shows disabled connector action placeholders for future sales workflows.
+
+## Phase 36 GitHub Read-Only MVP
+
+GitHub now has the first real read-only connector adapter. It uses safe local config names only:
+
+- `VYRA_GITHUB_OWNER`
+- `VYRA_GITHUB_REPO`
+- `VYRA_GITHUB_TOKEN`
+
+The adapter reads repository metadata, branches, commits, open issues, and open pull requests with GitHub REST `GET` requests only when all config is present. Missing config returns `missing_config` and performs no network call.
+
+GitHub write actions remain disabled. Issue creation, PR creation, commits, branch changes, workflow dispatch, comments, labels, and repository writes are not implemented in the read-only connector.

@@ -86,6 +86,7 @@ import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/s
 import { buildAgentRuntime } from './runtime/agentRuntime';
 import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } from './runtime/aiOperatorRuntime';
 import { buildDashboardConnectorReadiness } from './runtime/connectorReadiness';
+import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
 import { buildDashboardSharedTaskSummary } from './runtime/sharedTaskQueue';
 import {
   buildCrossAgentCollaborationGraph,
@@ -1213,6 +1214,7 @@ function App() {
   const status = snapshot ?? buildLoadingSnapshot();
   const pageWarnings = [...status.warnings, ...syncStatusWarnings(syncStatus)];
   const connectorReadiness = buildDashboardConnectorReadiness();
+  const githubReadOnly = buildDashboardGitHubReadOnlySummary();
   const sharedTaskSummary = buildDashboardSharedTaskSummary();
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
     communicationDraftCounts: operatorDashboard.communicationDraftCounts,
@@ -1232,6 +1234,7 @@ function App() {
     threadDueSchedules: operatorDashboard.threadDueSchedules,
     runtime,
     connectorReadiness,
+    githubReadOnly,
     sharedTasks: sharedTaskSummary,
   });
   const recordOperatorRun = () => setOperatorDashboard((current) => ({ ...current, lastRun: new Date().toISOString() }));
@@ -1519,6 +1522,7 @@ function App() {
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
             connectorReadiness={connectorReadiness}
+            githubReadOnly={githubReadOnly}
             sharedTaskSummary={sharedTaskSummary}
           />
         )}
@@ -1712,6 +1716,7 @@ function OperatorPage({
         <Metric icon={<Network size={20} />} label="Provider Readiness" value={operator.communicationProviders.sendingDisabled ? 'Send Disabled' : 'Review'} />
         <Metric icon={<Network size={20} />} label="Connector Templates" value={String(operator.connectorReadiness.connectorCount)} />
         <Metric icon={<ShieldCheck size={20} />} label="Connector Writes" value="Blocked" />
+        <Metric icon={<GitBranch size={20} />} label="GitHub Read-Only" value={operator.githubReadOnly.status.replace(/_/g, ' ')} />
         <Metric icon={<ListChecks size={20} />} label="Open Tasks" value={String(operator.sharedTasks.openTasks)} />
         <Metric icon={<ShieldCheck size={20} />} label="Task Queue Health" value={operator.sharedTasks.queueHealth} />
       </section>
@@ -1830,6 +1835,39 @@ function OperatorPage({
           />
           <div className="safety-badge-row">
             {['No connector calls', 'No write actions', 'Approval required', 'No production data writes', 'No secrets displayed'].map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="GitHub Read-Only Connector" icon={<GitBranch size={18} />} wide>
+          <p className="panel-description">
+            The first live connector is GitHub read-only. CLI commands may inspect a configured repository with GET-only requests, while issue creation, PR creation, commits, branch changes, workflow dispatch, and repository writes remain unavailable.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Mode" value={operator.githubReadOnly.mode.replace(/_/g, ' ')} />
+            <Fact label="Status" value={operator.githubReadOnly.status.replace(/_/g, ' ')} />
+            <Fact label="Repo Health" value={operator.githubReadOnly.repoHealth} />
+            <Fact label="External Calls" value={operator.githubReadOnly.externalCalls} />
+            <Fact label="Writes Enabled" value={operator.githubReadOnly.writeActionsEnabled ? 'Yes' : 'No'} />
+            <Fact label="Token Displayed" value={operator.githubReadOnly.tokenDisplayed ? 'Yes' : 'No'} />
+          </div>
+          <DataTable
+            columns={['Safe Config Names', 'Allowed Reads', 'Blocked Writes']}
+            rows={[
+              [
+                operator.githubReadOnly.configNames.join(', '),
+                operator.githubReadOnly.allowedReadActions.join(', '),
+                operator.githubReadOnly.blockedWriteActions.join(', '),
+              ],
+            ]}
+          />
+          <DataTable
+            columns={['Command', 'Purpose']}
+            rows={operator.githubReadOnly.commands.map((command) => [command, operatorCommandPurpose(command)])}
+          />
+          <div className="safety-badge-row">
+            {['GET-only', 'No GitHub writes', 'No token output', 'No workflow dispatch', 'No branch changes'].map((label) => (
               <StatusBadge key={label} value={label} tone="good" />
             ))}
           </div>
@@ -3181,6 +3219,14 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('connectors:approval-map')) return 'Generate the local map from task types to future connector approval requests.';
   if (command.endsWith('connectors:safety-check')) return 'Verify connector calls and write actions remain blocked.';
   if (command.endsWith('connectors:validate')) return 'Validate connector readiness models, approval mappings, and safety gates.';
+  if (command.endsWith('github:status')) return 'Read repository, branch, commit, issue, and pull request status with GitHub GET-only calls when configured.';
+  if (command.endsWith('github:repo')) return 'Generate GitHub repo status and Engineering readiness reports with no writes.';
+  if (command.endsWith('github:branches')) return 'Read configured repository branches with no branch changes.';
+  if (command.endsWith('github:commits')) return 'Read recent commits without creating commits or changing refs.';
+  if (command.endsWith('github:issues')) return 'Read open issues without creating, updating, labeling, or commenting.';
+  if (command.endsWith('github:prs')) return 'Read open pull requests without creating, updating, merging, or commenting.';
+  if (command.endsWith('github:safety-check')) return 'Verify GitHub write endpoints, token output, workflow dispatch, and repo writes remain blocked.';
+  if (command.endsWith('github:validate')) return 'Validate GitHub read-only command availability and missing-config safety.';
   return 'Shared local operator command.';
 }
 

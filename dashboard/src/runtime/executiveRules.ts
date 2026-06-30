@@ -1,6 +1,7 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { ConnectorReadinessSummary } from './connectorReadiness';
 import type { CrossAgentCollaborationSummary } from './crossAgentCollaboration';
+import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
 import type {
@@ -13,7 +14,7 @@ import type {
   SalesSummary,
 } from '../agents/sales/salesTypes';
 
-export const executiveRuleCount = 9;
+export const executiveRuleCount = 10;
 
 export function buildExecutivePriorities(
   runtime: AgentRuntimeSnapshot,
@@ -26,6 +27,7 @@ export function buildExecutivePriorities(
   salesIntelligenceSummary?: SalesIntelligenceSummary,
   crossAgentSummary?: CrossAgentCollaborationSummary,
   connectorReadiness?: ConnectorReadinessSummary,
+  githubReadOnly?: GitHubReadOnlyDashboardSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutivePriority[] {
   const priorities: ExecutivePriority[] = [];
@@ -228,6 +230,18 @@ export function buildExecutivePriorities(
       priority: 'medium',
       recommendedAction: 'Open Operator and review Connector Readiness before enabling any future live tool access.',
       source: 'Connector readiness',
+    });
+  }
+
+  if (githubReadOnly && githubReadOnly.writeActionsEnabled === false) {
+    priorities.push({
+      id: 'github-read-only-ready',
+      agent: 'Engineering Agent',
+      department: 'Engineering',
+      detail: 'GitHub connector is prepared for repository reads only; issue creation, PR creation, commits, branches, and workflow dispatch stay blocked.',
+      priority: 'medium',
+      recommendedAction: 'Use npm run github:validate and configure VYRA_GITHUB_* locally before live read-only inspection.',
+      source: 'GitHub read-only connector',
     });
   }
 

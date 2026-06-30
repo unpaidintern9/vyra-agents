@@ -1,5 +1,6 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import { buildDashboardConnectorReadiness, type ConnectorReadinessSummary } from './connectorReadiness';
+import { buildDashboardGitHubReadOnlySummary, type GitHubReadOnlyDashboardSummary } from './githubReadOnly';
 import { buildDashboardSharedTaskSummary, type SharedTaskDashboardSummary } from './sharedTaskQueue';
 
 export interface AiOperatorMetadata {
@@ -26,6 +27,7 @@ export interface AiOperatorDashboardSnapshot {
   communicationDrafts: AiCommunicationDraftSnapshot;
   communicationProviders: AiCommunicationProviderSnapshot;
   connectorReadiness: ConnectorReadinessSummary;
+  githubReadOnly: GitHubReadOnlyDashboardSummary;
   safetyMode: string;
   sharedTasks: SharedTaskDashboardSummary;
   threadBridge: AiThreadBridgeSnapshot;
@@ -142,6 +144,14 @@ export const aiOperatorCommands = [
   'npm run connectors:approval-map',
   'npm run connectors:safety-check',
   'npm run connectors:validate',
+  'npm run github:status',
+  'npm run github:repo',
+  'npm run github:branches',
+  'npm run github:commits',
+  'npm run github:issues',
+  'npm run github:prs',
+  'npm run github:safety-check',
+  'npm run github:validate',
 ];
 
 export const aiOperatorBlockedActions = [
@@ -196,6 +206,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   threadDueSchedules?: number;
   runtime: AgentRuntimeSnapshot;
   connectorReadiness?: ConnectorReadinessSummary;
+  githubReadOnly?: GitHubReadOnlyDashboardSummary;
   sharedTasks?: SharedTaskDashboardSummary;
 }): AiOperatorDashboardSnapshot {
   const metadata = buildAiOperatorMetadata(input.integrationMode);
@@ -203,6 +214,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   const blockedAgents = input.runtime.agents.filter((agent) => input.runtime.health[agent.id]?.errors > 0).length;
   const runtimeHealth = blockedAgents > 0 ? 'Attention' : warningAgents > 0 ? 'Watch' : 'Ready';
   const connectorReadiness = input.connectorReadiness ?? buildDashboardConnectorReadiness();
+  const githubReadOnly = input.githubReadOnly ?? buildDashboardGitHubReadOnlySummary();
   const sharedTasks = input.sharedTasks ?? buildDashboardSharedTaskSummary();
 
   return {
@@ -252,6 +264,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
       sendingDisabled: true,
     },
     connectorReadiness,
+    githubReadOnly,
     safetyMode,
     sharedTasks,
     threadBridge: {

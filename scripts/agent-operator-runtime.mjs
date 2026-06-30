@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCommunicationDraftStatus, buildCommunicationProviderReadiness } from './comms-draft-runtime.mjs';
 import { buildConnectorReadinessStatus } from './connector-readiness-runtime.mjs';
+import { getGitHubReadOnlyConfig, getGitHubSafetyCheck } from './github-readonly-runtime.mjs';
 import { buildSharedTaskStatus } from './shared-task-runtime.mjs';
 import { buildThreadBridgeStatus } from './thread-bridge-runtime.mjs';
 
@@ -117,6 +118,7 @@ export function buildOperatorSnapshot(options = {}) {
   const communicationDrafts = buildCommunicationDraftStatus();
   const communicationProviders = buildCommunicationProviderReadiness();
   const connectorReadiness = buildConnectorReadinessStatus();
+  const githubReadOnly = buildGitHubReadOnlySnapshot();
   const sharedTasks = buildSharedTaskStatus();
   const threadPriority =
     threadBridge.pendingOutboxItems > 0
@@ -196,8 +198,9 @@ export function buildOperatorSnapshot(options = {}) {
     communicationDrafts,
     communicationProviders,
     connectorReadiness,
+    githubReadOnly,
     sharedTasks,
-    graph: buildCrossAgentGraph(operator, crossAgent, sharedTasks, connectorReadiness),
+    graph: buildCrossAgentGraph(operator, crossAgent, sharedTasks, connectorReadiness, githubReadOnly),
   };
 }
 
@@ -240,6 +243,7 @@ export function writeReportSet(snapshot) {
     writeReport('runtime', 'cross-agent-graph', snapshot.graph),
     writeReport('runtime', 'shared-work-queue-status', { title: 'Shared Work Queue Status', operator: snapshot.operator, summary: snapshot.sharedTasks }),
     writeReport('runtime', 'connector-readiness-status', { title: 'Connector Readiness Status', operator: snapshot.operator, summary: snapshot.connectorReadiness }),
+    writeReport('runtime', 'github-read-only-status', { title: 'GitHub Read-Only Status', operator: snapshot.operator, summary: snapshot.githubReadOnly }),
   ].flat();
 }
 
@@ -280,9 +284,32 @@ export function buildExecutiveRunSummary(snapshot) {
     communicationDrafts: snapshot.communicationDrafts,
     communicationProviders: snapshot.communicationProviders,
     connectorReadiness: snapshot.connectorReadiness,
+    githubReadOnly: snapshot.githubReadOnly,
     sharedTasks: snapshot.sharedTasks,
     safetyWarnings: snapshot.safety.warnings,
     validation: snapshot.safety,
+  };
+}
+
+function buildGitHubReadOnlySnapshot() {
+  const config = getGitHubReadOnlyConfig();
+  const safety = getGitHubSafetyCheck();
+  return {
+    connector: 'GitHub',
+    mode: 'read_only',
+    status: config.configured ? 'configured_read_only' : 'missing_config',
+    repoFullName: config.repoFullName,
+    ownerConfigured: Boolean(config.owner),
+    repoConfigured: Boolean(config.repo),
+    tokenConfigured: config.tokenConfigured,
+    missingConfig: config.missingConfig,
+    allowedReadActions: ['repository metadata', 'branches', 'commits', 'open issues', 'open pull requests'],
+    blockedWriteActions: safety.blockedWriteActions,
+    externalCalls: config.configured ? 'GitHub REST GET only' : 'none; missing config',
+    writeActionsEnabled: false,
+    productionWritesEnabled: false,
+    tokenValuePrinted: false,
+    safetyStatus: safety.status,
   };
 }
 
@@ -291,6 +318,7 @@ export function buildCrossAgentGraph(
   summary,
   sharedTasks = { knowledgeGraph: { nodes: [], edges: [] }, openTasks: 0 },
   connectorReadiness = { connectors: [], blockedWriteActionCount: 0 },
+  githubReadOnly = { status: 'missing_config' },
 ) {
   return {
     title: 'Cross-Agent Operator Graph',
@@ -304,6 +332,12 @@ export function buildCrossAgentGraph(
       { id: 'migration', type: 'agent', label: 'Migration Agent' },
       { id: 'shared-work-queue', type: 'coordination_system', label: 'Shared Work Queue' },
       { id: 'connector-readiness', type: 'approval_system', label: 'Connector Readiness' },
+      {
+        id: 'github-read-only',
+        type: 'connector',
+        label: 'GitHub Read-Only Connector',
+        status: githubReadOnly.status,
+      },
       { id: 'safety', type: 'control', label: operator.safetyMode },
       ...connectorReadiness.connectors.map((connector) => ({
         id: `connector:${connector.connector.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
@@ -323,6 +357,8 @@ export function buildCrossAgentGraph(
       { from: 'shared-work-queue', to: 'engineering', relationship: 'coordinates_engineering_tasks' },
       { from: 'shared-work-queue', to: 'migration', relationship: 'coordinates_migration_tasks' },
       { from: 'executive', to: 'connector-readiness', relationship: 'reviews_connector_risk' },
+      { from: 'executive', to: 'github-read-only', relationship: 'reviews_repo_health' },
+      { from: 'connector-readiness', to: 'github-read-only', relationship: 'enforces_read_only' },
       ...connectorReadiness.connectors.map((connector) => ({
         from: 'connector-readiness',
         to: `connector:${connector.connector.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
@@ -331,7 +367,12 @@ export function buildCrossAgentGraph(
       { from: 'safety', to: 'operator', relationship: 'constrains' },
       ...sharedTasks.knowledgeGraph.edges,
     ],
-    summary: { ...summary, sharedTasksOpen: sharedTasks.openTasks, blockedConnectorWrites: connectorReadiness.blockedWriteActionCount },
+    summary: {
+      ...summary,
+      sharedTasksOpen: sharedTasks.openTasks,
+      blockedConnectorWrites: connectorReadiness.blockedWriteActionCount,
+      githubReadOnlyStatus: githubReadOnly.status,
+    },
   };
 }
 
@@ -372,6 +413,7 @@ function buildRuntimeReport(snapshot) {
     generatedAt: snapshot.operator.timestamp,
     summary: snapshot.runtime,
     connectorReadiness: snapshot.connectorReadiness,
+    githubReadOnly: snapshot.githubReadOnly,
     sharedTasks: snapshot.sharedTasks,
     agents,
     workflows,

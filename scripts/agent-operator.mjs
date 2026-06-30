@@ -27,6 +27,7 @@ switch (command) {
       communicationDrafts: snapshot.communicationDrafts,
       communicationProviders: snapshot.communicationProviders,
       connectorReadiness: snapshot.connectorReadiness,
+      githubReadOnly: snapshot.githubReadOnly,
       sharedTasks: snapshot.sharedTasks,
       activeAgents: snapshot.runtime.agentsReady,
       plannedAgents: snapshot.runtime.agentsPlanned,

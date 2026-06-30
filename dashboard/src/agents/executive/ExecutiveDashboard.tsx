@@ -11,6 +11,7 @@ import type { ExecutiveDashboardProps } from './executiveTypes';
 export default function ExecutiveDashboard({
   connectorReadiness,
   crossAgentSummary,
+  githubReadOnly,
   integrationWarnings = [],
   onNavigate,
   runtime,
@@ -35,6 +36,7 @@ export default function ExecutiveDashboard({
     salesIntelligenceSummary,
     crossAgentSummary,
     connectorReadiness,
+    githubReadOnly,
     sharedTaskSummary,
   );
   const healthRows = buildExecutiveHealthRows(runtime);

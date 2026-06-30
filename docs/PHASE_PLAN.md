@@ -896,3 +896,30 @@ Boundaries:
 - No Supabase production writes.
 - No production business table writes.
 - No secret output.
+
+## Phase 36
+
+GitHub Read-Only Connector MVP.
+
+Includes:
+
+- GitHub read-only connector adapter for repository inspection.
+- Safe local config names `VYRA_GITHUB_OWNER`, `VYRA_GITHUB_REPO`, and `VYRA_GITHUB_TOKEN`.
+- Root npm scripts for `github:status`, `github:repo`, `github:branches`, `github:commits`, `github:issues`, `github:prs`, `github:safety-check`, and `github:validate`.
+- GET-only reads for repository metadata, branches, commits, open issues, and open pull requests when config is present.
+- Missing-config readiness state that performs no network call.
+- Operator Dashboard GitHub read-only status.
+- Executive Dashboard repo health summary metrics.
+- GitHub Repo Status and GitHub Engineering Readiness reports under ignored local reports.
+
+Boundaries:
+
+- No GitHub issue creation.
+- No pull request creation.
+- No commits.
+- No branch changes.
+- No workflow dispatch.
+- No repository writes.
+- No token output.
+- No production writes.
+- No external non-GitHub calls.

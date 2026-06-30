@@ -92,6 +92,25 @@ The operator interface does not send email, send SMS, write CRM records, create 
 
 Future external actions must remain explicit placeholders behind approval gates.
 
+## GitHub Read-Only Connector
+
+Phase 36 adds the first read-only connector adapter:
+
+```bash
+npm run github:status
+npm run github:repo
+npm run github:branches
+npm run github:commits
+npm run github:issues
+npm run github:prs
+npm run github:safety-check
+npm run github:validate
+```
+
+Use ignored local environment variables only: `VYRA_GITHUB_OWNER`, `VYRA_GITHUB_REPO`, and `VYRA_GITHUB_TOKEN`. The token value must never be printed, committed, or displayed in the dashboard.
+
+The adapter performs GitHub REST `GET` requests only when config is present. Missing config returns a safe readiness state and performs no network call. No GitHub write endpoints are available.
+
 ## Thread Bridge
 
 Phase 29 adds the `threads:*` commands for local named Codex thread outbox ingestion. These commands validate local payloads in `codex-agent-threads/shared/outbox/`, create ignored local summaries, and archive consumed files.

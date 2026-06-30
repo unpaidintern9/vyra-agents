@@ -200,6 +200,22 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           { label: 'Connector Risk', value: summary.connectorReadiness.riskSummary.executiveRiskLevel, tone: 'warn' },
         ]
       : []),
+    ...(summary.githubReadOnly
+      ? [
+          { label: 'GitHub Read-Only', value: summary.githubReadOnly.status.replace(/_/g, ' '), tone: 'good' },
+          { label: 'GitHub Repo Health', value: summary.githubReadOnly.repoHealth },
+          {
+            label: 'GitHub Writes Enabled',
+            value: summary.githubReadOnly.writeActionsEnabled ? 'Yes' : 'No',
+            tone: summary.githubReadOnly.writeActionsEnabled ? 'warn' : 'good',
+          },
+          {
+            label: 'GitHub Token Displayed',
+            value: summary.githubReadOnly.tokenDisplayed ? 'Yes' : 'No',
+            tone: summary.githubReadOnly.tokenDisplayed ? 'warn' : 'good',
+          },
+        ]
+      : []),
   ];
 
   return (
