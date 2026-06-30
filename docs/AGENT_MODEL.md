@@ -26,11 +26,17 @@ Agent Runtime
 
 ## Immediate Agents
 
-- Executive Agent: Aggregates ecosystem status and gives Robert a command-center view.
+- Executive Agent: Aggregates shared runtime status into a deterministic operations dashboard for Robert.
 - Engineering Agent: Tracks technical health across Vyra repositories.
 - Migration Agent: Owns gym onboarding and member migration workflows.
 - Products Agent: Tracks product areas across mobile, desktop, website, and gym software.
 - Operations Agent: Tracks workflows, approvals, integrations, and system operations.
+
+## Executive Agent
+
+As of Phase 19, the Executive Agent owns the Overview screen. It consumes the shared runtime and renders overview cards, deterministic priorities, timeline activity, department health, aggregated approvals, runtime summary, and local reports.
+
+The Executive Agent does not replace Engineering or Migration. It orchestrates their runtime signals and links back into those dedicated pages.
 
 ## Planned Agents
 

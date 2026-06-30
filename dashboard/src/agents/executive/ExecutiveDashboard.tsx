@@ -1,0 +1,28 @@
+import { buildExecutiveHealthRows, buildExecutiveSummary } from './executiveSummary';
+import { ExecutiveApprovals } from './ExecutiveApprovals';
+import { ExecutiveHealth } from './ExecutiveHealth';
+import { ExecutiveOverview } from './ExecutiveOverview';
+import { ExecutivePriorities } from './ExecutivePriorities';
+import { ExecutiveReports } from './ExecutiveReports';
+import { ExecutiveRuntime } from './ExecutiveRuntime';
+import { ExecutiveTimeline } from './ExecutiveTimeline';
+import type { ExecutiveDashboardProps } from './executiveTypes';
+
+export default function ExecutiveDashboard({ integrationWarnings = [], onNavigate, runtime }: ExecutiveDashboardProps) {
+  const summary = buildExecutiveSummary(runtime, integrationWarnings);
+  const healthRows = buildExecutiveHealthRows(runtime);
+
+  return (
+    <>
+      <ExecutiveOverview summary={summary} />
+      <section className="dashboard-grid executive-dashboard-grid">
+        <ExecutivePriorities onNavigate={onNavigate} priorities={summary.priorities} />
+        <ExecutiveTimeline timeline={summary.timeline} />
+        <ExecutiveRuntime runtime={summary.runtime} />
+        <ExecutiveHealth healthRows={healthRows} onNavigate={onNavigate} />
+        <ExecutiveApprovals approvals={runtime.approvals} />
+        <ExecutiveReports context={{ healthRows, runtime, summary }} />
+      </section>
+    </>
+  );
+}

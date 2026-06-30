@@ -18,6 +18,7 @@ import {
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { EngineeringScanResult } from './agents/engineering/engineeringTypes';
+import ExecutiveDashboard from './agents/executive/ExecutiveDashboard';
 import MigrationPage from './agents/migration/MigrationPage';
 import type { BatchPacketExportFormat } from './agents/migration/batchBuilderExports';
 import type { MigrationBatchPreview } from './agents/migration/batchBuilderTypes';
@@ -75,15 +76,7 @@ import type { SyncConnectionState, SyncQueueItem, SyncStatusSnapshot } from './s
 import type { ApprovalHistoryEntry, MigrationDryRunRecord, WorkflowDryCheckRecord } from './types/localRecords';
 import { getWorkflowRegistry } from './workflows/workflowRegistry';
 import type { WorkflowDefinition } from './workflows/workflowTypes';
-import {
-  ecosystemNodes,
-  migrationStatus,
-  navItems,
-  priorities,
-  recentActivity,
-  summaryStats,
-  systemHealth,
-} from './data';
+import { navItems } from './data';
 
 type IntegrationMode = 'mock' | 'live';
 type EffectiveMode = 'mock' | 'live' | 'fallback';
@@ -740,7 +733,7 @@ function App() {
 
   const status = snapshot ?? buildLoadingSnapshot();
   const pageWarnings = [...status.warnings, ...syncStatusWarnings(syncStatus)];
-  const pageTitle = activePage === 'Migration' ? 'Migration Agent' : activePage;
+  const pageTitle = activePage === 'Overview' ? 'Executive Agent' : activePage === 'Migration' ? 'Migration Agent' : activePage;
 
   return (
     <div className="app-shell">
@@ -866,156 +859,10 @@ function App() {
         ) : activePage === 'Runtime' ? (
           <RuntimePage runtime={runtime} syncStatus={syncStatus} />
         ) : (
-          <OverviewPage approvalItems={approvalItems} runtime={runtime} snapshot={status} />
+          <ExecutiveDashboard integrationWarnings={status.warnings} onNavigate={setActivePage} runtime={runtime} />
         )}
       </main>
     </div>
-  );
-}
-
-function OverviewPage({
-  approvalItems,
-  runtime,
-  snapshot,
-}: {
-  approvalItems: ApprovalItem[];
-  runtime: AgentRuntimeSnapshot;
-  snapshot: IntegrationSnapshot;
-}) {
-  const registry = buildIntegrationRegistry(snapshot.github, snapshot.supabase);
-  return (
-    <>
-      <section className="summary-grid" aria-label="Command center summary">
-        {runtimeSummaryStats(runtime).map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <article className="metric-card" key={stat.label}>
-              <Icon size={20} />
-              <span>{stat.label}</span>
-              <strong>{stat.value}</strong>
-            </article>
-          );
-        })}
-      </section>
-
-      <section className="dashboard-grid">
-        <Panel title="System Health" icon={<Activity size={18} />}>
-          <div className="health-grid">
-            {systemHealth.map((item) => (
-              <div className={`health-tile ${item.tone}`} key={item.label}>
-                <span>{item.label}</span>
-                <strong>{item.value}</strong>
-              </div>
-            ))}
-          </div>
-        </Panel>
-        <Panel title="Active Agents" icon={<CircleDot size={18} />}>
-          <div className="list-stack">
-            {runtime.agents.slice(0, 6).map((agent) => (
-              <div className="row-item" key={agent.name}>
-                <div>
-                  <strong>{agent.name}</strong>
-                  <span>{agent.activity}</span>
-                </div>
-                <StatusBadge value={runtimeAgentStatus(agent.health)} tone={agent.health === 'ready' ? 'good' : 'neutral'} />
-              </div>
-            ))}
-          </div>
-        </Panel>
-        <Panel title="Repository Health" icon={<GitBranch size={18} />}>
-          <div className="list-stack">
-            {snapshot.github.repositories.map((repo) => (
-              <div className="row-item compact" key={repo.repositoryFullName || repo.repositoryName}>
-                <div>
-                  <strong>{repo.repositoryFullName || repo.repositoryName}</strong>
-                  <span>
-                    {repo.defaultBranch} · {shortSha(repo.latestCommit)} · {repo.workflowStatus}
-                  </span>
-                </div>
-                <StatusBadge value={formatHealth(repo.healthStatus)} tone={healthTone(repo.healthStatus)} />
-              </div>
-            ))}
-          </div>
-        </Panel>
-        <Panel title="Integration Status" icon={<Network size={18} />}>
-          <div className="integration-grid">
-            {registry.slice(0, 8).map((integration) => (
-              <div className="integration-pill" key={integration.name}>
-                <span>{integration.name}</span>
-                <small>{integration.status}</small>
-              </div>
-            ))}
-          </div>
-        </Panel>
-        <Panel title="Supabase Health" icon={<Network size={18} />}>
-          <div className="batch-grid">
-            <Fact label="Database" value={snapshot.supabase.databaseReachable ? 'Reachable' : 'Not checked'} />
-            <Fact label="Reachable Tables" value={String(countTables(snapshot.supabase.tableChecks, 'reachable'))} />
-            <Fact label="Protected Tables" value={String(countTables(snapshot.supabase.tableChecks, 'protected'))} />
-            <Fact label="Missing Tables" value={String(countTables(snapshot.supabase.tableChecks, 'missing'))} />
-            <Fact label="Last Checked" value={formatDate(snapshot.supabase.lastChecked)} />
-            <Fact label="Mode" value={modeLabel(snapshot.effectiveMode)} />
-          </div>
-        </Panel>
-        <Panel title="Approval Queue" icon={<ShieldCheck size={18} />}>
-          <div className="list-stack">
-            {approvalItems.slice(0, 3).map((item) => (
-              <div className="row-item" key={item.id}>
-                <div>
-                  <strong>{item.title}</strong>
-                  <span>{item.reason}</span>
-                </div>
-                <RiskBadge risk={item.riskLevel} />
-              </div>
-            ))}
-          </div>
-        </Panel>
-        <Panel title="Workflow Activity" icon={<ArrowRight size={18} />}>
-          <div className="workflow-list">
-            {runtime.workflows.slice(0, 12).map((workflow) => (
-              <div className="workflow-item" key={workflow.key}>
-                <span>{workflow.key}</span>
-                <small>{workflow.ownerAgent}</small>
-                <StatusBadge value={workflow.approvalRequired ? 'Approval Gated' : 'Ready'} tone={workflow.approvalRequired ? 'warn' : 'good'} />
-              </div>
-            ))}
-          </div>
-        </Panel>
-        <Panel title="Top Priorities" icon={<AlertTriangle size={18} />}>
-          <ol className="priority-list">
-            {priorities.map((priority) => (
-              <li key={priority}>{priority}</li>
-            ))}
-          </ol>
-        </Panel>
-        <Panel title="Recent Activity" icon={<Activity size={18} />}>
-          <div className="activity-list">
-            {recentActivity.map((item) => (
-              <p key={item}>{item}</p>
-            ))}
-          </div>
-        </Panel>
-        <Panel title="Migration Status" icon={<CircleDot size={18} />}>
-          <div className="migration-grid">
-            {migrationStatus.map((item) => (
-              <div className="migration-tile" key={item.label}>
-                <span>{item.label}</span>
-                <strong>{item.value}</strong>
-              </div>
-            ))}
-          </div>
-        </Panel>
-        <Panel title="Ecosystem Map" icon={<Network size={18} />} wide>
-          <div className="ecosystem-map" aria-label="Vyra ecosystem map">
-            {ecosystemNodes.map((node, index) => (
-              <div className={`node node-${index}`} key={node}>
-                {node}
-              </div>
-            ))}
-          </div>
-        </Panel>
-      </section>
-    </>
   );
 }
 
@@ -1940,14 +1787,6 @@ function pageCopy(page: string): string {
     Workflows: 'Workflow registry with safe local dry checks and approval-risk visibility.',
   };
   return copy[page] ?? 'Read-only command center for the Vyra ecosystem. No AI or production write workflows are enabled.';
-}
-
-function runtimeSummaryStats(runtime: AgentRuntimeSnapshot) {
-  return summaryStats.map((stat) => {
-    if (stat.label === 'Agents Prepared') return { ...stat, value: String(runtime.agents.length) };
-    if (stat.label === 'Workflows Drafted') return { ...stat, value: String(runtime.workflows.length) };
-    return stat;
-  });
 }
 
 function runtimeAgentStatus(status: string): string {
