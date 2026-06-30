@@ -43,6 +43,11 @@
     "tasks:complete": "node scripts/shared-tasks.mjs complete",
     "tasks:archive": "node scripts/shared-tasks.mjs archive",
     "tasks:report": "node scripts/shared-tasks.mjs report",
-    "tasks:validate": "node scripts/shared-tasks.mjs validate"
+    "tasks:validate": "node scripts/shared-tasks.mjs validate",
+    "connectors:status": "node scripts/connectors.mjs status",
+    "connectors:readiness": "node scripts/connectors.mjs readiness",
+    "connectors:approval-map": "node scripts/connectors.mjs approval-map",
+    "connectors:safety-check": "node scripts/connectors.mjs safety-check",
+    "connectors:validate": "node scripts/connectors.mjs validate"
   }
 }

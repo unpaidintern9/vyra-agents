@@ -184,6 +184,22 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           { label: 'Task Queue Health', value: summary.sharedTaskSummary.queueHealth, tone: summary.sharedTaskSummary.queueHealth === 'Ready' ? 'good' : 'warn' },
         ]
       : []),
+    ...(summary.connectorReadiness
+      ? [
+          { label: 'Connector Templates', value: String(summary.connectorReadiness.connectorCount) },
+          {
+            label: 'Connector Writes Blocked',
+            value: String(summary.connectorReadiness.blockedWriteActionCount),
+            tone: summary.connectorReadiness.blockedWriteActionCount ? 'warn' : 'good',
+          },
+          {
+            label: 'Approval Mapped Actions',
+            value: String(summary.connectorReadiness.approvalMappedActionCount),
+            tone: summary.connectorReadiness.approvalMappedActionCount ? 'warn' : 'good',
+          },
+          { label: 'Connector Risk', value: summary.connectorReadiness.riskSummary.executiveRiskLevel, tone: 'warn' },
+        ]
+      : []),
   ];
 
   return (

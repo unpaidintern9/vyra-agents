@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCommunicationDraftStatus, buildCommunicationProviderReadiness } from './comms-draft-runtime.mjs';
+import { buildConnectorReadinessStatus } from './connector-readiness-runtime.mjs';
 import { buildSharedTaskStatus } from './shared-task-runtime.mjs';
 import { buildThreadBridgeStatus } from './thread-bridge-runtime.mjs';
 
@@ -115,6 +116,7 @@ export function buildOperatorSnapshot(options = {}) {
   const threadBridge = buildThreadBridgeStatus();
   const communicationDrafts = buildCommunicationDraftStatus();
   const communicationProviders = buildCommunicationProviderReadiness();
+  const connectorReadiness = buildConnectorReadinessStatus();
   const sharedTasks = buildSharedTaskStatus();
   const threadPriority =
     threadBridge.pendingOutboxItems > 0
@@ -129,6 +131,10 @@ export function buildOperatorSnapshot(options = {}) {
     sharedTasks.overdueTasks > 0 ? `Review ${sharedTasks.overdueTasks} overdue shared work queue task(s).` : null,
     sharedTasks.tasksRequiringExecutiveReview > 0 ? `Review ${sharedTasks.tasksRequiringExecutiveReview} task(s) requiring Executive approval.` : null,
   ].filter(Boolean);
+  const connectorPriority =
+    connectorReadiness.blockedWriteActionCount > 0
+      ? [`Keep ${connectorReadiness.blockedWriteActionCount} future connector write action(s) behind explicit approval gates.`]
+      : [];
 
   return {
     operator,
@@ -148,6 +154,7 @@ export function buildOperatorSnapshot(options = {}) {
         ...approvalPriority,
         ...communicationPriority,
         ...taskPriority,
+        ...connectorPriority,
         'Review cross-agent collaboration before approving proposal, migration, or follow-up work.',
         'Keep Sales external actions disabled until CRM/email/Stripe approval gates exist.',
         'Review Engineering warnings before future live issue creation.',
@@ -188,8 +195,9 @@ export function buildOperatorSnapshot(options = {}) {
     threadBridge,
     communicationDrafts,
     communicationProviders,
+    connectorReadiness,
     sharedTasks,
-    graph: buildCrossAgentGraph(operator, crossAgent, sharedTasks),
+    graph: buildCrossAgentGraph(operator, crossAgent, sharedTasks, connectorReadiness),
   };
 }
 
@@ -231,6 +239,7 @@ export function writeReportSet(snapshot) {
     writeReport('runtime', 'operator-safety-check', snapshot.safety),
     writeReport('runtime', 'cross-agent-graph', snapshot.graph),
     writeReport('runtime', 'shared-work-queue-status', { title: 'Shared Work Queue Status', operator: snapshot.operator, summary: snapshot.sharedTasks }),
+    writeReport('runtime', 'connector-readiness-status', { title: 'Connector Readiness Status', operator: snapshot.operator, summary: snapshot.connectorReadiness }),
   ].flat();
 }
 
@@ -270,13 +279,19 @@ export function buildExecutiveRunSummary(snapshot) {
     threadBridge: snapshot.threadBridge,
     communicationDrafts: snapshot.communicationDrafts,
     communicationProviders: snapshot.communicationProviders,
+    connectorReadiness: snapshot.connectorReadiness,
     sharedTasks: snapshot.sharedTasks,
     safetyWarnings: snapshot.safety.warnings,
     validation: snapshot.safety,
   };
 }
 
-export function buildCrossAgentGraph(operator, summary, sharedTasks = { knowledgeGraph: { nodes: [], edges: [] }, openTasks: 0 }) {
+export function buildCrossAgentGraph(
+  operator,
+  summary,
+  sharedTasks = { knowledgeGraph: { nodes: [], edges: [] }, openTasks: 0 },
+  connectorReadiness = { connectors: [], blockedWriteActionCount: 0 },
+) {
   return {
     title: 'Cross-Agent Operator Graph',
     operator,
@@ -288,7 +303,14 @@ export function buildCrossAgentGraph(operator, summary, sharedTasks = { knowledg
       { id: 'sales', type: 'agent', label: 'Sales Agent' },
       { id: 'migration', type: 'agent', label: 'Migration Agent' },
       { id: 'shared-work-queue', type: 'coordination_system', label: 'Shared Work Queue' },
+      { id: 'connector-readiness', type: 'approval_system', label: 'Connector Readiness' },
       { id: 'safety', type: 'control', label: operator.safetyMode },
+      ...connectorReadiness.connectors.map((connector) => ({
+        id: `connector:${connector.connector.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        type: 'connector',
+        label: connector.connector,
+        status: connector.status,
+      })),
       ...sharedTasks.knowledgeGraph.nodes,
     ],
     edges: [
@@ -300,10 +322,16 @@ export function buildCrossAgentGraph(operator, summary, sharedTasks = { knowledg
       { from: 'shared-work-queue', to: 'sales', relationship: 'coordinates_sales_tasks' },
       { from: 'shared-work-queue', to: 'engineering', relationship: 'coordinates_engineering_tasks' },
       { from: 'shared-work-queue', to: 'migration', relationship: 'coordinates_migration_tasks' },
+      { from: 'executive', to: 'connector-readiness', relationship: 'reviews_connector_risk' },
+      ...connectorReadiness.connectors.map((connector) => ({
+        from: 'connector-readiness',
+        to: `connector:${connector.connector.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        relationship: 'gates_connector',
+      })),
       { from: 'safety', to: 'operator', relationship: 'constrains' },
       ...sharedTasks.knowledgeGraph.edges,
     ],
-    summary: { ...summary, sharedTasksOpen: sharedTasks.openTasks },
+    summary: { ...summary, sharedTasksOpen: sharedTasks.openTasks, blockedConnectorWrites: connectorReadiness.blockedWriteActionCount },
   };
 }
 
@@ -343,6 +371,7 @@ function buildRuntimeReport(snapshot) {
     operator: snapshot.operator,
     generatedAt: snapshot.operator.timestamp,
     summary: snapshot.runtime,
+    connectorReadiness: snapshot.connectorReadiness,
     sharedTasks: snapshot.sharedTasks,
     agents,
     workflows,

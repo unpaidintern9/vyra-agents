@@ -1,4 +1,4 @@
-import { Brain, CalendarClock, Download, FileText, Flame, ListChecks, Search, ShieldCheck, Target, Upload, Users, Workflow } from 'lucide-react';
+import { Brain, CalendarClock, Download, FileText, Flame, ListChecks, Network, Search, ShieldCheck, Target, Upload, Users, Workflow } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { RiskBadge } from '../../components/RiskBadge';
@@ -55,6 +55,7 @@ export default function SalesPage({
   scores,
   salesIntelligenceGraph,
   salesIntelligenceSummary,
+  connectorReadiness,
   sharedTaskSummary,
   teamAgents,
   teamSummary,
@@ -137,6 +138,9 @@ export default function SalesPage({
         <SalesMetric icon={<Brain size={20} />} label="Organizations Tracked" value={String(salesIntelligenceSummary.organizationsTracked)} />
         <SalesMetric icon={<Target size={20} />} label="Intel Completeness" value={`${salesIntelligenceSummary.intelligenceCompletenessScore}/100`} />
         <SalesMetric icon={<Workflow size={20} />} label="Cross-Agent Signals" value={String(crossAgentSummary.activeSignals)} tone={crossAgentSummary.activeSignals ? 'warn' : 'good'} />
+        {connectorReadiness ? (
+          <SalesMetric icon={<Network size={20} />} label="Connector Writes Blocked" value={String(connectorReadiness.blockedWriteActionCount)} tone="warn" />
+        ) : null}
         {sharedTaskSummary ? (
           <>
             <SalesMetric icon={<ListChecks size={20} />} label="Linked Tasks" value={String(sharedTaskSummary.openTasks)} tone={sharedTaskSummary.openTasks ? 'warn' : 'good'} />
@@ -174,6 +178,44 @@ export default function SalesPage({
           </div>
           <p className="subtle-note">Future write actions require an explicit approval gate and are disabled in mock and live read-only modes.</p>
         </section>
+
+        {connectorReadiness ? (
+          <section className="panel wide-panel">
+            <div className="panel-header">
+              <div>
+                <Network size={18} />
+                <h2>Connector Action Placeholders</h2>
+              </div>
+              <StatusBadge value="Approval-gated / disabled" tone="warn" />
+            </div>
+            <p className="panel-description">
+              Future Sales actions can map to GitHub, Gmail, Calendar, Stripe, Supabase, Twilio/SMS, and Google Drive, but every write/send/create/export action is disabled until Robert explicitly approves a later live integration.
+            </p>
+            <div className="batch-grid">
+              <Fact label="Connector Templates" value={String(connectorReadiness.connectorCount)} />
+              <Fact label="Approval Mappings" value={String(connectorReadiness.approvalMappedActionCount)} />
+              <Fact label="Blocked Writes" value={String(connectorReadiness.blockedWriteActionCount)} />
+              <Fact label="External Calls" value={connectorReadiness.externalCallsEnabled ? 'Enabled' : 'Blocked'} />
+            </div>
+            <DataTable
+              columns={['Sales Task', 'Connector', 'Future Action', 'Approval']}
+              rows={connectorReadiness.approvalMappings.map((mapping) => [
+                mapping.taskType,
+                mapping.connector,
+                mapping.futureAction,
+                mapping.defaultStatus.replace(/_/g, ' '),
+              ])}
+            />
+            <div className="button-row sales-action-row">
+              {['Create GitHub Issue', 'Send Gmail', 'Create Calendar Event', 'Create Stripe Link', 'Send SMS', 'Export Drive Doc'].map((label) => (
+                <button className="clear-button small" disabled key={label} type="button">
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="subtle-note">Disabled placeholders only. No connector clients are created and no external service calls occur.</p>
+          </section>
+        ) : null}
 
         <section className="panel wide-panel">
           <div className="panel-header">

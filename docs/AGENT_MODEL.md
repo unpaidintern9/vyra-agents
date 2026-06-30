@@ -32,6 +32,8 @@ As of Phase 28, AI coding assistants can operate the ecosystem through a shared 
 
 As of Phase 34, agents can coordinate work through a Shared Task System. The task system supports local create, assign, claim, reassign, escalate, complete, and archive actions for Executive, Engineering, Sales, Migration, Support, Operations, Customer Success, Research, and future agents.
 
+As of Phase 35, agents can inspect local Connector Readiness models for GitHub, Gmail, Google Calendar, Stripe, Supabase, Twilio/SMS, and Google Drive. Connector models map future actions to approval types, but all connector write actions remain disabled placeholders.
+
 ## Immediate Agents
 
 - Executive Agent: Aggregates shared runtime status into a deterministic operations dashboard for Robert.
@@ -83,6 +85,14 @@ The shared work queue is the primary local coordination mechanism for cross-agen
 Tasks are local planning records only. They can point to proposals, migrations, follow-ups, engineering blockers, research dossiers, organizations, or Executive priorities, but they do not perform external actions.
 
 See `docs/SHARED_TASK_SYSTEM.md`, `docs/AGENT_WORK_QUEUE.md`, and `docs/TASK_LIFECYCLE.md`.
+
+## Connector Readiness
+
+Connector readiness is a local planning layer for future tool access. It records required config names, allowed read actions, blocked write actions, approval requirements, and safety mode.
+
+The readiness layer does not create provider clients, call APIs, expose secrets, or write production data.
+
+See `docs/CONNECTOR_READINESS.md`, `docs/CONNECTOR_APPROVAL_MAPPING.md`, and `docs/CONNECTOR_SAFETY.md`.
 
 ## Planned Agents
 

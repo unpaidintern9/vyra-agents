@@ -138,6 +138,22 @@ Phase 33 adds local manual-send workflow commands:
 
 - `npm run comms:manual-send` approves a local draft for human manual copy/send, or reports the queue when no id is provided.
 - `npm run comms:mark-copied` records that an operator copied a draft.
+
+## Connector Readiness
+
+Phase 35 adds connector readiness commands:
+
+```bash
+npm run connectors:status
+npm run connectors:readiness
+npm run connectors:approval-map
+npm run connectors:safety-check
+npm run connectors:validate
+```
+
+These commands model future GitHub, Gmail, Google Calendar, Stripe, Supabase, Twilio/SMS, and Google Drive integrations. They do not connect to real services, authenticate providers, print secrets, or perform writes.
+
+Every future write/send/create/export action remains a disabled placeholder behind explicit approval mapping.
 - `npm run comms:mark-sent` records that a human marked the draft sent manually outside Vyra.
 - `npm run comms:audit` prints the local communication audit trail.
 - `npm run comms:audit-report` writes ignored manual-send queue and communication audit trail reports.

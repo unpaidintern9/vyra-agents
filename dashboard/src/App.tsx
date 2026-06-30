@@ -85,6 +85,7 @@ import { getSupabaseStatus } from './integrations/supabase/supabaseStatus';
 import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/supabase/supabaseTypes';
 import { buildAgentRuntime } from './runtime/agentRuntime';
 import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } from './runtime/aiOperatorRuntime';
+import { buildDashboardConnectorReadiness } from './runtime/connectorReadiness';
 import { buildDashboardSharedTaskSummary } from './runtime/sharedTaskQueue';
 import {
   buildCrossAgentCollaborationGraph,
@@ -1211,6 +1212,7 @@ function App() {
 
   const status = snapshot ?? buildLoadingSnapshot();
   const pageWarnings = [...status.warnings, ...syncStatusWarnings(syncStatus)];
+  const connectorReadiness = buildDashboardConnectorReadiness();
   const sharedTaskSummary = buildDashboardSharedTaskSummary();
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
     communicationDraftCounts: operatorDashboard.communicationDraftCounts,
@@ -1229,6 +1231,7 @@ function App() {
     threadApprovalDecisionCounts: operatorDashboard.threadApprovalDecisionCounts,
     threadDueSchedules: operatorDashboard.threadDueSchedules,
     runtime,
+    connectorReadiness,
     sharedTasks: sharedTaskSummary,
   });
   const recordOperatorRun = () => setOperatorDashboard((current) => ({ ...current, lastRun: new Date().toISOString() }));
@@ -1432,6 +1435,7 @@ function App() {
             scores={salesScores}
             salesIntelligenceGraph={salesIntelligenceGraph}
             salesIntelligenceSummary={salesIntelligenceSummary}
+            connectorReadiness={connectorReadiness}
             sharedTaskSummary={sharedTaskSummary}
             teamAgents={salesTeamAgents}
             teamSummary={salesAgentTeamSummary}
@@ -1514,6 +1518,7 @@ function App() {
             salesProposalSummary={salesProposalSummary}
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
+            connectorReadiness={connectorReadiness}
             sharedTaskSummary={sharedTaskSummary}
           />
         )}
@@ -1705,6 +1710,8 @@ function OperatorPage({
         <Metric icon={<FileClock size={20} />} label="Manual Send Queue" value={String(operator.communicationDrafts.approvedForManualSendDrafts)} />
         <Metric icon={<ShieldCheck size={20} />} label="Human-Marked Sent" value={String(operator.communicationDrafts.manuallyMarkedSentDrafts)} />
         <Metric icon={<Network size={20} />} label="Provider Readiness" value={operator.communicationProviders.sendingDisabled ? 'Send Disabled' : 'Review'} />
+        <Metric icon={<Network size={20} />} label="Connector Templates" value={String(operator.connectorReadiness.connectorCount)} />
+        <Metric icon={<ShieldCheck size={20} />} label="Connector Writes" value="Blocked" />
         <Metric icon={<ListChecks size={20} />} label="Open Tasks" value={String(operator.sharedTasks.openTasks)} />
         <Metric icon={<ShieldCheck size={20} />} label="Task Queue Health" value={operator.sharedTasks.queueHealth} />
       </section>
@@ -1787,6 +1794,45 @@ function OperatorPage({
             <p>Blocked work: {operator.sharedTasks.blockedWork[0]?.title ?? 'None recorded'}</p>
           </div>
           <p className="subtle-note">Task queue commands write ignored local task/report files only. No background execution or production writes occur.</p>
+        </Panel>
+
+        <Panel title="Connector Readiness" icon={<Network size={18} />} wide>
+          <p className="panel-description">
+            Connector models are local readiness templates for future GitHub, Gmail, Calendar, Stripe, Supabase, Twilio/SMS, and Google Drive work. No connector clients are created and every write action remains disabled behind explicit approval.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Connectors Modeled" value={String(operator.connectorReadiness.connectorCount)} />
+            <Fact label="Ready Templates" value={String(operator.connectorReadiness.readyTemplates)} />
+            <Fact label="Blocked Write Actions" value={String(operator.connectorReadiness.blockedWriteActionCount)} />
+            <Fact label="Approval Mappings" value={String(operator.connectorReadiness.approvalMappedActionCount)} />
+            <Fact label="External Calls" value={operator.connectorReadiness.externalCallsEnabled ? 'Enabled' : 'Blocked'} />
+            <Fact label="Production Writes" value={operator.connectorReadiness.productionWritesEnabled ? 'Enabled' : 'Blocked'} />
+          </div>
+          <DataTable
+            columns={['Connector', 'Status', 'Required Config', 'Allowed Reads', 'Blocked Writes']}
+            rows={operator.connectorReadiness.connectors.map((connector) => [
+              connector.connector,
+              connector.status.replace(/_/g, ' '),
+              connector.requiredConfig.join(', '),
+              connector.allowedReadActions.join(', '),
+              connector.blockedWriteActions.join(', '),
+            ])}
+          />
+          <DataTable
+            columns={['Task / Action Type', 'Connector', 'Future Action', 'Approval Type', 'Default']}
+            rows={operator.connectorReadiness.approvalMappings.map((mapping) => [
+              mapping.taskType,
+              mapping.connector,
+              mapping.futureAction,
+              mapping.approvalType,
+              mapping.defaultStatus.replace(/_/g, ' '),
+            ])}
+          />
+          <div className="safety-badge-row">
+            {['No connector calls', 'No write actions', 'Approval required', 'No production data writes', 'No secrets displayed'].map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
         </Panel>
 
         <Panel title="Thread Outbox Bridge" icon={<FileClock size={18} />} wide>
@@ -3130,6 +3176,11 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('tasks:archive')) return 'Archive a local shared task record.';
   if (command.endsWith('tasks:report')) return 'Generate local Work Queue, Executive Task Summary, Agent Workload, and Blocked Work reports.';
   if (command.endsWith('tasks:validate')) return 'Validate shared task schema, examples, generated tasks, and safety rails.';
+  if (command.endsWith('connectors:status')) return 'Print local connector readiness and approval-gate status.';
+  if (command.endsWith('connectors:readiness')) return 'Generate local connector readiness Markdown and JSON reports.';
+  if (command.endsWith('connectors:approval-map')) return 'Generate the local map from task types to future connector approval requests.';
+  if (command.endsWith('connectors:safety-check')) return 'Verify connector calls and write actions remain blocked.';
+  if (command.endsWith('connectors:validate')) return 'Validate connector readiness models, approval mappings, and safety gates.';
   return 'Shared local operator command.';
 }
 

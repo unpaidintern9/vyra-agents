@@ -1,4 +1,5 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
+import type { ConnectorReadinessSummary } from './connectorReadiness';
 import type { CrossAgentCollaborationSummary } from './crossAgentCollaboration';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
@@ -24,6 +25,7 @@ export function buildExecutivePriorities(
   salesProspectDossierSummary?: SalesProspectDossierSummary,
   salesIntelligenceSummary?: SalesIntelligenceSummary,
   crossAgentSummary?: CrossAgentCollaborationSummary,
+  connectorReadiness?: ConnectorReadinessSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutivePriority[] {
   const priorities: ExecutivePriority[] = [];
@@ -214,6 +216,18 @@ export function buildExecutivePriorities(
       priority: 'medium',
       recommendedAction: 'Open Operator and resolve local task review items.',
       source: 'Shared task system',
+    });
+  }
+
+  if (connectorReadiness && connectorReadiness.blockedWriteActionCount > 0) {
+    priorities.push({
+      id: 'connector-approval-gates',
+      agent: 'Operations Agent',
+      department: 'Operations',
+      detail: `${connectorReadiness.connectorCount} connector template(s) are ready locally with ${connectorReadiness.blockedWriteActionCount} write action(s) blocked behind approval gates.`,
+      priority: 'medium',
+      recommendedAction: 'Open Operator and review Connector Readiness before enabling any future live tool access.',
+      source: 'Connector readiness',
     });
   }
 

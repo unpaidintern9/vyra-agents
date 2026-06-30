@@ -1,4 +1,5 @@
 import { buildExecutivePriorities } from '../../runtime/executiveRules';
+import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness';
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
@@ -32,6 +33,7 @@ export function buildExecutiveSummary(
   salesProspectDossierSummary?: SalesProspectDossierSummary,
   salesIntelligenceSummary?: SalesIntelligenceSummary,
   crossAgentSummary?: CrossAgentCollaborationSummary,
+  connectorReadiness?: ConnectorReadinessSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutiveSummary {
   const healthRows = buildExecutiveHealthRows(runtime);
@@ -68,6 +70,7 @@ export function buildExecutiveSummary(
       salesProspectDossierSummary,
       salesIntelligenceSummary,
       crossAgentSummary,
+      connectorReadiness,
       sharedTaskSummary,
     ),
     recentRuntimeEvents: runtime.activities.length,
@@ -86,6 +89,7 @@ export function buildExecutiveSummary(
     salesProspectDossierSummary,
     salesScoringSummary,
     salesSummary,
+    connectorReadiness,
     sharedTaskSummary,
   };
 }
@@ -162,6 +166,10 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     crossAgentProposalsNeedingApproval: summary.crossAgentSummary?.proposalsNeedingApproval ?? 0,
     crossAgentFeatureRequestsTiedToProspects: summary.crossAgentSummary?.featureRequestsTiedToProspects ?? 0,
     crossAgentOrganizationsNeedingExecutiveReview: summary.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0,
+    connectorCount: summary.connectorReadiness?.connectorCount ?? 0,
+    connectorBlockedWrites: summary.connectorReadiness?.blockedWriteActionCount ?? 0,
+    connectorApprovalMappedActions: summary.connectorReadiness?.approvalMappedActionCount ?? 0,
+    connectorExecutiveRiskLevel: summary.connectorReadiness?.riskSummary.executiveRiskLevel ?? 'Not configured',
     sharedOpenTasks: summary.sharedTaskSummary?.openTasks ?? 0,
     sharedBlockedTasks: summary.sharedTaskSummary?.blockedTasks ?? 0,
     sharedOverdueTasks: summary.sharedTaskSummary?.overdueTasks ?? 0,

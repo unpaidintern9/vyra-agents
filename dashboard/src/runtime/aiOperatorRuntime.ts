@@ -1,4 +1,5 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
+import { buildDashboardConnectorReadiness, type ConnectorReadinessSummary } from './connectorReadiness';
 import { buildDashboardSharedTaskSummary, type SharedTaskDashboardSummary } from './sharedTaskQueue';
 
 export interface AiOperatorMetadata {
@@ -24,6 +25,7 @@ export interface AiOperatorDashboardSnapshot {
   metadata: AiOperatorMetadata;
   communicationDrafts: AiCommunicationDraftSnapshot;
   communicationProviders: AiCommunicationProviderSnapshot;
+  connectorReadiness: ConnectorReadinessSummary;
   safetyMode: string;
   sharedTasks: SharedTaskDashboardSummary;
   threadBridge: AiThreadBridgeSnapshot;
@@ -135,6 +137,11 @@ export const aiOperatorCommands = [
   'npm run tasks:archive',
   'npm run tasks:report',
   'npm run tasks:validate',
+  'npm run connectors:status',
+  'npm run connectors:readiness',
+  'npm run connectors:approval-map',
+  'npm run connectors:safety-check',
+  'npm run connectors:validate',
 ];
 
 export const aiOperatorBlockedActions = [
@@ -188,12 +195,14 @@ export function buildAiOperatorDashboardSnapshot(input: {
   threadApprovalDecisionCounts?: { approved: number; rejected: number };
   threadDueSchedules?: number;
   runtime: AgentRuntimeSnapshot;
+  connectorReadiness?: ConnectorReadinessSummary;
   sharedTasks?: SharedTaskDashboardSummary;
 }): AiOperatorDashboardSnapshot {
   const metadata = buildAiOperatorMetadata(input.integrationMode);
   const warningAgents = input.runtime.agents.filter((agent) => input.runtime.health[agent.id]?.warnings > 0).length;
   const blockedAgents = input.runtime.agents.filter((agent) => input.runtime.health[agent.id]?.errors > 0).length;
   const runtimeHealth = blockedAgents > 0 ? 'Attention' : warningAgents > 0 ? 'Watch' : 'Ready';
+  const connectorReadiness = input.connectorReadiness ?? buildDashboardConnectorReadiness();
   const sharedTasks = input.sharedTasks ?? buildDashboardSharedTaskSummary();
 
   return {
@@ -242,6 +251,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
       ],
       sendingDisabled: true,
     },
+    connectorReadiness,
     safetyMode,
     sharedTasks,
     threadBridge: {

@@ -750,6 +750,29 @@ Boundaries:
 - No Supabase production writes.
 - No production business writes.
 - No secrets committed.
+
+## Phase 35
+
+Connector Readiness and Approval Mapping.
+
+Includes:
+
+- Local connector readiness models for GitHub, Gmail, Google Calendar, Stripe, Supabase, Twilio/SMS, and Google Drive.
+- Connector fields for name, status, required config names, allowed reads, blocked writes, approval requirement, safety mode, and last check timestamp.
+- Approval mapping from future task/action types to connector approval request types.
+- Root npm scripts for `connectors:status`, `connectors:readiness`, `connectors:approval-map`, `connectors:safety-check`, and `connectors:validate`.
+- Operator Dashboard Connector Readiness section.
+- Executive Dashboard connector risk summary metrics and priority signal.
+- Sales Dashboard disabled connector action placeholders.
+- Connector Readiness and Approval Mapping reports in ignored Markdown and JSON report files.
+
+Boundaries:
+
+- No real connector calls.
+- No GitHub, Gmail, Calendar, Stripe, Supabase, Twilio, or Google Drive writes.
+- No production data writes.
+- No secret output.
+- All connector write actions remain disabled placeholders behind explicit approval gates.
 - No `.env.local` modifications.
 - Future external actions remain explicit placeholders behind approval gates.
 

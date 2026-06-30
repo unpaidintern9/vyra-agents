@@ -1,4 +1,5 @@
 import type { RiskLevel } from '../../components/RiskBadge';
+import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness';
 import type { CrossAgentCollaborationGraph, CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 
@@ -454,6 +455,7 @@ export interface SalesPageProps {
   scores: LeadScore[];
   salesIntelligenceGraph: SalesIntelligenceGraph;
   salesIntelligenceSummary: SalesIntelligenceSummary;
+  connectorReadiness?: ConnectorReadinessSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
   teamAgents: SalesTeamAgentDefinition[];
   teamSummary: SalesAgentTeamSummary;
