@@ -2,6 +2,7 @@ import {
   Activity,
   AlertTriangle,
   ArrowRight,
+  Bot,
   CircleDot,
   Database,
   Download,
@@ -83,6 +84,7 @@ import { getSupabaseEnvStatus } from './integrations/supabase/supabaseClient';
 import { getSupabaseStatus } from './integrations/supabase/supabaseStatus';
 import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/supabase/supabaseTypes';
 import { buildAgentRuntime } from './runtime/agentRuntime';
+import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } from './runtime/aiOperatorRuntime';
 import {
   buildCrossAgentCollaborationGraph,
   buildCrossAgentCollaborationReport,
@@ -130,6 +132,12 @@ import { navItems } from './data';
 
 type IntegrationMode = 'mock' | 'live';
 type EffectiveMode = 'mock' | 'live' | 'fallback';
+
+interface OperatorDashboardState {
+  lastReport: string | null;
+  lastRun: string;
+  lastValidation: string | null;
+}
 
 interface IntegrationSnapshot {
   requestedMode: IntegrationMode;
@@ -195,6 +203,13 @@ function App() {
   const [syncConnectionState, setSyncConnectionState] = useState<SyncConnectionState>('disabled');
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [syncEnabled] = useState(true);
+  const [operatorDashboard, setOperatorDashboard] = useState(() =>
+    loadLocalState<OperatorDashboardState>(localStorageKeys.operatorDashboard, () => ({
+      lastReport: null,
+      lastRun: new Date().toISOString(),
+      lastValidation: null,
+    })),
+  );
 
   const migrationIssues = useMemo(() => validateMigrationMembers(importedMembers), []);
   const memberMatches = useMemo(() => matchMigrationMembers(importedMembers, existingVyraUsers), []);
@@ -306,6 +321,7 @@ function App() {
   useEffect(() => saveLocalState(localStorageKeys.workflowResults, workflowRuns), [workflowRuns]);
   useEffect(() => saveLocalState(localStorageKeys.migrationDryRuns, migrationDryRuns), [migrationDryRuns]);
   useEffect(() => saveLocalState(localStorageKeys.approvalHistory, approvalHistory), [approvalHistory]);
+  useEffect(() => saveLocalState(localStorageKeys.operatorDashboard, operatorDashboard), [operatorDashboard]);
   useEffect(() => saveSyncQueue(syncQueue), [syncQueue]);
 
   useEffect(() => {
@@ -1141,6 +1157,16 @@ function App() {
 
   const status = snapshot ?? buildLoadingSnapshot();
   const pageWarnings = [...status.warnings, ...syncStatusWarnings(syncStatus)];
+  const operatorSnapshot = buildAiOperatorDashboardSnapshot({
+    integrationMode: modeLabel(status.effectiveMode),
+    lastReport: operatorDashboard.lastReport,
+    lastRun: operatorDashboard.lastRun,
+    lastValidation: operatorDashboard.lastValidation,
+    runtime,
+  });
+  const recordOperatorRun = () => setOperatorDashboard((current) => ({ ...current, lastRun: new Date().toISOString() }));
+  const recordOperatorReport = () => setOperatorDashboard((current) => ({ ...current, lastReport: new Date().toISOString() }));
+  const recordOperatorValidation = () => setOperatorDashboard((current) => ({ ...current, lastValidation: new Date().toISOString() }));
   const pageTitle =
     activePage === 'Overview'
       ? 'Executive Agent'
@@ -1148,7 +1174,9 @@ function App() {
         ? 'Migration Agent'
         : activePage === 'Sales'
           ? 'Sales Agent'
-          : activePage;
+          : activePage === 'Operator'
+            ? 'AI Operator'
+            : activePage;
 
   return (
     <div className="app-shell">
@@ -1302,6 +1330,14 @@ function App() {
             onRunDryCheck={runWorkflowDryCheck}
             runs={workflowRuns}
             workflows={workflowRegistry}
+          />
+        ) : activePage === 'Operator' ? (
+          <OperatorPage
+            onRecordReport={recordOperatorReport}
+            onRecordRun={recordOperatorRun}
+            onRecordValidation={recordOperatorValidation}
+            operator={operatorSnapshot}
+            runtime={runtime}
           />
         ) : activePage === 'Runtime' ? (
           <RuntimePage runtime={runtime} syncStatus={syncStatus} />
@@ -1462,6 +1498,102 @@ function RuntimePage({ runtime, syncStatus }: { runtime: AgentRuntimeSnapshot; s
         />
       </Panel>
     </section>
+  );
+}
+
+function OperatorPage({
+  onRecordReport,
+  onRecordRun,
+  onRecordValidation,
+  operator,
+  runtime,
+}: {
+  onRecordReport(): void;
+  onRecordRun(): void;
+  onRecordValidation(): void;
+  operator: AiOperatorDashboardSnapshot;
+  runtime: AgentRuntimeSnapshot;
+}) {
+  return (
+    <>
+      <section className="summary-grid" aria-label="Operator summary">
+        <Metric icon={<Bot size={20} />} label="Active Operator" value={operator.activeOperator} />
+        <Metric icon={<ShieldCheck size={20} />} label="Safety Mode" value={operator.safetyMode} />
+        <Metric icon={<Network size={20} />} label="Integration Mode" value={operator.integrationMode} />
+        <Metric icon={<ListChecks size={20} />} label="Runtime Health" value={operator.agentRuntimeHealth} />
+      </section>
+      <section className="dashboard-grid">
+        <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Operator Name" value={operator.metadata.operatorName} />
+            <Fact label="Operator Tool" value={operator.metadata.operatorTool} />
+            <Fact label="Operator Version" value={operator.metadata.operatorVersion} />
+            <Fact label="Git Branch" value={operator.metadata.gitBranch} />
+            <Fact label="Git Commit" value={operator.metadata.gitCommit} />
+            <Fact label="Timestamp" value={formatDate(operator.metadata.timestamp)} />
+            <Fact label="Last Run" value={formatDate(operator.lastRun)} />
+            <Fact label="Last Report" value={formatOptionalDate(operator.lastReport)} />
+            <Fact label="Last Validation" value={formatOptionalDate(operator.lastValidation)} />
+          </div>
+          <div className="button-row sales-action-row">
+            <button className="report-button small" onClick={onRecordRun} type="button">
+              Record Local Run
+            </button>
+            <button className="report-button small" onClick={onRecordReport} type="button">
+              Record Local Report
+            </button>
+            <button className="report-button small" onClick={onRecordValidation} type="button">
+              Record Local Validation
+            </button>
+          </div>
+          <p className="subtle-note">These controls update local dashboard metadata only. They do not call external tools or write production data.</p>
+        </Panel>
+
+        <Panel title="Shared Command Interface" icon={<Workflow size={18} />} wide>
+          <p className="panel-description">
+            Codex, Claude, and future supported assistants use the same tool-agnostic command surface from the repo root.
+          </p>
+          <DataTable
+            columns={['Command', 'Purpose']}
+            rows={operator.commands.map((command) => [
+              <code key={command}>{command}</code>,
+              operatorCommandPurpose(command),
+            ])}
+          />
+        </Panel>
+
+        <Panel title="Safety Controls" icon={<ShieldCheck size={18} />} wide>
+          <div className="safety-badge-row">
+            {operator.blockedExternalActions.map((action) => (
+              <StatusBadge key={action} value={action} tone="good" />
+            ))}
+          </div>
+          <p className="panel-description">
+            Future external actions remain placeholders behind explicit approval gates. Operator reports must not include secrets or production write payloads.
+          </p>
+        </Panel>
+
+        <Panel title="Agent Runtime Health" icon={<ListChecks size={18} />} wide>
+          <DataTable
+            columns={['Agent', 'Owner', 'Health', 'Warnings', 'Errors', 'Workflows', 'Production Write', 'External Send']}
+            rows={runtime.agents.map((agent) => {
+              const health = runtime.health[agent.id];
+              const permissions = runtime.permissions[agent.id];
+              return [
+                agent.name,
+                agent.owner,
+                <StatusBadge key={`${agent.id}-operator-health`} value={runtimeAgentStatus(agent.health)} tone={agent.health === 'ready' ? 'good' : 'neutral'} />,
+                String(health?.warnings ?? 0),
+                String(health?.errors ?? 0),
+                String(health?.workflowCount ?? agent.workflows.length),
+                yesNo(permissions.productionWrite),
+                yesNo(permissions.externalSend),
+              ];
+            })}
+          />
+        </Panel>
+      </section>
+    </>
   );
 }
 
@@ -2538,6 +2670,22 @@ function formatDate(value: string): string {
   }
   const parsed = new Date(value);
   return Number.isNaN(parsed.valueOf()) ? value : parsed.toLocaleString();
+}
+
+function formatOptionalDate(value: string): string {
+  if (!value || value.startsWith('No ') || value.startsWith('Use ')) return value;
+  return formatDate(value);
+}
+
+function operatorCommandPurpose(command: string): string {
+  if (command.endsWith('agents:status')) return 'Print operator identity, runtime status, and safety status.';
+  if (command.endsWith('agents:run')) return 'Run the local operator workflow and generate all report groups.';
+  if (command.endsWith('agents:executive-summary')) return 'Generate the Executive Run Summary report.';
+  if (command.endsWith('agents:report')) return 'Generate a selected operator report, defaulting to runtime.';
+  if (command.endsWith('agents:safety-check')) return 'Check local safety rails and secret-looking diffs.';
+  if (command.endsWith('agents:graph')) return 'Generate the local cross-agent operator graph.';
+  if (command.endsWith('agents:validate')) return 'Validate command availability, report directories, and safety checks.';
+  return 'Shared local operator command.';
 }
 
 function modeLabel(mode: EffectiveMode | IntegrationMode): string {

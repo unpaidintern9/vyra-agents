@@ -9,6 +9,7 @@ export const localStorageKeys = {
   migrationDryRuns: 'vyra-agents:migration-dry-runs',
   migrationImportWizard: 'vyra-agents:migration-import-wizard',
   migrationBatchPreview: 'vyra-agents:migration-batch-preview',
+  operatorDashboard: 'vyra-agents:operator-dashboard',
   salesActivities: 'vyra-agents:sales-activities',
   salesLeads: 'vyra-agents:sales-leads',
   salesProspectDossiers: 'vyra-agents:sales-prospect-dossiers',

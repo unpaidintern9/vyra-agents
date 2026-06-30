@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BrainCircuit,
+  Bot,
   CheckCircle2,
   ClipboardList,
   Code2,
@@ -24,6 +25,7 @@ export const navItems = [
   { label: 'Products', icon: Package },
   { label: 'Integrations', icon: Link2 },
   { label: 'Runtime', icon: ListChecks },
+  { label: 'Operator', icon: Bot },
   { label: 'Workflows', icon: Workflow },
   { label: 'Agent Memory', icon: BrainCircuit },
   { label: 'Sync Queue', icon: Database },

@@ -1,0 +1,15 @@
+{
+  "name": "vyra-agents-operator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "agents:status": "node scripts/agent-operator.mjs status",
+    "agents:run": "node scripts/agent-operator.mjs run",
+    "agents:executive-summary": "node scripts/agent-operator.mjs executive-summary",
+    "agents:report": "node scripts/agent-operator.mjs report",
+    "agents:safety-check": "node scripts/agent-operator.mjs safety-check",
+    "agents:graph": "node scripts/agent-operator.mjs graph",
+    "agents:validate": "node scripts/agent-operator.mjs validate"
+  }
+}

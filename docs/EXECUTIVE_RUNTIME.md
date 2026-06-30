@@ -14,6 +14,8 @@ The dashboard builds one `AgentRuntimeSnapshot` from local state and workflow re
 - Runtime summary facts.
 - Report payloads.
 
+As of Phase 28, the Executive Runtime is also summarized by the shared AI Operator command interface. `npm run agents:run` and `npm run agents:executive-summary` write timestamped Markdown and JSON Executive Run Summary reports with operator metadata.
+
 ## Priority Rules
 
 Priority rules live in `dashboard/src/runtime/executiveRules.ts`.
@@ -42,3 +44,5 @@ Rows include pending tasks, workflow count, approval count, warnings, errors, sy
 ## Boundaries
 
 The Executive Runtime does not own write paths. It only summarizes existing runtime state and triggers local report downloads.
+
+The AI Operator command interface follows the same boundary. It writes local reports only and does not send email, create Stripe invoices, write CRM records, or write production business data.

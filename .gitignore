@@ -12,3 +12,6 @@ pnpm-debug.log*
 coverage/
 .tools/
 tools/deno/
+reports/agents/**/*.json
+reports/agents/**/*.md
+!reports/agents/**/.gitkeep

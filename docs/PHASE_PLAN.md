@@ -699,3 +699,28 @@ Boundaries:
 - No CRM production records are written.
 - No production business tables are written.
 - All cross-agent graph records are derived from local/mock/read-only state.
+
+## Phase 28
+
+Shared AI Operator Interface.
+
+Includes:
+
+- Tool-agnostic operator command layer for Codex, Claude, and future supported assistants.
+- Root npm scripts for `agents:status`, `agents:run`, `agents:executive-summary`, `agents:report`, `agents:safety-check`, `agents:graph`, and `agents:validate`.
+- Operator identity metadata for operator name, operator tool, optional version, timestamp, git branch, git commit, integration mode, and safety mode.
+- Shared ignored report directories under `reports/agents/` for Executive, Engineering, Sales, Migration, and Runtime reports.
+- Timestamped Markdown and JSON report generation with operator metadata embedded in every report.
+- Executive Run Summary with Executive priorities, Engineering blockers, Sales pipeline highlights, Migration readiness, follow-ups due, organizations requiring review, safety warnings, cross-agent health, and validation status.
+- Operator Dashboard page showing active operator, last local run/report/validation metadata, safety mode, integration mode, command surface, blocked external actions, and agent runtime health.
+
+Boundaries:
+
+- No email or SMS sends.
+- No CRM writes.
+- No Stripe writes.
+- No Supabase production writes.
+- No production business table writes.
+- No secret output.
+- No `.env.local` modifications.
+- Future external actions remain explicit placeholders behind approval gates.

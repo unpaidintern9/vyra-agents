@@ -28,6 +28,8 @@ As of Phase 27, agents can also contribute to a local Cross-Agent Collaboration 
 
 The collaboration graph is read-only and derived from local/mock dashboard state. It is a planning layer, not a production write path.
 
+As of Phase 28, AI coding assistants can operate the ecosystem through a shared Operator command interface. The interface is tool-agnostic and supports Codex, Claude, and future approved assistants through operator metadata rather than assistant-specific workflows.
+
 ## Immediate Agents
 
 - Executive Agent: Aggregates shared runtime status into a deterministic operations dashboard for Robert.
@@ -63,6 +65,14 @@ The Cross-Agent Collaboration layer connects department signals without enabling
 Supported relationship types include `requested_feature`, `blocked_by`, `related_to_migration`, `sales_opportunity_for`, `executive_priority_for`, `requires_follow_up`, `needs_approval`, and `ready_for_review`.
 
 See `docs/CROSS_AGENT_COLLABORATION.md` and `docs/VYRA_KNOWLEDGE_GRAPH.md`.
+
+## AI Operator Interface
+
+The shared operator interface exposes root npm commands for status, run, Executive summary, reports, safety checks, graph export, and validation.
+
+Reports include operator name, operator tool, optional version, timestamp, git branch, git commit, integration mode, and safety mode.
+
+See `docs/AI_OPERATOR_GUIDE.md`, `docs/AI_OPERATOR_RUNTIME.md`, and `docs/MULTI_OPERATOR_WORKFLOW.md`.
 
 ## Planned Agents
 
