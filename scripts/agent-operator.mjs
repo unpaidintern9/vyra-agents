@@ -26,6 +26,7 @@ switch (command) {
       threadBridge: snapshot.threadBridge,
       communicationDrafts: snapshot.communicationDrafts,
       communicationProviders: snapshot.communicationProviders,
+      sharedTasks: snapshot.sharedTasks,
       activeAgents: snapshot.runtime.agentsReady,
       plannedAgents: snapshot.runtime.agentsPlanned,
     });

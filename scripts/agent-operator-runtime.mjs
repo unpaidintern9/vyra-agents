@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCommunicationDraftStatus, buildCommunicationProviderReadiness } from './comms-draft-runtime.mjs';
+import { buildSharedTaskStatus } from './shared-task-runtime.mjs';
 import { buildThreadBridgeStatus } from './thread-bridge-runtime.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -114,6 +115,7 @@ export function buildOperatorSnapshot(options = {}) {
   const threadBridge = buildThreadBridgeStatus();
   const communicationDrafts = buildCommunicationDraftStatus();
   const communicationProviders = buildCommunicationProviderReadiness();
+  const sharedTasks = buildSharedTaskStatus();
   const threadPriority =
     threadBridge.pendingOutboxItems > 0
       ? [`Review ${threadBridge.pendingOutboxItems} pending Codex thread outbox item(s) from ${threadBridge.latestThread}.`]
@@ -122,6 +124,11 @@ export function buildOperatorSnapshot(options = {}) {
   const approvalPriority = threadBridge.pendingApprovals > 0 ? [`Resolve ${threadBridge.pendingApprovals} local approval queue item(s).`] : [];
   const communicationPriority =
     communicationDrafts.pendingReviewDrafts > 0 ? [`Review ${communicationDrafts.pendingReviewDrafts} local communication draft(s).`] : [];
+  const taskPriority = [
+    sharedTasks.blockedTasks > 0 ? `Unblock ${sharedTasks.blockedTasks} shared work queue task(s).` : null,
+    sharedTasks.overdueTasks > 0 ? `Review ${sharedTasks.overdueTasks} overdue shared work queue task(s).` : null,
+    sharedTasks.tasksRequiringExecutiveReview > 0 ? `Review ${sharedTasks.tasksRequiringExecutiveReview} task(s) requiring Executive approval.` : null,
+  ].filter(Boolean);
 
   return {
     operator,
@@ -140,6 +147,7 @@ export function buildOperatorSnapshot(options = {}) {
         ...schedulePriority,
         ...approvalPriority,
         ...communicationPriority,
+        ...taskPriority,
         'Review cross-agent collaboration before approving proposal, migration, or follow-up work.',
         'Keep Sales external actions disabled until CRM/email/Stripe approval gates exist.',
         'Review Engineering warnings before future live issue creation.',
@@ -159,6 +167,13 @@ export function buildOperatorSnapshot(options = {}) {
       followUpsDue: 2,
       organizationsRequiringReview: crossAgent.organizationsNeedingExecutiveReview,
       externalActionsEnabled: false,
+      sharedTaskSignals: {
+        linkedTasks: sharedTasks.openTasks,
+        blockedTasks: sharedTasks.blockedTasks,
+        proposalTasks: sharedTasks.tasksByCategory.Sales ?? 0,
+        migrationTasks: sharedTasks.tasksByCategory.Migration ?? 0,
+        engineeringTasks: sharedTasks.tasksByCategory.Engineering ?? 0,
+      },
     },
     migration: {
       readiness: 'local import, validation, batch preview, and dry-run review ready',
@@ -173,7 +188,8 @@ export function buildOperatorSnapshot(options = {}) {
     threadBridge,
     communicationDrafts,
     communicationProviders,
-    graph: buildCrossAgentGraph(operator, crossAgent),
+    sharedTasks,
+    graph: buildCrossAgentGraph(operator, crossAgent, sharedTasks),
   };
 }
 
@@ -214,6 +230,7 @@ export function writeReportSet(snapshot) {
     writeReport('runtime', 'runtime-operator-status', buildRuntimeReport(snapshot)),
     writeReport('runtime', 'operator-safety-check', snapshot.safety),
     writeReport('runtime', 'cross-agent-graph', snapshot.graph),
+    writeReport('runtime', 'shared-work-queue-status', { title: 'Shared Work Queue Status', operator: snapshot.operator, summary: snapshot.sharedTasks }),
   ].flat();
 }
 
@@ -253,12 +270,13 @@ export function buildExecutiveRunSummary(snapshot) {
     threadBridge: snapshot.threadBridge,
     communicationDrafts: snapshot.communicationDrafts,
     communicationProviders: snapshot.communicationProviders,
+    sharedTasks: snapshot.sharedTasks,
     safetyWarnings: snapshot.safety.warnings,
     validation: snapshot.safety,
   };
 }
 
-export function buildCrossAgentGraph(operator, summary) {
+export function buildCrossAgentGraph(operator, summary, sharedTasks = { knowledgeGraph: { nodes: [], edges: [] }, openTasks: 0 }) {
   return {
     title: 'Cross-Agent Operator Graph',
     operator,
@@ -269,16 +287,23 @@ export function buildCrossAgentGraph(operator, summary) {
       { id: 'engineering', type: 'agent', label: 'Engineering Agent' },
       { id: 'sales', type: 'agent', label: 'Sales Agent' },
       { id: 'migration', type: 'agent', label: 'Migration Agent' },
+      { id: 'shared-work-queue', type: 'coordination_system', label: 'Shared Work Queue' },
       { id: 'safety', type: 'control', label: operator.safetyMode },
+      ...sharedTasks.knowledgeGraph.nodes,
     ],
     edges: [
       { from: 'operator', to: 'executive', relationship: 'runs' },
       { from: 'executive', to: 'engineering', relationship: 'reads_blockers' },
       { from: 'executive', to: 'sales', relationship: 'reads_opportunities' },
       { from: 'executive', to: 'migration', relationship: 'reads_readiness' },
+      { from: 'executive', to: 'shared-work-queue', relationship: 'reviews_task_health' },
+      { from: 'shared-work-queue', to: 'sales', relationship: 'coordinates_sales_tasks' },
+      { from: 'shared-work-queue', to: 'engineering', relationship: 'coordinates_engineering_tasks' },
+      { from: 'shared-work-queue', to: 'migration', relationship: 'coordinates_migration_tasks' },
       { from: 'safety', to: 'operator', relationship: 'constrains' },
+      ...sharedTasks.knowledgeGraph.edges,
     ],
-    summary,
+    summary: { ...summary, sharedTasksOpen: sharedTasks.openTasks },
   };
 }
 
@@ -318,6 +343,7 @@ function buildRuntimeReport(snapshot) {
     operator: snapshot.operator,
     generatedAt: snapshot.operator.timestamp,
     summary: snapshot.runtime,
+    sharedTasks: snapshot.sharedTasks,
     agents,
     workflows,
   };

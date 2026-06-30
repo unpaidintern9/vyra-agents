@@ -1,5 +1,6 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { CrossAgentCollaborationSummary } from './crossAgentCollaboration';
+import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
 import type {
   SalesAgentTeamSummary,
@@ -23,6 +24,7 @@ export function buildExecutivePriorities(
   salesProspectDossierSummary?: SalesProspectDossierSummary,
   salesIntelligenceSummary?: SalesIntelligenceSummary,
   crossAgentSummary?: CrossAgentCollaborationSummary,
+  sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutivePriority[] {
   const priorities: ExecutivePriority[] = [];
   const pendingApprovals = runtime.approvals.filter((approval) => approval.status === 'pending');
@@ -188,6 +190,30 @@ export function buildExecutivePriorities(
       priority: crossAgentSummary.highValueOpportunitiesBlockedByEngineering > 0 ? 'high' : 'medium',
       recommendedAction: 'Open Sales and review Cross-Agent Collaboration before approving follow-up, proposal, or migration work.',
       source: 'Cross-agent collaboration graph',
+    });
+  }
+
+  if (sharedTaskSummary && (sharedTaskSummary.blockedTasks > 0 || sharedTaskSummary.overdueTasks > 0)) {
+    priorities.push({
+      id: 'shared-work-queue-health',
+      agent: 'Executive Agent',
+      department: 'Operations',
+      detail: `${sharedTaskSummary.blockedTasks} blocked task(s) and ${sharedTaskSummary.overdueTasks} overdue task(s) are in the shared work queue.`,
+      priority: sharedTaskSummary.blockedTasks > 0 ? 'high' : 'medium',
+      recommendedAction: 'Open Operator and review the Shared Work Queue before assigning new agent work.',
+      source: 'Shared task system',
+    });
+  }
+
+  if (sharedTaskSummary && sharedTaskSummary.tasksRequiringExecutiveReview > 0) {
+    priorities.push({
+      id: 'shared-task-executive-review',
+      agent: 'Executive Agent',
+      department: 'Executive',
+      detail: `${sharedTaskSummary.tasksRequiringExecutiveReview} shared task(s) require Executive review or approval.`,
+      priority: 'medium',
+      recommendedAction: 'Open Operator and resolve local task review items.',
+      source: 'Shared task system',
     });
   }
 

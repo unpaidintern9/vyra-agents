@@ -722,6 +722,34 @@ Boundaries:
 - No Supabase production writes.
 - No production business table writes.
 - No secret output.
+
+## Phase 34
+
+Shared Cross-Agent Task and Work Queue.
+
+Includes:
+
+- Unified local Shared Task model with id, title, description, source agent, assigned agent, organization, priority, status, category, timestamps, approval flag, linked entities, notes, and related graph node ids.
+- Supported agents: Executive, Engineering, Sales, Migration, Support, Operations, Customer Success, Research, and Future agents.
+- Local task actions for create, assign, claim, reassign, escalate, complete, and archive.
+- Root npm scripts for `tasks:status`, `tasks:list`, `tasks:create`, `tasks:assign`, `tasks:claim`, `tasks:complete`, `tasks:archive`, `tasks:report`, and `tasks:validate`.
+- Shared task schema and example payload under `codex-agent-threads/shared/`.
+- Operator Dashboard Shared Work Queue section with active work, newest assignments, recently completed work, blocked work, workload distribution, and queue health.
+- Executive Dashboard task health signals for open, blocked, overdue, review-required tasks, queue health, task priority mix, and workload.
+- Sales Dashboard linked task section for migration, engineering, follow-up, proposal, and customer onboarding work.
+- Local task nodes and relationships published into the Vyra Knowledge Graph.
+- Work Queue, Executive Task Summary, Agent Workload, and Blocked Work reports in ignored Markdown and JSON report files.
+
+Boundaries:
+
+- Local/mock/read-only only.
+- No background execution.
+- No email or SMS sends.
+- No CRM writes.
+- No Stripe writes.
+- No Supabase production writes.
+- No production business writes.
+- No secrets committed.
 - No `.env.local` modifications.
 - Future external actions remain explicit placeholders behind approval gates.
 

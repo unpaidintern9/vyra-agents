@@ -1,4 +1,5 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
+import { buildDashboardSharedTaskSummary, type SharedTaskDashboardSummary } from './sharedTaskQueue';
 
 export interface AiOperatorMetadata {
   gitBranch: string;
@@ -24,6 +25,7 @@ export interface AiOperatorDashboardSnapshot {
   communicationDrafts: AiCommunicationDraftSnapshot;
   communicationProviders: AiCommunicationProviderSnapshot;
   safetyMode: string;
+  sharedTasks: SharedTaskDashboardSummary;
   threadBridge: AiThreadBridgeSnapshot;
 }
 
@@ -124,6 +126,15 @@ export const aiOperatorCommands = [
   'npm run comms:audit',
   'npm run comms:audit-report',
   'npm run comms:validate',
+  'npm run tasks:status',
+  'npm run tasks:list',
+  'npm run tasks:create',
+  'npm run tasks:assign',
+  'npm run tasks:claim',
+  'npm run tasks:complete',
+  'npm run tasks:archive',
+  'npm run tasks:report',
+  'npm run tasks:validate',
 ];
 
 export const aiOperatorBlockedActions = [
@@ -177,11 +188,13 @@ export function buildAiOperatorDashboardSnapshot(input: {
   threadApprovalDecisionCounts?: { approved: number; rejected: number };
   threadDueSchedules?: number;
   runtime: AgentRuntimeSnapshot;
+  sharedTasks?: SharedTaskDashboardSummary;
 }): AiOperatorDashboardSnapshot {
   const metadata = buildAiOperatorMetadata(input.integrationMode);
   const warningAgents = input.runtime.agents.filter((agent) => input.runtime.health[agent.id]?.warnings > 0).length;
   const blockedAgents = input.runtime.agents.filter((agent) => input.runtime.health[agent.id]?.errors > 0).length;
   const runtimeHealth = blockedAgents > 0 ? 'Attention' : warningAgents > 0 ? 'Watch' : 'Ready';
+  const sharedTasks = input.sharedTasks ?? buildDashboardSharedTaskSummary();
 
   return {
     activeOperator: `${metadata.operatorName} / ${metadata.operatorTool}`,
@@ -230,6 +243,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
       sendingDisabled: true,
     },
     safetyMode,
+    sharedTasks,
     threadBridge: {
       approvalQueue: {
         approvedCount: input.threadApprovalDecisionCounts?.approved ?? 0,

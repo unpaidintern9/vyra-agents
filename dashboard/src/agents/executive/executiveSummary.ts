@@ -1,6 +1,7 @@
 import { buildExecutivePriorities } from '../../runtime/executiveRules';
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
+import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 import type { LocalReport } from '../../storage/reportExport';
 import type {
   SalesAgentTeamSummary,
@@ -31,6 +32,7 @@ export function buildExecutiveSummary(
   salesProspectDossierSummary?: SalesProspectDossierSummary,
   salesIntelligenceSummary?: SalesIntelligenceSummary,
   crossAgentSummary?: CrossAgentCollaborationSummary,
+  sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutiveSummary {
   const healthRows = buildExecutiveHealthRows(runtime);
   const healthyAgents = healthRows.filter((agent) => agent.risk === 'low').length;
@@ -66,6 +68,7 @@ export function buildExecutiveSummary(
       salesProspectDossierSummary,
       salesIntelligenceSummary,
       crossAgentSummary,
+      sharedTaskSummary,
     ),
     recentRuntimeEvents: runtime.activities.length,
     registeredAgents: runtime.agents.length,
@@ -83,6 +86,7 @@ export function buildExecutiveSummary(
     salesProspectDossierSummary,
     salesScoringSummary,
     salesSummary,
+    sharedTaskSummary,
   };
 }
 
@@ -158,6 +162,11 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     crossAgentProposalsNeedingApproval: summary.crossAgentSummary?.proposalsNeedingApproval ?? 0,
     crossAgentFeatureRequestsTiedToProspects: summary.crossAgentSummary?.featureRequestsTiedToProspects ?? 0,
     crossAgentOrganizationsNeedingExecutiveReview: summary.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0,
+    sharedOpenTasks: summary.sharedTaskSummary?.openTasks ?? 0,
+    sharedBlockedTasks: summary.sharedTaskSummary?.blockedTasks ?? 0,
+    sharedOverdueTasks: summary.sharedTaskSummary?.overdueTasks ?? 0,
+    sharedTasksRequiringExecutiveReview: summary.sharedTaskSummary?.tasksRequiringExecutiveReview ?? 0,
+    sharedQueueHealth: summary.sharedTaskSummary?.queueHealth ?? 'Not configured',
     syncQueue: summary.syncQueue,
     runtimeVersion: summary.runtimeVersion,
     productionWritesOccurred: 'No',

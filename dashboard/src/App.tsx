@@ -85,6 +85,7 @@ import { getSupabaseStatus } from './integrations/supabase/supabaseStatus';
 import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/supabase/supabaseTypes';
 import { buildAgentRuntime } from './runtime/agentRuntime';
 import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } from './runtime/aiOperatorRuntime';
+import { buildDashboardSharedTaskSummary } from './runtime/sharedTaskQueue';
 import {
   buildCrossAgentCollaborationGraph,
   buildCrossAgentCollaborationReport,
@@ -1210,6 +1211,7 @@ function App() {
 
   const status = snapshot ?? buildLoadingSnapshot();
   const pageWarnings = [...status.warnings, ...syncStatusWarnings(syncStatus)];
+  const sharedTaskSummary = buildDashboardSharedTaskSummary();
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
     communicationDraftCounts: operatorDashboard.communicationDraftCounts,
     communicationDraftsByType: operatorDashboard.communicationDraftsByType,
@@ -1227,6 +1229,7 @@ function App() {
     threadApprovalDecisionCounts: operatorDashboard.threadApprovalDecisionCounts,
     threadDueSchedules: operatorDashboard.threadDueSchedules,
     runtime,
+    sharedTasks: sharedTaskSummary,
   });
   const recordOperatorRun = () => setOperatorDashboard((current) => ({ ...current, lastRun: new Date().toISOString() }));
   const recordOperatorReport = () => setOperatorDashboard((current) => ({ ...current, lastReport: new Date().toISOString() }));
@@ -1429,6 +1432,7 @@ function App() {
             scores={salesScores}
             salesIntelligenceGraph={salesIntelligenceGraph}
             salesIntelligenceSummary={salesIntelligenceSummary}
+            sharedTaskSummary={sharedTaskSummary}
             teamAgents={salesTeamAgents}
             teamSummary={salesAgentTeamSummary}
             scoringSummary={salesScoringSummary}
@@ -1510,6 +1514,7 @@ function App() {
             salesProposalSummary={salesProposalSummary}
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
+            sharedTaskSummary={sharedTaskSummary}
           />
         )}
       </main>
@@ -1700,6 +1705,8 @@ function OperatorPage({
         <Metric icon={<FileClock size={20} />} label="Manual Send Queue" value={String(operator.communicationDrafts.approvedForManualSendDrafts)} />
         <Metric icon={<ShieldCheck size={20} />} label="Human-Marked Sent" value={String(operator.communicationDrafts.manuallyMarkedSentDrafts)} />
         <Metric icon={<Network size={20} />} label="Provider Readiness" value={operator.communicationProviders.sendingDisabled ? 'Send Disabled' : 'Review'} />
+        <Metric icon={<ListChecks size={20} />} label="Open Tasks" value={String(operator.sharedTasks.openTasks)} />
+        <Metric icon={<ShieldCheck size={20} />} label="Task Queue Health" value={operator.sharedTasks.queueHealth} />
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -1739,6 +1746,47 @@ function OperatorPage({
               operatorCommandPurpose(command),
             ])}
           />
+        </Panel>
+
+        <Panel title="Shared Work Queue" icon={<ListChecks size={18} />} wide>
+          <p className="panel-description">
+            All Vyra agents coordinate local work through one deterministic queue. Actions assign, claim, complete, escalate, and archive task records locally only.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Active Work Queue" value={String(operator.sharedTasks.openTasks)} />
+            <Fact label="Blocked Work" value={String(operator.sharedTasks.blockedTasks)} />
+            <Fact label="Overdue Work" value={String(operator.sharedTasks.overdueTasks)} />
+            <Fact label="Executive Review" value={String(operator.sharedTasks.tasksRequiringExecutiveReview)} />
+            <Fact label="Queue Health" value={operator.sharedTasks.queueHealth} />
+            <Fact label="Newest Assignments" value={String(operator.sharedTasks.newestAssignments.length)} />
+          </div>
+          <DataTable
+            columns={['Task', 'Agent', 'Priority', 'Status', 'Organization']}
+            rows={operator.sharedTasks.activeWorkQueue.map((task) => [
+              task.title,
+              task.assignedAgent,
+              task.priority,
+              task.status,
+              task.organization,
+            ])}
+            emptyMessage="No local shared tasks recorded in dashboard metadata."
+          />
+          <DataTable
+            columns={['Agent', 'Open', 'Blocked', 'Completed']}
+            rows={Object.entries(operator.sharedTasks.workloadByAgent).map(([agent, workload]) => [
+              agent,
+              String(workload.open),
+              String(workload.blocked),
+              String(workload.completed),
+            ])}
+            emptyMessage="No workload distribution recorded."
+          />
+          <div className="activity-list">
+            <p>Newest assignment: {operator.sharedTasks.newestAssignments[0]?.title ?? 'None recorded'}</p>
+            <p>Recently completed: {operator.sharedTasks.recentlyCompleted[0]?.title ?? 'None recorded'}</p>
+            <p>Blocked work: {operator.sharedTasks.blockedWork[0]?.title ?? 'None recorded'}</p>
+          </div>
+          <p className="subtle-note">Task queue commands write ignored local task/report files only. No background execution or production writes occur.</p>
         </Panel>
 
         <Panel title="Thread Outbox Bridge" icon={<FileClock size={18} />} wide>
@@ -3073,6 +3121,15 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('comms:audit')) return 'Print the local communication audit trail.';
   if (command.endsWith('comms:audit-report')) return 'Generate manual-send queue and communication audit trail reports.';
   if (command.endsWith('comms:validate')) return 'Validate communication draft examples, folders, and local draft payloads.';
+  if (command.endsWith('tasks:status')) return 'Print local shared work queue health and knowledge graph links.';
+  if (command.endsWith('tasks:list')) return 'List local shared task records with queue summary.';
+  if (command.endsWith('tasks:create')) return 'Create a local shared task for any Vyra agent.';
+  if (command.endsWith('tasks:assign')) return 'Assign, reassign, or escalate a task locally.';
+  if (command.endsWith('tasks:claim')) return 'Claim a local shared task for an agent.';
+  if (command.endsWith('tasks:complete')) return 'Mark a local shared task completed without external action.';
+  if (command.endsWith('tasks:archive')) return 'Archive a local shared task record.';
+  if (command.endsWith('tasks:report')) return 'Generate local Work Queue, Executive Task Summary, Agent Workload, and Blocked Work reports.';
+  if (command.endsWith('tasks:validate')) return 'Validate shared task schema, examples, generated tasks, and safety rails.';
   return 'Shared local operator command.';
 }
 

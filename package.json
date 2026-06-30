@@ -34,6 +34,15 @@
     "comms:mark-sent": "node scripts/comms-drafts.mjs mark-sent",
     "comms:audit": "node scripts/comms-drafts.mjs audit",
     "comms:audit-report": "node scripts/comms-drafts.mjs audit-report",
-    "comms:validate": "node scripts/comms-drafts.mjs validate"
+    "comms:validate": "node scripts/comms-drafts.mjs validate",
+    "tasks:status": "node scripts/shared-tasks.mjs status",
+    "tasks:list": "node scripts/shared-tasks.mjs list",
+    "tasks:create": "node scripts/shared-tasks.mjs create",
+    "tasks:assign": "node scripts/shared-tasks.mjs assign",
+    "tasks:claim": "node scripts/shared-tasks.mjs claim",
+    "tasks:complete": "node scripts/shared-tasks.mjs complete",
+    "tasks:archive": "node scripts/shared-tasks.mjs archive",
+    "tasks:report": "node scripts/shared-tasks.mjs report",
+    "tasks:validate": "node scripts/shared-tasks.mjs validate"
   }
 }

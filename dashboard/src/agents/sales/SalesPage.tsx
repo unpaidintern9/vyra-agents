@@ -1,4 +1,4 @@
-import { Brain, CalendarClock, Download, FileText, Flame, Search, ShieldCheck, Target, Upload, Users, Workflow } from 'lucide-react';
+import { Brain, CalendarClock, Download, FileText, Flame, ListChecks, Search, ShieldCheck, Target, Upload, Users, Workflow } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { RiskBadge } from '../../components/RiskBadge';
@@ -55,6 +55,7 @@ export default function SalesPage({
   scores,
   salesIntelligenceGraph,
   salesIntelligenceSummary,
+  sharedTaskSummary,
   teamAgents,
   teamSummary,
   scoringSummary,
@@ -136,6 +137,12 @@ export default function SalesPage({
         <SalesMetric icon={<Brain size={20} />} label="Organizations Tracked" value={String(salesIntelligenceSummary.organizationsTracked)} />
         <SalesMetric icon={<Target size={20} />} label="Intel Completeness" value={`${salesIntelligenceSummary.intelligenceCompletenessScore}/100`} />
         <SalesMetric icon={<Workflow size={20} />} label="Cross-Agent Signals" value={String(crossAgentSummary.activeSignals)} tone={crossAgentSummary.activeSignals ? 'warn' : 'good'} />
+        {sharedTaskSummary ? (
+          <>
+            <SalesMetric icon={<ListChecks size={20} />} label="Linked Tasks" value={String(sharedTaskSummary.openTasks)} tone={sharedTaskSummary.openTasks ? 'warn' : 'good'} />
+            <SalesMetric icon={<ShieldCheck size={20} />} label="Task Review" value={String(sharedTaskSummary.tasksRequiringExecutiveReview)} tone={sharedTaskSummary.tasksRequiringExecutiveReview ? 'warn' : 'good'} />
+          </>
+        ) : null}
       </section>
 
       <section className="dashboard-grid">
@@ -266,6 +273,39 @@ export default function SalesPage({
           </p>
           <CrossAgentCollaborationPanel graph={crossAgentGraph} onExport={onExportCrossAgent} summary={crossAgentSummary} />
         </section>
+
+        {sharedTaskSummary ? (
+          <section className="panel wide-panel">
+            <div className="panel-header">
+              <div>
+                <ListChecks size={18} />
+                <h2>Shared Sales Work Queue</h2>
+              </div>
+              <StatusBadge value={`${sharedTaskSummary.queueHealth} · local only`} tone={sharedTaskSummary.blockedTasks ? 'warn' : 'good'} />
+            </div>
+            <p className="panel-description">
+              Sales-linked work is coordinated through the shared local task system. Tasks may point to Migration, Engineering, proposals, follow-ups, and onboarding, but they do not perform external actions.
+            </p>
+            <div className="batch-grid">
+              <Fact label="Linked Tasks" value={String(sharedTaskSummary.openTasks)} />
+              <Fact label="Migration Tasks" value={String(sharedTaskSummary.migrationTasks)} />
+              <Fact label="Engineering Tasks" value={String(sharedTaskSummary.engineeringTasks)} />
+              <Fact label="Follow-Up Tasks" value={String(sharedTaskSummary.followUpTasks)} />
+              <Fact label="Proposal Tasks" value={String(sharedTaskSummary.proposalTasks)} />
+              <Fact label="Customer Onboarding Tasks" value={String(sharedTaskSummary.activeWorkQueue.filter((task) => task.category === 'Customer').length)} />
+            </div>
+            <DataTable
+              columns={['Task', 'Agent', 'Priority', 'Status', 'Organization']}
+              rows={sharedTaskSummary.activeWorkQueue.map((task) => [
+                task.title,
+                task.assignedAgent,
+                <StatusBadge key={`${task.id}-priority`} value={task.priority} tone={task.priority === 'Critical' || task.priority === 'High' ? 'warn' : 'neutral'} />,
+                task.status,
+                task.organization,
+              ])}
+            />
+          </section>
+        ) : null}
 
         <section className="panel wide-panel">
           <div className="panel-header">
@@ -1479,6 +1519,40 @@ function Fact({ label, value }: { label: string; value: string }) {
     <div className="fact">
       <span>{label}</span>
       <strong>{value}</strong>
+    </div>
+  );
+}
+
+function DataTable({
+  columns,
+  emptyMessage = 'No records available.',
+  rows,
+}: {
+  columns: string[];
+  emptyMessage?: string;
+  rows: ReactNode[][];
+}) {
+  if (rows.length === 0) return <p className="empty-table-message">{emptyMessage}</p>;
+  return (
+    <div className="table-shell">
+      <table>
+        <thead>
+          <tr>
+            {columns.map((column) => (
+              <th key={column}>{column}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, rowIndex) => (
+            <tr key={`${rowIndex}-${columns.join('-')}`}>
+              {row.map((cell, cellIndex) => (
+                <td key={`${rowIndex}-${columns[cellIndex]}`}>{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

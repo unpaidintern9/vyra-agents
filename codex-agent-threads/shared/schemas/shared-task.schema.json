@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/shared-task.schema.json",
+  "title": "Vyra Shared Cross-Agent Task",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "description",
+    "sourceAgent",
+    "assignedAgent",
+    "organization",
+    "priority",
+    "status",
+    "category",
+    "createdTimestamp",
+    "approvalRequired",
+    "linkedEntities",
+    "notes",
+    "relatedGraphNodeIds",
+    "localOnly"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "sourceAgent": {
+      "enum": ["Executive", "Engineering", "Sales", "Migration", "Support", "Operations", "Customer Success", "Research", "Future agents"]
+    },
+    "assignedAgent": {
+      "enum": ["Executive", "Engineering", "Sales", "Migration", "Support", "Operations", "Customer Success", "Research", "Future agents"]
+    },
+    "organization": { "type": "string" },
+    "priority": { "enum": ["Critical", "High", "Medium", "Low"] },
+    "status": { "enum": ["New", "Assigned", "In Progress", "Waiting", "Blocked", "Needs Review", "Approved", "Completed", "Archived"] },
+    "category": { "enum": ["Sales", "Engineering", "Migration", "Customer", "Operations", "Research", "Executive", "Documentation", "Compliance"] },
+    "createdTimestamp": { "type": "string", "format": "date-time" },
+    "dueDate": { "type": ["string", "null"], "format": "date-time" },
+    "completionTimestamp": { "type": ["string", "null"], "format": "date-time" },
+    "approvalRequired": { "type": "boolean" },
+    "linkedEntities": { "type": "array" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "relatedGraphNodeIds": { "type": "array", "items": { "type": "string" } },
+    "activityLog": { "type": "array" },
+    "updatedTimestamp": { "type": "string" },
+    "localOnly": { "const": true }
+  }
+}

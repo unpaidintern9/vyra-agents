@@ -31,6 +31,18 @@ The current rule set is deterministic:
 
 The rule engine does not call AI and does not make changes to production systems.
 
+As of Phase 34, Executive also reads Shared Task System health:
+
+- open tasks
+- blocked tasks
+- overdue tasks
+- tasks requiring Executive review
+- tasks by agent
+- tasks by priority
+- workload by agent
+
+Blocked, overdue, and approval-required tasks can create deterministic Executive priority signals. Reviewing those signals does not execute any external action.
+
 ## Health Aggregation
 
 Executive health rows are derived from runtime agent health snapshots:

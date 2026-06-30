@@ -1,5 +1,6 @@
 import type { RiskLevel } from '../../components/RiskBadge';
 import type { CrossAgentCollaborationGraph, CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
+import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 
 export type LeadType = 'gym' | 'coach' | 'organization' | 'referral';
 export type PipelineStage =
@@ -453,6 +454,7 @@ export interface SalesPageProps {
   scores: LeadScore[];
   salesIntelligenceGraph: SalesIntelligenceGraph;
   salesIntelligenceSummary: SalesIntelligenceSummary;
+  sharedTaskSummary?: SharedTaskDashboardSummary;
   teamAgents: SalesTeamAgentDefinition[];
   teamSummary: SalesAgentTeamSummary;
   scoringSummary: SalesScoringSummary;

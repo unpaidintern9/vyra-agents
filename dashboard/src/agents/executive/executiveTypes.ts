@@ -1,6 +1,7 @@
 import type { RiskLevel } from '../../components/RiskBadge';
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry, RuntimeApproval } from '../../runtime/runtimeTypes';
+import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 import type { LocalReport } from '../../storage/reportExport';
 import type {
   SalesAgentTeamSummary,
@@ -93,6 +94,7 @@ export interface ExecutiveSummary {
   salesProposalSummary?: SalesProposalSummary;
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesScoringSummary?: SalesScoringSummary;
+  sharedTaskSummary?: SharedTaskDashboardSummary;
 }
 
 export interface ExecutiveDashboardProps {
@@ -107,6 +109,7 @@ export interface ExecutiveDashboardProps {
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesScoringSummary?: SalesScoringSummary;
   salesSummary?: SalesSummary;
+  sharedTaskSummary?: SharedTaskDashboardSummary;
 }
 
 export interface ExecutiveApprovalFilters {

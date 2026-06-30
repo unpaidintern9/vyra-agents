@@ -20,6 +20,7 @@ export default function ExecutiveDashboard({
   salesProspectDossierSummary,
   salesScoringSummary,
   salesSummary,
+  sharedTaskSummary,
 }: ExecutiveDashboardProps) {
   const summary = buildExecutiveSummary(
     runtime,
@@ -32,6 +33,7 @@ export default function ExecutiveDashboard({
     salesProspectDossierSummary,
     salesIntelligenceSummary,
     crossAgentSummary,
+    sharedTaskSummary,
   );
   const healthRows = buildExecutiveHealthRows(runtime);
 

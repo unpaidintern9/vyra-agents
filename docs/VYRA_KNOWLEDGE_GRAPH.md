@@ -48,3 +48,17 @@ The Knowledge Graph is read-only and deterministic:
 - It does not write production business data.
 
 Future live integrations should keep this graph preview-first and approval-gated.
+
+## Shared Task Nodes
+
+Phase 34 publishes local `shared_task` nodes into the Knowledge Graph. Task edges connect to assigned agents, source agents, organizations, linked entities, and related graph node ids.
+
+Supported task relationships include:
+
+- `assigned_to`
+- `created_by`
+- `related_to`
+- `linked_entity`
+- `related_graph_node`
+
+Task graph links are local planning metadata. They do not create Supabase records, CRM records, Stripe records, emails, SMS, or production business writes.

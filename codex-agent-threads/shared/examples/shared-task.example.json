@@ -1,0 +1,46 @@
+{
+  "id": "task-example-sales-migration-review",
+  "title": "Review Louisville MMA migration opportunity",
+  "description": "Coordinate Sales, Migration, and Executive review for a local prospect before any external outreach occurs.",
+  "sourceAgent": "Sales",
+  "assignedAgent": "Migration",
+  "organization": "Example Louisville MMA Gym",
+  "priority": "High",
+  "status": "Needs Review",
+  "category": "Migration",
+  "createdTimestamp": "2026-06-30T12:00:00.000Z",
+  "dueDate": "2026-07-03T12:00:00.000Z",
+  "completionTimestamp": null,
+  "approvalRequired": true,
+  "linkedEntities": [
+    {
+      "id": "organization:example-louisville-mma-gym",
+      "type": "organization"
+    },
+    {
+      "id": "proposal:example-local-draft",
+      "type": "proposal"
+    },
+    {
+      "id": "migration:example-readiness-plan",
+      "type": "migration_plan"
+    }
+  ],
+  "notes": [
+    "Example task only.",
+    "Local/mock/read-only. No external actions or production writes."
+  ],
+  "relatedGraphNodeIds": [
+    "sales:lead:example",
+    "migration:plan:example"
+  ],
+  "activityLog": [
+    {
+      "action": "create_task",
+      "operator": "local operator",
+      "timestamp": "2026-06-30T12:00:00.000Z",
+      "note": "Created locally. No external action or production write occurred."
+    }
+  ],
+  "localOnly": true
+}

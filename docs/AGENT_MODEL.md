@@ -30,6 +30,8 @@ The collaboration graph is read-only and derived from local/mock dashboard state
 
 As of Phase 28, AI coding assistants can operate the ecosystem through a shared Operator command interface. The interface is tool-agnostic and supports Codex, Claude, and future approved assistants through operator metadata rather than assistant-specific workflows.
 
+As of Phase 34, agents can coordinate work through a Shared Task System. The task system supports local create, assign, claim, reassign, escalate, complete, and archive actions for Executive, Engineering, Sales, Migration, Support, Operations, Customer Success, Research, and future agents.
+
 ## Immediate Agents
 
 - Executive Agent: Aggregates shared runtime status into a deterministic operations dashboard for Robert.
@@ -73,6 +75,14 @@ The shared operator interface exposes root npm commands for status, run, Executi
 Reports include operator name, operator tool, optional version, timestamp, git branch, git commit, integration mode, and safety mode.
 
 See `docs/AI_OPERATOR_GUIDE.md`, `docs/AI_OPERATOR_RUNTIME.md`, and `docs/MULTI_OPERATOR_WORKFLOW.md`.
+
+## Shared Work Queue
+
+The shared work queue is the primary local coordination mechanism for cross-agent work. It records task status, priority, category, ownership, due dates, linked entities, related graph nodes, and activity logs.
+
+Tasks are local planning records only. They can point to proposals, migrations, follow-ups, engineering blockers, research dossiers, organizations, or Executive priorities, but they do not perform external actions.
+
+See `docs/SHARED_TASK_SYSTEM.md`, `docs/AGENT_WORK_QUEUE.md`, and `docs/TASK_LIFECYCLE.md`.
 
 ## Planned Agents
 

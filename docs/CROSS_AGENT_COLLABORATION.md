@@ -74,6 +74,12 @@ Executive receives combined signals for:
 
 These signals are for review and planning only.
 
+## Shared Work Queue
+
+As of Phase 34, cross-agent signals can become local shared tasks. Tasks link Sales opportunities, Engineering blockers, Migration readiness, Executive priorities, follow-ups, proposals, onboarding work, and research dossiers through the Shared Task System.
+
+The task queue adds assign, claim, reassign, escalate, complete, and archive actions. These actions only change ignored local task records and never execute the external work described by the task.
+
 ## Safety Boundary
 
 - No external browsing.

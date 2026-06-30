@@ -163,6 +163,27 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           },
         ]
       : []),
+    ...(summary.sharedTaskSummary
+      ? [
+          { label: 'Open Shared Tasks', value: String(summary.sharedTaskSummary.openTasks), tone: summary.sharedTaskSummary.openTasks ? 'warn' : 'good' },
+          {
+            label: 'Blocked Shared Tasks',
+            value: String(summary.sharedTaskSummary.blockedTasks),
+            tone: summary.sharedTaskSummary.blockedTasks ? 'warn' : 'good',
+          },
+          {
+            label: 'Overdue Shared Tasks',
+            value: String(summary.sharedTaskSummary.overdueTasks),
+            tone: summary.sharedTaskSummary.overdueTasks ? 'warn' : 'good',
+          },
+          {
+            label: 'Executive Task Review',
+            value: String(summary.sharedTaskSummary.tasksRequiringExecutiveReview),
+            tone: summary.sharedTaskSummary.tasksRequiringExecutiveReview ? 'warn' : 'good',
+          },
+          { label: 'Task Queue Health', value: summary.sharedTaskSummary.queueHealth, tone: summary.sharedTaskSummary.queueHealth === 'Ready' ? 'good' : 'warn' },
+        ]
+      : []),
   ];
 
   return (
