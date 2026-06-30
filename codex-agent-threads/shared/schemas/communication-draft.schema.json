@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/communication-draft.schema.json",
+  "title": "Communication Draft",
+  "type": "object",
+  "required": ["schemaType", "id", "type", "channel", "title", "body", "createdAt", "createdBy", "status", "safety"],
+  "properties": {
+    "schemaType": { "const": "communication_draft" },
+    "id": { "type": "string" },
+    "type": {
+      "enum": [
+        "email_draft",
+        "sms_draft",
+        "sales_follow_up_draft",
+        "executive_summary_draft",
+        "customer_research_update_draft"
+      ]
+    },
+    "channel": { "enum": ["email", "sms"] },
+    "title": { "type": "string" },
+    "recipient": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "contact": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "subject": { "type": "string" },
+    "body": { "type": "string" },
+    "sourceApprovalId": { "type": "string" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "createdBy": { "type": "string" },
+    "status": { "enum": ["pending_review", "approved_local", "requires_changes", "archived"] },
+    "review": { "type": ["object", "null"] },
+    "safety": {
+      "type": "object",
+      "required": ["draftOnly", "notSent", "localOnly", "humanReviewRequired", "externalSending", "providerConnected", "productionWrites", "secretsIncluded"],
+      "properties": {
+        "draftOnly": { "const": true },
+        "notSent": { "const": true },
+        "localOnly": { "const": true },
+        "humanReviewRequired": { "const": true },
+        "externalSending": { "const": "disabled" },
+        "providerConnected": { "const": false },
+        "productionWrites": { "const": false },
+        "secretsIncluded": { "const": false }
+      }
+    }
+  },
+  "additionalProperties": true
+}

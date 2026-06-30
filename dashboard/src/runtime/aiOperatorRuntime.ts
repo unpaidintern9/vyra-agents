@@ -21,8 +21,19 @@ export interface AiOperatorDashboardSnapshot {
   lastRun: string;
   lastValidation: string;
   metadata: AiOperatorMetadata;
+  communicationDrafts: AiCommunicationDraftSnapshot;
   safetyMode: string;
   threadBridge: AiThreadBridgeSnapshot;
+}
+
+export interface AiCommunicationDraftSnapshot {
+  approvedLocalDrafts: number;
+  archivedDrafts: number;
+  draftCount: number;
+  draftsByType: Record<string, number>;
+  draftRoot: string;
+  notSentStatus: string;
+  pendingReviewDrafts: number;
 }
 
 export interface AiThreadApprovalSnapshot {
@@ -66,6 +77,11 @@ export const aiOperatorCommands = [
   'npm run threads:approve',
   'npm run threads:reject',
   'npm run threads:validate',
+  'npm run comms:drafts',
+  'npm run comms:create-draft',
+  'npm run comms:review',
+  'npm run comms:archive',
+  'npm run comms:validate',
 ];
 
 export const aiOperatorBlockedActions = [
@@ -100,6 +116,13 @@ export function buildAiOperatorDashboardSnapshot(input: {
   lastThreadArchive?: string | null;
   lastThreadIngest?: string | null;
   lastValidation?: string | null;
+  communicationDraftCounts?: {
+    approvedLocalDrafts: number;
+    archivedDrafts: number;
+    draftCount: number;
+    pendingReviewDrafts: number;
+  };
+  communicationDraftsByType?: Record<string, number>;
   pendingApprovalsByType?: Record<string, number>;
   pendingApprovalCount?: number;
   pendingThreadOutputs?: number;
@@ -122,6 +145,15 @@ export function buildAiOperatorDashboardSnapshot(input: {
     lastRun: input.lastRun ?? metadata.timestamp,
     lastValidation: input.lastValidation ?? 'Use npm run agents:validate for CLI validation',
     metadata,
+    communicationDrafts: {
+      approvedLocalDrafts: input.communicationDraftCounts?.approvedLocalDrafts ?? 0,
+      archivedDrafts: input.communicationDraftCounts?.archivedDrafts ?? 0,
+      draftCount: input.communicationDraftCounts?.draftCount ?? 0,
+      draftsByType: input.communicationDraftsByType ?? {},
+      draftRoot: 'codex-agent-threads/shared/drafts/',
+      notSentStatus: 'Draft only · Not sent · Local only · Requires human review · External sending disabled',
+      pendingReviewDrafts: input.communicationDraftCounts?.pendingReviewDrafts ?? 0,
+    },
     safetyMode,
     threadBridge: {
       approvalQueue: {

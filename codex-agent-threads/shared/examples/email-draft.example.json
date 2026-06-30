@@ -1,0 +1,28 @@
+{
+  "schemaType": "communication_draft",
+  "id": "draft:example:email",
+  "type": "email_draft",
+  "channel": "email",
+  "title": "Example sales follow-up email draft",
+  "recipient": {
+    "name": "Example Gym Owner",
+    "contact": "not-sent@example.invalid"
+  },
+  "subject": "Vyra follow-up draft",
+  "body": "Hi Example Gym Owner,\n\nThis is a local draft only. It has not been sent.\n\nBest,\nVyra",
+  "sourceApprovalId": "approval:example:email-draft",
+  "createdAt": "2026-06-30T18:30:00.000Z",
+  "createdBy": "Sales Agent",
+  "status": "pending_review",
+  "review": null,
+  "safety": {
+    "draftOnly": true,
+    "notSent": true,
+    "localOnly": true,
+    "humanReviewRequired": true,
+    "externalSending": "disabled",
+    "providerConnected": false,
+    "productionWrites": false,
+    "secretsIncluded": false
+  }
+}

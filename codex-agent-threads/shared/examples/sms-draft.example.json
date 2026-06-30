@@ -1,0 +1,27 @@
+{
+  "schemaType": "communication_draft",
+  "id": "draft:example:sms",
+  "type": "sms_draft",
+  "channel": "sms",
+  "title": "Example SMS follow-up draft",
+  "recipient": {
+    "name": "Example Coach",
+    "contact": "not-sent"
+  },
+  "body": "Draft only: quick Vyra follow-up for local review. Not sent.",
+  "sourceApprovalId": "approval:example:sms-draft",
+  "createdAt": "2026-06-30T18:35:00.000Z",
+  "createdBy": "Sales Agent",
+  "status": "pending_review",
+  "review": null,
+  "safety": {
+    "draftOnly": true,
+    "notSent": true,
+    "localOnly": true,
+    "humanReviewRequired": true,
+    "externalSending": "disabled",
+    "providerConnected": false,
+    "productionWrites": false,
+    "secretsIncluded": false
+  }
+}

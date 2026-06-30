@@ -773,3 +773,26 @@ Boundaries:
 - No production business table writes.
 - No secret output.
 - Approval only changes local approval state.
+
+## Phase 31
+
+Communication Draft Layer.
+
+Includes:
+
+- Local communication draft models for email, SMS, sales follow-up, Executive summary, and customer research update drafts.
+- Ignored local draft storage under `codex-agent-threads/shared/drafts/email/`, `drafts/sms/`, and `drafts/archive/`.
+- Root npm scripts for `comms:drafts`, `comms:create-draft`, `comms:review`, `comms:archive`, and `comms:validate`.
+- Operator Dashboard communication draft section with draft count, drafts by type, pending review drafts, approved local drafts, archived drafts, and explicit not-sent status.
+- Communication Draft Report Markdown and JSON generation under ignored local reports.
+
+Boundaries:
+
+- No email sends.
+- No SMS sends.
+- No Gmail, Twilio, SendGrid, Resend, or other provider connections.
+- No CRM writes.
+- No Stripe invoices.
+- No Supabase production writes.
+- No production business table writes.
+- No secret output.

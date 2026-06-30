@@ -134,6 +134,13 @@ type IntegrationMode = 'mock' | 'live';
 type EffectiveMode = 'mock' | 'live' | 'fallback';
 
 interface OperatorDashboardState {
+  communicationDraftCounts: {
+    approvedLocalDrafts: number;
+    archivedDrafts: number;
+    draftCount: number;
+    pendingReviewDrafts: number;
+  };
+  communicationDraftsByType: Record<string, number>;
   lastScheduledRun: string | null;
   lastReport: string | null;
   lastRun: string;
@@ -216,6 +223,13 @@ function App() {
   const [syncEnabled] = useState(true);
   const [operatorDashboard, setOperatorDashboard] = useState(() =>
     loadLocalState<OperatorDashboardState>(localStorageKeys.operatorDashboard, () => ({
+      communicationDraftCounts: {
+        approvedLocalDrafts: 0,
+        archivedDrafts: 0,
+        draftCount: 0,
+        pendingReviewDrafts: 0,
+      },
+      communicationDraftsByType: {},
       lastScheduledRun: null,
       lastReport: null,
       lastRun: new Date().toISOString(),
@@ -1180,6 +1194,8 @@ function App() {
   const status = snapshot ?? buildLoadingSnapshot();
   const pageWarnings = [...status.warnings, ...syncStatusWarnings(syncStatus)];
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
+    communicationDraftCounts: operatorDashboard.communicationDraftCounts,
+    communicationDraftsByType: operatorDashboard.communicationDraftsByType,
     integrationMode: modeLabel(status.effectiveMode),
     lastScheduledRun: operatorDashboard.lastScheduledRun,
     lastReport: operatorDashboard.lastReport,
@@ -1223,6 +1239,38 @@ function App() {
       threadApprovalDecisionCounts: {
         ...current.threadApprovalDecisionCounts,
         [decision]: current.threadApprovalDecisionCounts[decision] + 1,
+      },
+    }));
+  const recordCommunicationDraft = (type: string) =>
+    setOperatorDashboard((current) => ({
+      ...current,
+      communicationDraftCounts: {
+        ...current.communicationDraftCounts,
+        draftCount: current.communicationDraftCounts.draftCount + 1,
+        pendingReviewDrafts: current.communicationDraftCounts.pendingReviewDrafts + 1,
+      },
+      communicationDraftsByType: {
+        ...current.communicationDraftsByType,
+        [type]: (current.communicationDraftsByType[type] ?? 0) + 1,
+      },
+    }));
+  const recordCommunicationReview = () =>
+    setOperatorDashboard((current) => ({
+      ...current,
+      communicationDraftCounts: {
+        ...current.communicationDraftCounts,
+        approvedLocalDrafts: current.communicationDraftCounts.approvedLocalDrafts + 1,
+        pendingReviewDrafts: Math.max(current.communicationDraftCounts.pendingReviewDrafts - 1, 0),
+      },
+    }));
+  const recordCommunicationArchive = () =>
+    setOperatorDashboard((current) => ({
+      ...current,
+      communicationDraftCounts: {
+        ...current.communicationDraftCounts,
+        archivedDrafts: current.communicationDraftCounts.archivedDrafts + Math.max(current.communicationDraftCounts.draftCount, 1),
+        draftCount: 0,
+        pendingReviewDrafts: 0,
       },
     }));
   const pageTitle =
@@ -1391,6 +1439,9 @@ function App() {
           />
         ) : activePage === 'Operator' ? (
           <OperatorPage
+            onRecordCommunicationArchive={recordCommunicationArchive}
+            onRecordCommunicationDraft={recordCommunicationDraft}
+            onRecordCommunicationReview={recordCommunicationReview}
             onRecordApprovalDecision={recordApprovalDecision}
             onRecordReport={recordOperatorReport}
             onRecordRun={recordOperatorRun}
@@ -1564,6 +1615,9 @@ function RuntimePage({ runtime, syncStatus }: { runtime: AgentRuntimeSnapshot; s
 }
 
 function OperatorPage({
+  onRecordCommunicationArchive,
+  onRecordCommunicationDraft,
+  onRecordCommunicationReview,
   onRecordApprovalDecision,
   onRecordReport,
   onRecordRun,
@@ -1574,6 +1628,9 @@ function OperatorPage({
   operator,
   runtime,
 }: {
+  onRecordCommunicationArchive(): void;
+  onRecordCommunicationDraft: (_type: string) => void;
+  onRecordCommunicationReview(): void;
   onRecordApprovalDecision: (_decision: 'approved' | 'rejected') => void;
   onRecordReport(): void;
   onRecordRun(): void;
@@ -1593,6 +1650,8 @@ function OperatorPage({
         <Metric icon={<ListChecks size={20} />} label="Runtime Health" value={operator.agentRuntimeHealth} />
         <Metric icon={<FileClock size={20} />} label="Due Schedules" value={String(operator.threadBridge.dueSchedules)} />
         <Metric icon={<ShieldCheck size={20} />} label="Pending Approvals" value={String(operator.threadBridge.approvalQueue.pendingCount)} />
+        <Metric icon={<FileClock size={20} />} label="Communication Drafts" value={String(operator.communicationDrafts.draftCount)} />
+        <Metric icon={<ShieldCheck size={20} />} label="Drafts Pending Review" value={String(operator.communicationDrafts.pendingReviewDrafts)} />
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -1689,6 +1748,45 @@ function OperatorPage({
             columns={['Approval Type', 'Pending']}
             rows={Object.entries(operator.threadBridge.approvalQueue.pendingByType).map(([type, count]) => [type.replace(/_/g, ' '), String(count)])}
             emptyMessage="No pending local approval items recorded in dashboard metadata."
+          />
+        </Panel>
+
+        <Panel title="Communication Draft Layer" icon={<FileClock size={18} />} wide>
+          <p className="panel-description">
+            Vyra agents can prepare local email and SMS drafts after approval review. Drafts are not sent, providers are not connected, and every draft remains local-only.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Draft Count" value={String(operator.communicationDrafts.draftCount)} />
+            <Fact label="Drafts By Type" value={formatPendingApprovalTypes(operator.communicationDrafts.draftsByType)} />
+            <Fact label="Pending Review Drafts" value={String(operator.communicationDrafts.pendingReviewDrafts)} />
+            <Fact label="Approved Local Drafts" value={String(operator.communicationDrafts.approvedLocalDrafts)} />
+            <Fact label="Archived Drafts" value={String(operator.communicationDrafts.archivedDrafts)} />
+            <Fact label="Draft Root" value={operator.communicationDrafts.draftRoot} />
+            <Fact label="Not Sent Status" value={operator.communicationDrafts.notSentStatus} />
+          </div>
+          <div className="safety-badge-row">
+            {['Draft only', 'Not sent', 'Local only', 'Requires human review', 'External sending disabled'].map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
+          <div className="button-row sales-action-row">
+            <button className="report-button small" onClick={() => onRecordCommunicationDraft('email_draft')} type="button">
+              Record Email Draft
+            </button>
+            <button className="report-button small" onClick={() => onRecordCommunicationDraft('sms_draft')} type="button">
+              Record SMS Draft
+            </button>
+            <button className="report-button small" onClick={onRecordCommunicationReview} type="button">
+              Record Local Draft Review
+            </button>
+            <button className="secondary-button small" onClick={onRecordCommunicationArchive} type="button">
+              Record Local Draft Archive
+            </button>
+          </div>
+          <DataTable
+            columns={['Draft Type', 'Count']}
+            rows={Object.entries(operator.communicationDrafts.draftsByType).map(([type, count]) => [type.replace(/_/g, ' '), String(count)])}
+            emptyMessage="No local communication drafts recorded in dashboard metadata."
           />
         </Panel>
 
@@ -2837,6 +2935,11 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('threads:approve')) return 'Mark one local approval queue item approved without performing the external action.';
   if (command.endsWith('threads:reject')) return 'Mark one local approval queue item rejected without performing the external action.';
   if (command.endsWith('threads:validate')) return 'Validate thread bridge directories, schemas, and pending outbox payloads.';
+  if (command.endsWith('comms:drafts')) return 'Report local communication drafts and write ignored Markdown/JSON reports.';
+  if (command.endsWith('comms:create-draft')) return 'Create a local email or SMS draft with sending disabled.';
+  if (command.endsWith('comms:review')) return 'Mark a local draft reviewed or needing changes without sending it.';
+  if (command.endsWith('comms:archive')) return 'Move local communication drafts to the ignored local archive.';
+  if (command.endsWith('comms:validate')) return 'Validate communication draft examples, folders, and local draft payloads.';
   return 'Shared local operator command.';
 }
 

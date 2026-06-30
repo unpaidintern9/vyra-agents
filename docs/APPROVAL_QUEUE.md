@@ -76,3 +76,19 @@ npm run threads:reject -- --id approval:item-id --operator Robert --reason "Not 
 Approve and reject commands update the local queue item with a decision object. They do not send email, send SMS, write CRM records, create Stripe invoices, write Supabase production data, or write production business data.
 
 The queue is a review system, not an execution system.
+
+## Phase 31 Communication Draft Requests
+
+Phase 31 adds local communication drafts for approved or review-ready tasks.
+
+Approval queue items can now lead to local draft preparation for:
+
+- email drafts
+- SMS drafts
+- sales follow-up drafts
+- Executive summary drafts
+- customer research update drafts
+
+Draft creation is not sending. The Communication Draft Layer stores drafts locally under `codex-agent-threads/shared/drafts/` with explicit `notSent` and `externalSending: "disabled"` safety metadata.
+
+Approving or reviewing a communication draft only changes local draft state. It does not connect to Gmail, Twilio, SendGrid, Resend, CRM, Stripe, Supabase production data, or any production business system.

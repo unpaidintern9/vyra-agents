@@ -26,6 +26,11 @@ npm run threads:approval-queue
 npm run threads:approve
 npm run threads:reject
 npm run threads:validate
+npm run comms:drafts
+npm run comms:create-draft
+npm run comms:review
+npm run comms:archive
+npm run comms:validate
 ```
 
 Optional operator metadata can be passed with flags:
@@ -94,3 +99,15 @@ Phase 30 adds manual scheduled thread runs and a local approval queue:
 - `npm run threads:approve` and `npm run threads:reject` record local decisions only.
 
 No command starts a background job or performs email, SMS, CRM, Stripe, Supabase, or production business writes.
+
+## Communication Drafts
+
+Phase 31 adds local communication draft commands:
+
+- `npm run comms:drafts` reports local draft state.
+- `npm run comms:create-draft` creates a local email or SMS draft.
+- `npm run comms:review` records local review state.
+- `npm run comms:archive` moves local drafts to ignored archive storage.
+- `npm run comms:validate` validates examples and local draft payloads.
+
+Communication commands never send email or SMS and never connect to Gmail, Twilio, SendGrid, Resend, CRM, Stripe, Supabase production data, or production business systems.

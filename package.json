@@ -20,6 +20,11 @@
     "threads:approval-queue": "node scripts/thread-bridge.mjs approval-queue",
     "threads:approve": "node scripts/thread-bridge.mjs approve",
     "threads:reject": "node scripts/thread-bridge.mjs reject",
-    "threads:validate": "node scripts/thread-bridge.mjs validate"
+    "threads:validate": "node scripts/thread-bridge.mjs validate",
+    "comms:drafts": "node scripts/comms-drafts.mjs drafts",
+    "comms:create-draft": "node scripts/comms-drafts.mjs create-draft",
+    "comms:review": "node scripts/comms-drafts.mjs review",
+    "comms:archive": "node scripts/comms-drafts.mjs archive",
+    "comms:validate": "node scripts/comms-drafts.mjs validate"
   }
 }
