@@ -1,0 +1,15 @@
+{
+  "schemaType": "communication_provider_template",
+  "id": "provider:sendgrid",
+  "provider": "sendgrid",
+  "displayName": "SendGrid",
+  "channel": "email",
+  "mode": "api",
+  "requiredEnv": ["SENDGRID_API_KEY", "SENDGRID_FROM_EMAIL"],
+  "optionalEnv": ["SENDGRID_TEMPLATE_ID"],
+  "sendingEnabled": false,
+  "providerCallsEnabled": false,
+  "productionSendModeAvailable": false,
+  "approvalRequired": true,
+  "notes": "Template only. Do not store values here."
+}

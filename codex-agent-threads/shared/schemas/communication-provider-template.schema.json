@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/communication-provider-template.schema.json",
+  "title": "Communication Provider Template",
+  "type": "object",
+  "required": ["schemaType", "id", "provider", "displayName", "channel", "mode", "requiredEnv", "sendingEnabled", "providerCallsEnabled", "productionSendModeAvailable", "approvalRequired"],
+  "properties": {
+    "schemaType": { "const": "communication_provider_template" },
+    "id": { "type": "string" },
+    "provider": { "type": "string" },
+    "displayName": { "type": "string" },
+    "channel": { "enum": ["email", "sms", "manual"] },
+    "mode": { "enum": ["oauth", "smtp", "api", "manual"] },
+    "requiredEnv": { "type": "array", "items": { "type": "string" } },
+    "optionalEnv": { "type": "array", "items": { "type": "string" } },
+    "sendingEnabled": { "const": false },
+    "providerCallsEnabled": { "const": false },
+    "productionSendModeAvailable": { "const": false },
+    "approvalRequired": { "const": true },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": true
+}

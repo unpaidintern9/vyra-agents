@@ -25,6 +25,10 @@
     "comms:create-draft": "node scripts/comms-drafts.mjs create-draft",
     "comms:review": "node scripts/comms-drafts.mjs review",
     "comms:archive": "node scripts/comms-drafts.mjs archive",
+    "comms:providers": "node scripts/comms-drafts.mjs providers",
+    "comms:provider-check": "node scripts/comms-drafts.mjs provider-check",
+    "comms:send-readiness": "node scripts/comms-drafts.mjs send-readiness",
+    "comms:safety-check": "node scripts/comms-drafts.mjs safety-check",
     "comms:validate": "node scripts/comms-drafts.mjs validate"
   }
 }

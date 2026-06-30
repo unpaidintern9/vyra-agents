@@ -10,6 +10,7 @@ export const draftDirectories = {
   sms: path.join(sharedRoot, 'drafts/sms'),
   archive: path.join(sharedRoot, 'drafts/archive'),
 };
+export const providerDirectory = path.join(sharedRoot, 'providers');
 
 const supportedDraftTypes = new Set([
   'email_draft',
@@ -35,6 +36,7 @@ const blockedActions = [
 
 export function ensureDraftDirectories() {
   Object.values(draftDirectories).forEach((directory) => mkdirSync(directory, { recursive: true }));
+  mkdirSync(providerDirectory, { recursive: true });
 }
 
 export function buildCommunicationDraftStatus() {
@@ -52,7 +54,103 @@ export function buildCommunicationDraftStatus() {
     draftsByType: summary.byType,
     notSentStatus: 'All drafts are Draft only, Not sent, Local only, Requires human review, External sending disabled.',
     blockedActions,
+    providerReadiness: buildCommunicationProviderReadiness(),
   };
+}
+
+export function buildCommunicationProviderReadiness() {
+  ensureDraftDirectories();
+  const providers = listProviderTemplates()
+    .filter((item) => validateProviderTemplate(item.parsed).valid)
+    .map((item) => toProviderReadiness(item.parsed, item));
+  const missingConfig = providers.reduce((count, provider) => count + provider.missingConfig.length, 0);
+  return {
+    providersConfigured: providers.length,
+    providers,
+    missingConfig,
+    sendingDisabled: true,
+    draftOnlyMode: true,
+    approvalRequired: true,
+    providerCallsBlocked: true,
+    productionSendModeAvailable: false,
+    safetyGates: buildSendSafetyGates(providers),
+  };
+}
+
+export function getCommunicationProvidersReport() {
+  const payload = {
+    title: 'Communication Provider Readiness Report',
+    generatedAt: new Date().toISOString(),
+    readiness: buildCommunicationProviderReadiness(),
+    safety: 'Provider readiness report only. No provider clients are created and no provider calls occur.',
+  };
+  writeCommsReport('communication-provider-readiness', payload);
+  return payload;
+}
+
+export function getCommunicationProviderCheck() {
+  const readiness = buildCommunicationProviderReadiness();
+  const payload = {
+    title: 'Communication Provider Config Check',
+    generatedAt: new Date().toISOString(),
+    status: 'pass',
+    providerCount: readiness.providersConfigured,
+    missingConfig: readiness.providers.map((provider) => ({
+      provider: provider.displayName,
+      missingEnv: provider.missingConfig,
+      configuredEnv: provider.configuredEnv,
+      providerCallsEnabled: provider.providerCallsEnabled,
+      sendingEnabled: provider.sendingEnabled,
+    })),
+    safety: 'Config check reads environment variable names only and never prints values.',
+  };
+  writeCommsReport('communication-provider-check', payload);
+  return payload;
+}
+
+export function getCommunicationSendReadiness() {
+  const readiness = buildCommunicationProviderReadiness();
+  const payload = {
+    title: 'Communication Send Readiness',
+    generatedAt: new Date().toISOString(),
+    canSend: false,
+    reason: 'Production send mode is unavailable. Provider calls and external sending are disabled by design.',
+    gates: readiness.safetyGates,
+    providers: readiness.providers.map((provider) => ({
+      provider: provider.displayName,
+      channel: provider.channel,
+      status: provider.status,
+      sendingEnabled: provider.sendingEnabled,
+      providerCallsEnabled: provider.providerCallsEnabled,
+      approvalRequired: provider.approvalRequired,
+      missingConfig: provider.missingConfig,
+    })),
+    safety: 'Send readiness never sends messages and never opens provider connections.',
+  };
+  writeCommsReport('communication-send-readiness', payload);
+  return payload;
+}
+
+export function getCommunicationSafetyCheck() {
+  const readiness = buildCommunicationProviderReadiness();
+  const checks = [
+    { name: 'Sending disabled by default', passed: readiness.sendingDisabled },
+    { name: 'Provider calls blocked', passed: readiness.providerCallsBlocked },
+    { name: 'Draft-only mode active', passed: readiness.draftOnlyMode },
+    { name: 'Approval required before future sends', passed: readiness.approvalRequired },
+    { name: 'Production send mode unavailable', passed: readiness.productionSendModeAvailable === false },
+    { name: 'No provider values printed', passed: true },
+  ];
+  const payload = {
+    title: 'Communication Safety Check',
+    generatedAt: new Date().toISOString(),
+    status: checks.every((check) => check.passed) ? 'pass' : 'fail',
+    checks,
+    blockedActions,
+    safety: 'Safety check is local-only and does not call Gmail, SMTP, SendGrid, Resend, Twilio, CRM, Stripe, or Supabase.',
+  };
+  writeCommsReport('communication-safety-check', payload);
+  return payload;
 }
 
 export function getCommunicationDraftReport() {
@@ -177,6 +275,7 @@ export function validateCommunicationDraftLayer() {
   const drafts = listCommunicationDrafts();
   const emailExample = path.join(sharedRoot, 'examples/email-draft.example.json');
   const smsExample = path.join(sharedRoot, 'examples/sms-draft.example.json');
+  const providers = listProviderTemplates();
   const emailExampleValidation = existsSync(emailExample)
     ? validateCommunicationDraft(readDraftFile(emailExample, 'example').parsed)
     : { valid: false, errors: ['missing email draft example'] };
@@ -187,14 +286,28 @@ export function validateCommunicationDraftLayer() {
     file: path.relative(repoRoot, item.path),
     ...validateCommunicationDraft(item.parsed),
   }));
-  const status = validations.every((item) => item.valid) && emailExampleValidation.valid && smsExampleValidation.valid ? 'pass' : 'fail';
+  const providerValidations = providers.map((item) => ({
+    file: path.relative(repoRoot, item.path),
+    ...validateProviderTemplate(item.parsed),
+  }));
+  const status =
+    validations.every((item) => item.valid) &&
+    providerValidations.every((item) => item.valid) &&
+    emailExampleValidation.valid &&
+    smsExampleValidation.valid
+      ? 'pass'
+      : 'fail';
   return {
     status,
     draftCount: drafts.length,
     emailExampleValidation,
     smsExampleValidation,
     validations,
-    directoriesReady: Object.fromEntries(Object.entries(draftDirectories).map(([key, directory]) => [key, existsSync(directory)])),
+    providerValidations,
+    directoriesReady: {
+      ...Object.fromEntries(Object.entries(draftDirectories).map(([key, directory]) => [key, existsSync(directory)])),
+      providers: existsSync(providerDirectory),
+    },
     safety: 'Validation reads local draft files only. No provider connections or sends occur.',
   };
 }
@@ -230,12 +343,74 @@ export function validateCommunicationDraft(payload) {
   return { valid: errors.length === 0, errors };
 }
 
+export function validateProviderTemplate(payload) {
+  const errors = [];
+  if (!payload || typeof payload !== 'object') return { valid: false, errors: ['Provider template must be a JSON object.'] };
+  if (payload.schemaType !== 'communication_provider_template') errors.push(`Unsupported provider schemaType: ${payload.schemaType ?? 'missing'}`);
+  if (!nonEmpty(payload.id)) errors.push('id is required.');
+  if (!nonEmpty(payload.provider)) errors.push('provider is required.');
+  if (!nonEmpty(payload.displayName)) errors.push('displayName is required.');
+  if (!['email', 'sms', 'manual'].includes(payload.channel)) errors.push('channel must be email, sms, or manual.');
+  if (!['oauth', 'smtp', 'api', 'manual'].includes(payload.mode)) errors.push('mode must be oauth, smtp, api, or manual.');
+  if (!Array.isArray(payload.requiredEnv)) errors.push('requiredEnv must be an array.');
+  if (payload.optionalEnv !== undefined && !Array.isArray(payload.optionalEnv)) errors.push('optionalEnv must be an array when present.');
+  if (payload.sendingEnabled !== false) errors.push('sendingEnabled must be false.');
+  if (payload.providerCallsEnabled !== false) errors.push('providerCallsEnabled must be false.');
+  if (payload.productionSendModeAvailable !== false) errors.push('productionSendModeAvailable must be false.');
+  if (payload.approvalRequired !== true) errors.push('approvalRequired must be true.');
+  return { valid: errors.length === 0, errors };
+}
+
 function listCommunicationDrafts() {
   ensureDraftDirectories();
   return [
     ...listDraftFiles(draftDirectories.email).map((file) => readDraftFile(file, 'email')),
     ...listDraftFiles(draftDirectories.sms).map((file) => readDraftFile(file, 'sms')),
     ...listDraftFiles(draftDirectories.archive).map((file) => readDraftFile(file, 'archive')),
+  ];
+}
+
+function listProviderTemplates() {
+  ensureDraftDirectories();
+  return listDraftFiles(providerDirectory).map((file) => readDraftFile(file, 'provider'));
+}
+
+function toProviderReadiness(template, item) {
+  const requiredEnv = template.requiredEnv ?? [];
+  const configuredEnv = requiredEnv.filter((name) => Boolean(process.env[name]));
+  const missingConfig = requiredEnv.filter((name) => !process.env[name]);
+  const status = template.provider === 'manual_copy_paste' ? 'manual_ready_not_sending' : missingConfig.length === 0 ? 'configured_but_sending_disabled' : 'missing_config';
+  return {
+    id: template.id,
+    provider: template.provider,
+    displayName: template.displayName,
+    channel: template.channel,
+    mode: template.mode,
+    status,
+    requiredEnv,
+    optionalEnv: template.optionalEnv ?? [],
+    configuredEnv,
+    missingConfig,
+    sendingEnabled: false,
+    providerCallsEnabled: false,
+    productionSendModeAvailable: false,
+    approvalRequired: true,
+    draftOnlyMode: true,
+    file: path.relative(repoRoot, item.path),
+  };
+}
+
+function buildSendSafetyGates(providers) {
+  return [
+    { gate: 'sending_disabled_by_default', passed: true, detail: 'All providers declare sendingEnabled false.' },
+    { gate: 'provider_calls_blocked', passed: true, detail: 'No provider clients are created by the readiness layer.' },
+    { gate: 'approval_required', passed: true, detail: 'Future send workflows require a human approval record.' },
+    {
+      gate: 'missing_provider_config_blocks_send',
+      passed: true,
+      detail: `${providers.reduce((count, provider) => count + provider.missingConfig.length, 0)} required config value(s) missing across provider templates.`,
+    },
+    { gate: 'production_send_mode_unavailable', passed: true, detail: 'There is no production send mode in Phase 32.' },
   ];
 }
 

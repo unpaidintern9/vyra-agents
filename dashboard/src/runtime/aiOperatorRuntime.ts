@@ -22,6 +22,7 @@ export interface AiOperatorDashboardSnapshot {
   lastValidation: string;
   metadata: AiOperatorMetadata;
   communicationDrafts: AiCommunicationDraftSnapshot;
+  communicationProviders: AiCommunicationProviderSnapshot;
   safetyMode: string;
   threadBridge: AiThreadBridgeSnapshot;
 }
@@ -34,6 +35,24 @@ export interface AiCommunicationDraftSnapshot {
   draftRoot: string;
   notSentStatus: string;
   pendingReviewDrafts: number;
+}
+
+export interface AiCommunicationProviderStatus {
+  displayName: string;
+  missingConfig: string[];
+  provider: string;
+  sendingEnabled: boolean;
+  status: string;
+}
+
+export interface AiCommunicationProviderSnapshot {
+  approvalRequired: boolean;
+  draftOnlyMode: boolean;
+  missingConfig: number;
+  productionSendModeAvailable: boolean;
+  providerCallsBlocked: boolean;
+  providers: AiCommunicationProviderStatus[];
+  sendingDisabled: boolean;
 }
 
 export interface AiThreadApprovalSnapshot {
@@ -81,6 +100,10 @@ export const aiOperatorCommands = [
   'npm run comms:create-draft',
   'npm run comms:review',
   'npm run comms:archive',
+  'npm run comms:providers',
+  'npm run comms:provider-check',
+  'npm run comms:send-readiness',
+  'npm run comms:safety-check',
   'npm run comms:validate',
 ];
 
@@ -123,6 +146,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
     pendingReviewDrafts: number;
   };
   communicationDraftsByType?: Record<string, number>;
+  communicationProviders?: AiCommunicationProviderSnapshot;
   pendingApprovalsByType?: Record<string, number>;
   pendingApprovalCount?: number;
   pendingThreadOutputs?: number;
@@ -153,6 +177,28 @@ export function buildAiOperatorDashboardSnapshot(input: {
       draftRoot: 'codex-agent-threads/shared/drafts/',
       notSentStatus: 'Draft only · Not sent · Local only · Requires human review · External sending disabled',
       pendingReviewDrafts: input.communicationDraftCounts?.pendingReviewDrafts ?? 0,
+    },
+    communicationProviders: input.communicationProviders ?? {
+      approvalRequired: true,
+      draftOnlyMode: true,
+      missingConfig: 0,
+      productionSendModeAvailable: false,
+      providerCallsBlocked: true,
+      providers: [
+        { displayName: 'Gmail', missingConfig: ['GMAIL_CLIENT_ID', 'GMAIL_CLIENT_SECRET', 'GMAIL_REDIRECT_URI'], provider: 'gmail', sendingEnabled: false, status: 'missing_config' },
+        {
+          displayName: 'Google Workspace SMTP',
+          missingConfig: ['GOOGLE_WORKSPACE_SMTP_HOST', 'GOOGLE_WORKSPACE_SMTP_PORT', 'GOOGLE_WORKSPACE_SMTP_USERNAME', 'GOOGLE_WORKSPACE_SMTP_PASSWORD'],
+          provider: 'google_workspace_smtp',
+          sendingEnabled: false,
+          status: 'missing_config',
+        },
+        { displayName: 'SendGrid', missingConfig: ['SENDGRID_API_KEY', 'SENDGRID_FROM_EMAIL'], provider: 'sendgrid', sendingEnabled: false, status: 'missing_config' },
+        { displayName: 'Resend', missingConfig: ['RESEND_API_KEY', 'RESEND_FROM_EMAIL'], provider: 'resend', sendingEnabled: false, status: 'missing_config' },
+        { displayName: 'Twilio SMS', missingConfig: ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM_NUMBER'], provider: 'twilio_sms', sendingEnabled: false, status: 'missing_config' },
+        { displayName: 'Manual Copy/Paste Mode', missingConfig: [], provider: 'manual_copy_paste', sendingEnabled: false, status: 'manual_ready_not_sending' },
+      ],
+      sendingDisabled: true,
     },
     safetyMode,
     threadBridge: {

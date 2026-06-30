@@ -747,6 +747,31 @@ Boundaries:
 - No Supabase production writes.
 - No production business table writes.
 - No secret output.
+
+## Phase 32
+
+Communication Provider Readiness.
+
+Includes:
+
+- Provider readiness templates for Gmail, Google Workspace SMTP, SendGrid, Resend, Twilio SMS, and manual copy/paste mode.
+- Example environment variable names only, with no real keys or values committed.
+- Root npm scripts for `comms:providers`, `comms:provider-check`, `comms:send-readiness`, and `comms:safety-check`.
+- Operator Dashboard provider readiness section showing provider status, missing config names, sending disabled status, draft-only mode, provider-call blocking, approval requirement status, and production send unavailability.
+- Documentation for email provider setup, SMS provider setup, communication provider readiness, and safety gates.
+
+Boundaries:
+
+- No email sends.
+- No SMS sends.
+- No provider calls.
+- No provider clients.
+- No CRM writes.
+- No Stripe invoices.
+- No Supabase production writes.
+- No production business table writes.
+- No secrets committed.
+- No `.env.local` changes.
 - Generated inbox, outbox, archive, and report payloads remain ignored unless they are templates or examples.
 
 ## Phase 30

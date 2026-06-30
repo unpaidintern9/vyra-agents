@@ -1,0 +1,15 @@
+{
+  "schemaType": "communication_provider_template",
+  "id": "provider:twilio-sms",
+  "provider": "twilio_sms",
+  "displayName": "Twilio SMS",
+  "channel": "sms",
+  "mode": "api",
+  "requiredEnv": ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_FROM_NUMBER"],
+  "optionalEnv": ["TWILIO_MESSAGING_SERVICE_SID"],
+  "sendingEnabled": false,
+  "providerCallsEnabled": false,
+  "productionSendModeAvailable": false,
+  "approvalRequired": true,
+  "notes": "Template only. Do not store values here."
+}

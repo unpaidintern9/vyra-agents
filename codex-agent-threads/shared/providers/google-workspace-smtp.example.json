@@ -1,0 +1,15 @@
+{
+  "schemaType": "communication_provider_template",
+  "id": "provider:google-workspace-smtp",
+  "provider": "google_workspace_smtp",
+  "displayName": "Google Workspace SMTP",
+  "channel": "email",
+  "mode": "smtp",
+  "requiredEnv": ["GOOGLE_WORKSPACE_SMTP_HOST", "GOOGLE_WORKSPACE_SMTP_PORT", "GOOGLE_WORKSPACE_SMTP_USERNAME", "GOOGLE_WORKSPACE_SMTP_PASSWORD"],
+  "optionalEnv": ["GOOGLE_WORKSPACE_ALLOWED_SENDER"],
+  "sendingEnabled": false,
+  "providerCallsEnabled": false,
+  "productionSendModeAvailable": false,
+  "approvalRequired": true,
+  "notes": "Template only. Do not store values here."
+}

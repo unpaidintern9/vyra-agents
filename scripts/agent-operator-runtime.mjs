@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildCommunicationDraftStatus } from './comms-draft-runtime.mjs';
+import { buildCommunicationDraftStatus, buildCommunicationProviderReadiness } from './comms-draft-runtime.mjs';
 import { buildThreadBridgeStatus } from './thread-bridge-runtime.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -113,6 +113,7 @@ export function buildOperatorSnapshot(options = {}) {
   const validation = buildSafetyCheck(operator);
   const threadBridge = buildThreadBridgeStatus();
   const communicationDrafts = buildCommunicationDraftStatus();
+  const communicationProviders = buildCommunicationProviderReadiness();
   const threadPriority =
     threadBridge.pendingOutboxItems > 0
       ? [`Review ${threadBridge.pendingOutboxItems} pending Codex thread outbox item(s) from ${threadBridge.latestThread}.`]
@@ -171,6 +172,7 @@ export function buildOperatorSnapshot(options = {}) {
     },
     threadBridge,
     communicationDrafts,
+    communicationProviders,
     graph: buildCrossAgentGraph(operator, crossAgent),
   };
 }
@@ -250,6 +252,7 @@ export function buildExecutiveRunSummary(snapshot) {
     organizationsRequiringReview: snapshot.sales.organizationsRequiringReview,
     threadBridge: snapshot.threadBridge,
     communicationDrafts: snapshot.communicationDrafts,
+    communicationProviders: snapshot.communicationProviders,
     safetyWarnings: snapshot.safety.warnings,
     validation: snapshot.safety,
   };

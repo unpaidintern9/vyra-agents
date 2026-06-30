@@ -3,6 +3,10 @@ import {
   archiveCommunicationDraft,
   createCommunicationDraft,
   getCommunicationDraftReport,
+  getCommunicationProviderCheck,
+  getCommunicationProvidersReport,
+  getCommunicationSafetyCheck,
+  getCommunicationSendReadiness,
   reviewCommunicationDraft,
   validateCommunicationDraftLayer,
 } from './comms-draft-runtime.mjs';
@@ -45,6 +49,18 @@ switch (command) {
     break;
   case 'archive':
     outputJson(archiveCommunicationDraft(args.id ?? args.item));
+    break;
+  case 'providers':
+    outputJson(getCommunicationProvidersReport());
+    break;
+  case 'provider-check':
+    outputJson(getCommunicationProviderCheck());
+    break;
+  case 'send-readiness':
+    outputJson(getCommunicationSendReadiness());
+    break;
+  case 'safety-check':
+    outputJson(getCommunicationSafetyCheck());
     break;
   case 'validate': {
     const result = validateCommunicationDraftLayer();

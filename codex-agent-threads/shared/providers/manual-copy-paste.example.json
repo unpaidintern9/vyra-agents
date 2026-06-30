@@ -1,0 +1,15 @@
+{
+  "schemaType": "communication_provider_template",
+  "id": "provider:manual-copy-paste",
+  "provider": "manual_copy_paste",
+  "displayName": "Manual Copy/Paste Mode",
+  "channel": "manual",
+  "mode": "manual",
+  "requiredEnv": [],
+  "optionalEnv": [],
+  "sendingEnabled": false,
+  "providerCallsEnabled": false,
+  "productionSendModeAvailable": false,
+  "approvalRequired": true,
+  "notes": "Manual mode means an operator can copy reviewed draft text outside the system. The app still sends nothing."
+}

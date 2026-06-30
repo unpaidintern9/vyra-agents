@@ -30,6 +30,10 @@ npm run comms:drafts
 npm run comms:create-draft
 npm run comms:review
 npm run comms:archive
+npm run comms:providers
+npm run comms:provider-check
+npm run comms:send-readiness
+npm run comms:safety-check
 npm run comms:validate
 ```
 
@@ -111,3 +115,14 @@ Phase 31 adds local communication draft commands:
 - `npm run comms:validate` validates examples and local draft payloads.
 
 Communication commands never send email or SMS and never connect to Gmail, Twilio, SendGrid, Resend, CRM, Stripe, Supabase production data, or production business systems.
+
+## Provider Readiness
+
+Phase 32 adds provider readiness commands:
+
+- `npm run comms:providers` reports configured provider templates.
+- `npm run comms:provider-check` checks for required environment variable names without printing values.
+- `npm run comms:send-readiness` explains why sending remains blocked.
+- `npm run comms:safety-check` validates provider-disabled and draft-only safety gates.
+
+Provider readiness does not connect to Gmail, SMTP, SendGrid, Resend, Twilio, CRM, Stripe, or Supabase.

@@ -1652,6 +1652,7 @@ function OperatorPage({
         <Metric icon={<ShieldCheck size={20} />} label="Pending Approvals" value={String(operator.threadBridge.approvalQueue.pendingCount)} />
         <Metric icon={<FileClock size={20} />} label="Communication Drafts" value={String(operator.communicationDrafts.draftCount)} />
         <Metric icon={<ShieldCheck size={20} />} label="Drafts Pending Review" value={String(operator.communicationDrafts.pendingReviewDrafts)} />
+        <Metric icon={<Network size={20} />} label="Provider Readiness" value={operator.communicationProviders.sendingDisabled ? 'Send Disabled' : 'Review'} />
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -1787,6 +1788,35 @@ function OperatorPage({
             columns={['Draft Type', 'Count']}
             rows={Object.entries(operator.communicationDrafts.draftsByType).map(([type, count]) => [type.replace(/_/g, ' '), String(count)])}
             emptyMessage="No local communication drafts recorded in dashboard metadata."
+          />
+        </Panel>
+
+        <Panel title="Communication Provider Readiness" icon={<Network size={18} />} wide>
+          <p className="panel-description">
+            Provider templates are readiness checks only. Gmail, SMTP, SendGrid, Resend, and Twilio calls remain blocked; production sending is unavailable.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Provider Status" value={`${operator.communicationProviders.providers.length} template(s) checked`} />
+            <Fact label="Missing Config" value={`${operator.communicationProviders.missingConfig} env var name(s)`} />
+            <Fact label="Sending Disabled" value={yesNo(operator.communicationProviders.sendingDisabled)} />
+            <Fact label="Draft-Only Mode" value={yesNo(operator.communicationProviders.draftOnlyMode)} />
+            <Fact label="Provider Calls Blocked" value={yesNo(operator.communicationProviders.providerCallsBlocked)} />
+            <Fact label="Approval Required" value={yesNo(operator.communicationProviders.approvalRequired)} />
+            <Fact label="Production Send Mode" value={operator.communicationProviders.productionSendModeAvailable ? 'Available' : 'Unavailable'} />
+          </div>
+          <div className="safety-badge-row">
+            {['Sending disabled by default', 'Provider calls blocked', 'Missing approval blocks send', 'Missing provider config blocks send', 'Production send mode unavailable'].map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
+          <DataTable
+            columns={['Provider', 'Status', 'Missing Config', 'Sending']}
+            rows={operator.communicationProviders.providers.map((provider) => [
+              provider.displayName,
+              provider.status.replace(/_/g, ' '),
+              formatProviderMissingConfig(provider.missingConfig),
+              provider.sendingEnabled ? 'Enabled' : 'Disabled',
+            ])}
           />
         </Panel>
 
@@ -2474,6 +2504,11 @@ function formatPendingApprovalTypes(pendingByType: Record<string, number>): stri
   return entries.map(([type, count]) => `${type.replace(/_/g, ' ')}: ${count}`).join(', ');
 }
 
+function formatProviderMissingConfig(missingConfig: string[]): string {
+  if (missingConfig.length === 0) return 'None';
+  return missingConfig.join(', ');
+}
+
 function DataTable({ columns, emptyMessage, rows }: { columns: string[]; emptyMessage?: string; rows: ReactNode[][] }) {
   return (
     <div className="table-wrap">
@@ -2939,6 +2974,10 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('comms:create-draft')) return 'Create a local email or SMS draft with sending disabled.';
   if (command.endsWith('comms:review')) return 'Mark a local draft reviewed or needing changes without sending it.';
   if (command.endsWith('comms:archive')) return 'Move local communication drafts to the ignored local archive.';
+  if (command.endsWith('comms:providers')) return 'Report local provider readiness templates without creating provider clients.';
+  if (command.endsWith('comms:provider-check')) return 'Check provider config presence by env-var name without printing values.';
+  if (command.endsWith('comms:send-readiness')) return 'Explain why sending remains blocked and production send mode is unavailable.';
+  if (command.endsWith('comms:safety-check')) return 'Validate communication safety gates for draft-only provider-disabled mode.';
   if (command.endsWith('comms:validate')) return 'Validate communication draft examples, folders, and local draft payloads.';
   return 'Shared local operator command.';
 }

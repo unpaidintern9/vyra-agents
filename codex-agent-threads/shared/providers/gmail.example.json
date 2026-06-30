@@ -1,0 +1,15 @@
+{
+  "schemaType": "communication_provider_template",
+  "id": "provider:gmail",
+  "provider": "gmail",
+  "displayName": "Gmail",
+  "channel": "email",
+  "mode": "oauth",
+  "requiredEnv": ["GMAIL_CLIENT_ID", "GMAIL_CLIENT_SECRET", "GMAIL_REDIRECT_URI"],
+  "optionalEnv": ["GMAIL_ALLOWED_SENDER"],
+  "sendingEnabled": false,
+  "providerCallsEnabled": false,
+  "productionSendModeAvailable": false,
+  "approvalRequired": true,
+  "notes": "Template only. Do not store values here."
+}

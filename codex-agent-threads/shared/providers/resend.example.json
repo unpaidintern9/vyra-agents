@@ -1,0 +1,15 @@
+{
+  "schemaType": "communication_provider_template",
+  "id": "provider:resend",
+  "provider": "resend",
+  "displayName": "Resend",
+  "channel": "email",
+  "mode": "api",
+  "requiredEnv": ["RESEND_API_KEY", "RESEND_FROM_EMAIL"],
+  "optionalEnv": ["RESEND_AUDIENCE_ID"],
+  "sendingEnabled": false,
+  "providerCallsEnabled": false,
+  "productionSendModeAvailable": false,
+  "approvalRequired": true,
+  "notes": "Template only. Do not store values here."
+}
