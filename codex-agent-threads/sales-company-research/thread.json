@@ -1,0 +1,11 @@
+{
+  "name": "Sales Company Research",
+  "slug": "sales-company-research",
+  "threadId": "019f18ba-be79-7f93-bdd2-135c0b09af74",
+  "sourceThreadId": "019f1312-801f-7dc0-b5c5-00b70fa58444",
+  "codexCwd": "/Users/vyra/Documents/Codex/2026-06-30/sales-company-research",
+  "primaryPurpose": "Scheduled prospect/company research and weekly gym-list enrichment.",
+  "vyraAgentBridges": ["sales", "operations"],
+  "lastObservedAt": "2026-06-30",
+  "status": "idle"
+}

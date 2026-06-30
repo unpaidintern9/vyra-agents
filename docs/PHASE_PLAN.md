@@ -724,3 +724,27 @@ Boundaries:
 - No secret output.
 - No `.env.local` modifications.
 - Future external actions remain explicit placeholders behind approval gates.
+
+## Phase 29
+
+Codex Thread Automation and Vyra Agent Outbox Bridge.
+
+Includes:
+
+- Local bridge folders for `codex-agent-threads/shared/outbox/`, `shared/inbox/`, and `shared/archive/`.
+- Schemas for thread output, agent handoff, task recommendation, sales research note, customer research note, and Executive summary item.
+- Root npm scripts for `threads:status`, `threads:ingest`, `threads:summary`, `threads:archive`, and `threads:validate`.
+- Local outbox ingestion that groups findings by named Codex agent source.
+- Local Executive review item generation from valid thread outbox payloads.
+- Operator Dashboard Thread Outbox Bridge section with pending outputs, latest ingest/archive metadata, named source list, recommended next actions, and archive status.
+- Generated thread payloads ignored by Git, with committed examples and schemas.
+
+Boundaries:
+
+- No email or SMS sends.
+- No CRM writes.
+- No Stripe writes.
+- No Supabase production writes.
+- No production business table writes.
+- No secret output.
+- Generated inbox, outbox, archive, and report payloads remain ignored unless they are templates or examples.

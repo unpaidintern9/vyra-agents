@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/agent-handoff.schema.json",
+  "title": "Agent Handoff",
+  "type": "object",
+  "required": ["schemaType", "id", "sourceThread", "targetAgents", "createdAt", "handoffSummary", "safety"],
+  "properties": {
+    "schemaType": { "const": "agent_handoff" },
+    "id": { "type": "string", "minLength": 3 },
+    "sourceThread": { "$ref": "./shared-definitions.schema.json#/$defs/sourceThread" },
+    "targetAgents": { "$ref": "./shared-definitions.schema.json#/$defs/targetAgents" },
+    "createdAt": { "type": "string" },
+    "handoffSummary": { "type": "string", "minLength": 1 },
+    "context": { "type": "array", "items": { "type": "string" } },
+    "recommendedNextActions": { "type": "array", "items": { "$ref": "./shared-definitions.schema.json#/$defs/recommendation" } },
+    "safety": { "$ref": "./shared-definitions.schema.json#/$defs/safety" }
+  },
+  "additionalProperties": true
+}

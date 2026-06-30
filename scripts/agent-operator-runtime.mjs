@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildThreadBridgeStatus } from './thread-bridge-runtime.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const repoRoot = path.resolve(__dirname, '..');
@@ -109,6 +110,11 @@ export function buildOperatorSnapshot(options = {}) {
     relationshipCount: 11,
   };
   const validation = buildSafetyCheck(operator);
+  const threadBridge = buildThreadBridgeStatus();
+  const threadPriority =
+    threadBridge.pendingOutboxItems > 0
+      ? [`Review ${threadBridge.pendingOutboxItems} pending Codex thread outbox item(s) from ${threadBridge.latestThread}.`]
+      : [];
 
   return {
     operator,
@@ -123,6 +129,7 @@ export function buildOperatorSnapshot(options = {}) {
     },
     executive: {
       priorities: [
+        ...threadPriority,
         'Review cross-agent collaboration before approving proposal, migration, or follow-up work.',
         'Keep Sales external actions disabled until CRM/email/Stripe approval gates exist.',
         'Review Engineering warnings before future live issue creation.',
@@ -153,6 +160,7 @@ export function buildOperatorSnapshot(options = {}) {
       warnings,
       checks: validation.checks,
     },
+    threadBridge,
     graph: buildCrossAgentGraph(operator, crossAgent),
   };
 }
@@ -230,6 +238,7 @@ export function buildExecutiveRunSummary(snapshot) {
     migrationReadiness: snapshot.migration.readiness,
     followUpsDue: snapshot.sales.followUpsDue,
     organizationsRequiringReview: snapshot.sales.organizationsRequiringReview,
+    threadBridge: snapshot.threadBridge,
     safetyWarnings: snapshot.safety.warnings,
     validation: snapshot.safety,
   };

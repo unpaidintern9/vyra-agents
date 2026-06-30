@@ -1,0 +1,11 @@
+{
+  "name": "Customer Research Engine",
+  "slug": "customer-research-engine",
+  "threadId": "019f18ba-c506-7ec3-a352-94302564a3d5",
+  "sourceThreadId": "019f1312-801f-7dc0-b5c5-00b70fa58444",
+  "codexCwd": "/Users/vyra/Documents/Codex/2026-06-30/customer-research-engine",
+  "primaryPurpose": "Research-only public online presence scans for named prospects or customers.",
+  "vyraAgentBridges": ["sales", "support"],
+  "lastObservedAt": "2026-06-30",
+  "status": "idle"
+}

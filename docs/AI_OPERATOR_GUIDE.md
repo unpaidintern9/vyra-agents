@@ -16,6 +16,11 @@ npm run agents:report
 npm run agents:safety-check
 npm run agents:graph
 npm run agents:validate
+npm run threads:status
+npm run threads:ingest
+npm run threads:summary
+npm run threads:archive
+npm run threads:validate
 ```
 
 Optional operator metadata can be passed with flags:
@@ -67,3 +72,9 @@ Each report is timestamped and written as Markdown and JSON. Generated report fi
 The operator interface does not send email, send SMS, write CRM records, create Stripe objects, write Supabase production data, write production business data, output secrets, or modify `.env.local`.
 
 Future external actions must remain explicit placeholders behind approval gates.
+
+## Thread Bridge
+
+Phase 29 adds the `threads:*` commands for local named Codex thread outbox ingestion. These commands validate local payloads in `codex-agent-threads/shared/outbox/`, create ignored local summaries, and archive consumed files.
+
+See `docs/CODEX_THREAD_BRIDGE.md` and `docs/THREAD_OUTBOX_WORKFLOW.md`.

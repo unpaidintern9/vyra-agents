@@ -10,6 +10,11 @@
     "agents:report": "node scripts/agent-operator.mjs report",
     "agents:safety-check": "node scripts/agent-operator.mjs safety-check",
     "agents:graph": "node scripts/agent-operator.mjs graph",
-    "agents:validate": "node scripts/agent-operator.mjs validate"
+    "agents:validate": "node scripts/agent-operator.mjs validate",
+    "threads:status": "node scripts/thread-bridge.mjs status",
+    "threads:ingest": "node scripts/thread-bridge.mjs ingest",
+    "threads:summary": "node scripts/thread-bridge.mjs summary",
+    "threads:archive": "node scripts/thread-bridge.mjs archive",
+    "threads:validate": "node scripts/thread-bridge.mjs validate"
   }
 }

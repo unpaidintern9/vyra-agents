@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/shared-definitions.schema.json",
+  "title": "Shared Thread Bridge Definitions",
+  "$defs": {
+    "sourceThread": {
+      "type": "object",
+      "required": ["name", "slug"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "slug": { "type": "string", "minLength": 1 },
+        "threadId": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "targetAgents": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "enum": ["executive", "sales", "operations", "support", "engineering", "migration", "product", "finance", "marketing"]
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "required": ["title", "detail"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "detail": { "type": "string", "minLength": 1 },
+        "priority": { "enum": ["low", "medium", "high"] }
+      },
+      "additionalProperties": true
+    },
+    "safety": {
+      "type": "object",
+      "required": ["externalActions", "productionWrites", "secretsIncluded"],
+      "properties": {
+        "externalActions": { "const": "none" },
+        "productionWrites": { "const": false },
+        "secretsIncluded": { "const": false },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    }
+  }
+}

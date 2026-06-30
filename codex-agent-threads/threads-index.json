@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "workspaceRoot": "/Volumes/Install macOS Sequoia/Vyra Agents",
+  "createdAt": "2026-06-30",
+  "purpose": "Local memory bridge between named Codex automation threads and Vyra role agents.",
+  "threads": [
+    {
+      "name": "Sales Tips",
+      "slug": "sales-tips",
+      "threadId": "019f18ba-c18c-7762-8aec-f4c6e9851030",
+      "sourceThreadId": "019f1312-801f-7dc0-b5c5-00b70fa58444",
+      "codexCwd": "/Users/vyra/Documents/Codex/2026-06-30/sales-tips",
+      "vyraAgentBridges": ["sales", "executive"],
+      "memoryPath": "codex-agent-threads/sales-tips/memory.md",
+      "status": "idle"
+    },
+    {
+      "name": "Sales Company Research",
+      "slug": "sales-company-research",
+      "threadId": "019f18ba-be79-7f93-bdd2-135c0b09af74",
+      "sourceThreadId": "019f1312-801f-7dc0-b5c5-00b70fa58444",
+      "codexCwd": "/Users/vyra/Documents/Codex/2026-06-30/sales-company-research",
+      "vyraAgentBridges": ["sales", "operations"],
+      "memoryPath": "codex-agent-threads/sales-company-research/memory.md",
+      "status": "idle"
+    },
+    {
+      "name": "Customer Research Engine",
+      "slug": "customer-research-engine",
+      "threadId": "019f18ba-c506-7ec3-a352-94302564a3d5",
+      "sourceThreadId": "019f1312-801f-7dc0-b5c5-00b70fa58444",
+      "codexCwd": "/Users/vyra/Documents/Codex/2026-06-30/customer-research-engine",
+      "vyraAgentBridges": ["sales", "support"],
+      "memoryPath": "codex-agent-threads/customer-research-engine/memory.md",
+      "status": "idle"
+    }
+  ],
+  "safety": {
+    "mode": "local/mock/read-only",
+    "blockedActions": [
+      "email sends",
+      "SMS sends",
+      "CRM writes",
+      "Stripe writes",
+      "Supabase production writes",
+      "production business writes",
+      "private-source scraping",
+      "login bypassing"
+    ]
+  }
+}

@@ -136,7 +136,10 @@ type EffectiveMode = 'mock' | 'live' | 'fallback';
 interface OperatorDashboardState {
   lastReport: string | null;
   lastRun: string;
+  lastThreadArchive: string | null;
+  lastThreadIngest: string | null;
   lastValidation: string | null;
+  pendingThreadOutputs: number;
 }
 
 interface IntegrationSnapshot {
@@ -207,7 +210,10 @@ function App() {
     loadLocalState<OperatorDashboardState>(localStorageKeys.operatorDashboard, () => ({
       lastReport: null,
       lastRun: new Date().toISOString(),
+      lastThreadArchive: null,
+      lastThreadIngest: null,
       lastValidation: null,
+      pendingThreadOutputs: 0,
     })),
   );
 
@@ -1161,12 +1167,27 @@ function App() {
     integrationMode: modeLabel(status.effectiveMode),
     lastReport: operatorDashboard.lastReport,
     lastRun: operatorDashboard.lastRun,
+    lastThreadArchive: operatorDashboard.lastThreadArchive,
+    lastThreadIngest: operatorDashboard.lastThreadIngest,
     lastValidation: operatorDashboard.lastValidation,
+    pendingThreadOutputs: operatorDashboard.pendingThreadOutputs,
     runtime,
   });
   const recordOperatorRun = () => setOperatorDashboard((current) => ({ ...current, lastRun: new Date().toISOString() }));
   const recordOperatorReport = () => setOperatorDashboard((current) => ({ ...current, lastReport: new Date().toISOString() }));
   const recordOperatorValidation = () => setOperatorDashboard((current) => ({ ...current, lastValidation: new Date().toISOString() }));
+  const recordThreadIngest = () =>
+    setOperatorDashboard((current) => ({
+      ...current,
+      lastThreadIngest: new Date().toISOString(),
+      pendingThreadOutputs: 0,
+    }));
+  const recordThreadArchive = () =>
+    setOperatorDashboard((current) => ({
+      ...current,
+      lastThreadArchive: new Date().toISOString(),
+      pendingThreadOutputs: 0,
+    }));
   const pageTitle =
     activePage === 'Overview'
       ? 'Executive Agent'
@@ -1335,6 +1356,8 @@ function App() {
           <OperatorPage
             onRecordReport={recordOperatorReport}
             onRecordRun={recordOperatorRun}
+            onRecordThreadArchive={recordThreadArchive}
+            onRecordThreadIngest={recordThreadIngest}
             onRecordValidation={recordOperatorValidation}
             operator={operatorSnapshot}
             runtime={runtime}
@@ -1504,12 +1527,16 @@ function RuntimePage({ runtime, syncStatus }: { runtime: AgentRuntimeSnapshot; s
 function OperatorPage({
   onRecordReport,
   onRecordRun,
+  onRecordThreadArchive,
+  onRecordThreadIngest,
   onRecordValidation,
   operator,
   runtime,
 }: {
   onRecordReport(): void;
   onRecordRun(): void;
+  onRecordThreadArchive(): void;
+  onRecordThreadIngest(): void;
   onRecordValidation(): void;
   operator: AiOperatorDashboardSnapshot;
   runtime: AgentRuntimeSnapshot;
@@ -1560,6 +1587,33 @@ function OperatorPage({
               operatorCommandPurpose(command),
             ])}
           />
+        </Panel>
+
+        <Panel title="Thread Outbox Bridge" icon={<FileClock size={18} />} wide>
+          <p className="panel-description">
+            Named Codex agent thread outputs land in the local shared outbox. Vyra agents ingest and summarize them through the same local operator surface.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Pending Thread Outputs" value={String(operator.threadBridge.pendingThreadOutputs)} />
+            <Fact label="Latest Ingested Thread" value={formatOptionalDate(operator.threadBridge.latestIngestedThread)} />
+            <Fact label="Outbox Path" value={operator.threadBridge.outboxPath} />
+            <Fact label="Inbox Path" value={operator.threadBridge.inboxPath} />
+            <Fact label="Archive Status" value={formatOptionalDate(operator.threadBridge.archiveStatus)} />
+            <Fact label="Named Agent Sources" value={operator.threadBridge.namedAgentSources.join(', ')} />
+          </div>
+          <div className="button-row sales-action-row">
+            <button className="report-button small" onClick={onRecordThreadIngest} type="button">
+              Record Local Thread Ingest
+            </button>
+            <button className="report-button small" onClick={onRecordThreadArchive} type="button">
+              Record Local Archive
+            </button>
+          </div>
+          <div className="activity-list">
+            {operator.threadBridge.recommendedNextActions.map((action) => (
+              <p key={action}>{action}</p>
+            ))}
+          </div>
         </Panel>
 
         <Panel title="Safety Controls" icon={<ShieldCheck size={18} />} wide>
@@ -2685,6 +2739,11 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('agents:safety-check')) return 'Check local safety rails and secret-looking diffs.';
   if (command.endsWith('agents:graph')) return 'Generate the local cross-agent operator graph.';
   if (command.endsWith('agents:validate')) return 'Validate command availability, report directories, and safety checks.';
+  if (command.endsWith('threads:status')) return 'Print local thread inbox, outbox, archive, and named-source status.';
+  if (command.endsWith('threads:ingest')) return 'Read valid pending outbox items and create local Executive review summaries.';
+  if (command.endsWith('threads:summary')) return 'Summarize pending local thread outputs by named agent source.';
+  if (command.endsWith('threads:archive')) return 'Move consumed local outbox items into the local archive folder.';
+  if (command.endsWith('threads:validate')) return 'Validate thread bridge directories, schemas, and pending outbox payloads.';
   return 'Shared local operator command.';
 }
 

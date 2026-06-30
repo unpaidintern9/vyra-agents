@@ -1,0 +1,11 @@
+{
+  "name": "Sales Tips",
+  "slug": "sales-tips",
+  "threadId": "019f18ba-c18c-7762-8aec-f4c6e9851030",
+  "sourceThreadId": "019f1312-801f-7dc0-b5c5-00b70fa58444",
+  "codexCwd": "/Users/vyra/Documents/Codex/2026-06-30/sales-tips",
+  "primaryPurpose": "Scheduled Sales check-ins and next-step suggestions.",
+  "vyraAgentBridges": ["sales", "executive"],
+  "lastObservedAt": "2026-06-30",
+  "status": "idle"
+}

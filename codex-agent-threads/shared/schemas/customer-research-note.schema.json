@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/customer-research-note.schema.json",
+  "title": "Customer Research Note",
+  "type": "object",
+  "required": ["schemaType", "id", "sourceThread", "createdAt", "customerOrProspect", "summary", "safety"],
+  "properties": {
+    "schemaType": { "const": "customer_research_note" },
+    "id": { "type": "string", "minLength": 3 },
+    "sourceThread": { "$ref": "./shared-definitions.schema.json#/$defs/sourceThread" },
+    "createdAt": { "type": "string" },
+    "customerOrProspect": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "minLength": 1 },
+    "publicSignals": { "type": "array", "items": { "type": "string" } },
+    "sourceLinks": { "type": "array", "items": { "type": "string" } },
+    "supportRisks": { "type": "array", "items": { "type": "string" } },
+    "safety": { "$ref": "./shared-definitions.schema.json#/$defs/safety" }
+  },
+  "additionalProperties": true
+}

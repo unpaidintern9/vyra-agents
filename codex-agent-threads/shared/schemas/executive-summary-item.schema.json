@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/executive-summary-item.schema.json",
+  "title": "Executive Summary Item",
+  "type": "object",
+  "required": ["schemaType", "id", "sourceThread", "createdAt", "priority", "summary", "recommendedAction", "safety"],
+  "properties": {
+    "schemaType": { "const": "executive_summary_item" },
+    "id": { "type": "string", "minLength": 3 },
+    "sourceThread": { "$ref": "./shared-definitions.schema.json#/$defs/sourceThread" },
+    "createdAt": { "type": "string" },
+    "priority": { "enum": ["low", "medium", "high"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "recommendedAction": { "type": "string", "minLength": 1 },
+    "targetAgents": { "$ref": "./shared-definitions.schema.json#/$defs/targetAgents" },
+    "safety": { "$ref": "./shared-definitions.schema.json#/$defs/safety" }
+  },
+  "additionalProperties": true
+}

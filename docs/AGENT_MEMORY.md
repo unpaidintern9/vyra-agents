@@ -92,3 +92,31 @@ Approved writable tables:
 - agent_integrations
 
 Production business tables remain out of scope.
+
+## Codex Agent Thread Memory
+
+Named Codex automation threads use a separate local bridge folder:
+
+- `codex-agent-threads/`
+
+This folder stores thread metadata, durable memory, and local handoff notes for Codex-level assistants such as Sales Tips, Sales Company Research, and Customer Research Engine.
+
+These are not production Supabase writes and are not first-class runtime agents yet. They are local coordination records that let Codex threads talk to Vyra role agents through documented handoffs.
+
+Current bridge targets:
+
+- Sales Tips -> Sales Agent and Executive Agent
+- Sales Company Research -> Sales Agent and Operations Agent
+- Customer Research Engine -> Sales Agent and Support Agent
+
+Codex thread outputs should stay local until reviewed and should never perform outreach, CRM writes, Stripe writes, production database writes, or other external side effects without explicit approval gates.
+
+Phase 29 formalizes this bridge with:
+
+- `codex-agent-threads/shared/outbox/`
+- `codex-agent-threads/shared/inbox/`
+- `codex-agent-threads/shared/archive/`
+- JSON schemas under `codex-agent-threads/shared/schemas/`
+- `npm run threads:*` commands for status, ingest, summary, archive, and validation
+
+Vyra agents may ingest pending outbox items into local Executive review summaries. Generated inbox, outbox, archive, and thread bridge report payloads remain ignored by Git.

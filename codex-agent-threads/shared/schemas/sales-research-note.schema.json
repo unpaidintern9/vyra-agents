@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/sales-research-note.schema.json",
+  "title": "Sales Research Note",
+  "type": "object",
+  "required": ["schemaType", "id", "sourceThread", "createdAt", "prospect", "summary", "safety"],
+  "properties": {
+    "schemaType": { "const": "sales_research_note" },
+    "id": { "type": "string", "minLength": 3 },
+    "sourceThread": { "$ref": "./shared-definitions.schema.json#/$defs/sourceThread" },
+    "createdAt": { "type": "string" },
+    "prospect": { "type": "string", "minLength": 1 },
+    "market": { "type": "string" },
+    "summary": { "type": "string", "minLength": 1 },
+    "fitSignals": { "type": "array", "items": { "type": "string" } },
+    "sourceLinks": { "type": "array", "items": { "type": "string" } },
+    "recommendedNextActions": { "type": "array", "items": { "$ref": "./shared-definitions.schema.json#/$defs/recommendation" } },
+    "safety": { "$ref": "./shared-definitions.schema.json#/$defs/safety" }
+  },
+  "additionalProperties": true
+}

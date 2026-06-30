@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/thread-output.schema.json",
+  "title": "Thread Output",
+  "type": "object",
+  "required": ["schemaType", "id", "title", "sourceThread", "targetAgents", "createdAt", "status", "confidence", "summary", "safety"],
+  "properties": {
+    "schemaType": { "const": "thread_output" },
+    "id": { "type": "string", "minLength": 3 },
+    "title": { "type": "string", "minLength": 3 },
+    "sourceThread": { "$ref": "./shared-definitions.schema.json#/$defs/sourceThread" },
+    "targetAgents": { "$ref": "./shared-definitions.schema.json#/$defs/targetAgents" },
+    "createdAt": { "type": "string" },
+    "status": { "enum": ["pending_review", "ingested", "archived"] },
+    "confidence": { "enum": ["low", "medium", "high"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "findings": { "type": "array", "items": { "type": "string" } },
+    "recommendations": { "type": "array", "items": { "$ref": "./shared-definitions.schema.json#/$defs/recommendation" } },
+    "safety": { "$ref": "./shared-definitions.schema.json#/$defs/safety" }
+  },
+  "additionalProperties": true
+}

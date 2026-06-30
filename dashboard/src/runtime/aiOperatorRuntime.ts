@@ -22,6 +22,17 @@ export interface AiOperatorDashboardSnapshot {
   lastValidation: string;
   metadata: AiOperatorMetadata;
   safetyMode: string;
+  threadBridge: AiThreadBridgeSnapshot;
+}
+
+export interface AiThreadBridgeSnapshot {
+  archiveStatus: string;
+  inboxPath: string;
+  latestIngestedThread: string;
+  namedAgentSources: string[];
+  outboxPath: string;
+  pendingThreadOutputs: number;
+  recommendedNextActions: string[];
 }
 
 const safetyMode = 'local/mock/read-only';
@@ -34,6 +45,11 @@ export const aiOperatorCommands = [
   'npm run agents:safety-check',
   'npm run agents:graph',
   'npm run agents:validate',
+  'npm run threads:status',
+  'npm run threads:ingest',
+  'npm run threads:summary',
+  'npm run threads:archive',
+  'npm run threads:validate',
 ];
 
 export const aiOperatorBlockedActions = [
@@ -64,7 +80,10 @@ export function buildAiOperatorDashboardSnapshot(input: {
   integrationMode: string;
   lastReport?: string | null;
   lastRun?: string | null;
+  lastThreadArchive?: string | null;
+  lastThreadIngest?: string | null;
   lastValidation?: string | null;
+  pendingThreadOutputs?: number;
   runtime: AgentRuntimeSnapshot;
 }): AiOperatorDashboardSnapshot {
   const metadata = buildAiOperatorMetadata(input.integrationMode);
@@ -83,5 +102,18 @@ export function buildAiOperatorDashboardSnapshot(input: {
     lastValidation: input.lastValidation ?? 'Use npm run agents:validate for CLI validation',
     metadata,
     safetyMode,
+    threadBridge: {
+      archiveStatus: input.lastThreadArchive ? `Last archive ${input.lastThreadArchive}` : 'No local archive recorded in dashboard',
+      inboxPath: 'codex-agent-threads/shared/inbox/',
+      latestIngestedThread: input.lastThreadIngest ?? 'No local thread ingest recorded in dashboard',
+      namedAgentSources: ['Sales Tips', 'Sales Company Research', 'Customer Research Engine'],
+      outboxPath: 'codex-agent-threads/shared/outbox/',
+      pendingThreadOutputs: input.pendingThreadOutputs ?? 0,
+      recommendedNextActions: [
+        'Run npm run threads:status before consuming scheduled thread outputs.',
+        'Run npm run threads:ingest to create local Executive review summaries.',
+        'Run npm run threads:archive after review to move consumed outbox items locally.',
+      ],
+    },
   };
 }

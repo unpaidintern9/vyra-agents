@@ -23,6 +23,7 @@ switch (command) {
       operator: snapshot.operator,
       runtime: snapshot.runtime,
       safety: snapshot.safety.status,
+      threadBridge: snapshot.threadBridge,
       activeAgents: snapshot.runtime.agentsReady,
       plannedAgents: snapshot.runtime.agentsPlanned,
     });
