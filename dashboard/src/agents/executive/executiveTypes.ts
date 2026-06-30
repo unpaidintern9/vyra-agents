@@ -3,6 +3,7 @@ import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
+import type { RepositoryIntelligenceDashboardSummary } from '../../runtime/repositoryIntelligence';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry, RuntimeApproval } from '../../runtime/runtimeTypes';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 import type { LocalReport } from '../../storage/reportExport';
@@ -100,6 +101,7 @@ export interface ExecutiveSummary {
   connectorReadiness?: ConnectorReadinessSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
+  repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
 }
 
@@ -118,6 +120,7 @@ export interface ExecutiveDashboardProps {
   connectorReadiness?: ConnectorReadinessSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
+  repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
 }
 

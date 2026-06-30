@@ -25,6 +25,7 @@ const ignoredDirectories = new Set([
   'coverage',
   'dist',
   'node_modules',
+  'reports',
 ]);
 const ignoredExactFiles = new Set(['.env', '.env.local', '.env.production', '.env.development']);
 const safeEnvFiles = new Set(['.env.example', '.env.vyra-part-1.example']);

@@ -2,6 +2,7 @@ import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import { buildDashboardConnectorReadiness, type ConnectorReadinessSummary } from './connectorReadiness';
 import { buildDashboardGitHubPlanningSummary, type GitHubPlanningDashboardSummary } from './githubPlanning';
 import { buildDashboardGitHubReadOnlySummary, type GitHubReadOnlyDashboardSummary } from './githubReadOnly';
+import { defaultRepositoryIntelligenceSummary, type RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import { buildDashboardSharedTaskSummary, type SharedTaskDashboardSummary } from './sharedTaskQueue';
 
 export interface AiOperatorMetadata {
@@ -30,6 +31,7 @@ export interface AiOperatorDashboardSnapshot {
   connectorReadiness: ConnectorReadinessSummary;
   githubPlanning: GitHubPlanningDashboardSummary;
   githubReadOnly: GitHubReadOnlyDashboardSummary;
+  repositoryIntelligence: RepositoryIntelligenceDashboardSummary;
   safetyMode: string;
   sharedTasks: SharedTaskDashboardSummary;
   threadBridge: AiThreadBridgeSnapshot;
@@ -160,6 +162,12 @@ export const aiOperatorCommands = [
   'npm run github:archive-plan',
   'npm run github:plan-report',
   'npm run github:planning-validate',
+  'npm run repo:scan',
+  'npm run repo:status',
+  'npm run repo:graph',
+  'npm run repo:health',
+  'npm run repo:owners',
+  'npm run repo:validate',
 ];
 
 export const aiOperatorBlockedActions = [
@@ -216,6 +224,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   connectorReadiness?: ConnectorReadinessSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
+  repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   sharedTasks?: SharedTaskDashboardSummary;
 }): AiOperatorDashboardSnapshot {
   const metadata = buildAiOperatorMetadata(input.integrationMode);
@@ -225,6 +234,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   const connectorReadiness = input.connectorReadiness ?? buildDashboardConnectorReadiness();
   const githubPlanning = input.githubPlanning ?? buildDashboardGitHubPlanningSummary();
   const githubReadOnly = input.githubReadOnly ?? buildDashboardGitHubReadOnlySummary();
+  const repositoryIntelligence = input.repositoryIntelligence ?? defaultRepositoryIntelligenceSummary();
   const sharedTasks = input.sharedTasks ?? buildDashboardSharedTaskSummary();
 
   return {
@@ -276,6 +286,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
     connectorReadiness,
     githubPlanning,
     githubReadOnly,
+    repositoryIntelligence,
     safetyMode,
     sharedTasks,
     threadBridge: {

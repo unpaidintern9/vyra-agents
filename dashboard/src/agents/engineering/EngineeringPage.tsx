@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { EmptyState } from '../../components/EmptyState';
 import { StatusBadge } from '../../components/StatusBadge';
+import { summarizeRepositoryIntelligence } from '../../runtime/repositoryIntelligence';
 import { loadEngineeringGraph } from './engineeringGraph';
 import { engineeringMockGraph } from './engineeringMockData';
 import {
@@ -126,6 +127,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
   const [issueCreationMessage, setIssueCreationMessage] = useState('No GitHub issue creation attempts this session.');
 
   const graph = scan.graph;
+  const repositoryIntelligence = useMemo(() => summarizeRepositoryIntelligence(graph), [graph]);
   const selectedNode = selectedNodeId ? graph.nodes.find((node) => node.id === selectedNodeId) ?? null : null;
   const searchResults = useMemo(() => searchEngineeringNodes(graph, query), [graph, query]);
   const impact = selectedNode ? analyzeEngineeringImpact(graph, selectedNode) : null;
@@ -488,6 +490,56 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               </div>
             </div>
           </div>
+        </Panel>
+
+        <Panel title="Repository Intelligence Engine" icon={<Network size={18} />} wide>
+          <p className="panel-description">
+            Primary Engineering Agent knowledge source for repository structure, dependencies, ownership, health, documentation, and technical debt. This view is generated locally from metadata only.
+          </p>
+          <div className="summary-grid compact-summary">
+            {[
+              ['Engineering Health', `${repositoryIntelligence.engineeringHealthScore}/100`],
+              ['Repository Risk', repositoryIntelligence.repositoryRisk],
+              ['Dependency Health', repositoryIntelligence.dependencyHealth],
+              ['Documentation', `${repositoryIntelligence.documentationCompleteness}%`],
+              ['Dependency Edges', repositoryIntelligence.dependencyEdges],
+              ['Orphaned Modules', repositoryIntelligence.orphanedModules],
+              ['Technical Debt', repositoryIntelligence.technicalDebtMarkers],
+              ['Warnings', repositoryIntelligence.engineeringWarnings],
+            ].map(([label, value]) => (
+              <article className="metric-card" key={label}>
+                <Network size={18} />
+                <span>{label}</span>
+                <strong>{String(value)}</strong>
+              </article>
+            ))}
+          </div>
+          <DataTable
+            columns={['Repository', 'Owner', 'Health', 'Risk', 'Docs', 'Warnings']}
+            rows={graph.repositories.map((repo) => [
+              repo.name,
+              repo.owner ?? 'Unknown',
+              `${repo.healthScore ?? 0}/100`,
+              repo.riskLevel ?? 'unknown',
+              String(repo.missingDocs ?? 0),
+              String(repo.brokenRelationshipWarnings ?? 0),
+            ])}
+          />
+          <DataTable
+            columns={['Inventory', 'Count']}
+            rows={[
+              ['Modules', String(repositoryIntelligence.modules)],
+              ['Applications', String(repositoryIntelligence.applications)],
+              ['Services', String(repositoryIntelligence.services)],
+              ['Libraries', String(repositoryIntelligence.libraries)],
+              ['Packages', String(repositoryIntelligence.packages)],
+              ['Documentation', String(repositoryIntelligence.documentation)],
+              ['Migrations', String(repositoryIntelligence.migrations)],
+              ['Configuration', String(repositoryIntelligence.configuration)],
+              ['Scripts', String(repositoryIntelligence.scripts)],
+            ]}
+          />
+          <p className="subtle-note">Use repo:scan and repo:validate from the root CLI for generated intelligence reports. No repository files or GitHub records are modified.</p>
         </Panel>
 
         <Panel title="Ownership Overview" icon={<Network size={18} />} wide>

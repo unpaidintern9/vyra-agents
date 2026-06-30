@@ -949,3 +949,27 @@ Boundaries:
 - No GitHub write endpoints.
 - Planning remains local only.
 - No secrets committed.
+
+## Phase 38
+
+Repository Intelligence Engine.
+
+Includes:
+
+- Local Repository Intelligence model for repositories, modules, packages, applications, services, libraries, documentation, migrations, configuration, and scripts.
+- Dependency graph summaries for imports, package dependencies, module relationships, runtime relationships, shared components, circular dependency detection, and orphaned modules.
+- Ownership model linking repositories to owning agent, responsible team, documentation, tasks, GitHub plans, and Executive priorities.
+- Health analysis for build/lint/validation signals, documentation coverage, dependency health, technical debt markers, and Engineering warnings.
+- Root npm scripts for `repo:scan`, `repo:status`, `repo:graph`, `repo:health`, `repo:owners`, and `repo:validate`.
+- Engineering Dashboard Repository Intelligence section.
+- Executive Dashboard engineering health, repository risk, documentation completeness, dependency health, and validation trend signals.
+- Operator Dashboard Repository Intelligence command/status section.
+- Repository Intelligence, Repository Graph, Engineering Health, and Dependency reports under ignored local reports.
+
+Boundaries:
+
+- Local analysis only.
+- No repository modifications.
+- No GitHub writes.
+- No external service writes.
+- No secrets committed.

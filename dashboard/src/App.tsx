@@ -19,6 +19,7 @@ import {
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { EngineeringScanResult } from './agents/engineering/engineeringTypes';
+import { loadEngineeringGraph } from './agents/engineering/engineeringGraph';
 import ExecutiveDashboard from './agents/executive/ExecutiveDashboard';
 import MigrationPage from './agents/migration/MigrationPage';
 import type { BatchPacketExportFormat } from './agents/migration/batchBuilderExports';
@@ -88,6 +89,7 @@ import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } fr
 import { buildDashboardConnectorReadiness } from './runtime/connectorReadiness';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
+import { defaultRepositoryIntelligenceSummary, summarizeRepositoryIntelligence } from './runtime/repositoryIntelligence';
 import { buildDashboardSharedTaskSummary } from './runtime/sharedTaskQueue';
 import {
   buildCrossAgentCollaborationGraph,
@@ -237,6 +239,7 @@ function App() {
   const [syncConnectionState, setSyncConnectionState] = useState<SyncConnectionState>('disabled');
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [syncEnabled] = useState(true);
+  const [latestEngineeringGraph, setLatestEngineeringGraph] = useState<EngineeringScanResult['graph'] | null>(null);
   const [operatorDashboard, setOperatorDashboard] = useState(() =>
     loadLocalState<OperatorDashboardState>(localStorageKeys.operatorDashboard, () => ({
       communicationDraftCounts: {
@@ -346,6 +349,10 @@ function App() {
       workflowRegistry,
     ],
   );
+
+  useEffect(() => {
+    loadEngineeringGraph().then((result) => setLatestEngineeringGraph(result.graph));
+  }, []);
   const crossAgentGraph = useMemo(
     () =>
       buildCrossAgentCollaborationGraph({
@@ -692,6 +699,7 @@ function App() {
   const recordEngineeringScan = (result: EngineeringScanResult) => {
     const now = new Date().toISOString();
     const graph = result.graph;
+    setLatestEngineeringGraph(graph);
     const summary = {
       repositoriesIndexed: graph.summary.repositoriesIndexed,
       repositoriesMissing: graph.summary.repositoriesMissing,
@@ -1217,6 +1225,7 @@ function App() {
   const connectorReadiness = buildDashboardConnectorReadiness();
   const githubPlanning = buildDashboardGitHubPlanningSummary();
   const githubReadOnly = buildDashboardGitHubReadOnlySummary();
+  const repositoryIntelligence = latestEngineeringGraph ? summarizeRepositoryIntelligence(latestEngineeringGraph) : defaultRepositoryIntelligenceSummary();
   const sharedTaskSummary = buildDashboardSharedTaskSummary();
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
     communicationDraftCounts: operatorDashboard.communicationDraftCounts,
@@ -1238,6 +1247,7 @@ function App() {
     connectorReadiness,
     githubPlanning,
     githubReadOnly,
+    repositoryIntelligence,
     sharedTasks: sharedTaskSummary,
   });
   const recordOperatorRun = () => setOperatorDashboard((current) => ({ ...current, lastRun: new Date().toISOString() }));
@@ -1527,6 +1537,7 @@ function App() {
             connectorReadiness={connectorReadiness}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
+            repositoryIntelligence={repositoryIntelligence}
             sharedTaskSummary={sharedTaskSummary}
           />
         )}
@@ -1722,6 +1733,7 @@ function OperatorPage({
         <Metric icon={<ShieldCheck size={20} />} label="Connector Writes" value="Blocked" />
         <Metric icon={<GitBranch size={20} />} label="GitHub Read-Only" value={operator.githubReadOnly.status.replace(/_/g, ' ')} />
         <Metric icon={<GitBranch size={20} />} label="GitHub Plans" value={String(operator.githubPlanning.totalPlans)} />
+        <Metric icon={<Network size={20} />} label="Repo Intelligence" value={operator.repositoryIntelligence.validationTrend} />
         <Metric icon={<ListChecks size={20} />} label="Open Tasks" value={String(operator.sharedTasks.openTasks)} />
         <Metric icon={<ShieldCheck size={20} />} label="Task Queue Health" value={operator.sharedTasks.queueHealth} />
       </section>
@@ -1911,6 +1923,42 @@ function OperatorPage({
               <StatusBadge key={label} value={label} tone="good" />
             ))}
           </div>
+        </Panel>
+
+        <Panel title="Repository Intelligence" icon={<Network size={18} />} wide>
+          <p className="panel-description">
+            Repository Intelligence is the Engineering Agent knowledge source for codebase structure, dependencies, ownership, health, and relationships. It reads local graph metadata only and does not modify repositories.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Repositories" value={String(operator.repositoryIntelligence.repositories)} />
+            <Fact label="Modules" value={String(operator.repositoryIntelligence.modules)} />
+            <Fact label="Dependency Edges" value={String(operator.repositoryIntelligence.dependencyEdges)} />
+            <Fact label="Engineering Health" value={`${operator.repositoryIntelligence.engineeringHealthScore}/100`} />
+            <Fact label="Repository Risk" value={operator.repositoryIntelligence.repositoryRisk} />
+            <Fact label="Documentation" value={`${operator.repositoryIntelligence.documentationCompleteness}%`} />
+            <Fact label="Dependency Health" value={operator.repositoryIntelligence.dependencyHealth} />
+            <Fact label="Validation Trend" value={operator.repositoryIntelligence.validationTrend} />
+          </div>
+          <DataTable
+            columns={['Inventory', 'Count']}
+            rows={[
+              ['Applications', String(operator.repositoryIntelligence.applications)],
+              ['Services', String(operator.repositoryIntelligence.services)],
+              ['Libraries', String(operator.repositoryIntelligence.libraries)],
+              ['Packages', String(operator.repositoryIntelligence.packages)],
+              ['Documentation', String(operator.repositoryIntelligence.documentation)],
+              ['Migrations', String(operator.repositoryIntelligence.migrations)],
+              ['Configuration', String(operator.repositoryIntelligence.configuration)],
+              ['Scripts', String(operator.repositoryIntelligence.scripts)],
+              ['Orphaned Modules', String(operator.repositoryIntelligence.orphanedModules)],
+              ['Technical Debt Markers', String(operator.repositoryIntelligence.technicalDebtMarkers)],
+            ]}
+          />
+          <DataTable
+            columns={['Command', 'Purpose']}
+            rows={operator.repositoryIntelligence.commands.map((command) => [command, operatorCommandPurpose(command)])}
+          />
+          <p className="subtle-note">Repository commands read local metadata and write ignored local reports only. No GitHub writes or repository modifications occur.</p>
         </Panel>
 
         <Panel title="Thread Outbox Bridge" icon={<FileClock size={18} />} wide>
@@ -3273,6 +3321,12 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('github:archive-plan')) return 'Archive a local GitHub plan without deleting or changing GitHub records.';
   if (command.endsWith('github:plan-report')) return 'Generate GitHub Planning Queue and GitHub Plan Review reports.';
   if (command.endsWith('github:planning-validate')) return 'Validate local GitHub planning schemas, examples, and safety gates.';
+  if (command.endsWith('repo:scan')) return 'Regenerate the local repository intelligence graph from read-only filesystem metadata.';
+  if (command.endsWith('repo:status')) return 'Print repository intelligence status, health, ownership, and safety summary.';
+  if (command.endsWith('repo:graph')) return 'Generate the local repository knowledge graph JSON/Markdown reports.';
+  if (command.endsWith('repo:health')) return 'Generate Engineering health analysis from local repository intelligence.';
+  if (command.endsWith('repo:owners')) return 'Generate repository ownership and related documentation/task/plan links.';
+  if (command.endsWith('repo:validate')) return 'Validate repository intelligence models, graph output, reports, and safety gates.';
   return 'Shared local operator command.';
 }
 

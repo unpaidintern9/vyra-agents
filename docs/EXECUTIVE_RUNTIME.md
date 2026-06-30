@@ -58,3 +58,15 @@ Rows include pending tasks, workflow count, approval count, warnings, errors, sy
 The Executive Runtime does not own write paths. It only summarizes existing runtime state and triggers local report downloads.
 
 The AI Operator command interface follows the same boundary. It writes local reports only and does not send email, create Stripe invoices, write CRM records, or write production business data.
+
+## Repository Intelligence Signals
+
+Phase 38 adds Repository Intelligence to Executive summaries:
+
+- engineering health score
+- repository risk
+- documentation completeness
+- dependency health
+- validation trend
+
+These signals come from local Engineering graph metadata and local repository intelligence reports. They do not trigger GitHub writes, repository modifications, or external service writes.

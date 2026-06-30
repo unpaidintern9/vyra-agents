@@ -6,6 +6,7 @@ import { buildCommunicationDraftStatus, buildCommunicationProviderReadiness } fr
 import { buildConnectorReadinessStatus } from './connector-readiness-runtime.mjs';
 import { buildGitHubPlanningStatus } from './github-planning-runtime.mjs';
 import { getGitHubReadOnlyConfig, getGitHubSafetyCheck } from './github-readonly-runtime.mjs';
+import { buildRepositoryIntelligence } from './repository-intelligence-runtime.mjs';
 import { buildSharedTaskStatus } from './shared-task-runtime.mjs';
 import { buildThreadBridgeStatus } from './thread-bridge-runtime.mjs';
 
@@ -122,6 +123,7 @@ export function buildOperatorSnapshot(options = {}) {
   const githubReadOnly = buildGitHubReadOnlySnapshot();
   const githubPlanning = buildGitHubPlanningStatus();
   const sharedTasks = buildSharedTaskStatus();
+  const repositoryIntelligence = safeRepositoryIntelligence();
   const threadPriority =
     threadBridge.pendingOutboxItems > 0
       ? [`Review ${threadBridge.pendingOutboxItems} pending Codex thread outbox item(s) from ${threadBridge.latestThread}.`]
@@ -172,6 +174,10 @@ export function buildOperatorSnapshot(options = {}) {
     engineering: {
       repositoriesIndexed: engineeringGraph?.summary?.repositoriesIndexed ?? 0,
       warnings: engineeringGraph?.warnings?.length ?? engineeringGraph?.summary?.warnings ?? 0,
+      repositoryHealthScore: repositoryIntelligence?.summary?.engineeringHealthScore ?? 0,
+      repositoryRisk: repositoryIntelligence?.summary?.repositoryRisk ?? 'Unknown',
+      documentationCompleteness: repositoryIntelligence?.summary?.documentationCompleteness ?? 0,
+      dependencyHealth: repositoryIntelligence?.summary?.dependencyHealth ?? 'Unknown',
       blockers: engineeringRepo
         ? [`${engineeringRepo.name} health score ${engineeringRepo.healthScore}, risk ${engineeringRepo.riskLevel}`]
         : ['Engineering graph not generated yet; run node scripts/engineering-scan.mjs.'],
@@ -205,6 +211,7 @@ export function buildOperatorSnapshot(options = {}) {
     connectorReadiness,
     githubReadOnly,
     githubPlanning,
+    repositoryIntelligence: repositoryIntelligence?.summary ?? null,
     sharedTasks,
     graph: buildCrossAgentGraph(operator, crossAgent, sharedTasks, connectorReadiness, githubReadOnly, githubPlanning),
   };
@@ -251,6 +258,7 @@ export function writeReportSet(snapshot) {
     writeReport('runtime', 'connector-readiness-status', { title: 'Connector Readiness Status', operator: snapshot.operator, summary: snapshot.connectorReadiness }),
     writeReport('runtime', 'github-read-only-status', { title: 'GitHub Read-Only Status', operator: snapshot.operator, summary: snapshot.githubReadOnly }),
     writeReport('runtime', 'github-planning-status', { title: 'GitHub Planning Status', operator: snapshot.operator, summary: snapshot.githubPlanning }),
+    writeReport('engineering', 'repository-intelligence-status', { title: 'Repository Intelligence Status', operator: snapshot.operator, summary: snapshot.repositoryIntelligence }),
   ].flat();
 }
 
@@ -293,6 +301,7 @@ export function buildExecutiveRunSummary(snapshot) {
     connectorReadiness: snapshot.connectorReadiness,
     githubReadOnly: snapshot.githubReadOnly,
     githubPlanning: snapshot.githubPlanning,
+    repositoryIntelligence: snapshot.repositoryIntelligence,
     sharedTasks: snapshot.sharedTasks,
     safetyWarnings: snapshot.safety.warnings,
     validation: snapshot.safety,
@@ -319,6 +328,14 @@ function buildGitHubReadOnlySnapshot() {
     tokenValuePrinted: false,
     safetyStatus: safety.status,
   };
+}
+
+function safeRepositoryIntelligence() {
+  try {
+    return buildRepositoryIntelligence();
+  } catch {
+    return null;
+  }
 }
 
 export function buildCrossAgentGraph(
@@ -433,6 +450,7 @@ function buildRuntimeReport(snapshot) {
     connectorReadiness: snapshot.connectorReadiness,
     githubReadOnly: snapshot.githubReadOnly,
     githubPlanning: snapshot.githubPlanning,
+    repositoryIntelligence: snapshot.repositoryIntelligence,
     sharedTasks: snapshot.sharedTasks,
     agents,
     workflows,

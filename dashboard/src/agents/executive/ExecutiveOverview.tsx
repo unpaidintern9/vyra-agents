@@ -233,6 +233,15 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           },
         ]
       : []),
+    ...(summary.repositoryIntelligence
+      ? [
+          { label: 'Engineering Health Score', value: `${summary.repositoryIntelligence.engineeringHealthScore}/100`, tone: summary.repositoryIntelligence.engineeringHealthScore >= 80 ? 'good' : 'warn' },
+          { label: 'Repository Risk', value: summary.repositoryIntelligence.repositoryRisk, tone: summary.repositoryIntelligence.repositoryRisk === 'Low' ? 'good' : 'warn' },
+          { label: 'Documentation Completeness', value: `${summary.repositoryIntelligence.documentationCompleteness}%` },
+          { label: 'Dependency Health', value: summary.repositoryIntelligence.dependencyHealth, tone: summary.repositoryIntelligence.dependencyHealth === 'Ready' ? 'good' : 'warn' },
+          { label: 'Validation Trend', value: summary.repositoryIntelligence.validationTrend },
+        ]
+      : []),
   ];
 
   return (

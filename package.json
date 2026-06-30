@@ -62,6 +62,12 @@
     "github:review-plan": "node scripts/github-planning.mjs review-plan",
     "github:archive-plan": "node scripts/github-planning.mjs archive-plan",
     "github:plan-report": "node scripts/github-planning.mjs plan-report",
-    "github:planning-validate": "node scripts/github-planning.mjs planning-validate"
+    "github:planning-validate": "node scripts/github-planning.mjs planning-validate",
+    "repo:scan": "node scripts/repository-intelligence.mjs scan",
+    "repo:status": "node scripts/repository-intelligence.mjs status",
+    "repo:graph": "node scripts/repository-intelligence.mjs graph",
+    "repo:health": "node scripts/repository-intelligence.mjs health",
+    "repo:owners": "node scripts/repository-intelligence.mjs owners",
+    "repo:validate": "node scripts/repository-intelligence.mjs validate"
   }
 }

@@ -29,6 +29,7 @@ switch (command) {
       connectorReadiness: snapshot.connectorReadiness,
       githubReadOnly: snapshot.githubReadOnly,
       githubPlanning: snapshot.githubPlanning,
+      repositoryIntelligence: snapshot.repositoryIntelligence,
       sharedTasks: snapshot.sharedTasks,
       activeAgents: snapshot.runtime.agentsReady,
       plannedAgents: snapshot.runtime.agentsPlanned,

@@ -43,3 +43,9 @@ npm run github:planning-validate
 ## Safety
 
 The planning layer does not create GitHub issues, create PRs, push commits, create branches, dispatch workflows, or call GitHub write endpoints. It only writes ignored local plan/report files.
+
+## Repository Intelligence Links
+
+Phase 38 links GitHub plans to Repository Intelligence. Plans can be associated with repositories, shared tasks, Engineering blockers, Executive priorities, and related documentation.
+
+These links remain local knowledge graph relationships and do not create GitHub records.

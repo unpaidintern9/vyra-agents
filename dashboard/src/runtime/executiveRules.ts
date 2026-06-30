@@ -3,6 +3,7 @@ import type { ConnectorReadinessSummary } from './connectorReadiness';
 import type { CrossAgentCollaborationSummary } from './crossAgentCollaboration';
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
+import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
 import type {
@@ -15,7 +16,7 @@ import type {
   SalesSummary,
 } from '../agents/sales/salesTypes';
 
-export const executiveRuleCount = 10;
+export const executiveRuleCount = 11;
 
 export function buildExecutivePriorities(
   runtime: AgentRuntimeSnapshot,
@@ -30,6 +31,7 @@ export function buildExecutivePriorities(
   connectorReadiness?: ConnectorReadinessSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
+  repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutivePriority[] {
   const priorities: ExecutivePriority[] = [];
@@ -256,6 +258,18 @@ export function buildExecutivePriorities(
       priority: 'medium',
       recommendedAction: 'Review the GitHub planning queue before approving any future GitHub write workflow.',
       source: 'GitHub planning layer',
+    });
+  }
+
+  if (repositoryIntelligence && repositoryIntelligence.repositoryRisk !== 'Low') {
+    priorities.push({
+      id: 'repository-intelligence-risk',
+      agent: 'Engineering Agent',
+      department: 'Engineering',
+      detail: `Repository Intelligence reports ${repositoryIntelligence.repositoryRisk} repository risk with health score ${repositoryIntelligence.engineeringHealthScore}/100.`,
+      priority: repositoryIntelligence.repositoryRisk === 'High' ? 'high' : 'medium',
+      recommendedAction: 'Review Repository Intelligence before approving Engineering or GitHub planning work.',
+      source: 'Repository Intelligence Engine',
     });
   }
 

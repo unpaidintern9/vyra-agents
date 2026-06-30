@@ -15,6 +15,7 @@ export default function ExecutiveDashboard({
   githubReadOnly,
   integrationWarnings = [],
   onNavigate,
+  repositoryIntelligence,
   runtime,
   salesAgentTeamSummary,
   salesIntelligenceSummary,
@@ -39,6 +40,7 @@ export default function ExecutiveDashboard({
     connectorReadiness,
     githubPlanning,
     githubReadOnly,
+    repositoryIntelligence,
     sharedTaskSummary,
   );
   const healthRows = buildExecutiveHealthRows(runtime);

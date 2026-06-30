@@ -3,6 +3,7 @@ import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
+import type { RepositoryIntelligenceDashboardSummary } from '../../runtime/repositoryIntelligence';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 import type { LocalReport } from '../../storage/reportExport';
@@ -38,6 +39,7 @@ export function buildExecutiveSummary(
   connectorReadiness?: ConnectorReadinessSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
+  repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutiveSummary {
   const healthRows = buildExecutiveHealthRows(runtime);
@@ -77,6 +79,7 @@ export function buildExecutiveSummary(
       connectorReadiness,
       githubPlanning,
       githubReadOnly,
+      repositoryIntelligence,
       sharedTaskSummary,
     ),
     recentRuntimeEvents: runtime.activities.length,
@@ -98,6 +101,7 @@ export function buildExecutiveSummary(
     connectorReadiness,
     githubPlanning,
     githubReadOnly,
+    repositoryIntelligence,
     sharedTaskSummary,
   };
 }

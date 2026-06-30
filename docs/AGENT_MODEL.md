@@ -107,3 +107,9 @@ See `docs/CONNECTOR_READINESS.md`, `docs/CONNECTOR_APPROVAL_MAPPING.md`, and `do
 Agents begin as read-only observers. They may report status, flag risks, create draft tasks, and prepare recommendations. They must not deploy, delete, bill, email customers, change permissions, or alter production data without a future approval system.
 
 Phase 18 does not add AI and does not enable production writes. Production writes and external sends remain disabled by default in the shared permission model.
+
+## Repository Intelligence
+
+Phase 38 adds Repository Intelligence as the Engineering Agent's primary local knowledge source. It normalizes repositories, modules, packages, applications, services, libraries, documentation, migrations, configuration, scripts, ownership, dependency relationships, health, and technical debt signals.
+
+Repository entities are published into the local Vyra Knowledge Graph and linked to shared tasks, GitHub plans, Engineering blockers, Executive priorities, and documentation. The engine is local/read-only and performs no repository modifications or GitHub writes.
