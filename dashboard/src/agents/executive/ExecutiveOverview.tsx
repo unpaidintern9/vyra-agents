@@ -200,6 +200,27 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           { label: 'Connector Risk', value: summary.connectorReadiness.riskSummary.executiveRiskLevel, tone: 'warn' },
         ]
       : []),
+    ...(summary.email
+      ? [
+          { label: 'Auto Email Reports Sent', value: String(summary.email.sentEmailCount), tone: summary.email.sentEmailCount ? 'good' : 'neutral' },
+          { label: 'Scheduled Email Reports', value: String(summary.email.scheduledReports) },
+          {
+            label: 'Failed Email Attempts',
+            value: String(summary.email.failedEmailCount),
+            tone: summary.email.failedEmailCount ? 'warn' : 'good',
+          },
+          {
+            label: 'Skipped Email Attempts',
+            value: String(summary.email.skippedEmailCount),
+            tone: summary.email.skippedEmailCount ? 'warn' : 'good',
+          },
+          {
+            label: 'Email Automation Health',
+            value: summary.email.automationHealthStatus,
+            tone: summary.email.automationStatus === 'enabled' ? 'good' : 'warn',
+          },
+        ]
+      : []),
     ...(summary.githubReadOnly
       ? [
           { label: 'GitHub Read-Only', value: summary.githubReadOnly.status.replace(/_/g, ' '), tone: 'good' },

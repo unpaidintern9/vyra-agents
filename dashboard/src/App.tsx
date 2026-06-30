@@ -88,6 +88,7 @@ import { buildAgentRuntime } from './runtime/agentRuntime';
 import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } from './runtime/aiOperatorRuntime';
 import { buildDashboardConnectorReadiness } from './runtime/connectorReadiness';
 import { buildDashboardEngineeringTaskSummary } from './runtime/engineeringTaskGenerator';
+import { buildDashboardGmailEmailSummary } from './runtime/gmailEmail';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
 import { defaultRepositoryIntelligenceSummary, summarizeRepositoryIntelligence } from './runtime/repositoryIntelligence';
@@ -1229,6 +1230,7 @@ function App() {
   const repositoryIntelligence = latestEngineeringGraph ? summarizeRepositoryIntelligence(latestEngineeringGraph) : defaultRepositoryIntelligenceSummary();
   const sharedTaskSummary = buildDashboardSharedTaskSummary();
   const engineeringTasks = buildDashboardEngineeringTaskSummary({ githubPlanning, repositoryIntelligence, sharedTasks: sharedTaskSummary });
+  const emailSummary = buildDashboardGmailEmailSummary();
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
     communicationDraftCounts: operatorDashboard.communicationDraftCounts,
     communicationDraftsByType: operatorDashboard.communicationDraftsByType,
@@ -1247,6 +1249,7 @@ function App() {
     threadDueSchedules: operatorDashboard.threadDueSchedules,
     runtime,
     connectorReadiness,
+    email: emailSummary,
     engineeringTasks,
     githubPlanning,
     githubReadOnly,
@@ -1538,6 +1541,7 @@ function App() {
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
             connectorReadiness={connectorReadiness}
+            email={emailSummary}
             engineeringTasks={engineeringTasks}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
@@ -1733,6 +1737,8 @@ function OperatorPage({
         <Metric icon={<FileClock size={20} />} label="Manual Send Queue" value={String(operator.communicationDrafts.approvedForManualSendDrafts)} />
         <Metric icon={<ShieldCheck size={20} />} label="Human-Marked Sent" value={String(operator.communicationDrafts.manuallyMarkedSentDrafts)} />
         <Metric icon={<Network size={20} />} label="Provider Readiness" value={operator.communicationProviders.sendingDisabled ? 'Send Disabled' : 'Review'} />
+        <Metric icon={<FileClock size={20} />} label="Gmail Automation" value={operator.email.automationStatus} />
+        <Metric icon={<ShieldCheck size={20} />} label="Email Sent / Skipped" value={`${operator.email.sentEmailCount}/${operator.email.skippedEmailCount}`} />
         <Metric icon={<Network size={20} />} label="Connector Templates" value={String(operator.connectorReadiness.connectorCount)} />
         <Metric icon={<ShieldCheck size={20} />} label="Connector Writes" value="Blocked" />
         <Metric icon={<GitBranch size={20} />} label="GitHub Read-Only" value={operator.githubReadOnly.status.replace(/_/g, ' ')} />
@@ -1857,6 +1863,58 @@ function OperatorPage({
           />
           <div className="safety-badge-row">
             {['No connector calls', 'No write actions', 'Approval required', 'No production data writes', 'No secrets displayed'].map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="Gmail Email Connector" icon={<FileClock size={18} />} wide>
+          <p className="panel-description">
+            Gmail is the first real email connector. Automatic sending is enabled once Gmail is configured and every sender, recipient, content, and audit gate passes. This dashboard shows safe config status only and never displays credentials.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Gmail Status" value={operator.email.gmailConnectorStatus.replace(/_/g, ' ')} />
+            <Fact label="Automation" value={operator.email.automationStatus} />
+            <Fact label="Drafts Awaiting Send" value={String(operator.email.draftsAwaitingSend)} />
+            <Fact label="Scheduled Emails" value={String(operator.email.scheduledReports)} />
+            <Fact label="Sent" value={String(operator.email.sentEmailCount)} />
+            <Fact label="Failed" value={String(operator.email.failedEmailCount)} />
+            <Fact label="Skipped" value={String(operator.email.skippedEmailCount)} />
+            <Fact label="Automation Health" value={operator.email.automationHealthStatus} />
+          </div>
+          <DataTable
+            columns={['Approved Sender']}
+            rows={operator.email.approvedSenders.map((sender) => [sender])}
+          />
+          <DataTable
+            columns={['Recipient', 'Status', 'Email']}
+            rows={operator.email.internalRecipients.map((recipient) => [
+              recipient.name,
+              recipient.status.replace(/_/g, ' '),
+              recipient.email || 'not configured',
+            ])}
+          />
+          <DataTable
+            columns={['Report Type']}
+            rows={operator.email.reportTypes.map((reportType) => [reportType])}
+          />
+          <DataTable
+            columns={['Draft', 'Action', 'Operator', 'Provider Send', 'Recipient']}
+            rows={operator.email.latestEmailAuditActions.map((entry) => [
+              entry.draftId,
+              entry.actionTaken.replace(/_/g, ' '),
+              `${entry.operatorName} / ${entry.operatorTool}`,
+              entry.providerSendOccurred ? 'Yes' : 'No',
+              entry.recipientName,
+            ])}
+            emptyMessage="No Gmail email audit actions recorded in dashboard metadata."
+          />
+          <DataTable
+            columns={['Command', 'Purpose']}
+            rows={operator.email.commands.map((command) => [command, operatorCommandPurpose(command)])}
+          />
+          <div className="safety-badge-row">
+            {['Internal recipients only', 'Approved senders only', 'Audit required', 'No bulk campaigns', 'No CRM/Stripe/Supabase writes'].map((label) => (
               <StatusBadge key={label} value={label} tone="good" />
             ))}
           </div>
@@ -3331,6 +3389,14 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('comms:audit')) return 'Print the local communication audit trail.';
   if (command.endsWith('comms:audit-report')) return 'Generate manual-send queue and communication audit trail reports.';
   if (command.endsWith('comms:validate')) return 'Validate communication draft examples, folders, and local draft payloads.';
+  if (command.endsWith('email:status')) return 'Report Gmail connector, automation, sender, recipient, and audit status without printing secrets.';
+  if (command.endsWith('email:drafts')) return 'List local Gmail email drafts and write ignored draft reports.';
+  if (command.endsWith('email:create-draft')) return 'Create an internal email-ready report draft for Robert or Matthew.';
+  if (command.endsWith('email:send')) return 'Send one draft through Gmail only when configuration and safety gates pass.';
+  if (command.endsWith('email:send-pending')) return 'Automatically send ready or scheduled internal drafts when all Gmail gates pass.';
+  if (command.endsWith('email:audit')) return 'Generate the Gmail email audit trail with sent, failed, and skipped attempts.';
+  if (command.endsWith('email:validate')) return 'Validate Gmail email models, recipients, audit records, and safety gates.';
+  if (command.endsWith('email:safety-check')) return 'Verify Gmail sending remains internal, audited, config-gated, and non-bulk.';
   if (command.endsWith('tasks:status')) return 'Print local shared work queue health and knowledge graph links.';
   if (command.endsWith('tasks:list')) return 'List local shared task records with queue summary.';
   if (command.endsWith('tasks:create')) return 'Create a local shared task for any Vyra agent.';

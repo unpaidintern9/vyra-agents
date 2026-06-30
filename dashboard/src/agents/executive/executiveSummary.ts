@@ -2,6 +2,7 @@ import { buildExecutivePriorities } from '../../runtime/executiveRules';
 import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness';
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { EngineeringTaskGeneratorSummary } from '../../runtime/engineeringTaskGenerator';
+import type { GmailEmailDashboardSummary } from '../../runtime/gmailEmail';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
 import type { RepositoryIntelligenceDashboardSummary } from '../../runtime/repositoryIntelligence';
@@ -38,6 +39,7 @@ export function buildExecutiveSummary(
   salesIntelligenceSummary?: SalesIntelligenceSummary,
   crossAgentSummary?: CrossAgentCollaborationSummary,
   connectorReadiness?: ConnectorReadinessSummary,
+  email?: GmailEmailDashboardSummary,
   engineeringTasks?: EngineeringTaskGeneratorSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
@@ -79,6 +81,7 @@ export function buildExecutiveSummary(
       salesIntelligenceSummary,
       crossAgentSummary,
       connectorReadiness,
+      email,
       engineeringTasks,
       githubPlanning,
       githubReadOnly,
@@ -103,6 +106,7 @@ export function buildExecutiveSummary(
     salesScoringSummary,
     salesSummary,
     connectorReadiness,
+    email,
     githubPlanning,
     githubReadOnly,
     repositoryIntelligence,
@@ -186,6 +190,11 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     connectorBlockedWrites: summary.connectorReadiness?.blockedWriteActionCount ?? 0,
     connectorApprovalMappedActions: summary.connectorReadiness?.approvalMappedActionCount ?? 0,
     connectorExecutiveRiskLevel: summary.connectorReadiness?.riskSummary.executiveRiskLevel ?? 'Not configured',
+    emailsSentAutomatically: summary.email?.sentEmailCount ?? 0,
+    scheduledEmailReports: summary.email?.scheduledReports ?? 0,
+    failedEmailAttempts: summary.email?.failedEmailCount ?? 0,
+    skippedEmailAttempts: summary.email?.skippedEmailCount ?? 0,
+    emailAutomationHealth: summary.email?.automationHealthStatus ?? 'Not configured',
     engineeringGeneratedTasks: summary.engineeringTasks?.generatedTasks ?? 0,
     engineeringCriticalTasks: summary.engineeringTasks?.criticalEngineeringTasks ?? 0,
     engineeringSalesBlockingTasks: summary.engineeringTasks?.salesBlockingEngineeringTasks ?? 0,

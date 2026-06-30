@@ -26,6 +26,7 @@ switch (command) {
       threadBridge: snapshot.threadBridge,
       communicationDrafts: snapshot.communicationDrafts,
       communicationProviders: snapshot.communicationProviders,
+      email: snapshot.email,
       connectorReadiness: snapshot.connectorReadiness,
       githubReadOnly: snapshot.githubReadOnly,
       githubPlanning: snapshot.githubPlanning,

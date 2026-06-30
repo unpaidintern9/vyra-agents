@@ -31,6 +31,12 @@ codex-agent-threads/shared/drafts/archive/**/*.json
 codex-agent-threads/shared/drafts/archive/**/*.md
 codex-agent-threads/shared/drafts/audit/**/*.json
 codex-agent-threads/shared/drafts/audit/**/*.md
+codex-agent-threads/shared/email/drafts/**/*.json
+codex-agent-threads/shared/email/drafts/**/*.md
+codex-agent-threads/shared/email/audit/**/*.json
+codex-agent-threads/shared/email/audit/**/*.md
+codex-agent-threads/shared/email/archive/**/*.json
+codex-agent-threads/shared/email/archive/**/*.md
 codex-agent-threads/shared/tasks/**/*.json
 codex-agent-threads/shared/tasks/**/*.md
 codex-agent-threads/shared/github-plans/**/*.json

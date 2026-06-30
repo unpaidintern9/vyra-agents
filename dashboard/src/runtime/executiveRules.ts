@@ -2,6 +2,7 @@ import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { ConnectorReadinessSummary } from './connectorReadiness';
 import type { CrossAgentCollaborationSummary } from './crossAgentCollaboration';
 import type { EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
+import type { GmailEmailDashboardSummary } from './gmailEmail';
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
 import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
@@ -17,7 +18,7 @@ import type {
   SalesSummary,
 } from '../agents/sales/salesTypes';
 
-export const executiveRuleCount = 12;
+export const executiveRuleCount = 13;
 
 export function buildExecutivePriorities(
   runtime: AgentRuntimeSnapshot,
@@ -30,6 +31,7 @@ export function buildExecutivePriorities(
   salesIntelligenceSummary?: SalesIntelligenceSummary,
   crossAgentSummary?: CrossAgentCollaborationSummary,
   connectorReadiness?: ConnectorReadinessSummary,
+  email?: GmailEmailDashboardSummary,
   engineeringTasks?: EngineeringTaskGeneratorSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
@@ -236,6 +238,18 @@ export function buildExecutivePriorities(
       priority: 'medium',
       recommendedAction: 'Open Operator and review Connector Readiness before enabling any future live tool access.',
       source: 'Connector readiness',
+    });
+  }
+
+  if (email && (email.failedEmailCount > 0 || email.skippedEmailCount > 0 || email.automationStatus === 'disabled')) {
+    priorities.push({
+      id: 'gmail-email-automation-health',
+      agent: 'Operations Agent',
+      department: 'Operations',
+      detail: `Gmail automation is ${email.automationStatus}; ${email.failedEmailCount} failed and ${email.skippedEmailCount} skipped email attempt(s) are recorded.`,
+      priority: email.failedEmailCount > 0 ? 'high' : 'medium',
+      recommendedAction: 'Open Operator and review Gmail connector status, internal recipients, and email audit trail.',
+      source: 'Gmail Email Connector',
     });
   }
 

@@ -56,3 +56,9 @@ Sending remains impossible in Phase 32 because:
 - production send mode is unavailable
 
 Manual copy/paste mode is readiness-only. It means the system can prepare text for a human operator to copy outside the app later; the app still sends nothing.
+
+## Phase 40A Gmail Update
+
+Gmail is now the first config-gated internal email connector. The provider readiness layer may report Gmail as `configured_auto_send_enabled` when Gmail environment configuration is present and `VYRA_GMAIL_SEND_ENABLED` is not `false`.
+
+All non-Gmail provider calls remain blocked. Gmail sends are available only through the `email:*` commands and only after sender, recipient, content, configuration, and audit gates pass.

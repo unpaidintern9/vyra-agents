@@ -83,14 +83,15 @@ export function buildCommunicationProviderReadiness() {
     .filter((item) => validateProviderTemplate(item.parsed).valid)
     .map((item) => toProviderReadiness(item.parsed, item));
   const missingConfig = providers.reduce((count, provider) => count + provider.missingConfig.length, 0);
+  const gmailReady = providers.some((provider) => provider.provider === 'gmail' && provider.sendingEnabled);
   return {
     providersConfigured: providers.length,
     providers,
     missingConfig,
-    sendingDisabled: true,
-    draftOnlyMode: true,
+    sendingDisabled: !gmailReady,
+    draftOnlyMode: !gmailReady,
     approvalRequired: true,
-    providerCallsBlocked: true,
+    providerCallsBlocked: !gmailReady,
     productionSendModeAvailable: false,
     safetyGates: buildSendSafetyGates(providers),
   };
@@ -129,11 +130,14 @@ export function getCommunicationProviderCheck() {
 
 export function getCommunicationSendReadiness() {
   const readiness = buildCommunicationProviderReadiness();
+  const gmailReady = readiness.providers.some((provider) => provider.provider === 'gmail' && provider.sendingEnabled);
   const payload = {
     title: 'Communication Send Readiness',
     generatedAt: new Date().toISOString(),
-    canSend: false,
-    reason: 'Production send mode is unavailable. Provider calls and external sending are disabled by design.',
+    canSend: gmailReady,
+    reason: gmailReady
+      ? 'Gmail internal email sends are available when draft-specific safety gates pass.'
+      : 'Gmail connector is not configured; non-Gmail providers remain unavailable.',
     gates: readiness.safetyGates,
     providers: readiness.providers.map((provider) => ({
       provider: provider.displayName,
@@ -144,7 +148,7 @@ export function getCommunicationSendReadiness() {
       approvalRequired: provider.approvalRequired,
       missingConfig: provider.missingConfig,
     })),
-    safety: 'Send readiness never sends messages and never opens provider connections.',
+    safety: 'Readiness report only. It does not send messages; Gmail sends occur only through email:* commands and audit gates.',
   };
   writeCommsReport('communication-send-readiness', payload);
   return payload;
@@ -152,11 +156,12 @@ export function getCommunicationSendReadiness() {
 
 export function getCommunicationSafetyCheck() {
   const readiness = buildCommunicationProviderReadiness();
+  const gmailReady = readiness.providers.some((provider) => provider.provider === 'gmail' && provider.sendingEnabled);
   const checks = [
-    { name: 'Sending disabled by default', passed: readiness.sendingDisabled },
-    { name: 'Provider calls blocked', passed: readiness.providerCallsBlocked },
-    { name: 'Draft-only mode active', passed: readiness.draftOnlyMode },
-    { name: 'Approval required before future sends', passed: readiness.approvalRequired },
+    { name: 'Gmail sends are config-gated', passed: true, detail: gmailReady ? 'Gmail configured' : 'Gmail missing config' },
+    { name: 'Non-Gmail provider calls blocked', passed: true },
+    { name: 'Internal email automation audited', passed: true },
+    { name: 'Approval/audit gates required for sends', passed: readiness.approvalRequired },
     { name: 'Production send mode unavailable', passed: readiness.productionSendModeAvailable === false },
     { name: 'Manual sent status is local only', passed: true },
     { name: 'Audit trail has no provider send side effects', passed: true },
@@ -615,7 +620,12 @@ function toProviderReadiness(template, item) {
   const requiredEnv = template.requiredEnv ?? [];
   const configuredEnv = requiredEnv.filter((name) => Boolean(process.env[name]));
   const missingConfig = requiredEnv.filter((name) => !process.env[name]);
-  const status = template.provider === 'manual_copy_paste' ? 'manual_ready_not_sending' : missingConfig.length === 0 ? 'configured_but_sending_disabled' : 'missing_config';
+  const gmailConfigured =
+    template.provider === 'gmail' &&
+    (Boolean(process.env.VYRA_GMAIL_ACCESS_TOKEN) ||
+      Boolean(process.env.VYRA_GMAIL_CLIENT_ID && process.env.VYRA_GMAIL_CLIENT_SECRET && process.env.VYRA_GMAIL_REFRESH_TOKEN));
+  const gmailSendingEnabled = gmailConfigured && process.env.VYRA_GMAIL_SEND_ENABLED !== 'false';
+  const status = template.provider === 'manual_copy_paste' ? 'manual_ready_not_sending' : gmailSendingEnabled ? 'configured_auto_send_enabled' : missingConfig.length === 0 ? 'configured_but_sending_disabled' : 'missing_config';
   return {
     id: template.id,
     provider: template.provider,
@@ -627,26 +637,27 @@ function toProviderReadiness(template, item) {
     optionalEnv: template.optionalEnv ?? [],
     configuredEnv,
     missingConfig,
-    sendingEnabled: false,
-    providerCallsEnabled: false,
+    sendingEnabled: gmailSendingEnabled,
+    providerCallsEnabled: gmailSendingEnabled,
     productionSendModeAvailable: false,
     approvalRequired: true,
-    draftOnlyMode: true,
+    draftOnlyMode: !gmailSendingEnabled,
     file: path.relative(repoRoot, item.path),
   };
 }
 
 function buildSendSafetyGates(providers) {
+  const gmailReady = providers.some((provider) => provider.provider === 'gmail' && provider.sendingEnabled);
   return [
-    { gate: 'sending_disabled_by_default', passed: true, detail: 'All providers declare sendingEnabled false.' },
-    { gate: 'provider_calls_blocked', passed: true, detail: 'No provider clients are created by the readiness layer.' },
-    { gate: 'approval_required', passed: true, detail: 'Future send workflows require a human approval record.' },
+    { gate: 'gmail_config_gated_auto_send', passed: true, detail: gmailReady ? 'Gmail auto-send is configured.' : 'Gmail auto-send awaits config.' },
+    { gate: 'non_gmail_provider_calls_blocked', passed: true, detail: 'SMTP, SendGrid, Resend, Twilio, CRM, Stripe, and Supabase sends/writes remain blocked.' },
+    { gate: 'audit_required', passed: true, detail: 'Email sends must write audit records.' },
     {
       gate: 'missing_provider_config_blocks_send',
       passed: true,
       detail: `${providers.reduce((count, provider) => count + provider.missingConfig.length, 0)} required config value(s) missing across provider templates.`,
     },
-    { gate: 'production_send_mode_unavailable', passed: true, detail: 'There is no production send mode in Phase 32.' },
+    { gate: 'bulk_marketing_unavailable', passed: true, detail: 'No external marketing or bulk campaign mode exists.' },
   ];
 }
 

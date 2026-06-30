@@ -1,6 +1,7 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import { buildDashboardConnectorReadiness, type ConnectorReadinessSummary } from './connectorReadiness';
 import { defaultEngineeringTaskSummary, type EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
+import { buildDashboardGmailEmailSummary, type GmailEmailDashboardSummary } from './gmailEmail';
 import { buildDashboardGitHubPlanningSummary, type GitHubPlanningDashboardSummary } from './githubPlanning';
 import { buildDashboardGitHubReadOnlySummary, type GitHubReadOnlyDashboardSummary } from './githubReadOnly';
 import { defaultRepositoryIntelligenceSummary, type RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
@@ -30,6 +31,7 @@ export interface AiOperatorDashboardSnapshot {
   communicationDrafts: AiCommunicationDraftSnapshot;
   communicationProviders: AiCommunicationProviderSnapshot;
   connectorReadiness: ConnectorReadinessSummary;
+  email: GmailEmailDashboardSummary;
   engineeringTasks: EngineeringTaskGeneratorSummary;
   githubPlanning: GitHubPlanningDashboardSummary;
   githubReadOnly: GitHubReadOnlyDashboardSummary;
@@ -136,6 +138,14 @@ export const aiOperatorCommands = [
   'npm run comms:audit',
   'npm run comms:audit-report',
   'npm run comms:validate',
+  'npm run email:status',
+  'npm run email:drafts',
+  'npm run email:create-draft',
+  'npm run email:send',
+  'npm run email:send-pending',
+  'npm run email:audit',
+  'npm run email:validate',
+  'npm run email:safety-check',
   'npm run tasks:status',
   'npm run tasks:list',
   'npm run tasks:create',
@@ -177,7 +187,7 @@ export const aiOperatorCommands = [
 ];
 
 export const aiOperatorBlockedActions = [
-  'No emails',
+  'No external marketing emails',
   'No SMS',
   'No CRM writes',
   'No Stripe writes',
@@ -228,6 +238,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   threadDueSchedules?: number;
   runtime: AgentRuntimeSnapshot;
   connectorReadiness?: ConnectorReadinessSummary;
+  email?: GmailEmailDashboardSummary;
   engineeringTasks?: EngineeringTaskGeneratorSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
@@ -239,6 +250,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   const blockedAgents = input.runtime.agents.filter((agent) => input.runtime.health[agent.id]?.errors > 0).length;
   const runtimeHealth = blockedAgents > 0 ? 'Attention' : warningAgents > 0 ? 'Watch' : 'Ready';
   const connectorReadiness = input.connectorReadiness ?? buildDashboardConnectorReadiness();
+  const email = input.email ?? buildDashboardGmailEmailSummary();
   const engineeringTasks = input.engineeringTasks ?? defaultEngineeringTaskSummary();
   const githubPlanning = input.githubPlanning ?? buildDashboardGitHubPlanningSummary();
   const githubReadOnly = input.githubReadOnly ?? buildDashboardGitHubReadOnlySummary();
@@ -292,6 +304,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
       sendingDisabled: true,
     },
     connectorReadiness,
+    email,
     engineeringTasks,
     githubPlanning,
     githubReadOnly,

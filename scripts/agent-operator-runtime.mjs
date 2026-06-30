@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { buildCommunicationDraftStatus, buildCommunicationProviderReadiness } from './comms-draft-runtime.mjs';
 import { buildConnectorReadinessStatus } from './connector-readiness-runtime.mjs';
 import { buildEngineeringTaskCandidateSet } from './engineering-task-generator-runtime.mjs';
+import { getEmailStatus } from './gmail-email-runtime.mjs';
 import { buildGitHubPlanningStatus } from './github-planning-runtime.mjs';
 import { getGitHubReadOnlyConfig, getGitHubSafetyCheck } from './github-readonly-runtime.mjs';
 import { buildRepositoryIntelligence } from './repository-intelligence-runtime.mjs';
@@ -24,7 +25,7 @@ export const reportDirectories = {
 
 const safetyMode = 'local/mock/read-only';
 const blockedExternalActions = [
-  'email sends',
+  'external marketing email sends',
   'SMS sends',
   'CRM writes',
   'Stripe writes',
@@ -120,6 +121,7 @@ export function buildOperatorSnapshot(options = {}) {
   const threadBridge = buildThreadBridgeStatus();
   const communicationDrafts = buildCommunicationDraftStatus();
   const communicationProviders = buildCommunicationProviderReadiness();
+  const email = getEmailStatus();
   const connectorReadiness = buildConnectorReadinessStatus();
   const githubReadOnly = buildGitHubReadOnlySnapshot();
   const githubPlanning = buildGitHubPlanningStatus();
@@ -134,6 +136,10 @@ export function buildOperatorSnapshot(options = {}) {
   const approvalPriority = threadBridge.pendingApprovals > 0 ? [`Resolve ${threadBridge.pendingApprovals} local approval queue item(s).`] : [];
   const communicationPriority =
     communicationDrafts.pendingReviewDrafts > 0 ? [`Review ${communicationDrafts.pendingReviewDrafts} local communication draft(s).`] : [];
+  const emailPriority =
+    email.failedEmailCount > 0 || email.skippedEmailCount > 0 || email.automationStatus !== 'enabled'
+      ? [`Review Gmail email automation: ${email.automationStatus}, ${email.failedEmailCount} failed, ${email.skippedEmailCount} skipped.`]
+      : [];
   const taskPriority = [
     sharedTasks.blockedTasks > 0 ? `Unblock ${sharedTasks.blockedTasks} shared work queue task(s).` : null,
     sharedTasks.overdueTasks > 0 ? `Review ${sharedTasks.overdueTasks} overdue shared work queue task(s).` : null,
@@ -169,6 +175,7 @@ export function buildOperatorSnapshot(options = {}) {
         ...schedulePriority,
         ...approvalPriority,
         ...communicationPriority,
+        ...emailPriority,
         ...taskPriority,
         ...connectorPriority,
         ...githubPlanningPriority,
@@ -221,6 +228,7 @@ export function buildOperatorSnapshot(options = {}) {
     threadBridge,
     communicationDrafts,
     communicationProviders,
+    email,
     connectorReadiness,
     githubReadOnly,
     githubPlanning,
@@ -267,6 +275,7 @@ export function writeReportSet(snapshot) {
     writeReport('migration', 'migration-operator-summary', buildMigrationReport(snapshot)),
     writeReport('runtime', 'runtime-operator-status', buildRuntimeReport(snapshot)),
     writeReport('runtime', 'operator-safety-check', snapshot.safety),
+    writeReport('runtime', 'gmail-email-status', { title: 'Gmail Email Status', operator: snapshot.operator, summary: snapshot.email }),
     writeReport('runtime', 'cross-agent-graph', snapshot.graph),
     writeReport('runtime', 'shared-work-queue-status', { title: 'Shared Work Queue Status', operator: snapshot.operator, summary: snapshot.sharedTasks }),
     writeReport('runtime', 'connector-readiness-status', { title: 'Connector Readiness Status', operator: snapshot.operator, summary: snapshot.connectorReadiness }),
@@ -313,6 +322,7 @@ export function buildExecutiveRunSummary(snapshot) {
     threadBridge: snapshot.threadBridge,
     communicationDrafts: snapshot.communicationDrafts,
     communicationProviders: snapshot.communicationProviders,
+    email: snapshot.email,
     connectorReadiness: snapshot.connectorReadiness,
     githubReadOnly: snapshot.githubReadOnly,
     githubPlanning: snapshot.githubPlanning,
@@ -485,6 +495,7 @@ function buildRuntimeReport(snapshot) {
     generatedAt: snapshot.operator.timestamp,
     summary: snapshot.runtime,
     connectorReadiness: snapshot.connectorReadiness,
+    email: snapshot.email,
     githubReadOnly: snapshot.githubReadOnly,
     githubPlanning: snapshot.githubPlanning,
     repositoryIntelligence: snapshot.repositoryIntelligence,

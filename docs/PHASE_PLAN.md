@@ -998,3 +998,30 @@ Boundaries:
 - No pull requests.
 - No production data writes.
 - No secrets committed.
+
+## Phase 40A
+
+Gmail Email Connector with Auto-Enabled Sending.
+
+Includes:
+
+- Gmail as the first real internal email connector.
+- Safe config names for Gmail OAuth/access-token configuration.
+- Approved senders: `admin@vyraapp.fit` and `robert.sorenson@vyraapp.fit`.
+- Internal recipient model for Robert and Matthew, with Matthew skipped as `missing_email` until configured.
+- Email workflow states: draft created, ready for send, auto scheduled, sent, failed, skipped, and archived.
+- Root npm scripts for `email:status`, `email:drafts`, `email:create-draft`, `email:send`, `email:send-pending`, `email:audit`, `email:validate`, and `email:safety-check`.
+- Operator Dashboard Gmail connector section.
+- Executive Dashboard email automation and communication activity signals.
+- Email-ready internal report types for Executive daily summary, Sales summary, Engineering summary, Task queue summary, Connector readiness summary, and Cross-agent review summary.
+
+Boundaries:
+
+- Gmail sends only when connector configuration and all safety gates pass.
+- All sends, failures, and skips are audited.
+- No external marketing emails.
+- No bulk outbound campaigns.
+- No CRM writes.
+- No Stripe writes.
+- No Supabase production writes.
+- No secrets committed.

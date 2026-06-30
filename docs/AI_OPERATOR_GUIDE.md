@@ -193,3 +193,18 @@ Every future write/send/create/export action remains a disabled placeholder behi
 - `npm run comms:audit-report` writes ignored manual-send queue and communication audit trail reports.
 
 Manual sent status is local bookkeeping only. It never calls a provider and never proves that Vyra sent the message.
+
+## Gmail Internal Email
+
+Phase 40A adds Gmail commands for internal agent report email:
+
+- `npm run email:status`
+- `npm run email:drafts`
+- `npm run email:create-draft`
+- `npm run email:send`
+- `npm run email:send-pending`
+- `npm run email:audit`
+- `npm run email:validate`
+- `npm run email:safety-check`
+
+Gmail sending is auto-enabled once configured with safe environment variable names and `VYRA_GMAIL_SEND_ENABLED` is not `false`. Allowed senders are `admin@vyraapp.fit` and `robert.sorenson@vyraapp.fit`. Robert defaults to `robert.sorenson@vyraapp.fit`; Matthew is skipped until `VYRA_EMAIL_MATTHEW` is configured. All sends, skips, and failures are audited.

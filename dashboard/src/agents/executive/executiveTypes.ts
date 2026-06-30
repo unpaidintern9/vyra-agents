@@ -2,6 +2,7 @@ import type { RiskLevel } from '../../components/RiskBadge';
 import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness';
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { EngineeringTaskGeneratorSummary } from '../../runtime/engineeringTaskGenerator';
+import type { GmailEmailDashboardSummary } from '../../runtime/gmailEmail';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
 import type { RepositoryIntelligenceDashboardSummary } from '../../runtime/repositoryIntelligence';
@@ -100,6 +101,7 @@ export interface ExecutiveSummary {
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesScoringSummary?: SalesScoringSummary;
   connectorReadiness?: ConnectorReadinessSummary;
+  email?: GmailEmailDashboardSummary;
   engineeringTasks?: EngineeringTaskGeneratorSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
@@ -120,6 +122,7 @@ export interface ExecutiveDashboardProps {
   salesScoringSummary?: SalesScoringSummary;
   salesSummary?: SalesSummary;
   connectorReadiness?: ConnectorReadinessSummary;
+  email?: GmailEmailDashboardSummary;
   engineeringTasks?: EngineeringTaskGeneratorSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
