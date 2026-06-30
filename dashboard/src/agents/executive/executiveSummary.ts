@@ -1,7 +1,7 @@
 import { buildExecutivePriorities } from '../../runtime/executiveRules';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { LocalReport } from '../../storage/reportExport';
-import type { SalesIntegrationSummary, SalesScoringSummary, SalesSummary } from '../sales/salesTypes';
+import type { SalesIntegrationSummary, SalesProposalSummary, SalesScoringSummary, SalesSummary } from '../sales/salesTypes';
 import type {
   ExecutiveHealthRow,
   ExecutiveReportContext,
@@ -17,6 +17,7 @@ export function buildExecutiveSummary(
   salesSummary?: SalesSummary,
   salesIntegration?: SalesIntegrationSummary,
   salesScoringSummary?: SalesScoringSummary,
+  salesProposalSummary?: SalesProposalSummary,
 ): ExecutiveSummary {
   const healthRows = buildExecutiveHealthRows(runtime);
   const healthyAgents = healthRows.filter((agent) => agent.risk === 'low').length;
@@ -42,7 +43,7 @@ export function buildExecutiveSummary(
     migrationBatches: migrationHealth?.pendingTasks ?? 0,
     overallHealth,
     pendingApprovals,
-    priorities: buildExecutivePriorities(runtime, salesSummary, salesIntegration, salesScoringSummary),
+    priorities: buildExecutivePriorities(runtime, salesSummary, salesIntegration, salesScoringSummary, salesProposalSummary),
     recentRuntimeEvents: runtime.activities.length,
     registeredAgents: runtime.agents.length,
     runtime: buildRuntimeSummary(runtime),
@@ -52,6 +53,7 @@ export function buildExecutiveSummary(
     warningAgents,
     workflowsToday: countWorkflowActivity(runtime.activities),
     salesIntegration,
+    salesProposalSummary,
     salesScoringSummary,
     salesSummary,
   };
@@ -102,6 +104,10 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     salesScoredAtRiskLeads: summary.salesScoringSummary?.atRiskLeadCount ?? 0,
     salesOverdueFollowUps: summary.salesScoringSummary?.overdueFollowUpCount ?? 0,
     salesWeightedPipelineValue: summary.salesScoringSummary?.estimatedWeightedPipelineValue ?? 0,
+    salesProposalDraftsCreated: summary.salesProposalSummary?.draftsCreated ?? 0,
+    salesProposalMissingPricing: summary.salesProposalSummary?.missingPricing ?? 0,
+    salesProposalsReadyForReview: summary.salesProposalSummary?.readyForReview ?? 0,
+    salesProposalRiskCount: summary.salesProposalSummary?.riskCount ?? 0,
     salesBlockedExternalActions: summary.salesIntegration?.blockedExternalActionCount ?? 0,
     syncQueue: summary.syncQueue,
     runtimeVersion: summary.runtimeVersion,

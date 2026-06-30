@@ -31,6 +31,7 @@ import SalesPage from './agents/sales/SalesPage';
 import { buildSalesFollowUpQueue } from './agents/sales/salesFollowUpEngine';
 import { parseSalesLeadJson, emptySalesImportResult } from './agents/sales/salesImport';
 import { buildSalesIntegrationSummary } from './agents/sales/salesIntegrationAdapter';
+import { buildProposalDraftReport, generateSalesProposalDraft, summarizeSalesProposalDrafts } from './agents/sales/salesProposalBuilder';
 import {
   buildFollowUpQueueReport,
   buildFollowUpReport,
@@ -42,7 +43,7 @@ import {
 } from './agents/sales/salesReports';
 import { mergeSalesScoringSummary, scoreSalesLeads, summarizeSalesScoring } from './agents/sales/salesScoring';
 import { createInitialSalesActivities, createInitialSalesLeads, createInitialSalesProposals } from './agents/sales/salesStorage';
-import type { ProposalPrep, SalesAction, SalesActivity, SalesLead } from './agents/sales/salesTypes';
+import type { ProposalPrep, SalesAction, SalesActivity, SalesLead, SalesProposalDraft, SalesProposalTemplateType } from './agents/sales/salesTypes';
 import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
 import { EmptyState } from './components/EmptyState';
 import { PageHeader } from './components/PageHeader';
@@ -135,6 +136,9 @@ function App() {
   const [salesProposals, setSalesProposals] = useState(() =>
     loadLocalState<ProposalPrep[]>(localStorageKeys.salesProposals, createInitialSalesProposals),
   );
+  const [salesProposalDrafts, setSalesProposalDrafts] = useState(() =>
+    loadLocalState<SalesProposalDraft[]>(localStorageKeys.salesProposalDrafts, () => []),
+  );
   const [salesImportResult, setSalesImportResult] = useState(emptySalesImportResult);
   const [workflowRuns, setWorkflowRuns] = useState(() =>
     loadLocalState<WorkflowDryCheckRecord[]>(localStorageKeys.workflowResults, () => []),
@@ -174,6 +178,7 @@ function App() {
     );
   }, [salesFollowUpQueue, salesScores]);
   const salesIntegration = useMemo(() => buildSalesIntegrationSummary(requestedMode), []);
+  const salesProposalSummary = useMemo(() => summarizeSalesProposalDrafts(salesProposalDrafts), [salesProposalDrafts]);
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
   const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
   const syncStatus = useMemo(
@@ -219,6 +224,7 @@ function App() {
   useEffect(() => saveLocalState(localStorageKeys.salesLeads, salesLeads), [salesLeads]);
   useEffect(() => saveLocalState(localStorageKeys.salesActivities, salesActivities), [salesActivities]);
   useEffect(() => saveLocalState(localStorageKeys.salesProposals, salesProposals), [salesProposals]);
+  useEffect(() => saveLocalState(localStorageKeys.salesProposalDrafts, salesProposalDrafts), [salesProposalDrafts]);
   useEffect(() => saveLocalState(localStorageKeys.workflowResults, workflowRuns), [workflowRuns]);
   useEffect(() => saveLocalState(localStorageKeys.migrationDryRuns, migrationDryRuns), [migrationDryRuns]);
   useEffect(() => saveLocalState(localStorageKeys.approvalHistory, approvalHistory), [approvalHistory]);
@@ -736,6 +742,48 @@ function App() {
     });
   };
 
+  const generateProposalDraft = (leadId: string, templateType: SalesProposalTemplateType) => {
+    const lead = salesLeads.find((item) => item.id === leadId);
+    if (!lead) return;
+    const proposal = salesProposals.find((item) => item.leadId === leadId);
+    const existingDraft = salesProposalDrafts.find((draft) => draft.leadId === leadId && draft.templateType === templateType);
+    const draft = generateSalesProposalDraft({ existingDraft, lead, proposal, templateType });
+    setSalesProposalDrafts((current) => [draft, ...current.filter((item) => item.draftId !== draft.draftId)]);
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: 'proposal-draft-generated',
+      detail: `${draft.title} generated locally. Draft only; not sent, not invoiced, and no CRM write occurred.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Agent',
+      action: 'sales proposal draft generated',
+      target: draft.title,
+      result: 'local draft only',
+      riskLevel: draft.riskFlags.length ? 'medium' : 'low',
+    });
+  };
+
+  const exportProposalDraft = (draftId: string, format: ReportFormat) => {
+    const draft = salesProposalDrafts.find((item) => item.draftId === draftId);
+    if (!draft) return;
+    const report = buildProposalDraftReport(draft);
+    downloadReport(report, format);
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: 'proposal-draft-exported',
+      detail: `${draft.title} exported as ${format}. No email, Stripe, CRM, or production write occurred.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Agent',
+      action: 'sales proposal draft exported',
+      target: draft.title,
+      result: `${format} downloaded locally`,
+      riskLevel: 'low',
+    });
+  };
+
   const exportSalesReport = (
     format: ReportFormat | 'csv',
     report: 'pipeline' | 'follow_up' | 'proposal' | 'lead_scoring' | 'follow_up_queue' | 'weighted_pipeline',
@@ -1016,7 +1064,11 @@ function App() {
             leads={salesLeads}
             onAction={recordSalesAction}
             onExport={exportSalesReport}
+            onExportProposalDraft={exportProposalDraft}
+            onGenerateProposalDraft={generateProposalDraft}
             onImportJson={importSalesLeads}
+            proposalDrafts={salesProposalDrafts}
+            proposalSummary={salesProposalSummary}
             proposals={salesProposals}
             scores={salesScores}
             scoringSummary={salesScoringSummary}
@@ -1075,6 +1127,7 @@ function App() {
             onNavigate={setActivePage}
             runtime={runtime}
             salesIntegration={salesIntegration}
+            salesProposalSummary={salesProposalSummary}
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
           />

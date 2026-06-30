@@ -46,6 +46,26 @@ export function ExecutiveOverview({ summary }: { summary: ExecutiveSummary }) {
           { label: 'Weighted Sales Pipeline', value: formatCurrency(summary.salesScoringSummary.estimatedWeightedPipelineValue) },
         ]
       : []),
+    ...(summary.salesProposalSummary
+      ? [
+          { label: 'Proposal Drafts Created', value: String(summary.salesProposalSummary.draftsCreated) },
+          {
+            label: 'Proposals Missing Pricing',
+            value: String(summary.salesProposalSummary.missingPricing),
+            tone: summary.salesProposalSummary.missingPricing ? 'warn' : 'good',
+          },
+          {
+            label: 'Proposals Ready For Review',
+            value: String(summary.salesProposalSummary.readyForReview),
+            tone: summary.salesProposalSummary.readyForReview ? 'good' : 'neutral',
+          },
+          {
+            label: 'Proposal Risk Count',
+            value: String(summary.salesProposalSummary.riskCount),
+            tone: summary.salesProposalSummary.riskCount ? 'warn' : 'good',
+          },
+        ]
+      : []),
     ...(summary.salesIntegration
       ? [
           { label: 'Sales Integration Mode', value: summary.salesIntegration.modeLabel, tone: summary.salesIntegration.mode === 'live_read_only' ? 'warn' : 'good' },

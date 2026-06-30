@@ -1414,6 +1414,42 @@ td:nth-child(6) {
   font-size: 0.88rem;
 }
 
+.safety-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.proposal-builder-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.82fr) minmax(320px, 1.18fr);
+  gap: 16px;
+}
+
+.proposal-preview-card,
+.proposal-markdown-preview {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  padding: 14px;
+}
+
+.proposal-markdown-preview {
+  max-height: 520px;
+  overflow: auto;
+}
+
+.proposal-markdown-preview pre {
+  margin: 0;
+  color: #dce6f3;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
 .filter-row select,
 .filter-grid select,
 .input-control input {
@@ -1584,6 +1620,7 @@ td:nth-child(6) {
 }
 
 @media (max-width: 820px) {
+  .proposal-builder-grid,
   .score-detail-grid {
     grid-template-columns: 1fr;
   }

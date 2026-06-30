@@ -27,6 +27,8 @@ export type SalesProspectSegment =
   | 'white_label_prospect'
   | 'migration_prospect';
 export type FollowUpQueueType = 'today' | 'overdue' | 'proposal_needed' | 'stalled' | 'missing_info';
+export type SalesProposalTemplateType = 'independent_coach' | 'gym_os' | 'app_for_gyms' | 'white_label' | 'migration_data_import';
+export type SalesProposalDraftStatus = 'draft_only' | 'ready_for_review' | 'needs_pricing' | 'risk_review';
 
 export interface SalesLead {
   businessName: string;
@@ -149,6 +151,37 @@ export interface SalesScoringSummary {
   warmLeadCount: number;
 }
 
+export interface SalesProposalDraft {
+  createdAt: string;
+  draftId: string;
+  estimatedValue: number;
+  followUpDate: string | null;
+  leadId: string;
+  localOnly: true;
+  monthlyPrice: number | null;
+  nextStep: string;
+  notInvoiced: true;
+  notSent: true;
+  painPoints: string[];
+  previewMarkdown: string;
+  prospectName: string;
+  prospectType: string;
+  recommendedPackage: string;
+  riskFlags: string[];
+  setupFee: number | null;
+  status: SalesProposalDraftStatus;
+  templateType: SalesProposalTemplateType;
+  title: string;
+  updatedAt: string;
+}
+
+export interface SalesProposalSummary {
+  draftsCreated: number;
+  missingPricing: number;
+  readyForReview: number;
+  riskCount: number;
+}
+
 export interface SalesSummary {
   coachLeads: number;
   estimatedPipelineValue: number;
@@ -197,7 +230,11 @@ export interface SalesPageProps {
     _format: 'json' | 'markdown' | 'csv',
     _report: 'pipeline' | 'follow_up' | 'proposal' | 'lead_scoring' | 'follow_up_queue' | 'weighted_pipeline',
   ): void;
+  onExportProposalDraft(_draftId: string, _format: 'json' | 'markdown'): void;
+  onGenerateProposalDraft(_leadId: string, _templateType: SalesProposalTemplateType): void;
   onImportJson(_content: string): void;
+  proposalDrafts: SalesProposalDraft[];
+  proposalSummary: SalesProposalSummary;
   proposals: ProposalPrep[];
   scores: LeadScore[];
   scoringSummary: SalesScoringSummary;

@@ -1,14 +1,15 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
-import type { SalesIntegrationSummary, SalesScoringSummary, SalesSummary } from '../agents/sales/salesTypes';
+import type { SalesIntegrationSummary, SalesProposalSummary, SalesScoringSummary, SalesSummary } from '../agents/sales/salesTypes';
 
-export const executiveRuleCount = 8;
+export const executiveRuleCount = 9;
 
 export function buildExecutivePriorities(
   runtime: AgentRuntimeSnapshot,
   salesSummary?: SalesSummary,
   salesIntegration?: SalesIntegrationSummary,
   salesScoringSummary?: SalesScoringSummary,
+  salesProposalSummary?: SalesProposalSummary,
 ): ExecutivePriority[] {
   const priorities: ExecutivePriority[] = [];
   const pendingApprovals = runtime.approvals.filter((approval) => approval.status === 'pending');
@@ -97,6 +98,18 @@ export function buildExecutivePriorities(
       priority: salesScoringSummary.overdueFollowUpCount > 0 ? 'high' : 'medium',
       recommendedAction: 'Open Sales and review the deterministic follow-up queue.',
       source: 'Sales lead scoring',
+    });
+  }
+
+  if (salesProposalSummary && (salesProposalSummary.riskCount > 0 || salesProposalSummary.missingPricing > 0)) {
+    priorities.push({
+      id: 'sales-proposal-review',
+      agent: 'Sales Agent',
+      department: 'Sales',
+      detail: `${salesProposalSummary.riskCount} proposal draft risk(s) and ${salesProposalSummary.missingPricing} missing pricing item(s) need local review.`,
+      priority: salesProposalSummary.missingPricing > 0 ? 'high' : 'medium',
+      recommendedAction: 'Open Sales and review proposal drafts before any future approved external use.',
+      source: 'Sales proposal builder',
     });
   }
 

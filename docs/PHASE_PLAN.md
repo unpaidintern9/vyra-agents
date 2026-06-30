@@ -585,3 +585,24 @@ Boundaries:
 - No CRM production records are written.
 - No production business tables are written.
 - All actions remain local/mock/read-only.
+
+## Phase 23
+
+Sales Agent Proposal Builder MVP.
+
+Includes:
+
+- Local deterministic proposal templates for Independent Coach, Gym OS, App for Gyms, White Label, and Migration / Data Import prospects.
+- Proposal draft generation from local lead and proposal prep data.
+- Sales page Proposal Builder with lead selection, proposal type selection, preview, local regenerate/save, Markdown export, and JSON export.
+- Safety labels for Draft only, Not sent, Not invoiced, and Local only.
+- Executive Dashboard signals for proposal drafts created, proposals missing pricing, proposals ready for review, and proposal risk count.
+- Proposal risk priority rule for Executive review.
+
+Boundaries:
+
+- No emails are sent.
+- No Stripe invoices are created.
+- No CRM production records are written.
+- No production business tables are written.
+- All proposal drafts remain local/mock/read-only.

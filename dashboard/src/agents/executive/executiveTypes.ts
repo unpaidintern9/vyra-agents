@@ -1,7 +1,7 @@
 import type { RiskLevel } from '../../components/RiskBadge';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry, RuntimeApproval } from '../../runtime/runtimeTypes';
 import type { LocalReport } from '../../storage/reportExport';
-import type { SalesIntegrationSummary, SalesScoringSummary, SalesSummary } from '../sales/salesTypes';
+import type { SalesIntegrationSummary, SalesProposalSummary, SalesScoringSummary, SalesSummary } from '../sales/salesTypes';
 
 export type ExecutivePriorityLevel = RiskLevel;
 export type ExecutiveReportKind = 'summary' | 'daily' | 'approval' | 'runtime' | 'engineering' | 'migration';
@@ -78,6 +78,7 @@ export interface ExecutiveSummary {
   workflowsToday: number;
   salesSummary?: SalesSummary;
   salesIntegration?: SalesIntegrationSummary;
+  salesProposalSummary?: SalesProposalSummary;
   salesScoringSummary?: SalesScoringSummary;
 }
 
@@ -86,6 +87,7 @@ export interface ExecutiveDashboardProps {
   onNavigate(_page: string): void;
   runtime: AgentRuntimeSnapshot;
   salesIntegration?: SalesIntegrationSummary;
+  salesProposalSummary?: SalesProposalSummary;
   salesScoringSummary?: SalesScoringSummary;
   salesSummary?: SalesSummary;
 }

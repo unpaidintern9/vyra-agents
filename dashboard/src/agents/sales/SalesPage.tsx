@@ -4,8 +4,18 @@ import { useMemo, useState } from 'react';
 import { RiskBadge } from '../../components/RiskBadge';
 import { StatusBadge } from '../../components/StatusBadge';
 import { filterSalesLeads, formatCurrency, isFollowUpDue, isFollowUpThisWeek, isOverdue, pipelineStageLabels, summarizeSalesPipeline } from './salesPipeline';
+import { generateSalesProposalDraft, inferProposalTemplate, salesProposalTemplateLabels } from './salesProposalBuilder';
 import { salesPriorityTone } from './salesScoring';
-import type { FollowUpQueueItem, LeadScore, SalesAction, SalesFilters, SalesLead, SalesPageProps } from './salesTypes';
+import type {
+  FollowUpQueueItem,
+  LeadScore,
+  SalesAction,
+  SalesFilters,
+  SalesLead,
+  SalesPageProps,
+  SalesProposalDraft,
+  SalesProposalTemplateType,
+} from './salesTypes';
 
 export default function SalesPage({
   activities,
@@ -15,13 +25,21 @@ export default function SalesPage({
   leads,
   onAction,
   onExport,
+  onExportProposalDraft,
+  onGenerateProposalDraft,
   onImportJson,
+  proposalDrafts,
+  proposalSummary,
   proposals,
   scores,
   scoringSummary,
 }: SalesPageProps) {
   const [filters, setFilters] = useState<SalesFilters>({ priority: 'all', scorePriority: 'all', source: 'all', stage: 'all', type: 'all' });
   const [selectedScoreId, setSelectedScoreId] = useState<string | null>(scores[0]?.leadId ?? null);
+  const [selectedProposalLeadId, setSelectedProposalLeadId] = useState<string>(leads[0]?.id ?? '');
+  const [selectedProposalType, setSelectedProposalType] = useState<SalesProposalTemplateType>(
+    leads[0] ? inferProposalTemplate(leads[0], proposals.find((proposal) => proposal.leadId === leads[0].id)) : 'gym_os',
+  );
   const summary = useMemo(() => summarizeSalesPipeline(leads, proposals), [leads, proposals]);
   const filteredLeads = useMemo(
     () =>
@@ -40,6 +58,17 @@ export default function SalesPage({
     .map((proposal) => ({ lead: leads.find((item) => item.id === proposal.leadId), proposal }))
     .filter((row) => row.lead);
   const activeLeads = leads.filter((lead) => lead.status === 'active');
+  const selectedProposalLead = leads.find((lead) => lead.id === selectedProposalLeadId) ?? leads[0] ?? null;
+  const selectedProposalPrep = selectedProposalLead ? proposalForLead(proposals, selectedProposalLead.id) : undefined;
+  const savedProposalDraft = proposalDrafts.find((draft) => draft.leadId === selectedProposalLead?.id && draft.templateType === selectedProposalType);
+  const previewProposalDraft = selectedProposalLead
+    ? generateSalesProposalDraft({
+        existingDraft: savedProposalDraft,
+        lead: selectedProposalLead,
+        proposal: selectedProposalPrep,
+        templateType: selectedProposalType,
+      })
+    : null;
 
   return (
     <>
@@ -52,6 +81,8 @@ export default function SalesPage({
         <SalesMetric icon={<FileText size={20} />} label="Proposal Needed" value={String(scoringSummary.proposalNeededCount)} tone={scoringSummary.proposalNeededCount ? 'warn' : 'good'} />
         <SalesMetric icon={<Target size={20} />} label="At Risk" value={String(scoringSummary.atRiskLeadCount)} tone={scoringSummary.atRiskLeadCount ? 'warn' : 'good'} />
         <SalesMetric icon={<FileText size={20} />} label="Weighted Pipeline" value={formatCurrency(scoringSummary.estimatedWeightedPipelineValue)} />
+        <SalesMetric icon={<FileText size={20} />} label="Proposal Drafts" value={String(proposalSummary.draftsCreated)} />
+        <SalesMetric icon={<ShieldCheck size={20} />} label="Ready For Review" value={String(proposalSummary.readyForReview)} tone={proposalSummary.readyForReview ? 'good' : undefined} />
       </section>
 
       <section className="dashboard-grid">
@@ -295,6 +326,61 @@ export default function SalesPage({
               </tbody>
             </table>
           </div>
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <FileText size={18} />
+              <h2>Proposal Builder</h2>
+            </div>
+            <span>Draft only</span>
+          </div>
+          <p className="panel-description">
+            Generate deterministic local proposal drafts from lead data and proposal prep. Drafts are not sent, not invoiced, and not written to CRM.
+          </p>
+          <div className="safety-badge-row">
+            <StatusBadge value="Draft only" tone="neutral" />
+            <StatusBadge value="Not sent" tone="good" />
+            <StatusBadge value="Not invoiced" tone="good" />
+            <StatusBadge value="Local only" tone="good" />
+          </div>
+          <div className="filter-grid compact-filter-grid sales-filter-grid">
+            <SalesSelect
+              label="Lead"
+              value={selectedProposalLead?.id ?? ''}
+              onChange={(value) => {
+                const nextLead = leads.find((lead) => lead.id === value);
+                setSelectedProposalLeadId(value);
+                if (nextLead) {
+                  setSelectedProposalType(inferProposalTemplate(nextLead, proposalForLead(proposals, nextLead.id)));
+                }
+              }}
+            >
+              {leads.map((lead) => (
+                <option key={lead.id} value={lead.id}>
+                  {lead.name}
+                </option>
+              ))}
+            </SalesSelect>
+            <SalesSelect label="Proposal Type" value={selectedProposalType} onChange={(value) => setSelectedProposalType(value as SalesProposalTemplateType)}>
+              {Object.entries(salesProposalTemplateLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </SalesSelect>
+          </div>
+          {previewProposalDraft ? (
+            <ProposalBuilderPreview
+              draft={previewProposalDraft}
+              isSaved={Boolean(savedProposalDraft)}
+              onExport={(format) => savedProposalDraft && onExportProposalDraft(savedProposalDraft.draftId, format)}
+              onGenerate={() => onGenerateProposalDraft(previewProposalDraft.leadId, previewProposalDraft.templateType)}
+            />
+          ) : (
+            <p className="empty-note">Add or import a local lead before creating a proposal draft.</p>
+          )}
         </section>
 
         <section className="panel wide-panel">
@@ -544,6 +630,50 @@ function FollowUpQueueTable({ items }: { items: FollowUpQueueItem[] }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function ProposalBuilderPreview({
+  draft,
+  isSaved,
+  onExport,
+  onGenerate,
+}: {
+  draft: SalesProposalDraft;
+  isSaved: boolean;
+  onExport(_format: 'json' | 'markdown'): void;
+  onGenerate(): void;
+}) {
+  return (
+    <div className="proposal-builder-grid">
+      <div className="proposal-preview-card">
+        <div className="fact-list compact-facts">
+          <Fact label="Prospect" value={draft.prospectName} />
+          <Fact label="Template" value={salesProposalTemplateLabels[draft.templateType]} />
+          <Fact label="Package" value={draft.recommendedPackage} />
+          <Fact label="Estimated Value" value={formatCurrency(draft.estimatedValue)} />
+          <Fact label="Setup / Migration Fee" value={draft.setupFee === null ? 'Missing' : formatCurrency(draft.setupFee)} />
+          <Fact label="Monthly Price" value={draft.monthlyPrice === null ? 'Missing' : formatCurrency(draft.monthlyPrice)} />
+          <Fact label="Follow-Up Date" value={draft.followUpDate ? formatDate(draft.followUpDate) : 'Not scheduled'} />
+          <Fact label="Status" value={draft.status.replace(/_/g, ' ')} />
+        </div>
+        <div className="button-row sales-action-row">
+          <button className="report-button small" onClick={onGenerate} type="button">
+            Regenerate Locally
+          </button>
+          <button className="report-button small" disabled={!isSaved} onClick={() => onExport('markdown')} type="button">
+            Export Markdown
+          </button>
+          <button className="report-button small" disabled={!isSaved} onClick={() => onExport('json')} type="button">
+            Export JSON
+          </button>
+        </div>
+        {!isSaved ? <p className="subtle-note">Regenerate locally once to save this draft before exporting.</p> : null}
+      </div>
+      <div className="proposal-markdown-preview">
+        <pre>{draft.previewMarkdown}</pre>
+      </div>
     </div>
   );
 }

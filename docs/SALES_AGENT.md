@@ -13,6 +13,7 @@ The Sales Agent MVP includes:
 - Gym prospect tracker.
 - Coach prospect tracker.
 - Quote and proposal prep.
+- Proposal Builder for deterministic local proposal drafts.
 - Follow-up planner.
 - Deterministic lead scoring and priority labels.
 - Follow-up queue for overdue, due today, proposal-needed, stalled, and missing-info reminders.
@@ -25,6 +26,7 @@ The Sales Agent MVP includes:
 - Lead scoring Markdown export.
 - Follow-up queue Markdown export.
 - Weighted pipeline JSON export.
+- Proposal draft Markdown and JSON exports.
 - Disabled future external action placeholders for email, Stripe, and CRM writes.
 
 ## Local Storage
@@ -81,6 +83,12 @@ See `docs/SALES_LEAD_SCORING.md`.
 The follow-up queue converts local lead state into reminders for Robert. It never sends emails, creates CRM tasks, or triggers invoices.
 
 See `docs/SALES_FOLLOW_UP_ENGINE.md`.
+
+## Proposal Builder
+
+The Proposal Builder generates local draft proposals for gym, coach, white-label, app-for-gyms, and migration/import prospects. Drafts are deterministic, exportable, and clearly labeled draft only, not sent, not invoiced, and local only.
+
+See `docs/SALES_PROPOSAL_BUILDER.md`.
 
 ## Integration Readiness
 
