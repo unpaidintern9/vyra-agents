@@ -70,3 +70,18 @@ Safety gates enforced by readiness reports:
 - production send mode unavailable
 
 Readiness checks may show environment variable names as missing or configured, but they must never print environment variable values.
+
+## Phase 33 Manual Send Safety
+
+Phase 33 adds manual-send workflow states and a local communication audit trail.
+
+Manual send remains outside provider automation:
+
+- `copied_by_operator` means a human copied the draft text.
+- `marked_sent_manually` means a human marked it as sent outside Vyra.
+- Neither state sends email or SMS through Vyra.
+- Audit entries must record `providerSendOccurred: false`.
+- Audit entries must record `productionWriteOccurred: false`.
+- Audit entries must record `secretsIncluded: false`.
+
+The manual-send workflow is local bookkeeping for human actions. It does not connect to Gmail, SMTP, SendGrid, Resend, Twilio, CRM, Stripe, Supabase production data, or production business systems.

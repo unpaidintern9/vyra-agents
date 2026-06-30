@@ -1,0 +1,16 @@
+{
+  "schemaType": "communication_audit_entry",
+  "id": "audit:example:manual-send",
+  "draftId": "draft:example:email",
+  "approvalId": "approval:example:email-draft",
+  "operatorName": "Robert",
+  "operatorTool": "Codex",
+  "actionTaken": "approved_for_manual_send",
+  "timestamp": "2026-06-30T19:00:00.000Z",
+  "safetyMode": "local/manual-only/no-provider-send",
+  "notes": "Example local audit entry. No provider send occurred.",
+  "externalSendMethod": "manual_copy_paste",
+  "providerSendOccurred": false,
+  "productionWriteOccurred": false,
+  "secretsIncluded": false
+}

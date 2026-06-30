@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyra.local/schemas/communication-audit-entry.schema.json",
+  "title": "Communication Audit Entry",
+  "type": "object",
+  "required": ["schemaType", "id", "draftId", "operatorName", "operatorTool", "actionTaken", "timestamp", "safetyMode", "providerSendOccurred", "productionWriteOccurred", "secretsIncluded"],
+  "properties": {
+    "schemaType": { "const": "communication_audit_entry" },
+    "id": { "type": "string" },
+    "draftId": { "type": "string" },
+    "approvalId": { "type": "string" },
+    "operatorName": { "type": "string" },
+    "operatorTool": { "type": "string" },
+    "actionTaken": {
+      "enum": ["draft_created", "ready_for_review", "approved_for_manual_send", "copied_by_operator", "marked_sent_manually", "rejected", "archived"]
+    },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "safetyMode": { "type": "string" },
+    "notes": { "type": "string" },
+    "externalSendMethod": { "type": "string" },
+    "providerSendOccurred": { "const": false },
+    "productionWriteOccurred": { "const": false },
+    "secretsIncluded": { "const": false }
+  },
+  "additionalProperties": true
+}

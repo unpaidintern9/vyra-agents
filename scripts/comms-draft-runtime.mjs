@@ -9,6 +9,7 @@ export const draftDirectories = {
   email: path.join(sharedRoot, 'drafts/email'),
   sms: path.join(sharedRoot, 'drafts/sms'),
   archive: path.join(sharedRoot, 'drafts/archive'),
+  audit: path.join(sharedRoot, 'drafts/audit'),
 };
 export const providerDirectory = path.join(sharedRoot, 'providers');
 
@@ -19,6 +20,18 @@ const supportedDraftTypes = new Set([
   'executive_summary_draft',
   'customer_research_update_draft',
 ]);
+
+const manualSendStates = new Set([
+  'draft_created',
+  'ready_for_review',
+  'approved_for_manual_send',
+  'copied_by_operator',
+  'marked_sent_manually',
+  'rejected',
+  'archived',
+]);
+
+const legacyDraftStates = new Set(['pending_review', 'approved_local', 'requires_changes']);
 
 const blockedActions = [
   'email sends',
@@ -43,6 +56,7 @@ export function buildCommunicationDraftStatus() {
   const drafts = listCommunicationDrafts();
   const validDrafts = drafts.filter((item) => validateCommunicationDraft(item.parsed).valid);
   const summary = summarizeDrafts(validDrafts.map((item) => item.parsed));
+  const auditSummary = summarizeAuditEntries(listCommunicationAuditEntries().filter((item) => validateCommunicationAuditEntry(item.parsed).valid).map((item) => item.parsed));
   return {
     draftRoot: 'codex-agent-threads/shared/drafts',
     draftCount: validDrafts.length,
@@ -51,8 +65,13 @@ export function buildCommunicationDraftStatus() {
     archivedDrafts: validDrafts.filter((item) => item.location === 'archive' || item.parsed.status === 'archived').length,
     pendingReviewDrafts: summary.pendingReview,
     approvedLocalDrafts: summary.approvedLocal,
+    approvedForManualSendDrafts: summary.approvedForManualSend,
+    copiedDrafts: summary.copied,
+    manuallyMarkedSentDrafts: summary.markedSent,
+    rejectedDrafts: summary.rejected,
+    latestAuditActions: auditSummary.latestActions,
     draftsByType: summary.byType,
-    notSentStatus: 'All drafts are Draft only, Not sent, Local only, Requires human review, External sending disabled.',
+    notSentStatus: 'Manual only. No provider send. Marked sent is a local human record only.',
     blockedActions,
     providerReadiness: buildCommunicationProviderReadiness(),
   };
@@ -139,6 +158,8 @@ export function getCommunicationSafetyCheck() {
     { name: 'Draft-only mode active', passed: readiness.draftOnlyMode },
     { name: 'Approval required before future sends', passed: readiness.approvalRequired },
     { name: 'Production send mode unavailable', passed: readiness.productionSendModeAvailable === false },
+    { name: 'Manual sent status is local only', passed: true },
+    { name: 'Audit trail has no provider send side effects', passed: true },
     { name: 'No provider values printed', passed: true },
   ];
   const payload = {
@@ -188,7 +209,7 @@ export function createCommunicationDraft(options = {}) {
     sourceApprovalId: options.sourceApprovalId || 'local-draft-request',
     createdAt: now,
     createdBy: options.createdBy || 'Vyra Agent',
-    status: 'pending_review',
+    status: 'draft_created',
     review: null,
     safety: draftSafety(),
   };
@@ -196,6 +217,15 @@ export function createCommunicationDraft(options = {}) {
   if (!validation.valid) return { status: 'fail', errors: validation.errors };
   const filePath = path.join(draftDirectories[channel], `${safeFileName(id)}.json`);
   writeFileSync(filePath, `${JSON.stringify(draft, null, 2)}\n`);
+  appendCommunicationAuditEntry({
+    draftId: draft.id,
+    approvalId: draft.sourceApprovalId,
+    operatorName: options.operatorName || 'local operator',
+    operatorTool: options.operatorTool || 'CLI',
+    actionTaken: 'draft_created',
+    notes: 'Local communication draft created. No provider send occurred.',
+    externalSendMethod: 'none',
+  });
   const payload = {
     title: 'Communication Draft Created',
     generatedAt: now,
@@ -208,20 +238,21 @@ export function createCommunicationDraft(options = {}) {
 }
 
 export function reviewCommunicationDraft({ id, decision = 'approved_local', reviewer = 'local operator', notes = 'Reviewed locally.' }) {
-  if (!['approved_local', 'requires_changes', 'pending_review'].includes(decision)) {
+  if (!['approved_local', 'requires_changes', 'pending_review', 'ready_for_review', 'approved_for_manual_send', 'rejected'].includes(decision)) {
     return { status: 'fail', errors: [`Unsupported review decision: ${decision}`] };
   }
   const item = findDraftById(id);
   if (!item) return { status: 'fail', errors: [`Communication draft not found: ${id}`] };
   const validation = validateCommunicationDraft(item.parsed);
   if (!validation.valid) return { status: 'fail', errors: validation.errors };
+  const nextStatus = decision === 'approved_local' ? 'approved_for_manual_send' : decision === 'pending_review' ? 'ready_for_review' : decision === 'requires_changes' ? 'rejected' : decision;
   const reviewed = {
     ...item.parsed,
-    status: decision,
+    status: nextStatus,
     review: {
       reviewedAt: new Date().toISOString(),
       reviewedBy: reviewer,
-      decision,
+      decision: nextStatus,
       notes,
       sent: false,
       externalActionPerformed: false,
@@ -230,6 +261,15 @@ export function reviewCommunicationDraft({ id, decision = 'approved_local', revi
     safety: draftSafety(),
   };
   writeFileSync(item.path, `${JSON.stringify(reviewed, null, 2)}\n`);
+  appendCommunicationAuditEntry({
+    draftId: reviewed.id,
+    approvalId: reviewed.sourceApprovalId,
+    operatorName: reviewer,
+    operatorTool: 'CLI',
+    actionTaken: nextStatus,
+    notes,
+    externalSendMethod: 'none',
+  });
   const payload = {
     title: 'Communication Draft Review Result',
     generatedAt: reviewed.review.reviewedAt,
@@ -238,6 +278,78 @@ export function reviewCommunicationDraft({ id, decision = 'approved_local', revi
     safety: 'Local review only. The draft was not sent.',
   };
   writeCommsReport('communication-draft-review', payload);
+  return payload;
+}
+
+export function approveCommunicationDraftForManualSend({ id, operatorName = 'local operator', operatorTool = 'CLI', notes = 'Approved locally for manual copy/send outside the system.' }) {
+  if (!id) return getManualSendQueueReport();
+  return transitionCommunicationDraft({
+    id,
+    nextStatus: 'approved_for_manual_send',
+    operatorName,
+    operatorTool,
+    notes,
+    externalSendMethod: 'manual_copy_paste',
+  });
+}
+
+export function markCommunicationDraftCopied({ id, operatorName = 'local operator', operatorTool = 'CLI', notes = 'Draft copied by operator for manual handling.' }) {
+  return transitionCommunicationDraft({
+    id,
+    nextStatus: 'copied_by_operator',
+    operatorName,
+    operatorTool,
+    notes,
+    externalSendMethod: 'manual_copy_paste',
+  });
+}
+
+export function markCommunicationDraftSentManually({
+  id,
+  operatorName = 'local operator',
+  operatorTool = 'CLI',
+  notes = 'Operator marked draft sent manually outside the system.',
+  externalSendMethod = 'manual_copy_paste',
+} = {}) {
+  return transitionCommunicationDraft({
+    id,
+    nextStatus: 'marked_sent_manually',
+    operatorName,
+    operatorTool,
+    notes,
+    externalSendMethod,
+  });
+}
+
+export function getManualSendQueueReport() {
+  const validDrafts = listCommunicationDrafts().filter((item) => validateCommunicationDraft(item.parsed).valid);
+  const queueStates = new Set(['approved_for_manual_send', 'copied_by_operator', 'marked_sent_manually', 'rejected']);
+  const queue = validDrafts.filter((item) => queueStates.has(item.parsed.status)).map((item) => toDraftListItem(item));
+  const payload = {
+    title: 'Manual Send Queue',
+    generatedAt: new Date().toISOString(),
+    queue,
+    summary: summarizeDrafts(validDrafts.map((item) => item.parsed)),
+    safety: 'Manual send queue only. No email, SMS, or provider send occurred.',
+  };
+  writeCommsReport('manual-send-queue', payload);
+  return payload;
+}
+
+export function getCommunicationAuditTrailReport() {
+  const entries = listCommunicationAuditEntries().filter((item) => validateCommunicationAuditEntry(item.parsed).valid);
+  const payload = {
+    title: 'Communication Audit Trail',
+    generatedAt: new Date().toISOString(),
+    auditCount: entries.length,
+    summary: summarizeAuditEntries(entries.map((item) => item.parsed)),
+    entries: entries.map((item) => ({
+      ...item.parsed,
+      file: path.relative(repoRoot, item.path),
+    })),
+    safety: 'Audit trail report only. Manual sent status is a human-marked local record and no provider send occurred.',
+  };
+  writeCommsReport('communication-audit-trail', payload);
   return payload;
 }
 
@@ -257,6 +369,15 @@ export function archiveCommunicationDraft(id) {
     writeFileSync(item.path, `${JSON.stringify(archivedPayload, null, 2)}\n`);
     const destination = path.join(draftDirectories.archive, `${stamp}-${item.fileName}`);
     renameSync(item.path, destination);
+    appendCommunicationAuditEntry({
+      draftId: archivedPayload.id,
+      approvalId: archivedPayload.sourceApprovalId,
+      operatorName: 'local operator',
+      operatorTool: 'CLI',
+      actionTaken: 'archived',
+      notes: 'Draft archived locally. No provider send occurred.',
+      externalSendMethod: 'none',
+    });
     archived.push(path.relative(repoRoot, destination));
   });
   const payload = {
@@ -276,6 +397,7 @@ export function validateCommunicationDraftLayer() {
   const emailExample = path.join(sharedRoot, 'examples/email-draft.example.json');
   const smsExample = path.join(sharedRoot, 'examples/sms-draft.example.json');
   const providers = listProviderTemplates();
+  const auditEntries = listCommunicationAuditEntries();
   const emailExampleValidation = existsSync(emailExample)
     ? validateCommunicationDraft(readDraftFile(emailExample, 'example').parsed)
     : { valid: false, errors: ['missing email draft example'] };
@@ -290,11 +412,21 @@ export function validateCommunicationDraftLayer() {
     file: path.relative(repoRoot, item.path),
     ...validateProviderTemplate(item.parsed),
   }));
+  const auditExample = path.join(sharedRoot, 'examples/communication-audit-entry.example.json');
+  const auditExampleValidation = existsSync(auditExample)
+    ? validateCommunicationAuditEntry(readDraftFile(auditExample, 'example').parsed)
+    : { valid: false, errors: ['missing communication audit entry example'] };
+  const auditValidations = auditEntries.map((item) => ({
+    file: path.relative(repoRoot, item.path),
+    ...validateCommunicationAuditEntry(item.parsed),
+  }));
   const status =
     validations.every((item) => item.valid) &&
     providerValidations.every((item) => item.valid) &&
+    auditValidations.every((item) => item.valid) &&
     emailExampleValidation.valid &&
-    smsExampleValidation.valid
+    smsExampleValidation.valid &&
+    auditExampleValidation.valid
       ? 'pass'
       : 'fail';
   return {
@@ -302,8 +434,10 @@ export function validateCommunicationDraftLayer() {
     draftCount: drafts.length,
     emailExampleValidation,
     smsExampleValidation,
+    auditExampleValidation,
     validations,
     providerValidations,
+    auditValidations,
     directoriesReady: {
       ...Object.fromEntries(Object.entries(draftDirectories).map(([key, directory]) => [key, existsSync(directory)])),
       providers: existsSync(providerDirectory),
@@ -323,8 +457,8 @@ export function validateCommunicationDraft(payload) {
   if (!nonEmpty(payload.body)) errors.push('body is required.');
   if (!nonEmpty(payload.createdAt) || Number.isNaN(Date.parse(payload.createdAt))) errors.push('createdAt must be an ISO date.');
   if (!nonEmpty(payload.createdBy)) errors.push('createdBy is required.');
-  if (!['pending_review', 'approved_local', 'requires_changes', 'archived'].includes(payload.status)) {
-    errors.push('status must be pending_review, approved_local, requires_changes, or archived.');
+  if (!manualSendStates.has(payload.status) && !legacyDraftStates.has(payload.status)) {
+    errors.push('status must be a supported communication draft or manual-send state.');
   }
   if (payload.channel === 'email' && !nonEmpty(payload.subject)) errors.push('email drafts require subject.');
   if (!payload.safety || payload.safety.draftOnly !== true || payload.safety.notSent !== true || payload.safety.localOnly !== true) {
@@ -340,6 +474,23 @@ export function validateCommunicationDraft(payload) {
   ) {
     errors.push('safety must require human review, disable sending/providers, block production writes, and exclude secrets.');
   }
+  return { valid: errors.length === 0, errors };
+}
+
+export function validateCommunicationAuditEntry(payload) {
+  const errors = [];
+  if (!payload || typeof payload !== 'object') return { valid: false, errors: ['Audit entry must be a JSON object.'] };
+  if (payload.schemaType !== 'communication_audit_entry') errors.push(`Unsupported audit schemaType: ${payload.schemaType ?? 'missing'}`);
+  if (!nonEmpty(payload.id)) errors.push('id is required.');
+  if (!nonEmpty(payload.draftId)) errors.push('draftId is required.');
+  if (!nonEmpty(payload.operatorName)) errors.push('operatorName is required.');
+  if (!nonEmpty(payload.operatorTool)) errors.push('operatorTool is required.');
+  if (!manualSendStates.has(payload.actionTaken)) errors.push('actionTaken must be a supported manual-send workflow state.');
+  if (!nonEmpty(payload.timestamp) || Number.isNaN(Date.parse(payload.timestamp))) errors.push('timestamp must be an ISO date.');
+  if (!nonEmpty(payload.safetyMode)) errors.push('safetyMode is required.');
+  if (payload.providerSendOccurred !== false) errors.push('providerSendOccurred must be false.');
+  if (payload.productionWriteOccurred !== false) errors.push('productionWriteOccurred must be false.');
+  if (payload.secretsIncluded !== false) errors.push('secretsIncluded must be false.');
   return { valid: errors.length === 0, errors };
 }
 
@@ -368,6 +519,91 @@ function listCommunicationDrafts() {
     ...listDraftFiles(draftDirectories.sms).map((file) => readDraftFile(file, 'sms')),
     ...listDraftFiles(draftDirectories.archive).map((file) => readDraftFile(file, 'archive')),
   ];
+}
+
+function listCommunicationAuditEntries() {
+  ensureDraftDirectories();
+  return listDraftFiles(draftDirectories.audit).map((file) => readDraftFile(file, 'audit'));
+}
+
+function transitionCommunicationDraft({ id, nextStatus, operatorName, operatorTool, notes, externalSendMethod }) {
+  if (!id) return { status: 'fail', errors: ['id is required.'] };
+  if (!manualSendStates.has(nextStatus)) return { status: 'fail', errors: [`Unsupported manual-send state: ${nextStatus}`] };
+  const item = findDraftById(id);
+  if (!item) return { status: 'fail', errors: [`Communication draft not found: ${id}`] };
+  const validation = validateCommunicationDraft(item.parsed);
+  if (!validation.valid) return { status: 'fail', errors: validation.errors };
+  if (item.location === 'archive' && nextStatus !== 'archived') return { status: 'fail', errors: ['Archived drafts cannot transition back into manual send workflow.'] };
+
+  const updated = {
+    ...item.parsed,
+    status: nextStatus,
+    manualSend: {
+      updatedAt: new Date().toISOString(),
+      operatorName,
+      operatorTool,
+      state: nextStatus,
+      notes,
+      externalSendMethod,
+      providerSendOccurred: false,
+      productionWriteOccurred: false,
+    },
+    safety: draftSafety(),
+  };
+  writeFileSync(item.path, `${JSON.stringify(updated, null, 2)}\n`);
+  const audit = appendCommunicationAuditEntry({
+    draftId: updated.id,
+    approvalId: updated.sourceApprovalId,
+    operatorName,
+    operatorTool,
+    actionTaken: nextStatus,
+    notes,
+    externalSendMethod,
+  });
+  const payload = {
+    title: 'Manual Send Workflow Update',
+    generatedAt: updated.manualSend.updatedAt,
+    status: 'pass',
+    draft: toDraftListItem({ ...item, parsed: updated }),
+    audit,
+    safety: 'Local manual-send state update only. No provider send occurred.',
+  };
+  writeCommsReport(`manual-send-${nextStatus}`, payload);
+  return payload;
+}
+
+function appendCommunicationAuditEntry({
+  draftId,
+  approvalId = '',
+  operatorName,
+  operatorTool,
+  actionTaken,
+  notes = '',
+  externalSendMethod = 'none',
+}) {
+  ensureDraftDirectories();
+  const timestamp = new Date().toISOString();
+  const entry = {
+    schemaType: 'communication_audit_entry',
+    id: `audit:${safeFileName(draftId)}:${compactStamp(timestamp)}:${safeFileName(actionTaken)}`,
+    draftId,
+    approvalId,
+    operatorName,
+    operatorTool,
+    actionTaken,
+    timestamp,
+    safetyMode: 'local/manual-only/no-provider-send',
+    notes,
+    externalSendMethod,
+    providerSendOccurred: false,
+    productionWriteOccurred: false,
+    secretsIncluded: false,
+  };
+  const validation = validateCommunicationAuditEntry(entry);
+  if (!validation.valid) return { status: 'fail', errors: validation.errors };
+  const filePath = path.join(draftDirectories.audit, `${safeFileName(entry.id)}.json`);
+  writeFileSync(filePath, `${JSON.stringify(entry, null, 2)}\n`);
+  return entry;
 }
 
 function listProviderTemplates() {
@@ -439,12 +675,38 @@ function summarizeDrafts(drafts) {
   return drafts.reduce(
     (summary, draft) => {
       summary.byType[draft.type] = (summary.byType[draft.type] ?? 0) + 1;
-      if (draft.status === 'pending_review') summary.pendingReview += 1;
+      if (draft.status === 'pending_review' || draft.status === 'ready_for_review' || draft.status === 'draft_created') summary.pendingReview += 1;
       if (draft.status === 'approved_local') summary.approvedLocal += 1;
+      if (draft.status === 'approved_for_manual_send') summary.approvedForManualSend += 1;
+      if (draft.status === 'copied_by_operator') summary.copied += 1;
+      if (draft.status === 'marked_sent_manually') summary.markedSent += 1;
+      if (draft.status === 'rejected') summary.rejected += 1;
       return summary;
     },
-    { byType: {}, pendingReview: 0, approvedLocal: 0 },
+    { byType: {}, pendingReview: 0, approvedLocal: 0, approvedForManualSend: 0, copied: 0, markedSent: 0, rejected: 0 },
   );
+}
+
+function summarizeAuditEntries(entries) {
+  const byAction = entries.reduce((result, entry) => {
+    result[entry.actionTaken] = (result[entry.actionTaken] ?? 0) + 1;
+    return result;
+  }, {});
+  return {
+    byAction,
+    latestActions: entries
+      .slice()
+      .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)))
+      .slice(0, 5)
+      .map((entry) => ({
+        draftId: entry.draftId,
+        actionTaken: entry.actionTaken,
+        operatorName: entry.operatorName,
+        operatorTool: entry.operatorTool,
+        timestamp: entry.timestamp,
+        externalSendMethod: entry.externalSendMethod,
+      })),
+  };
 }
 
 function toDraftListItem(item) {

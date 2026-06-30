@@ -34,6 +34,11 @@ npm run comms:providers
 npm run comms:provider-check
 npm run comms:send-readiness
 npm run comms:safety-check
+npm run comms:manual-send
+npm run comms:mark-copied
+npm run comms:mark-sent
+npm run comms:audit
+npm run comms:audit-report
 npm run comms:validate
 ```
 
@@ -126,3 +131,15 @@ Phase 32 adds provider readiness commands:
 - `npm run comms:safety-check` validates provider-disabled and draft-only safety gates.
 
 Provider readiness does not connect to Gmail, SMTP, SendGrid, Resend, Twilio, CRM, Stripe, or Supabase.
+
+## Manual Send Workflow
+
+Phase 33 adds local manual-send workflow commands:
+
+- `npm run comms:manual-send` approves a local draft for human manual copy/send, or reports the queue when no id is provided.
+- `npm run comms:mark-copied` records that an operator copied a draft.
+- `npm run comms:mark-sent` records that a human marked the draft sent manually outside Vyra.
+- `npm run comms:audit` prints the local communication audit trail.
+- `npm run comms:audit-report` writes ignored manual-send queue and communication audit trail reports.
+
+Manual sent status is local bookkeeping only. It never calls a provider and never proves that Vyra sent the message.

@@ -29,12 +29,26 @@ export interface AiOperatorDashboardSnapshot {
 
 export interface AiCommunicationDraftSnapshot {
   approvedLocalDrafts: number;
+  approvedForManualSendDrafts: number;
   archivedDrafts: number;
+  copiedDrafts: number;
   draftCount: number;
   draftsByType: Record<string, number>;
   draftRoot: string;
+  latestAuditActions: AiCommunicationAuditAction[];
+  manuallyMarkedSentDrafts: number;
   notSentStatus: string;
   pendingReviewDrafts: number;
+  rejectedDrafts: number;
+}
+
+export interface AiCommunicationAuditAction {
+  actionTaken: string;
+  draftId: string;
+  externalSendMethod: string;
+  operatorName: string;
+  operatorTool: string;
+  timestamp: string;
 }
 
 export interface AiCommunicationProviderStatus {
@@ -104,6 +118,11 @@ export const aiOperatorCommands = [
   'npm run comms:provider-check',
   'npm run comms:send-readiness',
   'npm run comms:safety-check',
+  'npm run comms:manual-send',
+  'npm run comms:mark-copied',
+  'npm run comms:mark-sent',
+  'npm run comms:audit',
+  'npm run comms:audit-report',
   'npm run comms:validate',
 ];
 
@@ -141,11 +160,16 @@ export function buildAiOperatorDashboardSnapshot(input: {
   lastValidation?: string | null;
   communicationDraftCounts?: {
     approvedLocalDrafts: number;
+    approvedForManualSendDrafts?: number;
     archivedDrafts: number;
+    copiedDrafts?: number;
     draftCount: number;
+    manuallyMarkedSentDrafts?: number;
     pendingReviewDrafts: number;
+    rejectedDrafts?: number;
   };
   communicationDraftsByType?: Record<string, number>;
+  communicationLatestAuditActions?: AiCommunicationAuditAction[];
   communicationProviders?: AiCommunicationProviderSnapshot;
   pendingApprovalsByType?: Record<string, number>;
   pendingApprovalCount?: number;
@@ -171,12 +195,17 @@ export function buildAiOperatorDashboardSnapshot(input: {
     metadata,
     communicationDrafts: {
       approvedLocalDrafts: input.communicationDraftCounts?.approvedLocalDrafts ?? 0,
+      approvedForManualSendDrafts: input.communicationDraftCounts?.approvedForManualSendDrafts ?? 0,
       archivedDrafts: input.communicationDraftCounts?.archivedDrafts ?? 0,
+      copiedDrafts: input.communicationDraftCounts?.copiedDrafts ?? 0,
       draftCount: input.communicationDraftCounts?.draftCount ?? 0,
       draftsByType: input.communicationDraftsByType ?? {},
       draftRoot: 'codex-agent-threads/shared/drafts/',
-      notSentStatus: 'Draft only · Not sent · Local only · Requires human review · External sending disabled',
+      latestAuditActions: input.communicationLatestAuditActions ?? [],
+      manuallyMarkedSentDrafts: input.communicationDraftCounts?.manuallyMarkedSentDrafts ?? 0,
+      notSentStatus: 'Manual only · No provider send · Human-marked local record only',
       pendingReviewDrafts: input.communicationDraftCounts?.pendingReviewDrafts ?? 0,
+      rejectedDrafts: input.communicationDraftCounts?.rejectedDrafts ?? 0,
     },
     communicationProviders: input.communicationProviders ?? {
       approvalRequired: true,

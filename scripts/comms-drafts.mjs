@@ -7,6 +7,11 @@ import {
   getCommunicationProvidersReport,
   getCommunicationSafetyCheck,
   getCommunicationSendReadiness,
+  getCommunicationAuditTrailReport,
+  getManualSendQueueReport,
+  approveCommunicationDraftForManualSend,
+  markCommunicationDraftCopied,
+  markCommunicationDraftSentManually,
   reviewCommunicationDraft,
   validateCommunicationDraftLayer,
 } from './comms-draft-runtime.mjs';
@@ -61,6 +66,46 @@ switch (command) {
     break;
   case 'safety-check':
     outputJson(getCommunicationSafetyCheck());
+    break;
+  case 'manual-send':
+    outputJson(
+      approveCommunicationDraftForManualSend({
+        id: args.id ?? args.item ?? '',
+        operatorName: args.operatorName ?? args.operator ?? 'local operator',
+        operatorTool: args.operatorTool ?? 'CLI',
+        notes: args.notes ?? 'Approved locally for manual copy/send outside the system.',
+      }),
+    );
+    break;
+  case 'mark-copied':
+    outputJson(
+      markCommunicationDraftCopied({
+        id: args.id ?? args.item ?? '',
+        operatorName: args.operatorName ?? args.operator ?? 'local operator',
+        operatorTool: args.operatorTool ?? 'CLI',
+        notes: args.notes ?? 'Draft copied by operator for manual handling.',
+      }),
+    );
+    break;
+  case 'mark-sent':
+    outputJson(
+      markCommunicationDraftSentManually({
+        id: args.id ?? args.item ?? '',
+        operatorName: args.operatorName ?? args.operator ?? 'local operator',
+        operatorTool: args.operatorTool ?? 'CLI',
+        notes: args.notes ?? 'Operator marked draft sent manually outside the system.',
+        externalSendMethod: args.externalSendMethod ?? args.method ?? 'manual_copy_paste',
+      }),
+    );
+    break;
+  case 'audit':
+    outputJson(getCommunicationAuditTrailReport());
+    break;
+  case 'audit-report':
+    outputJson({
+      manualSendQueue: getManualSendQueueReport(),
+      auditTrail: getCommunicationAuditTrailReport(),
+    });
     break;
   case 'validate': {
     const result = validateCommunicationDraftLayer();

@@ -136,11 +136,23 @@ type EffectiveMode = 'mock' | 'live' | 'fallback';
 interface OperatorDashboardState {
   communicationDraftCounts: {
     approvedLocalDrafts: number;
+    approvedForManualSendDrafts: number;
     archivedDrafts: number;
+    copiedDrafts: number;
     draftCount: number;
+    manuallyMarkedSentDrafts: number;
     pendingReviewDrafts: number;
+    rejectedDrafts: number;
   };
   communicationDraftsByType: Record<string, number>;
+  communicationLatestAuditActions: Array<{
+    actionTaken: string;
+    draftId: string;
+    externalSendMethod: string;
+    operatorName: string;
+    operatorTool: string;
+    timestamp: string;
+  }>;
   lastScheduledRun: string | null;
   lastReport: string | null;
   lastRun: string;
@@ -225,11 +237,16 @@ function App() {
     loadLocalState<OperatorDashboardState>(localStorageKeys.operatorDashboard, () => ({
       communicationDraftCounts: {
         approvedLocalDrafts: 0,
+        approvedForManualSendDrafts: 0,
         archivedDrafts: 0,
+        copiedDrafts: 0,
         draftCount: 0,
+        manuallyMarkedSentDrafts: 0,
         pendingReviewDrafts: 0,
+        rejectedDrafts: 0,
       },
       communicationDraftsByType: {},
+      communicationLatestAuditActions: [],
       lastScheduledRun: null,
       lastReport: null,
       lastRun: new Date().toISOString(),
@@ -1196,6 +1213,7 @@ function App() {
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
     communicationDraftCounts: operatorDashboard.communicationDraftCounts,
     communicationDraftsByType: operatorDashboard.communicationDraftsByType,
+    communicationLatestAuditActions: operatorDashboard.communicationLatestAuditActions,
     integrationMode: modeLabel(status.effectiveMode),
     lastScheduledRun: operatorDashboard.lastScheduledRun,
     lastReport: operatorDashboard.lastReport,
@@ -1263,6 +1281,30 @@ function App() {
         pendingReviewDrafts: Math.max(current.communicationDraftCounts.pendingReviewDrafts - 1, 0),
       },
     }));
+  const recordManualSendAction = (actionTaken: 'approved_for_manual_send' | 'copied_by_operator' | 'marked_sent_manually' | 'rejected') =>
+    setOperatorDashboard((current) => {
+      const timestamp = new Date().toISOString();
+      const nextCounts = { ...current.communicationDraftCounts };
+      if (actionTaken === 'approved_for_manual_send') nextCounts.approvedForManualSendDrafts += 1;
+      if (actionTaken === 'copied_by_operator') nextCounts.copiedDrafts += 1;
+      if (actionTaken === 'marked_sent_manually') nextCounts.manuallyMarkedSentDrafts += 1;
+      if (actionTaken === 'rejected') nextCounts.rejectedDrafts += 1;
+      return {
+        ...current,
+        communicationDraftCounts: nextCounts,
+        communicationLatestAuditActions: [
+          {
+            actionTaken,
+            draftId: 'dashboard-local-draft',
+            externalSendMethod: actionTaken === 'marked_sent_manually' ? 'manual_copy_paste' : 'none',
+            operatorName: 'Robert',
+            operatorTool: 'Dashboard Operator',
+            timestamp,
+          },
+          ...current.communicationLatestAuditActions,
+        ].slice(0, 5),
+      };
+    });
   const recordCommunicationArchive = () =>
     setOperatorDashboard((current) => ({
       ...current,
@@ -1441,6 +1483,7 @@ function App() {
           <OperatorPage
             onRecordCommunicationArchive={recordCommunicationArchive}
             onRecordCommunicationDraft={recordCommunicationDraft}
+            onRecordManualSendAction={recordManualSendAction}
             onRecordCommunicationReview={recordCommunicationReview}
             onRecordApprovalDecision={recordApprovalDecision}
             onRecordReport={recordOperatorReport}
@@ -1617,6 +1660,7 @@ function RuntimePage({ runtime, syncStatus }: { runtime: AgentRuntimeSnapshot; s
 function OperatorPage({
   onRecordCommunicationArchive,
   onRecordCommunicationDraft,
+  onRecordManualSendAction,
   onRecordCommunicationReview,
   onRecordApprovalDecision,
   onRecordReport,
@@ -1630,6 +1674,7 @@ function OperatorPage({
 }: {
   onRecordCommunicationArchive(): void;
   onRecordCommunicationDraft: (_type: string) => void;
+  onRecordManualSendAction: (_actionTaken: 'approved_for_manual_send' | 'copied_by_operator' | 'marked_sent_manually' | 'rejected') => void;
   onRecordCommunicationReview(): void;
   onRecordApprovalDecision: (_decision: 'approved' | 'rejected') => void;
   onRecordReport(): void;
@@ -1652,6 +1697,8 @@ function OperatorPage({
         <Metric icon={<ShieldCheck size={20} />} label="Pending Approvals" value={String(operator.threadBridge.approvalQueue.pendingCount)} />
         <Metric icon={<FileClock size={20} />} label="Communication Drafts" value={String(operator.communicationDrafts.draftCount)} />
         <Metric icon={<ShieldCheck size={20} />} label="Drafts Pending Review" value={String(operator.communicationDrafts.pendingReviewDrafts)} />
+        <Metric icon={<FileClock size={20} />} label="Manual Send Queue" value={String(operator.communicationDrafts.approvedForManualSendDrafts)} />
+        <Metric icon={<ShieldCheck size={20} />} label="Human-Marked Sent" value={String(operator.communicationDrafts.manuallyMarkedSentDrafts)} />
         <Metric icon={<Network size={20} />} label="Provider Readiness" value={operator.communicationProviders.sendingDisabled ? 'Send Disabled' : 'Review'} />
       </section>
       <section className="dashboard-grid">
@@ -1761,6 +1808,10 @@ function OperatorPage({
             <Fact label="Drafts By Type" value={formatPendingApprovalTypes(operator.communicationDrafts.draftsByType)} />
             <Fact label="Pending Review Drafts" value={String(operator.communicationDrafts.pendingReviewDrafts)} />
             <Fact label="Approved Local Drafts" value={String(operator.communicationDrafts.approvedLocalDrafts)} />
+            <Fact label="Approved For Manual Send" value={String(operator.communicationDrafts.approvedForManualSendDrafts)} />
+            <Fact label="Copied Drafts" value={String(operator.communicationDrafts.copiedDrafts)} />
+            <Fact label="Marked Sent Manually" value={String(operator.communicationDrafts.manuallyMarkedSentDrafts)} />
+            <Fact label="Rejected Drafts" value={String(operator.communicationDrafts.rejectedDrafts)} />
             <Fact label="Archived Drafts" value={String(operator.communicationDrafts.archivedDrafts)} />
             <Fact label="Draft Root" value={operator.communicationDrafts.draftRoot} />
             <Fact label="Not Sent Status" value={operator.communicationDrafts.notSentStatus} />
@@ -1788,6 +1839,44 @@ function OperatorPage({
             columns={['Draft Type', 'Count']}
             rows={Object.entries(operator.communicationDrafts.draftsByType).map(([type, count]) => [type.replace(/_/g, ' '), String(count)])}
             emptyMessage="No local communication drafts recorded in dashboard metadata."
+          />
+        </Panel>
+
+        <Panel title="Manual Send Workflow" icon={<ShieldCheck size={18} />} wide>
+          <p className="panel-description">
+            Manual send state is a local audit workflow for human copy/send outside Vyra. Marked sent never triggers Gmail, SMTP, SendGrid, Resend, Twilio, or any provider.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Approved For Manual Send" value={String(operator.communicationDrafts.approvedForManualSendDrafts)} />
+            <Fact label="Copied By Operator" value={String(operator.communicationDrafts.copiedDrafts)} />
+            <Fact label="Marked Sent Manually" value={String(operator.communicationDrafts.manuallyMarkedSentDrafts)} />
+            <Fact label="Rejected Drafts" value={String(operator.communicationDrafts.rejectedDrafts)} />
+            <Fact label="Manual Only Status" value="Manual only / no provider send" />
+          </div>
+          <div className="button-row sales-action-row">
+            <button className="report-button small" onClick={() => onRecordManualSendAction('approved_for_manual_send')} type="button">
+              Record Manual Approval
+            </button>
+            <button className="report-button small" onClick={() => onRecordManualSendAction('copied_by_operator')} type="button">
+              Record Copied
+            </button>
+            <button className="report-button small" onClick={() => onRecordManualSendAction('marked_sent_manually')} type="button">
+              Record Human-Marked Sent
+            </button>
+            <button className="secondary-button small" onClick={() => onRecordManualSendAction('rejected')} type="button">
+              Record Rejected
+            </button>
+          </div>
+          <DataTable
+            columns={['Time', 'Operator', 'Tool', 'Action', 'Method']}
+            rows={operator.communicationDrafts.latestAuditActions.map((action) => [
+              formatDate(action.timestamp),
+              action.operatorName,
+              action.operatorTool,
+              action.actionTaken.replace(/_/g, ' '),
+              action.externalSendMethod.replace(/_/g, ' '),
+            ])}
+            emptyMessage="No local manual-send audit actions recorded in dashboard metadata."
           />
         </Panel>
 
@@ -2978,6 +3067,11 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('comms:provider-check')) return 'Check provider config presence by env-var name without printing values.';
   if (command.endsWith('comms:send-readiness')) return 'Explain why sending remains blocked and production send mode is unavailable.';
   if (command.endsWith('comms:safety-check')) return 'Validate communication safety gates for draft-only provider-disabled mode.';
+  if (command.endsWith('comms:manual-send')) return 'Approve a local draft for human manual copy/send, or report the manual-send queue.';
+  if (command.endsWith('comms:mark-copied')) return 'Record that an operator copied a draft locally without sending it through Vyra.';
+  if (command.endsWith('comms:mark-sent')) return 'Record a human-marked sent status; no provider send occurs.';
+  if (command.endsWith('comms:audit')) return 'Print the local communication audit trail.';
+  if (command.endsWith('comms:audit-report')) return 'Generate manual-send queue and communication audit trail reports.';
   if (command.endsWith('comms:validate')) return 'Validate communication draft examples, folders, and local draft payloads.';
   return 'Shared local operator command.';
 }

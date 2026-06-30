@@ -29,6 +29,11 @@
     "comms:provider-check": "node scripts/comms-drafts.mjs provider-check",
     "comms:send-readiness": "node scripts/comms-drafts.mjs send-readiness",
     "comms:safety-check": "node scripts/comms-drafts.mjs safety-check",
+    "comms:manual-send": "node scripts/comms-drafts.mjs manual-send",
+    "comms:mark-copied": "node scripts/comms-drafts.mjs mark-copied",
+    "comms:mark-sent": "node scripts/comms-drafts.mjs mark-sent",
+    "comms:audit": "node scripts/comms-drafts.mjs audit",
+    "comms:audit-report": "node scripts/comms-drafts.mjs audit-report",
     "comms:validate": "node scripts/comms-drafts.mjs validate"
   }
 }

@@ -29,6 +29,8 @@ codex-agent-threads/shared/drafts/sms/**/*.json
 codex-agent-threads/shared/drafts/sms/**/*.md
 codex-agent-threads/shared/drafts/archive/**/*.json
 codex-agent-threads/shared/drafts/archive/**/*.md
+codex-agent-threads/shared/drafts/audit/**/*.json
+codex-agent-threads/shared/drafts/audit/**/*.md
 codex-agent-threads/shared/providers/**/*.json
 !codex-agent-threads/shared/**/.gitkeep
 !codex-agent-threads/shared/examples/**/*.json

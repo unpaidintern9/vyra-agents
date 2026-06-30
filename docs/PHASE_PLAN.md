@@ -772,6 +772,30 @@ Boundaries:
 - No production business table writes.
 - No secrets committed.
 - No `.env.local` changes.
+
+## Phase 33
+
+Manual Send Workflow and Audit Trail.
+
+Includes:
+
+- Manual communication workflow states for draft created, ready for review, approved for manual send, copied by operator, marked sent manually, rejected, and archived.
+- Local communication audit trail records with draft id, approval id, operator name/tool, action, timestamp, safety mode, notes, and human-marked external send method.
+- Root npm scripts for `comms:manual-send`, `comms:mark-copied`, `comms:mark-sent`, `comms:audit`, and `comms:audit-report`.
+- Operator Dashboard manual-send section showing drafts approved for manual send, copied drafts, manually marked sent drafts, rejected drafts, latest audit actions, and manual-only/no-provider-send status.
+- Manual Send Queue and Communication Audit Trail reports in ignored Markdown and JSON report files.
+
+Boundaries:
+
+- No email sends.
+- No SMS sends.
+- No Gmail, SMTP, SendGrid, Resend, Twilio, or provider calls.
+- Manual sent status is a local human-marked record only.
+- No CRM writes.
+- No Stripe writes.
+- No Supabase production writes.
+- No production business table writes.
+- No secrets committed.
 - Generated inbox, outbox, archive, and report payloads remain ignored unless they are templates or examples.
 
 ## Phase 30
