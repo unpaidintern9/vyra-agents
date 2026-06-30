@@ -39,7 +39,9 @@ export interface SyncStatusSnapshot {
   recordsWaiting: number;
   syncedRecords: number;
   failedRecords: number;
+  legacyFailedRecords: number;
   syncErrors: string[];
+  legacySyncErrors: string[];
 }
 
 export interface SyncableRecord {

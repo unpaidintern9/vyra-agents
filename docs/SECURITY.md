@@ -44,6 +44,8 @@ If anon writes to agent tables fail with row-level security errors, treat that a
 
 Future write enablement should use authenticated admin-only RLS or a server-side path such as an Edge Function where privileged credentials never reach the browser.
 
+Legacy local sync queue records with `42501` RLS errors are old direct-browser insert failures. They may be cleared from browser localStorage or requeued through the approved Edge Function path only. Do not weaken RLS to make those old records pass.
+
 ## Phase 8 Edge Function Writes
 
 The approved write path is the `agent-memory-write` Supabase Edge Function. It uses a temporary shared-secret header for local/operator use until proper authenticated admin auth exists.

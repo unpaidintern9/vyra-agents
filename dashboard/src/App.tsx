@@ -61,9 +61,12 @@ import {
 import { downloadReport, type ReportFormat } from './storage/reportExport';
 import { agentMemoryRecords, detectAgentMemoryConnection, getSyncWriteMode, syncPendingQueue } from './sync/syncManager';
 import {
+  clearLegacyRlsFailures,
   clearSyncQueueStorage,
   enqueueSyncRecords,
+  isLegacyRlsFailure,
   loadSyncQueue,
+  requeueLegacyRlsFailures,
   resetFailedQueueItems,
   saveSyncQueue,
 } from './sync/syncQueue';
@@ -303,6 +306,55 @@ function App() {
   useEffect(() => {
     void refreshStatus();
   }, [refreshStatus]);
+
+  const clearStaleRlsFailures = useCallback(() => {
+    const staleCount = syncQueue.filter(isLegacyRlsFailure).length;
+    if (!staleCount) return;
+    setSyncQueue((current) => clearLegacyRlsFailures(current));
+    appendAgentEvent({
+      agent: 'Operations Agent',
+      event: 'legacy-rls-sync-failures-cleared',
+      detail: `Cleared ${staleCount} local legacy RLS sync failure(s). RLS remained intact and no Supabase records were deleted.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Operations Agent',
+      action: 'legacy RLS sync failures cleared',
+      target: 'local sync queue',
+      result: `${staleCount} stale local queue record(s) removed`,
+      riskLevel: 'low',
+    });
+  }, [appendAgentEvent, appendAudit, syncQueue]);
+
+  const requeueStaleRlsFailures = useCallback(() => {
+    const staleCount = syncQueue.filter(isLegacyRlsFailure).length;
+    if (!staleCount) return;
+    if (syncWriteMode !== 'edge_function') {
+      appendAudit({
+        actor: 'Robert',
+        agent: 'Operations Agent',
+        action: 'legacy RLS sync requeue blocked',
+        target: 'local sync queue',
+        result: 'Edge Function write mode is not configured',
+        riskLevel: 'low',
+      });
+      return;
+    }
+    setSyncQueue((current) => requeueLegacyRlsFailures(current));
+    appendAgentEvent({
+      agent: 'Operations Agent',
+      event: 'legacy-rls-sync-failures-requeued',
+      detail: `Requeued ${staleCount} legacy RLS failure(s) through the current Edge Function sync path.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Operations Agent',
+      action: 'legacy RLS sync failures requeued',
+      target: 'Edge Function sync queue',
+      result: `${staleCount} local record(s) requeued`,
+      riskLevel: 'low',
+    });
+  }, [appendAgentEvent, appendAudit, syncQueue, syncWriteMode]);
 
   const runMigrationDryRun = () => {
     const now = new Date().toISOString();
@@ -794,6 +846,8 @@ function App() {
         ) : activePage === 'Sync Queue' ? (
           <SyncQueuePage
             onClearQueue={clearSyncQueue}
+            onClearStaleRlsFailures={clearStaleRlsFailures}
+            onRequeueStaleRlsFailures={requeueStaleRlsFailures}
             onRetryFailed={retryFailedSync}
             onSyncNow={syncNow}
             queue={syncQueue}
@@ -1591,24 +1645,30 @@ function SyncStatusCard({ syncStatus }: { syncStatus: SyncStatusSnapshot }) {
       <span>Last Sync: {syncStatus.lastSyncAt ? formatDate(syncStatus.lastSyncAt) : 'Never'}</span>
       <span>Waiting: {syncStatus.recordsWaiting}</span>
       <span>Errors: {syncStatus.failedRecords}</span>
+      <span>Legacy: {syncStatus.legacyFailedRecords}</span>
     </section>
   );
 }
 
 function SyncQueuePage({
   onClearQueue,
+  onClearStaleRlsFailures,
+  onRequeueStaleRlsFailures,
   onRetryFailed,
   onSyncNow,
   queue,
   syncStatus,
 }: {
   onClearQueue(): void;
+  onClearStaleRlsFailures(): void;
+  onRequeueStaleRlsFailures(): void;
   onRetryFailed(): void;
   onSyncNow(): void;
   queue: SyncQueueItem[];
   syncStatus: SyncStatusSnapshot;
 }) {
   const activeQueue = queue.filter((item) => item.status !== 'synced');
+  const legacyFailures = queue.filter(isLegacyRlsFailure);
 
   return (
     <section className="dashboard-grid">
@@ -1620,6 +1680,7 @@ function SyncQueuePage({
             <Fact label="Sync Pending" value={String(syncStatus.recordsWaiting)} />
             <Fact label="Synced Records" value={String(syncStatus.syncedRecords)} />
             <Fact label="Failed Records" value={String(syncStatus.failedRecords)} />
+            <Fact label="Legacy RLS Failures" value={String(syncStatus.legacyFailedRecords)} />
             <Fact label="Local Storage" value={syncStatus.localStorageEnabled ? 'Enabled' : 'Unavailable'} />
             <Fact label="Last Sync" value={syncStatus.lastSyncAt ? formatDate(syncStatus.lastSyncAt) : 'Never'} />
           </div>
@@ -1639,6 +1700,50 @@ function SyncQueuePage({
           </div>
         </div>
       </Panel>
+      <Panel title="Legacy Failed Records" icon={<ShieldCheck size={18} />} wide>
+        <div className="split-panel">
+          <div>
+            <p className="panel-copy">
+              These records failed before secure Edge Function sync was active. They were blocked by RLS, which is the
+              correct safe behavior. Cleanup only changes the local queue; it does not delete Supabase records or modify
+              production data.
+            </p>
+            {syncStatus.writeMode !== 'edge_function' ? (
+              <p className="wizard-error">Edge Function write mode is not configured. Requeue is disabled until the approved write path is active.</p>
+            ) : null}
+          </div>
+          <div className="button-row end-row">
+            <button className="clear-button" disabled={!legacyFailures.length} onClick={onClearStaleRlsFailures} type="button">
+              <Trash2 size={15} />
+              <span>Clear Stale RLS Failures</span>
+            </button>
+            <button
+              className="report-button"
+              disabled={!legacyFailures.length || syncStatus.writeMode !== 'edge_function'}
+              onClick={onRequeueStaleRlsFailures}
+              type="button"
+            >
+              <RefreshCcw size={15} />
+              <span>Requeue Valid Records Through Edge Function</span>
+            </button>
+          </div>
+        </div>
+        {legacyFailures.length === 0 ? (
+          <EmptyState message="No legacy direct-insert RLS failures in the local queue." />
+        ) : (
+          <DataTable
+            columns={['Legacy Status', 'Table', 'Source', 'Queued', 'Attempts', 'Error']}
+            rows={legacyFailures.map((item) => [
+              <StatusBadge key={`${item.id}-legacy`} value="Legacy direct-insert failure" tone="neutral" />,
+              item.table,
+              item.sourceType,
+              formatDate(item.queuedAt),
+              String(item.retryCount),
+              item.error ?? '',
+            ])}
+          />
+        )}
+      </Panel>
       <Panel title="Queued Agent Memory Records" icon={<FileClock size={18} />} wide>
         {activeQueue.length === 0 ? (
           <EmptyState message="No queued sync records." />
@@ -1646,7 +1751,7 @@ function SyncQueuePage({
           <DataTable
             columns={['Status', 'Table', 'Source', 'Queued', 'Attempts', 'Last Attempt', 'Error']}
             rows={activeQueue.map((item) => [
-              syncRecordBadge(queue, item.sourceType, item.sourceId),
+              syncRecordBadge(queue, item),
               item.table,
               item.sourceType,
               formatDate(item.queuedAt),
@@ -1893,12 +1998,16 @@ function countTables(tables: SupabaseTableCheck[], status: SupabaseTableCheck['s
   return tables.filter((table) => table.status === status).length;
 }
 
-function syncRecordBadge(queue: SyncQueueItem[], sourceType: string, sourceId: string): ReactNode {
-  const item = queue.find((entry) => entry.sourceType === sourceType && entry.sourceId === sourceId);
-  if (!item) {
-    return <StatusBadge value="Local Only" tone="neutral" />;
-  }
-  return <StatusBadge value={formatHealth(item.status)} tone={syncQueueItemTone(item.status)} />;
+function syncRecordBadge(queue: SyncQueueItem[], itemOrSourceType: SyncQueueItem | string, sourceId?: string): ReactNode {
+  const item =
+    typeof itemOrSourceType === 'string'
+      ? queue.find((entry) => entry.sourceType === itemOrSourceType && entry.sourceId === sourceId)
+      : itemOrSourceType;
+  if (!item) return <StatusBadge value="Local Only" tone="neutral" />;
+  const currentItem = queue.find((entry) => entry.sourceType === item.sourceType && entry.sourceId === item.sourceId);
+  if (!currentItem) return <StatusBadge value="Local Only" tone="neutral" />;
+  if (isLegacyRlsFailure(currentItem)) return <StatusBadge value="Legacy RLS Failure" tone="neutral" />;
+  return <StatusBadge value={formatHealth(currentItem.status)} tone={syncQueueItemTone(currentItem.status)} />;
 }
 
 function syncQueueItemTone(status: SyncQueueItem['status']): 'neutral' | 'good' | 'warn' {
@@ -1926,6 +2035,12 @@ function syncStatusLabel(syncStatus: SyncStatusSnapshot): string {
   }
   if (syncStatus.failedRecords > 0) {
     return 'Sync Errors';
+  }
+  if (syncStatus.legacyFailedRecords > 0 && syncStatus.connectionState === 'connected') {
+    return 'Connected';
+  }
+  if (syncStatus.legacyFailedRecords > 0) {
+    return 'Legacy Failures';
   }
   if (syncStatus.connectionState === 'connected') {
     return 'Connected';
@@ -1956,6 +2071,9 @@ function syncStatusWarnings(syncStatus: SyncStatusSnapshot): string[] {
   }
   if (syncStatus.failedRecords > 0) {
     warnings.push('Some agent-memory sync records failed and remain retryable in the local queue.');
+  }
+  if (syncStatus.legacyFailedRecords > 0) {
+    warnings.push('Some local sync queue records are legacy RLS failures from old direct browser insert attempts. RLS blocked them safely; they can be cleared locally.');
   }
   return warnings;
 }

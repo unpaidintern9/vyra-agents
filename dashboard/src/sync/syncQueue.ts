@@ -14,6 +14,10 @@ export function clearSyncQueueStorage(): void {
   clearLocalState(localStorageKeys.syncQueue);
 }
 
+export function isLegacyRlsFailure(item: SyncQueueItem): boolean {
+  return item.status === 'failed' && Boolean(item.error?.includes('42501') && item.error.toLowerCase().includes('row-level security'));
+}
+
 export function enqueueSyncRecords(queue: SyncQueueItem[], records: SyncableRecord[]): SyncQueueItem[] {
   const existingKeys = new Set(queue.map((item) => queueKey(item.table, item.sourceId, item.sourceType)));
   const now = new Date().toISOString();
@@ -35,7 +39,23 @@ export function enqueueSyncRecords(queue: SyncQueueItem[], records: SyncableReco
 
 export function resetFailedQueueItems(queue: SyncQueueItem[]): SyncQueueItem[] {
   return queue.map((item) =>
-    item.status === 'failed'
+    item.status === 'failed' && !isLegacyRlsFailure(item)
+      ? {
+          ...item,
+          status: 'pending',
+          error: undefined,
+        }
+      : item,
+  );
+}
+
+export function clearLegacyRlsFailures(queue: SyncQueueItem[]): SyncQueueItem[] {
+  return queue.filter((item) => !isLegacyRlsFailure(item));
+}
+
+export function requeueLegacyRlsFailures(queue: SyncQueueItem[]): SyncQueueItem[] {
+  return queue.map((item) =>
+    isLegacyRlsFailure(item)
       ? {
           ...item,
           status: 'pending',

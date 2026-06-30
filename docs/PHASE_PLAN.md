@@ -472,6 +472,26 @@ Boundaries:
 - No changes to `Vyra-Part-1`.
 - Existing Engineering and Migration functionality is preserved.
 
+## Phase 18B
+
+Stale sync queue cleanup.
+
+Includes:
+
+- Detection of legacy `42501` RLS failures from old direct browser insert attempts.
+- Sync status separates legacy RLS failures from active Edge Function failures.
+- Sync Queue cleanup panel for clearing stale local RLS failures.
+- Optional requeue through the current Edge Function path when configured.
+- Local audit log and agent event records for cleanup/requeue actions.
+
+Boundaries:
+
+- No RLS changes.
+- No direct browser inserts.
+- No production business data changes.
+- Cleanup only removes local queue records.
+- Edge Function remains the approved write path.
+
 ## Phase 19
 
 Additional department agents.

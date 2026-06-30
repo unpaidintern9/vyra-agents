@@ -32,6 +32,21 @@ The dashboard reports:
 
 Failed writes are kept in the sync queue with a retry count and sanitized error. Users can retry failed records or clear the local queue from Settings or Sync Queue.
 
+## Legacy RLS Failure Cleanup
+
+Older local queues may contain failed records with `42501: new row violates row-level security policy`. These were created before the secure Edge Function write path was active, when local browser sync attempted direct table inserts.
+
+Those failures are safe. RLS blocked the browser write exactly as intended.
+
+The Sync Queue page labels these as legacy/direct-insert failures and separates them from active Edge Function sync failures. If the Edge Function is connected, stale legacy failures do not make Agent Memory Sync appear broken.
+
+Available local cleanup actions:
+
+- Clear Stale RLS Failures: removes only local queue records whose error contains the `42501` RLS failure.
+- Requeue Valid Records Through Edge Function: requeues those local records only when the current write mode is Edge Function.
+
+Cleanup never deletes Supabase records, weakens RLS, changes policies, or writes to production business tables.
+
 ## RLS Behavior
 
 If Supabase returns row-level security errors for anon inserts, the dashboard treats the sync as failed and keeps the local fallback available. This is expected when the agent tables do not yet have safe authenticated write policies.
