@@ -238,8 +238,10 @@ function dailyBriefingSchedule() {
     cadence: 'daily',
     timezone: 'America/New_York',
     nextRunLabel: 'Next local briefing: tomorrow 8:00 AM America/New_York',
-    robertEnabledByDefault: true,
-    matthewSkippedUntilConfigured: true,
+    sender: defaultEmailSender,
+    recipient: sharedInboxEmail,
+    sharedInboxEnabled: true,
+    directPersonalRecipientsDisabled: true,
     scheduledThreadRunner: 'codex-agent-threads/shared/schedules/executive-daily-email-briefing.schedule.example.json',
   };
 }
