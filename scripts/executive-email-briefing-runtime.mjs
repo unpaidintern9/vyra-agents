@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildExecutiveOperationsCenter, executiveOperationsReportRoot } from './executive-operations-runtime.mjs';
-import { createEmailDraft, emailDirectories, getEmailStatus, sendEmailDraft } from './gmail-email-runtime.mjs';
+import { createEmailDraft, defaultEmailSender, emailDirectories, getEmailStatus, sendEmailDraft, sharedInboxEmail } from './gmail-email-runtime.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const repoRoot = path.resolve(__dirname, '..');
@@ -22,7 +22,7 @@ export function buildExecutiveEmailBriefing(options = {}) {
   const recipients = buildRecipients(emailStatus);
   const briefingDate = options.date ?? operations.briefing.date;
   const subject = options.subject ?? `Vyra Executive Briefing - ${briefingDate}`;
-  const sender = options.sender ?? 'admin@vyraapp.fit';
+  const sender = options.sender ?? defaultEmailSender;
   const body = renderEmailBody({ operations, briefingDate });
   const attempts = recipients.map((recipient) => {
     const sendStatus = recipient.enabled && recipient.status === 'ready' ? 'ready_for_send' : 'skipped';
@@ -173,13 +173,9 @@ export function validateExecutiveEmailBriefing(options = {}) {
   }
   if (briefing) {
     if (!briefing.attempts.length) errors.push('daily briefing email must include recipient attempts.');
-    if (!briefing.attempts.some((attempt) => attempt.recipientName === 'Robert' && attempt.recipientStatus === 'ready')) {
-      errors.push('Robert must be configured as the default ready internal recipient.');
-    }
-    const matthew = briefing.attempts.find((attempt) => attempt.recipientName === 'Matthew');
-    if (!matthew) errors.push('Matthew recipient model is required.');
-    if (matthew && !['ready', 'missing_email', 'invalid_email'].includes(matthew.recipientStatus)) {
-      errors.push('Matthew must be ready, missing_email, or invalid_email.');
+    if (briefing.sender !== defaultEmailSender) errors.push(`Executive email sender must be ${defaultEmailSender}.`);
+    if (!briefing.attempts.some((attempt) => attempt.recipientName === 'Shared Inbox' && attempt.recipient === sharedInboxEmail && attempt.recipientStatus === 'ready')) {
+      errors.push(`Shared inbox ${sharedInboxEmail} must be the ready internal recipient.`);
     }
     if (briefing.safety.internalRecipientsOnly !== true) errors.push('internal-recipient safety gate must be enabled.');
     if (briefing.safety.noBulkSending !== true) errors.push('bulk sending must be disabled.');
@@ -198,12 +194,8 @@ export function validateExecutiveEmailBriefing(options = {}) {
 
 function buildRecipients(emailStatus) {
   const statusByName = Object.fromEntries(emailStatus.internalRecipients.map((recipient) => [recipient.name, recipient]));
-  const robert = statusByName.Robert ?? { name: 'Robert', email: 'robert.sorenson@vyraapp.fit', status: 'ready' };
-  const matthew = statusByName.Matthew ?? { name: 'Matthew', email: '', status: 'missing_email' };
-  return [
-    { ...robert, enabled: true, scheduleRole: 'primary_daily_recipient' },
-    { ...matthew, enabled: matthew.status === 'ready', scheduleRole: matthew.status === 'ready' ? 'secondary_daily_recipient' : 'skipped_until_email_configured' },
-  ];
+  const sharedInbox = statusByName['Shared Inbox'] ?? { name: 'Shared Inbox', email: sharedInboxEmail, status: 'ready' };
+  return [{ ...sharedInbox, enabled: true, scheduleRole: 'shared_internal_inbox' }];
 }
 
 function renderEmailBody({ operations, briefingDate }) {

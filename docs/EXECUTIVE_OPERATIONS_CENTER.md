@@ -57,4 +57,4 @@ Phase 46 adds the Daily Executive Email Briefing panel. It shows preview subject
 
 The Operations Center is local analysis and reporting only. It does not deploy, write GitHub records, write CRM records, create Stripe objects, write production data, or output secrets.
 
-The daily email send command is the only Phase 46 command that may attempt an internal Gmail send. It uses the existing Gmail connector safety gates and audit trail, supports Robert by default, and skips Matthew until his internal email is configured.
+The daily email send command is the only Phase 46 command that may attempt an internal Gmail send. It uses the existing Gmail connector safety gates and audit trail, sends from `robert.sorenson@vyraapp.fit`, and routes to the shared inbox at `admin@vyraapp.fit`.

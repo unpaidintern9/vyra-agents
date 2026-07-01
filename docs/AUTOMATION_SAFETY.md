@@ -20,12 +20,11 @@ Required gates:
 
 Automation uses the existing Gmail Email Connector for email drafts and any configured internal send attempt.
 
-Allowed senders remain:
+Allowed sender:
 
-- `admin@vyraapp.fit`
 - `robert.sorenson@vyraapp.fit`
 
-Approved internal recipients are Robert and Matthew. Matthew is skipped until configured. Every send, skip, or failure is recorded by the Gmail audit workflow.
+Approved internal recipient is the shared inbox `admin@vyraapp.fit`. Every send, skip, or failure is recorded by the Gmail audit workflow.
 
 ## Write Boundaries
 

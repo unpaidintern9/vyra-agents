@@ -11,7 +11,7 @@ Supported report types:
 - Connector readiness summary
 - Cross-agent review summary
 
-Reports are internal only and may be manually triggered or auto-scheduled. Matthew remains `missing_email` until `VYRA_EMAIL_MATTHEW` is configured.
+Reports are internal only and may be manually triggered or auto-scheduled. All new internal agent report emails originate from `robert.sorenson@vyraapp.fit` and route to the shared inbox at `admin@vyraapp.fit`.
 
 ## Boundaries
 

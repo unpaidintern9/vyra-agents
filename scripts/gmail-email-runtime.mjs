@@ -12,7 +12,10 @@ export const emailDirectories = {
 };
 export const emailReportRoot = path.join(repoRoot, 'reports/agents/runtime');
 
-export const approvedSenders = ['admin@vyraapp.fit', 'robert.sorenson@vyraapp.fit'];
+export const defaultEmailSender = 'robert.sorenson@vyraapp.fit';
+export const sharedInboxEmail = 'admin@vyraapp.fit';
+export const approvedSenders = [defaultEmailSender];
+const legacyDraftSenders = [sharedInboxEmail];
 export const emailWorkflowStates = ['draft_created', 'ready_for_send', 'auto_scheduled', 'sent', 'failed', 'skipped', 'archived'];
 export const reportTypes = [
   'executive_daily_summary',
@@ -40,8 +43,7 @@ const safeConfigNames = [
   'VYRA_GMAIL_REFRESH_TOKEN',
   'VYRA_GMAIL_ACCESS_TOKEN',
   'VYRA_GMAIL_SEND_ENABLED',
-  'VYRA_EMAIL_ROBERT',
-  'VYRA_EMAIL_MATTHEW',
+  'VYRA_EMAIL_SHARED_INBOX',
 ];
 
 export function ensureEmailDirectories() {
@@ -100,8 +102,8 @@ export function createEmailDraft(options = {}) {
   ensureEmailDirectories();
   const now = new Date().toISOString();
   const reportType = normalizeReportType(options.reportType ?? options.type);
-  const recipient = resolveRecipient(options.recipient ?? options.recipientName ?? 'Robert');
-  const sender = String(options.sender ?? options.from ?? 'admin@vyraapp.fit');
+  const recipient = resolveRecipient(options.recipient ?? options.recipientName ?? 'Shared Inbox');
+  const sender = String(options.sender ?? options.from ?? defaultEmailSender);
   const draft = {
     schemaType: 'gmail_email_draft',
     id: options.id || `email-draft-${compactStamp(now)}-${slugify(reportType)}`,
@@ -200,9 +202,9 @@ export function validateEmailConnector() {
   const checks = [
     { name: 'Gmail config is safe to inspect', passed: true },
     { name: 'Secrets are not printed', passed: true },
-    { name: 'Approved senders configured', passed: approvedSenders.includes('admin@vyraapp.fit') && approvedSenders.includes('robert.sorenson@vyraapp.fit') },
-    { name: 'Robert recipient configured', passed: resolveRecipient('Robert').status === 'ready' },
-    { name: 'Matthew missing email skips sends', passed: resolveRecipient('Matthew').status === 'ready' || resolveRecipient('Matthew').status === 'missing_email' },
+    { name: 'Robert sender configured', passed: approvedSenders.includes(defaultEmailSender) },
+    { name: 'Shared inbox recipient configured', passed: resolveRecipient('Shared Inbox').status === 'ready' },
+    { name: 'Robert direct recipient disabled', passed: resolveRecipient('Robert').email === sharedInboxEmail },
     { name: 'Draft schemas valid', passed: draftValidations.every((item) => item.valid) },
     { name: 'Audit schemas valid', passed: auditValidations.every((item) => item.valid) },
   ];
@@ -226,7 +228,7 @@ export function getEmailSafetyCheck() {
   const checks = [
     { name: 'Gmail sends require connector configuration', passed: true, detail: status.gmail.configured ? 'configured' : 'missing config blocks sends' },
     { name: 'Sender allowlist enforced', passed: true, detail: approvedSenders.join(', ') },
-    { name: 'Missing recipient email skips send', passed: true, detail: 'Matthew is skipped until VYRA_EMAIL_MATTHEW is configured.' },
+    { name: 'Shared inbox recipient enforced', passed: true, detail: `${sharedInboxEmail} receives internal agent emails.` },
     { name: 'Email content validation enforced', passed: true },
     { name: 'Audit record is written before send attempt', passed: true },
     { name: 'No external marketing or bulk campaign mode', passed: true },
@@ -296,6 +298,7 @@ function evaluateSendGates(draft, config) {
   if (!approvedSenders.includes(draft.sender)) return { canSend: false, reason: `Sender ${draft.sender} is not approved.` };
   if (draft.recipient.status !== 'ready' || !draft.recipient.email) return { canSend: false, reason: `Recipient ${draft.recipient.name} is ${draft.recipient.status}.` };
   if (!isValidEmail(draft.recipient.email)) return { canSend: false, reason: `Recipient ${draft.recipient.name} email is invalid.` };
+  if (draft.recipient.email !== sharedInboxEmail) return { canSend: false, reason: `Recipient must be shared inbox ${sharedInboxEmail}.` };
   if (!nonEmpty(draft.subject) || !nonEmpty(draft.body)) return { canSend: false, reason: 'Email subject and body are required.' };
   return { canSend: true, reason: 'all gates passed' };
 }
@@ -362,21 +365,18 @@ function getGmailConfig() {
 }
 
 function getInternalRecipients() {
-  return [resolveRecipient('Robert'), resolveRecipient('Matthew')];
+  return [resolveRecipient('Shared Inbox')];
 }
 
 function resolveRecipient(name) {
   const normalized = String(name || '').toLowerCase();
-  if (normalized === 'robert') {
-    const email = process.env.VYRA_EMAIL_ROBERT || 'robert.sorenson@vyraapp.fit';
-    return { name: 'Robert', email, status: isValidEmail(email) ? 'ready' : 'invalid_email' };
-  }
-  if (normalized === 'matthew') {
-    const email = process.env.VYRA_EMAIL_MATTHEW || '';
-    return { name: 'Matthew', email, status: email ? (isValidEmail(email) ? 'ready' : 'invalid_email') : 'missing_email' };
+  if (['shared inbox', 'shared-inbox', 'admin', 'admin@vyraapp.fit', 'robert', 'matthew'].includes(normalized)) {
+    const email = process.env.VYRA_EMAIL_SHARED_INBOX || sharedInboxEmail;
+    return { name: 'Shared Inbox', email, status: email === sharedInboxEmail && isValidEmail(email) ? 'ready' : 'invalid_email' };
   }
   const direct = String(name || '');
-  return { name: direct || 'Unknown', email: isValidEmail(direct) ? direct : '', status: isValidEmail(direct) ? 'ready' : 'missing_email' };
+  if (direct.toLowerCase() === sharedInboxEmail) return resolveRecipient('Shared Inbox');
+  return { name: direct || 'Unknown', email: '', status: 'invalid_email' };
 }
 
 function listEmailDrafts() {
@@ -449,7 +449,7 @@ function validateEmailDraft(draft) {
   if (!nonEmpty(draft.id)) errors.push('id is required.');
   if (!reportTypes.includes(draft.reportType)) errors.push(`reportType must be one of: ${reportTypes.join(', ')}.`);
   if (!emailWorkflowStates.includes(draft.workflowState)) errors.push(`workflowState must be one of: ${emailWorkflowStates.join(', ')}.`);
-  if (!approvedSenders.includes(draft.sender)) errors.push('sender must be approved.');
+  if (![...approvedSenders, ...legacyDraftSenders].includes(draft.sender)) errors.push('sender must be approved.');
   if (!draft.recipient || !nonEmpty(draft.recipient.name)) errors.push('recipient name is required.');
   if (!nonEmpty(draft.subject)) errors.push('subject is required.');
   if (!nonEmpty(draft.body)) errors.push('body is required.');
@@ -493,11 +493,11 @@ function defaultBody(reportType) {
 
 function defaultSchedules() {
   return [
-    { reportType: 'executive_daily_summary', cadence: 'daily', recipient: 'Robert', autoSendCapable: true },
-    { reportType: 'engineering_summary', cadence: 'event_triggered', recipient: 'Robert', autoSendCapable: true },
-    { reportType: 'release_ship_plan_summary', cadence: 'event_triggered', recipient: 'Robert', autoSendCapable: true },
-    { reportType: 'task_queue_summary', cadence: 'daily', recipient: 'Robert', autoSendCapable: true },
-    { reportType: 'cross_agent_review_summary', cadence: 'daily', recipient: 'Matthew', autoSendCapable: true, status: resolveRecipient('Matthew').status },
+    { reportType: 'executive_daily_summary', cadence: 'daily', recipient: 'Shared Inbox', autoSendCapable: true },
+    { reportType: 'engineering_summary', cadence: 'event_triggered', recipient: 'Shared Inbox', autoSendCapable: true },
+    { reportType: 'release_ship_plan_summary', cadence: 'event_triggered', recipient: 'Shared Inbox', autoSendCapable: true },
+    { reportType: 'task_queue_summary', cadence: 'daily', recipient: 'Shared Inbox', autoSendCapable: true },
+    { reportType: 'cross_agent_review_summary', cadence: 'daily', recipient: 'Shared Inbox', autoSendCapable: true },
   ];
 }
 
@@ -522,6 +522,7 @@ function safetySummary() {
     automaticSending: 'enabled only when Gmail config and safety gates pass',
     approvedSenders,
     internalRecipientsOnly: true,
+    sharedInboxRecipient: sharedInboxEmail,
     noExternalMarketingEmails: true,
     noBulkCampaigns: true,
     crmWrites: false,

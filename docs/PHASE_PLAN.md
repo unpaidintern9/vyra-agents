@@ -1,5 +1,26 @@
 # Phase Plan
 
+## Phase 47
+
+Sales Agent Opportunity Management & Local CRM.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Local CRM opportunity engine independent of `vyraapp.fit`.
+- Opportunity records with contacts, industry, location, NAICS, website, phone, email, company size, ICP score, lead score, priority, status, owner, source, notes, timeline, attachments, reports, outreach drafts, proposal status, and Executive visibility.
+- Pipeline stages from Prospect through Archived with timestamped transition history.
+- Sales dashboard pipeline overview, Kanban, sortable table, and detail view.
+- Deterministic scoring, follow-up planning, proposal readiness, and local reports.
+- CLI commands for local opportunity list/create/update/move/timeline/score/followup/proposal/archive/restore/merge/dashboard/validate.
+- Executive and Operator read-only local CRM visibility.
+
+Boundaries:
+
+- No autonomous emailing, browsing, submissions, proposal sending, CRM synchronization, Stripe writes, or Supabase production writes.
+- Draft-only communications and manual approval for any future external action.
+
 ## Phase 46A
 
 Sales Agent Real Execution Upgrade.
@@ -1034,8 +1055,8 @@ Includes:
 
 - Gmail as the first real internal email connector.
 - Safe config names for Gmail OAuth/access-token configuration.
-- Approved senders: `admin@vyraapp.fit` and `robert.sorenson@vyraapp.fit`.
-- Internal recipient model for Robert and Matthew, with Matthew skipped as `missing_email` until configured.
+- Active sender: `robert.sorenson@vyraapp.fit`.
+- Internal recipient model routes new agent emails to the shared inbox `admin@vyraapp.fit`.
 - Email workflow states: draft created, ready for send, auto scheduled, sent, failed, skipped, and archived.
 - Root npm scripts for `email:status`, `email:drafts`, `email:create-draft`, `email:send`, `email:send-pending`, `email:audit`, `email:validate`, and `email:safety-check`.
 - Operator Dashboard Gmail connector section.
@@ -1189,7 +1210,7 @@ Includes:
 - Daily briefing email model for recipient, sender, subject, briefing date, Executive score, priorities, blocked work, Engineering health, Sales health, release readiness, pending approvals, recommended actions, audit id, and send status.
 - Root npm scripts for `executive:email-briefing`, `executive:email-preview`, `executive:email-send`, `executive:email-status`, and `executive:email-validate`.
 - Integration with Executive daily briefing, Gmail connector automation, Gmail audit trail, manual scheduled thread runner templates, Operator Dashboard, and Executive Dashboard.
-- Daily briefing schedule template with Robert enabled by default and Matthew skipped until configured.
+- Daily briefing schedule template routed from `robert.sorenson@vyraapp.fit` to `admin@vyraapp.fit`.
 - Executive Dashboard daily briefing email status.
 - Operator Dashboard email briefing preview, automation status, audit status, and recipient readiness.
 - Daily Briefing Email Preview, Daily Briefing Email JSON, and Daily Briefing Send Audit reports.

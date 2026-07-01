@@ -6,7 +6,7 @@ Executive email automation is a narrow internal reporting workflow for the Execu
 
 1. Build the Executive Operations Center snapshot.
 2. Render the daily briefing email model.
-3. Resolve internal recipients from the Gmail connector model.
+3. Resolve the shared inbox recipient from the Gmail connector model.
 4. Preview the email body and reports locally.
 5. On explicit send command, create Gmail draft records.
 6. Delegate send attempts to `scripts/gmail-email-runtime.mjs`.
@@ -24,8 +24,8 @@ It is a manual scheduled-thread-run template. It does not start a background job
 
 ## Recipient Rules
 
-- Robert: enabled by default.
-- Matthew: skipped until `VYRA_EMAIL_MATTHEW` is configured.
+- Sender: `robert.sorenson@vyraapp.fit`.
+- Recipient: shared inbox `admin@vyraapp.fit`.
 - External customers: unsupported.
 - Bulk lists: unsupported.
 
@@ -33,12 +33,12 @@ It is a manual scheduled-thread-run template. It does not start a background job
 
 Executive email automation inherits Gmail safety:
 
-- approved senders only
-- internal recipients only
+- Robert sender only
+- shared inbox recipient only
 - valid subject and body
 - Gmail connector config required
 - Gmail audit required
-- missing recipient config skips safely
+- missing Gmail config skips safely and records an audit event on send attempts
 
 It also preserves global Executive boundaries:
 

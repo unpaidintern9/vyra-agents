@@ -16,12 +16,14 @@ Phase 40A supports automated and manually triggered internal email sends through
 
 Agents can prepare scheduled internal reports. `npm run email:send-pending` sends drafts in `ready_for_send` or `auto_scheduled` only when every Gmail safety gate passes.
 
-Default report schedules:
+Default report route:
 
-- Executive daily summary: daily to Robert
-- Engineering summary: event-triggered to Robert
-- Task queue summary: daily to Robert
-- Cross-agent review summary: daily to Matthew when Matthew email is configured
+- Sender: `robert.sorenson@vyraapp.fit`
+- Recipient: shared inbox `admin@vyraapp.fit`
+- Executive daily summary: daily
+- Engineering summary: event-triggered
+- Task queue summary: daily
+- Cross-agent review summary: daily
 
 ## Audit Trail
 

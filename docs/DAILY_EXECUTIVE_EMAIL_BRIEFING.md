@@ -33,9 +33,9 @@ npm run executive:email-validate
 
 ## Recipients
 
-Robert is enabled by default through the internal Gmail recipient model.
+Executive email briefings originate from `robert.sorenson@vyraapp.fit`.
 
-Matthew is modeled as an internal recipient, but is skipped until `VYRA_EMAIL_MATTHEW` is configured with a valid email address.
+The shared inbox `admin@vyraapp.fit` is the only default recipient.
 
 No external or customer recipients are supported.
 
@@ -51,6 +51,6 @@ Generated report files are written under `reports/agents/executive/` and ignored
 
 The preview and status commands do not send email.
 
-The send command creates Gmail email drafts and delegates delivery attempts to the existing Gmail connector safety gates and audit trail. Gmail sends only proceed when sender, recipient, connector config, body, subject, and audit requirements pass.
+The send command creates Gmail email drafts and delegates delivery attempts to the existing Gmail connector safety gates and audit trail. Gmail sends only proceed when the sender is `robert.sorenson@vyraapp.fit`, the recipient is `admin@vyraapp.fit`, connector config exists, body and subject are valid, and audit requirements pass.
 
 No marketing emails, bulk sending, CRM writes, Stripe writes, Supabase production writes, GitHub writes, deployments, releases, or secrets output are supported.

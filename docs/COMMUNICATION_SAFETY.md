@@ -88,6 +88,6 @@ The manual-send workflow is local bookkeeping for human actions. It does not con
 
 ## Phase 40A Gmail Boundary
 
-Phase 40A adds a separate Gmail email connector for internal agent reports. Legacy communication drafts still do not send. Gmail sends use `email:send` or `email:send-pending`, require Gmail configuration, enforce approved senders and internal recipients, skip missing recipient emails, and write Gmail email audit entries for sent, failed, and skipped attempts.
+Phase 40A adds a separate Gmail email connector for internal agent reports. Legacy communication drafts still do not send. Gmail sends use `email:send` or `email:send-pending`, require Gmail configuration, enforce `robert.sorenson@vyraapp.fit` as sender and `admin@vyraapp.fit` as the shared inbox recipient, and write Gmail email audit entries for sent, failed, and skipped attempts.
 
 No external marketing emails, bulk outbound campaigns, CRM writes, Stripe writes, Supabase production writes, production business writes, or secret output are supported.

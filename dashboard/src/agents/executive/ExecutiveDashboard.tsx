@@ -103,6 +103,14 @@ function ExecutiveEmailBriefingPanel({ briefing }: { briefing: NonNullable<Execu
           <strong>{briefing.recipientReadiness.length}</strong>
         </div>
         <div className="fact">
+          <span>Sender</span>
+          <strong>{briefing.routeSender}</strong>
+        </div>
+        <div className="fact">
+          <span>Recipient</span>
+          <strong>{briefing.routeRecipient}</strong>
+        </div>
+        <div className="fact">
           <span>Failed / Skipped</span>
           <strong>{briefing.failedOrSkippedAttempts.length}</strong>
         </div>

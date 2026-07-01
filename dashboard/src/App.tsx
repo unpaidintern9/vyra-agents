@@ -2084,7 +2084,7 @@ function OperatorPage({
 
         <Panel title="Daily Executive Email Briefing" icon={<FileClock size={18} />} wide>
           <p className="panel-description">
-            The Executive Operations Center can render a daily internal email briefing for Robert and Matthew. Robert is enabled by default; Matthew is skipped until an internal email is configured. Sending delegates to Gmail safety checks and audit logging.
+            The Executive Operations Center can render a daily internal email briefing from robert.sorenson@vyraapp.fit to the shared inbox at admin@vyraapp.fit. Sending delegates to Gmail safety checks and audit logging.
           </p>
           <div className="batch-grid supabase-detail-grid">
             <Fact label="Email Briefing Preview" value={operator.executiveEmailBriefing.previewSubject} />
@@ -2114,9 +2114,11 @@ function OperatorPage({
             rows={operator.executiveEmailBriefing.commands.map((command) => [command, operatorCommandPurpose(command)])}
           />
           <div className="safety-badge-row">
-            {['Internal recipients only', 'No marketing emails', 'No bulk sending', 'Gmail audit required', 'Matthew skipped until configured'].map((label) => (
-              <StatusBadge key={label} value={label} tone="good" />
-            ))}
+            <StatusBadge value="Shared inbox only" tone="good" />
+            <StatusBadge value="No marketing emails" tone="good" />
+            <StatusBadge value="No bulk sending" tone="good" />
+            <StatusBadge value="Gmail audit required" tone="good" />
+            <StatusBadge value="Robert sender enforced" tone="good" />
           </div>
         </Panel>
 
@@ -2246,9 +2248,11 @@ function OperatorPage({
             rows={operator.email.commands.map((command) => [command, operatorCommandPurpose(command)])}
           />
           <div className="safety-badge-row">
-            {['Internal recipients only', 'Approved senders only', 'Audit required', 'No bulk campaigns', 'No CRM/Stripe/Supabase writes'].map((label) => (
-              <StatusBadge key={label} value={label} tone="good" />
-            ))}
+            <StatusBadge value="Shared inbox only" tone="good" />
+            <StatusBadge value="Robert sender only" tone="good" />
+            <StatusBadge value="Audit required" tone="good" />
+            <StatusBadge value="No bulk campaigns" tone="good" />
+            <StatusBadge value="No CRM/Stripe/Supabase writes" tone="good" />
           </div>
         </Panel>
 
@@ -3842,7 +3846,7 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('comms:validate')) return 'Validate communication draft examples, folders, and local draft payloads.';
   if (command.endsWith('email:status')) return 'Report Gmail connector, automation, sender, recipient, and audit status without printing secrets.';
   if (command.endsWith('email:drafts')) return 'List local Gmail email drafts and write ignored draft reports.';
-  if (command.endsWith('email:create-draft')) return 'Create an internal email-ready report draft for Robert or Matthew.';
+  if (command.endsWith('email:create-draft')) return 'Create an internal email-ready report draft from Robert to the shared inbox.';
   if (command.endsWith('email:send')) return 'Send one draft through Gmail only when configuration and safety gates pass.';
   if (command.endsWith('email:send-pending')) return 'Automatically send ready or scheduled internal drafts when all Gmail gates pass.';
   if (command.endsWith('email:audit')) return 'Generate the Gmail email audit trail with sent, failed, and skipped attempts.';

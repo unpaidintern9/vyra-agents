@@ -1,6 +1,6 @@
 export interface GmailEmailRecipient {
   email: string;
-  name: 'Robert' | 'Matthew';
+  name: 'Shared Inbox';
   status: 'ready' | 'missing_email' | 'invalid_email';
 }
 
@@ -31,11 +31,11 @@ export interface GmailEmailDashboardSummary {
 }
 
 export function buildDashboardGmailEmailSummary(): GmailEmailDashboardSummary {
-  const matthewEmail = import.meta.env.VITE_INTERNAL_RECIPIENT_MATTHEW_EMAIL ?? '';
+  const sharedInboxEmail = import.meta.env.VITE_INTERNAL_RECIPIENT_SHARED_INBOX_EMAIL ?? 'admin@vyraapp.fit';
   const configured = import.meta.env.VITE_VYRA_GMAIL_CONFIGURED === 'true';
   const automationEnabled = configured && import.meta.env.VITE_VYRA_GMAIL_SEND_ENABLED !== 'false';
   return {
-    approvedSenders: ['admin@vyraapp.fit', 'robert.sorenson@vyraapp.fit'],
+    approvedSenders: ['robert.sorenson@vyraapp.fit'],
     automationHealthStatus: automationEnabled ? 'Ready when safety gates pass' : 'Disabled until Gmail connector is configured',
     automationStatus: automationEnabled ? 'enabled' : 'disabled',
     commands: emailCommands,
@@ -43,8 +43,7 @@ export function buildDashboardGmailEmailSummary(): GmailEmailDashboardSummary {
     failedEmailCount: 0,
     gmailConnectorStatus: configured ? 'configured_auto_send_enabled' : 'missing_config',
     internalRecipients: [
-      { email: import.meta.env.VITE_INTERNAL_RECIPIENT_ROBERT_EMAIL ?? 'robert.sorenson@vyraapp.fit', name: 'Robert', status: 'ready' },
-      { email: matthewEmail, name: 'Matthew', status: matthewEmail ? 'ready' : 'missing_email' },
+      { email: sharedInboxEmail, name: 'Shared Inbox', status: sharedInboxEmail === 'admin@vyraapp.fit' ? 'ready' : 'invalid_email' },
     ],
     latestEmailAuditActions: [
       {
@@ -53,7 +52,7 @@ export function buildDashboardGmailEmailSummary(): GmailEmailDashboardSummary {
         operatorName: 'Vyra Agent',
         operatorTool: 'Dashboard Email Workflow',
         providerSendOccurred: false,
-        recipientName: 'Robert',
+        recipientName: 'Shared Inbox',
         timestamp: new Date().toISOString(),
       },
     ],
@@ -68,7 +67,7 @@ export function buildDashboardGmailEmailSummary(): GmailEmailDashboardSummary {
     ],
     scheduledReports: 4,
     sentEmailCount: 0,
-    skippedEmailCount: matthewEmail ? 0 : 1,
+    skippedEmailCount: 0,
   };
 }
 

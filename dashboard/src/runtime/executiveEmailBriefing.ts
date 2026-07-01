@@ -7,7 +7,7 @@ export interface ExecutiveEmailBriefingAttempt {
   draftId: string | null;
   executiveScore: number;
   recipient: string;
-  recipientName: 'Robert' | 'Matthew';
+  recipientName: 'Shared Inbox';
   recipientStatus: GmailEmailRecipient['status'];
   sendStatus: 'ready_for_send' | 'sent' | 'failed' | 'skipped';
   skipReason: string | null;
@@ -25,6 +25,8 @@ export interface ExecutiveEmailBriefingSummary {
   previewSubject: string;
   recipientReadiness: ExecutiveEmailBriefingAttempt[];
   reports: string[];
+  routeRecipient: string;
+  routeSender: string;
   safetyStatus: string;
   scheduleTemplate: string;
 }
@@ -44,8 +46,7 @@ export function buildDashboardExecutiveEmailBriefingSummary(input: {
   const briefingDate = input.executiveOperations.briefing.date;
   const previewSubject = `Vyra Executive Briefing - ${briefingDate}`;
   const recipientReadiness = input.email.internalRecipients.map<ExecutiveEmailBriefingAttempt>((recipient) => {
-    const ready = recipient.name === 'Robert' || recipient.status === 'ready';
-    const sendStatus = ready && recipient.status === 'ready' ? 'ready_for_send' : 'skipped';
+    const sendStatus = recipient.status === 'ready' ? 'ready_for_send' : 'skipped';
     return {
       auditId: input.email.latestEmailAuditActions.find((entry) => entry.recipientName === recipient.name)?.draftId ?? null,
       briefingDate,
@@ -55,7 +56,7 @@ export function buildDashboardExecutiveEmailBriefingSummary(input: {
       recipientName: recipient.name,
       recipientStatus: recipient.status,
       sendStatus,
-      skipReason: sendStatus === 'skipped' ? `${recipient.name} is ${recipient.status}; no send will be attempted until configured.` : null,
+      skipReason: sendStatus === 'skipped' ? `${recipient.name} is ${recipient.status}; no send will be attempted until the shared inbox route is configured.` : null,
       subject: previewSubject,
     };
   });
@@ -71,6 +72,8 @@ export function buildDashboardExecutiveEmailBriefingSummary(input: {
     previewSubject,
     recipientReadiness,
     reports: ['Daily Briefing Email Preview Markdown', 'Daily Briefing Email JSON', 'Daily Briefing Send Audit Markdown'],
+    routeRecipient: 'admin@vyraapp.fit',
+    routeSender: 'robert.sorenson@vyraapp.fit',
     safetyStatus: 'internal-only / no bulk / Gmail audit required',
     scheduleTemplate: 'codex-agent-threads/shared/schedules/executive-daily-email-briefing.schedule.example.json',
   };

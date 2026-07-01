@@ -12,7 +12,7 @@
   "targetAgents": ["executive"],
   "runMode": "manual",
   "enabled": true,
-  "summaryPrompt": "Render the local Executive Operations Center daily briefing email preview for configured internal recipients. Robert is enabled by default; Matthew is skipped until his internal email is configured.",
+  "summaryPrompt": "Render the local Executive Operations Center daily briefing email preview from robert.sorenson@vyraapp.fit to the shared inbox admin@vyraapp.fit.",
   "safety": {
     "externalActions": "none",
     "productionWrites": false,

@@ -434,7 +434,8 @@ function emailForRule(item, context) {
   return {
     id: `email-draft-${compactDate(context.generatedAt)}-executive-automation-${item.id}`,
     reportType: 'executive_daily_summary',
-    recipient: item.severity === 'high' ? 'Robert' : 'Matthew',
+    sender: 'robert.sorenson@vyraapp.fit',
+    recipient: 'Shared Inbox',
     subject: `Executive automation: ${item.category}`,
     body: [`Executive automation triggered ${item.category}.`, '', ...item.signals.map((signal) => `- ${signal}`), '', `Recommended action: ${recommendedAction(item)}`].join('\n'),
     schedule: 'manual',

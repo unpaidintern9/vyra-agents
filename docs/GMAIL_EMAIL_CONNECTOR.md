@@ -4,15 +4,15 @@ Phase 40A adds Gmail as the first real email connector for internal Vyra agent u
 
 ## Shared Accounts
 
-Approved senders:
+Active approved sender:
 
-- `admin@vyraapp.fit`
 - `robert.sorenson@vyraapp.fit`
 
-Internal recipients:
+Internal recipient:
 
-- Robert: defaults to `robert.sorenson@vyraapp.fit`
-- Matthew: requires `VYRA_EMAIL_MATTHEW`; if missing, sends are skipped and audited
+- Shared inbox: `admin@vyraapp.fit`
+
+Robert is no longer the default recipient. Legacy recipient aliases such as Robert or Matthew resolve to the shared inbox route for new drafts.
 
 ## Safe Config Names
 
@@ -24,8 +24,7 @@ VYRA_GMAIL_CLIENT_ID=
 VYRA_GMAIL_CLIENT_SECRET=
 VYRA_GMAIL_REFRESH_TOKEN=
 VYRA_GMAIL_SEND_ENABLED=true
-VYRA_EMAIL_ROBERT=robert.sorenson@vyraapp.fit
-VYRA_EMAIL_MATTHEW=
+VYRA_EMAIL_SHARED_INBOX=admin@vyraapp.fit
 ```
 
 The connector is considered configured when either `VYRA_GMAIL_ACCESS_TOKEN` exists or the OAuth refresh-token trio exists.
@@ -70,4 +69,4 @@ Sending is allowed only when:
 
 No external marketing emails, bulk campaigns, CRM writes, Stripe writes, Supabase production writes, or production business writes are supported.
 
-Matthew remains skipped until `VYRA_EMAIL_MATTHEW` is configured.
+All new internal agent emails originate from `robert.sorenson@vyraapp.fit` and target `admin@vyraapp.fit`.
