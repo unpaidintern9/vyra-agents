@@ -27,3 +27,8 @@ Phase 49 adds `sales-workflows.json` under the same local Sales opportunity fold
 It contains workflow records, handoff records, approval decisions, proposal prep queue rows, workflow audit history, and workflow report outputs.
 
 No external database is used.
+# Phase 50 Opportunity Intelligence
+
+Local CRM opportunities now feed deterministic Sales intelligence scoring and priority queues.
+
+Stored opportunity data remains local. Phase 50 does not add external databases, CRM synchronization, automatic duplicate merging, automatic Executive approval, autonomous browsing, autonomous email sending, or proposal submission.

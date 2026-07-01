@@ -33,3 +33,16 @@ All execution is deterministic and auditable. External email, external browsing,
 - `npm run sales:workflow-report`
 - `npm run sales:workflow-validate`
 - `npm run sales:validate`
+# Phase 50 Execution Upgrade
+
+Sales execution now includes deterministic Sales intelligence scoring, priority queues, duplicate review, pipeline forecast analytics, and polished dashboard sections.
+
+Operators should use:
+
+- Hot Prospects and Warm Prospects to decide what to research or follow up next.
+- Needs Research for missing contact, verification, or proposal requirements.
+- Proposal Ready for proposal prep handoff readiness.
+- Executive Review for approval-gated opportunities.
+- Blocked for workflows that must be cleared before any external action.
+
+All actions remain local. No browsing, sending, CRM sync, proposal submission, source approval, Executive approval, or duplicate merge happens automatically.

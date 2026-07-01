@@ -49,6 +49,12 @@ import {
   summarizeSalesOpportunities,
 } from './agents/sales/salesOpportunityEngine';
 import {
+  buildSalesPipelineAnalytics,
+  buildSalesPriorityQueues,
+  detectRelatedSalesOpportunities,
+  scoreSalesOpportunitiesIntelligently,
+} from './agents/sales/salesIntelligenceScoring';
+import {
   createInitialSalesEnrichmentHistory,
   createInitialSalesResearchIntake,
   createInitialSalesResearchSources,
@@ -388,6 +394,19 @@ function App() {
   const salesWorkflowSummary = useMemo(
     () => summarizeSalesWorkflows(salesWorkflows, salesProposalPrepQueue),
     [salesProposalPrepQueue, salesWorkflows],
+  );
+  const salesIntelligenceScores = useMemo(
+    () => scoreSalesOpportunitiesIntelligently(salesOpportunities, salesResearchIntake, salesWorkflows),
+    [salesOpportunities, salesResearchIntake, salesWorkflows],
+  );
+  const salesPriorityQueues = useMemo(
+    () => buildSalesPriorityQueues(salesOpportunities, salesIntelligenceScores, salesWorkflows),
+    [salesIntelligenceScores, salesOpportunities, salesWorkflows],
+  );
+  const salesRelatedOpportunityCandidates = useMemo(() => detectRelatedSalesOpportunities(salesOpportunities), [salesOpportunities]);
+  const salesPipelineAnalytics = useMemo(
+    () => buildSalesPipelineAnalytics(salesOpportunities, salesIntelligenceScores, salesWorkflows),
+    [salesIntelligenceScores, salesOpportunities, salesWorkflows],
   );
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
   const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
@@ -1485,6 +1504,7 @@ function App() {
     salesIntegration,
     salesIntelligenceSummary,
     salesOpportunitySummary,
+    salesPipelineAnalytics,
     salesResearchIntelligenceSummary,
     salesWorkflowSummary,
     salesScoringSummary,
@@ -1745,6 +1765,10 @@ function App() {
             scores={salesScores}
             salesIntelligenceGraph={salesIntelligenceGraph}
             salesIntelligenceSummary={salesIntelligenceSummary}
+            salesIntelligenceScores={salesIntelligenceScores}
+            salesPipelineAnalytics={salesPipelineAnalytics}
+            salesPriorityQueues={salesPriorityQueues}
+            salesRelatedOpportunityCandidates={salesRelatedOpportunityCandidates}
             connectorReadiness={connectorReadiness}
             sharedTaskSummary={sharedTaskSummary}
             teamAgents={salesTeamAgents}
@@ -1827,6 +1851,7 @@ function App() {
             salesProspectDossierSummary={salesProspectDossierSummary}
             salesResearchIntelligenceSummary={salesResearchIntelligenceSummary}
             salesWorkflowSummary={salesWorkflowSummary}
+            salesPipelineAnalytics={salesPipelineAnalytics}
             salesProposalSummary={salesProposalSummary}
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}

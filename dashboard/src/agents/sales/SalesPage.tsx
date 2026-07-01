@@ -15,6 +15,7 @@ import type {
   LeadScore,
   SalesAction,
   SalesFilters,
+  SalesIntelligenceScoreLabel,
   SalesLead,
   SalesPageProps,
   SalesIntelligenceGraph,
@@ -70,9 +71,13 @@ export default function SalesPage({
   researchIntelligenceSummary,
   researchSources,
   salesProposalPrepQueue,
+  salesPipelineAnalytics,
+  salesPriorityQueues,
+  salesRelatedOpportunityCandidates,
   salesWorkflowSummary,
   salesWorkflows,
   scores,
+  salesIntelligenceScores,
   salesIntelligenceGraph,
   salesIntelligenceSummary,
   connectorReadiness,
@@ -157,6 +162,7 @@ export default function SalesPage({
   const blockedWorkflows = salesWorkflows.filter((workflow) => workflow.status === 'blocked');
   const executiveApprovalWorkflows = salesWorkflows.filter((workflow) => workflow.targetAgent === 'Executive' || workflow.approvalRequirement);
   const recentWorkflowActivity = salesWorkflows.flatMap((workflow) => workflow.auditTrail.map((audit) => ({ ...audit, company: workflow.company, workflowId: workflow.id }))).slice(0, 6);
+  const pipelineActionBreakdown = Object.entries(salesPipelineAnalytics.nextActionBreakdown).sort((a, b) => b[1] - a[1]);
   const selectedDossierIntake = selectedDossier ? prospectIntakes.find((intake) => intake.id === selectedDossier.intakeId) ?? null : null;
   const selectedOrganization =
     salesIntelligenceGraph.organizationProfiles.find((profile) => profile.id === selectedOrganizationId) ??
@@ -238,6 +244,10 @@ export default function SalesPage({
         <SalesMetric icon={<ShieldCheck size={20} />} label="Approval Queue" value={String(salesWorkflowSummary.approvalQueue)} tone={salesWorkflowSummary.approvalQueue ? 'warn' : 'good'} />
         <SalesMetric icon={<FileText size={20} />} label="Proposal Prep Queue" value={String(salesWorkflowSummary.proposalPrepItems)} />
         <SalesMetric icon={<AlertTriangle size={20} />} label="Blocked Workflows" value={String(salesWorkflowSummary.blockedWorkflows)} tone={salesWorkflowSummary.blockedWorkflows ? 'warn' : 'good'} />
+        <SalesMetric icon={<Flame size={20} />} label="Hot Opportunities" value={String(salesPipelineAnalytics.hotCount)} tone={salesPipelineAnalytics.hotCount ? 'warn' : 'good'} />
+        <SalesMetric icon={<Target size={20} />} label="Warm Opportunities" value={String(salesPipelineAnalytics.warmCount)} />
+        <SalesMetric icon={<FileText size={20} />} label="Pipeline Forecast" value={formatCurrency(salesPipelineAnalytics.estimatedPipelineValue)} />
+        <SalesMetric icon={<ShieldCheck size={20} />} label="Average Confidence" value={`${salesPipelineAnalytics.averageConfidence}%`} tone={salesPipelineAnalytics.averageConfidence >= 70 ? 'good' : 'warn'} />
         <SalesMetric icon={<Workflow size={20} />} label="Cross-Agent Signals" value={String(crossAgentSummary.activeSignals)} tone={crossAgentSummary.activeSignals ? 'warn' : 'good'} />
         {connectorReadiness ? (
           <SalesMetric icon={<Network size={20} />} label="Connector Writes Blocked" value={String(connectorReadiness.blockedWriteActionCount)} tone="warn" />
@@ -251,6 +261,90 @@ export default function SalesPage({
       </section>
 
       <section className="dashboard-grid">
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Brain size={18} />
+              <h2>Sales Intelligence Command Center</h2>
+            </div>
+            <StatusBadge value="Local deterministic scoring" tone="good" />
+          </div>
+          <p className="panel-description">
+            Opportunity scoring blends fit, size, geography, buying signals, relationships, confidence, workflow urgency, and proposal readiness. It creates priorities only; no browsing, email, CRM sync, proposal submission, or approval occurs.
+          </p>
+          <div className="batch-grid">
+            <Fact label="Total Opportunities" value={String(salesPipelineAnalytics.totalOpportunities)} />
+            <Fact label="Hot / Warm / Cold" value={`${salesPipelineAnalytics.hotCount}/${salesPipelineAnalytics.warmCount}/${salesPipelineAnalytics.coldCount}`} />
+            <Fact label="Not Ready" value={String(salesPipelineAnalytics.notReadyCount)} />
+            <Fact label="Estimated Pipeline" value={formatCurrency(salesPipelineAnalytics.estimatedPipelineValue)} />
+            <Fact label="Proposal Ready" value={String(salesPipelineAnalytics.proposalReadyCount)} />
+            <Fact label="Executive Review" value={String(salesPipelineAnalytics.executiveReviewCount)} />
+            <Fact label="Blocked" value={String(salesPipelineAnalytics.blockedCount)} />
+            <Fact label="Average Confidence" value={`${salesPipelineAnalytics.averageConfidence}%`} />
+          </div>
+          <DataTable
+            columns={['Next Action', 'Count']}
+            rows={pipelineActionBreakdown.map(([action, count]) => [action, String(count)])}
+            emptyMessage="No next-action breakdown yet. Add a local opportunity to generate intelligence."
+          />
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Flame size={18} />
+              <h2>Priority Queues</h2>
+            </div>
+            <StatusBadge value="Manual action required" tone="neutral" />
+          </div>
+          <div className="priority-queue-grid">
+            {salesPriorityQueues.map((queue) => (
+              <article className="priority-queue-card" key={queue.id}>
+                <div>
+                  <strong>{queue.label}</strong>
+                  <StatusBadge value={`${queue.items.length} item(s)`} tone={queue.items.length ? 'warn' : 'good'} />
+                </div>
+                {queue.items.length ? (
+                  <div className="activity-list compact-activity-list">
+                    {queue.items.slice(0, 4).map((item) => (
+                      <p key={`${queue.id}-${item.opportunityId}`}>
+                        <strong>{item.company}</strong>
+                        <span>{item.explanation}</span>
+                        <small>{item.nextAction}</small>
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="empty-note">No records in this queue.</p>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Network size={18} />
+              <h2>Duplicate / Related Opportunity Review</h2>
+            </div>
+            <StatusBadge value="No auto-merge" tone="good" />
+          </div>
+          <DataTable
+            columns={['Opportunity', 'Related Opportunity', 'Signals', 'Confidence', 'Action']}
+            rows={salesRelatedOpportunityCandidates.map((candidate) => [
+              candidate.company,
+              candidate.relatedCompany,
+              candidate.fields.join(', '),
+              `${candidate.confidence}%`,
+              <button className="clear-button small" disabled key={candidate.id} type="button">
+                {candidate.reviewAction}
+              </button>,
+            ])}
+            emptyMessage="No related opportunity candidates. If candidates appear, review them manually; nothing merges automatically."
+          />
+        </section>
+
         <section className="panel wide-panel">
           <div className="panel-header">
             <div>
@@ -280,13 +374,14 @@ export default function SalesPage({
             </div>
           </div>
           <DataTable
-            columns={['Company', 'Type', 'Target', 'Status', 'Priority', 'Next Action']}
+            columns={['Company', 'Type', 'Target', 'Status', 'Priority', 'Due', 'Next Action']}
             rows={activeWorkflows.map((workflow) => [
               workflow.company,
               workflow.type.replace(/_/g, ' '),
               workflow.targetAgent,
-              workflow.status.replace(/_/g, ' '),
-              workflow.priority,
+              <StatusBadge key={`${workflow.id}-status`} value={workflow.status.replace(/_/g, ' ')} tone={workflow.status === 'blocked' ? 'warn' : workflow.status === 'approved' ? 'good' : 'neutral'} />,
+              <StatusBadge key={`${workflow.id}-priority`} value={workflow.priority} tone={workflow.priority === 'Critical' || workflow.priority === 'High' ? 'warn' : 'neutral'} />,
+              dueLabel(workflow.dueAt),
               workflow.requestedAction,
             ])}
             emptyMessage="No active handoffs."
@@ -301,14 +396,18 @@ export default function SalesPage({
             </div>
           </div>
           <DataTable
-            columns={['Company', 'Readiness', 'Missing Info', 'Source Confidence', 'Verification', 'Executive Approval', 'Next Action']}
+            columns={['Company', 'Score', 'Readiness', 'Missing Info', 'Source Confidence', 'Verification', 'Executive Approval', 'Next Action']}
             rows={salesProposalPrepQueue.map((item) => [
               item.company,
+              (() => {
+                const score = salesIntelligenceScores.find((score) => score.opportunityId === item.opportunityId);
+                return score ? <StatusBadge key={`${item.opportunityId}-score`} value={`${score.scoreLabel} ${score.totalScore}`} tone={scoreLabelTone(score.scoreLabel)} /> : 'Not scored';
+              })(),
               `${item.readinessPercent}%`,
-              item.missingInfo.join(', '),
+              item.missingInfo.join(', ') || 'Complete',
               `${item.sourceConfidence}%`,
-              item.verificationStatus.replace(/_/g, ' '),
-              item.executiveApprovalStatus.replace(/_/g, ' '),
+              <StatusBadge key={`${item.opportunityId}-verification`} value={item.verificationStatus.replace(/_/g, ' ')} tone={item.verificationStatus === 'verified' ? 'good' : 'warn'} />,
+              <StatusBadge key={`${item.opportunityId}-approval`} value={item.executiveApprovalStatus.replace(/_/g, ' ')} tone={item.executiveApprovalStatus === 'approved' ? 'good' : item.executiveApprovalStatus === 'pending' ? 'warn' : 'neutral'} />,
               item.nextAction,
             ])}
             emptyMessage="No proposal prep queue items."
@@ -323,11 +422,13 @@ export default function SalesPage({
             </div>
           </div>
           <DataTable
-            columns={['Company', 'Type', 'Approval', 'Reason']}
+            columns={['Company', 'Type', 'Approval', 'Priority', 'Due', 'Reason']}
             rows={executiveApprovalWorkflows.map((workflow) => [
               workflow.company,
               workflow.type.replace(/_/g, ' '),
-              workflow.approvalStatus.replace(/_/g, ' '),
+              <StatusBadge key={`${workflow.id}-approval`} value={workflow.approvalStatus.replace(/_/g, ' ')} tone={workflow.approvalStatus === 'approved' ? 'good' : workflow.approvalStatus === 'pending' || workflow.approvalStatus === 'required' ? 'warn' : 'neutral'} />,
+              <StatusBadge key={`${workflow.id}-approval-priority`} value={workflow.priority} tone={workflow.priority === 'Critical' || workflow.priority === 'High' ? 'warn' : 'neutral'} />,
+              dueLabel(workflow.dueAt),
               workflow.reason,
             ])}
             emptyMessage="No Executive approvals queued."
@@ -342,8 +443,14 @@ export default function SalesPage({
             </div>
           </div>
           <DataTable
-            columns={['Company', 'Type', 'Owner', 'Next Action']}
-            rows={blockedWorkflows.map((workflow) => [workflow.company, workflow.type.replace(/_/g, ' '), workflow.owner, workflow.requestedAction])}
+            columns={['Company', 'Type', 'Owner', 'Risk', 'Next Action']}
+            rows={blockedWorkflows.map((workflow) => [
+              workflow.company,
+              workflow.type.replace(/_/g, ' '),
+              workflow.owner,
+              <StatusBadge key={`${workflow.id}-blocked`} value="blocked" tone="warn" />,
+              workflow.requestedAction,
+            ])}
             emptyMessage="No blocked workflows."
           />
         </section>
@@ -609,7 +716,7 @@ export default function SalesPage({
             ))}
           </SalesSelect>
           <DataTable
-            columns={['Company', 'City', 'State', 'Stage', 'Priority', 'Score', 'Owner', 'Updated']}
+            columns={['Company', 'City', 'State', 'Stage', 'Priority', 'Intelligence', 'Score', 'Owner', 'Updated']}
             rows={sortedOpportunities.map((opportunity) => [
               <button className="clear-button small" key={opportunity.id} onClick={() => setSelectedOpportunityId(opportunity.id)} type="button">
                 {opportunity.company}
@@ -617,7 +724,11 @@ export default function SalesPage({
               opportunity.city,
               opportunity.state,
               opportunity.stage.replace(/_/g, ' '),
-              opportunity.priority,
+              <StatusBadge key={`${opportunity.id}-priority`} value={opportunity.priority} tone={opportunity.priority === 'Critical' || opportunity.priority === 'High' ? 'warn' : 'neutral'} />,
+              (() => {
+                const score = salesIntelligenceScores.find((score) => score.opportunityId === opportunity.id);
+                return score ? <StatusBadge key={`${opportunity.id}-intel`} value={`${score.scoreLabel} ${score.totalScore}`} tone={scoreLabelTone(score.scoreLabel)} /> : 'Not scored';
+              })(),
               String(opportunity.score.overallScore),
               opportunity.assignedOwner,
               formatDate(opportunity.updatedAt),
@@ -1312,6 +1423,22 @@ export default function SalesPage({
       </section>
     </>
   );
+}
+
+function scoreLabelTone(label: SalesIntelligenceScoreLabel) {
+  if (label === 'Hot') return 'warn';
+  if (label === 'Not Ready') return 'neutral';
+  return 'good';
+}
+
+function dueLabel(dueDate: string) {
+  const due = new Date(dueDate);
+  const today = new Date();
+  const diffDays = Math.ceil((due.getTime() - today.getTime()) / 86_400_000);
+  if (Number.isNaN(diffDays)) return 'No due date';
+  if (diffDays < 0) return `${Math.abs(diffDays)}d overdue`;
+  if (diffDays === 0) return 'Due today';
+  return `${diffDays}d left`;
 }
 
 function SalesMetric({ icon, label, tone, value }: { icon: ReactNode; label: string; tone?: 'good' | 'warn'; value: string }) {

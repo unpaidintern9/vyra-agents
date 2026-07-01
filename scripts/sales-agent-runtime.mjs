@@ -142,18 +142,14 @@ export function restoreSalesOpportunity() {
 
 export function mergeSalesOpportunities() {
   const opportunities = readOpportunities();
-  if (opportunities.length < 2) return { title: 'Sales Opportunity Merge', generatedAt: new Date().toISOString(), status: 'skipped', reason: 'Need at least two local opportunities.', safety: safetySummary() };
-  const [primary, duplicate, ...rest] = opportunities;
-  const merged = addTimeline({
-    ...primary,
-    contacts: [...primary.contacts, ...duplicate.contacts],
-    notes: [`Merged duplicate ${duplicate.company}.`, ...primary.notes, ...duplicate.notes],
-    tags: Array.from(new Set([...primary.tags, ...duplicate.tags, 'merged'])),
-    updatedAt: new Date().toISOString(),
-  }, 'manual_action', 'Opportunities merged', `Merged ${duplicate.company} into ${primary.company}.`);
-  const next = [merged, ...rest];
-  writeOpportunities(next);
-  return { title: 'Sales Opportunity Merge', generatedAt: new Date().toISOString(), merged, summary: summarizeOpportunities(next), safety: safetySummary() };
+  return {
+    title: 'Sales Opportunity Merge Review',
+    generatedAt: new Date().toISOString(),
+    status: 'manual_review_required',
+    duplicateCandidates: detectRelatedOpportunities(opportunities),
+    policy: 'Phase 50 blocks automatic opportunity merges. Review candidates manually and decide outside this command.',
+    safety: safetySummary(),
+  };
 }
 
 export function buildSalesOpportunityDashboard() {
@@ -408,6 +404,40 @@ export function buildSalesWorkflowReport() {
   return { title: 'Sales Workflow Reports Generated', generatedAt: new Date().toISOString(), written, summary: summarizeWorkflowStore(store), safety: safetySummary() };
 }
 
+export function buildSalesIntelligenceReport() {
+  const snapshot = buildSalesIntelligenceSnapshot();
+  const written = writeSalesReport('sales-intelligence-report', intelligenceReport('Sales Intelligence Report', snapshot.scores, snapshot));
+  return { title: 'Sales Intelligence Report Generated', generatedAt: new Date().toISOString(), written, summary: snapshot.analytics, safety: safetySummary() };
+}
+
+export function buildSalesPriorityQueueReport() {
+  const snapshot = buildSalesIntelligenceSnapshot();
+  const rows = snapshot.priorityQueues.flatMap((queue) => queue.items.map((item) => ({ queue: queue.label, ...item })));
+  const written = writeSalesReport('priority-queue-report', intelligenceReport('Priority Queue Report', rows, snapshot));
+  return { title: 'Sales Priority Queue Report Generated', generatedAt: new Date().toISOString(), written, queues: snapshot.priorityQueues, safety: safetySummary() };
+}
+
+export function buildSalesDuplicateCandidatesReport() {
+  const snapshot = buildSalesIntelligenceSnapshot();
+  const written = writeSalesReport('duplicate-candidates-report', intelligenceReport('Duplicate Candidates Report', snapshot.duplicateCandidates, snapshot));
+  return { title: 'Sales Duplicate Candidates Report Generated', generatedAt: new Date().toISOString(), written, candidates: snapshot.duplicateCandidates, safety: safetySummary() };
+}
+
+export function buildSalesPipelineForecastReport() {
+  const snapshot = buildSalesIntelligenceSnapshot();
+  const rows = snapshot.scores.map((score) => ({
+    company: score.company,
+    scoreLabel: score.scoreLabel,
+    totalScore: score.totalScore,
+    confidence: score.confidence,
+    estimatedRevenuePotential: score.estimatedRevenuePotential,
+    forecastValue: score.estimatedRevenuePotential * 125,
+    recommendedNextAction: score.recommendedNextAction,
+  }));
+  const written = writeSalesReport('pipeline-forecast-report', intelligenceReport('Pipeline Forecast Report', rows, snapshot));
+  return { title: 'Sales Pipeline Forecast Report Generated', generatedAt: new Date().toISOString(), written, analytics: snapshot.analytics, safety: safetySummary() };
+}
+
 export function validateSalesWorkflows() {
   const store = readWorkflowStore();
   const errors = validateWorkflowStore(store);
@@ -471,6 +501,7 @@ export function runSalesReports() {
   Object.entries(buildOpportunityReports(readOpportunities())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   Object.entries(buildResearchReports(readResearchStore())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   Object.entries(buildWorkflowReports(readWorkflowStore())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
+  Object.entries(buildIntelligenceReports(buildSalesIntelligenceSnapshot())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   const csv = writeCsv('prospect-research', salesProspects);
   return { title: 'Sales Reports Generated', generatedAt: new Date().toISOString(), written, csv, safety: safetySummary() };
 }
@@ -543,6 +574,7 @@ export function runSalesTasks() {
 }
 
 export function validateSalesExecution() {
+  const intelligence = buildSalesIntelligenceSnapshot();
   const taskValidation = validateSharedTaskLayer();
   const draftValidation = validateCommunicationDraftLayer();
   const checks = [
@@ -559,6 +591,9 @@ export function validateSalesExecution() {
     { name: 'Only approved sources usable for enrichment', passed: readResearchStore().sources.some((source) => source.approvalStatus === 'Approved' && source.enabled) },
     { name: 'Sales workflow orchestration valid', passed: validateWorkflowStore(readWorkflowStore()).length === 0 },
     { name: 'External actions are workflow-gated', passed: readWorkflowStore().workflows.some((workflow) => workflow.type === 'external_action_gate' && workflow.approvalRequirement) },
+    { name: 'Sales intelligence scores explainable', passed: intelligence.scores.every((score) => score.topReasons.length && score.recommendedNextAction) },
+    { name: 'Priority queues available', passed: intelligence.priorityQueues.length === 6 },
+    { name: 'Duplicate detection is review-only', passed: intelligence.duplicateCandidates.every((candidate) => candidate.reviewAction === 'Review Duplicate') },
   ];
   return {
     title: 'Sales Agent Execution Validation',
@@ -573,7 +608,7 @@ export function validateSalesExecution() {
 
 export function validateSalesReports() {
   const opportunities = readOpportunities();
-  const reports = { ...buildOpportunityReports(opportunities), ...buildResearchReports(readResearchStore()), ...buildWorkflowReports(readWorkflowStore()) };
+  const reports = { ...buildOpportunityReports(opportunities), ...buildResearchReports(readResearchStore()), ...buildWorkflowReports(readWorkflowStore()), ...buildIntelligenceReports(buildSalesIntelligenceSnapshot()) };
   const checks = Object.entries(reports).map(([name, payload]) => ({ name, passed: Boolean(payload.title && (payload.rows?.length || payload.summary)) }));
   return { title: 'Sales Reports Validation', generatedAt: new Date().toISOString(), status: checks.every((check) => check.passed) ? 'pass' : 'fail', checks, safety: safetySummary() };
 }
@@ -1098,6 +1133,203 @@ function buildWorkflowReports(store) {
   };
 }
 
+function buildSalesIntelligenceSnapshot() {
+  const opportunities = readOpportunities();
+  const researchStore = readResearchStore();
+  const workflowStore = readWorkflowStore();
+  const scores = scoreOpportunitiesForIntelligence(opportunities, researchStore.intakeQueue, workflowStore.workflows);
+  const priorityQueues = buildPriorityQueues(opportunities, scores, workflowStore.workflows);
+  const duplicateCandidates = detectRelatedOpportunities(opportunities);
+  const analytics = buildPipelineAnalytics(opportunities, scores, workflowStore.workflows);
+  return { opportunities, scores, priorityQueues, duplicateCandidates, analytics, safety: safetySummary() };
+}
+
+function buildIntelligenceReports(snapshot) {
+  return {
+    'sales-intelligence-report': intelligenceReport('Sales Intelligence Report', snapshot.scores, snapshot),
+    'priority-queue-report': intelligenceReport('Priority Queue Report', snapshot.priorityQueues.flatMap((queue) => queue.items.map((item) => ({ queue: queue.label, ...item }))), snapshot),
+    'duplicate-candidates-report': intelligenceReport('Duplicate Candidates Report', snapshot.duplicateCandidates, snapshot),
+    'pipeline-forecast-report': intelligenceReport(
+      'Pipeline Forecast Report',
+      snapshot.scores.map((score) => ({
+        company: score.company,
+        scoreLabel: score.scoreLabel,
+        totalScore: score.totalScore,
+        confidence: score.confidence,
+        forecastValue: score.estimatedRevenuePotential * 125,
+        recommendedNextAction: score.recommendedNextAction,
+      })),
+      snapshot,
+    ),
+  };
+}
+
+function scoreOpportunitiesForIntelligence(opportunities, intakeQueue, workflows) {
+  return opportunities.map((opportunity) => {
+    const intake = intakeQueue.find((item) => item.opportunityId === opportunity.id);
+    const relatedWorkflows = workflows.filter((workflow) => workflow.opportunityId === opportunity.id);
+    const companyFit = clamp(opportunity.icpScore);
+    const industryFit = /mma|bjj|martial|crossfit|gym|fitness/i.test(opportunity.industry) ? 92 : 66;
+    const organizationSize = /small|independent/i.test(opportunity.companySizeEstimate) ? 86 : 68;
+    const geographicFit = /KY|IN|Louisville|Jeffersonville|New Albany/i.test(`${opportunity.city} ${opportunity.state} ${opportunity.location}`) ? 92 : 72;
+    const buyingSignals = clamp(55 + (opportunity.score.overallScore - 70) + relatedWorkflows.filter((workflow) => workflow.status !== 'archived').length * 4);
+    const existingRelationship = opportunity.contacts.some((contact) => contact.email || contact.phone) ? 72 : 35;
+    const estimatedRevenuePotential = clamp(opportunity.score.overallScore + (['High', 'Critical'].includes(opportunity.priority) ? 8 : 0));
+    const confidence = clamp(((intake?.confidence ?? opportunity.score.confidence) + opportunity.score.confidence + (intake?.completeness ?? 60)) / 3);
+    const workflowUrgency = clamp(50 + relatedWorkflows.filter((workflow) => ['blocked', 'in_review', 'assigned'].includes(workflow.status)).length * 12);
+    const proposalReadiness = opportunity.proposalPreparationStatus.readinessPercent;
+    const totalScore = Math.round(
+      companyFit * 0.16 +
+        industryFit * 0.12 +
+        organizationSize * 0.08 +
+        geographicFit * 0.1 +
+        buyingSignals * 0.12 +
+        existingRelationship * 0.08 +
+        estimatedRevenuePotential * 0.12 +
+        confidence * 0.08 +
+        workflowUrgency * 0.07 +
+        proposalReadiness * 0.07,
+    );
+    const risks = [
+      !opportunity.contacts.some((contact) => contact.email || contact.phone) ? 'Contact path missing' : null,
+      proposalReadiness < 60 ? 'Proposal requirements incomplete' : null,
+      relatedWorkflows.some((workflow) => workflow.status === 'blocked') ? 'Blocked workflow exists' : null,
+      intake?.verificationStatus !== 'verified' ? 'Research not fully verified' : null,
+    ].filter(Boolean);
+    const scoreLabel = proposalReadiness < 35 || risks.length >= 3 ? 'Not Ready' : totalScore >= 84 ? 'Hot' : totalScore >= 70 ? 'Warm' : 'Cold';
+    return {
+      opportunityId: opportunity.id,
+      company: opportunity.company,
+      totalScore,
+      scoreLabel,
+      confidence,
+      confidenceLevel: confidence >= 80 ? 'High' : confidence >= 65 ? 'Medium' : 'Low',
+      companyFit,
+      industryFit,
+      organizationSize,
+      geographicFit,
+      buyingSignals,
+      existingRelationship,
+      estimatedRevenuePotential,
+      workflowUrgency,
+      proposalReadiness,
+      topReasons: [`${companyFit}% company fit`, `${industryFit}% industry fit`, `${geographicFit}% geographic fit`, `${proposalReadiness}% proposal readiness`],
+      risks,
+      recommendedNextAction: intelligenceNextAction(scoreLabel, risks, opportunity.followUpPlan.recommendedNextAction),
+    };
+  });
+}
+
+function buildPriorityQueues(opportunities, scores, workflows) {
+  const labels = {
+    blocked: 'Blocked',
+    executive_review: 'Executive Review',
+    hot_prospects: 'Hot Prospects',
+    needs_research: 'Needs Research',
+    proposal_ready: 'Proposal Ready',
+    warm_prospects: 'Warm Prospects',
+  };
+  const queues = Object.entries(labels).map(([id, label]) => ({ id, label, items: [] }));
+  for (const opportunity of opportunities) {
+    const score = scores.find((item) => item.opportunityId === opportunity.id);
+    if (!score) continue;
+    const relatedWorkflows = workflows.filter((workflow) => workflow.opportunityId === opportunity.id);
+    const ids = [];
+    if (score.scoreLabel === 'Hot') ids.push('hot_prospects');
+    if (score.scoreLabel === 'Warm') ids.push('warm_prospects');
+    if (score.risks.some((risk) => /verified|contact|requirements/i.test(risk))) ids.push('needs_research');
+    if (opportunity.proposalPreparationStatus.readinessPercent >= 70) ids.push('proposal_ready');
+    if (relatedWorkflows.some((workflow) => workflow.targetAgent === 'Executive' || workflow.approvalRequirement)) ids.push('executive_review');
+    if (relatedWorkflows.some((workflow) => workflow.status === 'blocked')) ids.push('blocked');
+    for (const id of ids) {
+      queues.find((queue) => queue.id === id)?.items.push({
+        opportunityId: opportunity.id,
+        company: opportunity.company,
+        totalScore: score.totalScore,
+        scoreLabel: score.scoreLabel,
+        priority: opportunity.priority,
+        explanation: queueExplanation(id, score),
+        nextAction: score.recommendedNextAction,
+        risks: score.risks,
+      });
+    }
+  }
+  return queues;
+}
+
+function detectRelatedOpportunities(opportunities) {
+  const candidates = [];
+  for (let i = 0; i < opportunities.length; i += 1) {
+    for (let j = i + 1; j < opportunities.length; j += 1) {
+      const left = opportunities[i];
+      const right = opportunities[j];
+      const fields = [
+        normalize(left.company) === normalize(right.company) ? 'company name' : null,
+        domain(left.website) && domain(left.website) === domain(right.website) ? 'domain' : null,
+        left.email && left.email === right.email ? 'contact email' : null,
+        normalize(left.source) === normalize(right.source) ? 'source' : null,
+        sharedToken(left.company, right.company) ? 'opportunity title' : null,
+      ].filter(Boolean);
+      if (fields.length >= 2) {
+        candidates.push({
+          id: `related-${left.id}-${right.id}`,
+          opportunityId: left.id,
+          relatedOpportunityId: right.id,
+          company: left.company,
+          relatedCompany: right.company,
+          fields,
+          confidence: Math.min(96, 45 + fields.length * 15),
+          reason: `Shared ${fields.join(', ')} suggests manual review.`,
+          reviewAction: 'Review Duplicate',
+        });
+      }
+    }
+  }
+  return candidates;
+}
+
+function buildPipelineAnalytics(opportunities, scores, workflows) {
+  const nextActionBreakdown = scores.reduce((counts, score) => {
+    counts[score.recommendedNextAction] = (counts[score.recommendedNextAction] ?? 0) + 1;
+    return counts;
+  }, {});
+  return {
+    totalOpportunities: opportunities.length,
+    hotCount: scores.filter((score) => score.scoreLabel === 'Hot').length,
+    warmCount: scores.filter((score) => score.scoreLabel === 'Warm').length,
+    coldCount: scores.filter((score) => score.scoreLabel === 'Cold').length,
+    notReadyCount: scores.filter((score) => score.scoreLabel === 'Not Ready').length,
+    estimatedPipelineValue: scores.reduce((sum, score) => sum + score.estimatedRevenuePotential * 125, 0),
+    proposalReadyCount: opportunities.filter((opportunity) => opportunity.proposalPreparationStatus.readinessPercent >= 70).length,
+    blockedCount: workflows.filter((workflow) => workflow.status === 'blocked').length,
+    executiveReviewCount: workflows.filter((workflow) => workflow.targetAgent === 'Executive' || workflow.approvalRequirement).length,
+    averageConfidence: average(scores.map((score) => score.confidence)),
+    nextActionBreakdown,
+  };
+}
+
+function intelligenceReport(title, rows, snapshot) {
+  return { title, generatedAt: new Date().toISOString(), summary: snapshot.analytics, rows, safety: snapshot.safety, localOnly: true };
+}
+
+function intelligenceNextAction(label, risks, fallback) {
+  if (risks.some((risk) => /Contact/.test(risk))) return 'Verify contact path';
+  if (risks.some((risk) => /Proposal/.test(risk))) return 'Complete proposal requirements';
+  if (label === 'Hot') return 'Queue Executive review';
+  if (label === 'Warm') return 'Prepare follow-up';
+  if (label === 'Cold') return 'Keep in nurture';
+  return fallback;
+}
+
+function queueExplanation(queueId, score) {
+  if (queueId === 'hot_prospects') return `Hot score ${score.totalScore} with ${String(score.confidenceLevel).toLowerCase()} confidence.`;
+  if (queueId === 'warm_prospects') return `Warm score ${score.totalScore}; useful but needs more proof.`;
+  if (queueId === 'needs_research') return `Needs research because ${score.risks[0] ?? 'key fields are incomplete'}.`;
+  if (queueId === 'proposal_ready') return `${score.proposalReadiness}% proposal readiness.`;
+  if (queueId === 'executive_review') return 'Approval or Executive review workflow is attached.';
+  return 'Blocked or gated work exists; resolve before external action.';
+}
+
 function workflowReport(title, rows, summary) {
   return { title, generatedAt: new Date().toISOString(), summary, rows, localOnly: true, safety: safetySummary() };
 }
@@ -1297,6 +1529,24 @@ function slugify(value) {
 
 function csvCell(value) {
   return `"${String(value ?? '').replace(/"/g, '""')}"`;
+}
+
+function normalize(value) {
+  return String(value ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function domain(value) {
+  return String(value ?? '').replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].toLowerCase();
+}
+
+function sharedToken(left, right) {
+  const leftTokens = String(left ?? '').toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 4);
+  const rightTokens = new Set(String(right ?? '').toLowerCase().split(/[^a-z0-9]+/));
+  return leftTokens.some((token) => rightTokens.has(token));
+}
+
+function clamp(value) {
+  return Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
 }
 
 function average(values) {

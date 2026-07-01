@@ -131,6 +131,9 @@ export type SalesWorkflowType =
 export type SalesWorkflowStatus = 'draft' | 'queued' | 'assigned' | 'in_review' | 'approved' | 'rejected' | 'blocked' | 'completed' | 'archived';
 export type SalesWorkflowAgent = 'Sales' | 'Operator' | 'Executive' | 'Proposal Prep';
 export type SalesWorkflowApprovalStatus = 'not_required' | 'required' | 'pending' | 'approved' | 'rejected' | 'blocked';
+export type SalesIntelligenceScoreLabel = 'Hot' | 'Warm' | 'Cold' | 'Not Ready';
+export type SalesIntelligenceConfidenceLevel = 'High' | 'Medium' | 'Low';
+export type SalesPriorityQueueId = 'hot_prospects' | 'warm_prospects' | 'needs_research' | 'proposal_ready' | 'executive_review' | 'blocked';
 export type SalesIntelligenceNodeType =
   | 'prospect'
   | 'organization'
@@ -416,6 +419,70 @@ export interface SalesWorkflowSummary {
   proposalPrepItems: number;
   totalWorkflows: number;
   workflowHealth: number;
+}
+
+export interface SalesIntelligenceScore {
+  buyingSignals: number;
+  companyFit: number;
+  confidence: number;
+  confidenceLevel: SalesIntelligenceConfidenceLevel;
+  estimatedRevenuePotential: number;
+  existingRelationship: number;
+  geographicFit: number;
+  industryFit: number;
+  opportunityId: string;
+  organizationSize: number;
+  proposalReadiness: number;
+  recommendedNextAction: string;
+  risks: string[];
+  scoreLabel: SalesIntelligenceScoreLabel;
+  topReasons: string[];
+  totalScore: number;
+  workflowUrgency: number;
+}
+
+export interface SalesPriorityQueueItem {
+  company: string;
+  explanation: string;
+  nextAction: string;
+  opportunityId: string;
+  priority: SalesOpportunityPriority;
+  queueId: SalesPriorityQueueId;
+  risks: string[];
+  scoreLabel: SalesIntelligenceScoreLabel;
+  totalScore: number;
+}
+
+export interface SalesPriorityQueue {
+  id: SalesPriorityQueueId;
+  label: string;
+  items: SalesPriorityQueueItem[];
+}
+
+export interface SalesRelatedOpportunityCandidate {
+  company: string;
+  confidence: number;
+  fields: string[];
+  id: string;
+  opportunityId: string;
+  reason: string;
+  relatedCompany: string;
+  relatedOpportunityId: string;
+  reviewAction: string;
+}
+
+export interface SalesPipelineAnalytics {
+  averageConfidence: number;
+  blockedCount: number;
+  coldCount: number;
+  estimatedPipelineValue: number;
+  executiveReviewCount: number;
+  hotCount: number;
+  nextActionBreakdown: Record<string, number>;
+  notReadyCount: number;
+  proposalReadyCount: number;
+  totalOpportunities: number;
+  warmCount: number;
 }
 
 export interface SalesGym {
@@ -779,6 +846,10 @@ export interface SalesPageProps {
   researchIntelligenceSummary: SalesResearchIntelligenceSummary;
   researchSources: SalesResearchSource[];
   salesProposalPrepQueue: SalesProposalPrepQueueItem[];
+  salesPriorityQueues: SalesPriorityQueue[];
+  salesRelatedOpportunityCandidates: SalesRelatedOpportunityCandidate[];
+  salesPipelineAnalytics: SalesPipelineAnalytics;
+  salesIntelligenceScores: SalesIntelligenceScore[];
   salesWorkflowSummary: SalesWorkflowSummary;
   salesWorkflows: SalesWorkflowRecord[];
   scores: LeadScore[];

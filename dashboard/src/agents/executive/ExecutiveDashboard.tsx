@@ -28,6 +28,7 @@ export default function ExecutiveDashboard({
   runtime,
   salesAgentTeamSummary,
   salesIntelligenceSummary,
+  salesPipelineAnalytics,
   salesIntegration,
   salesProposalSummary,
   salesProspectDossierSummary,
@@ -69,6 +70,7 @@ export default function ExecutiveDashboard({
       <ExecutiveOverview summary={summary} />
       <section className="dashboard-grid executive-dashboard-grid">
         <ExecutivePriorities onNavigate={onNavigate} priorities={summary.priorities} />
+        {salesPipelineAnalytics ? <ExecutiveSalesIntelligencePanel analytics={salesPipelineAnalytics} /> : null}
         {salesResearchIntelligenceSummary ? <ExecutiveResearchIntelligencePanel summary={salesResearchIntelligenceSummary} /> : null}
         {salesWorkflowSummary ? <ExecutiveSalesWorkflowPanel summary={salesWorkflowSummary} /> : null}
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
@@ -84,6 +86,31 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveSalesIntelligencePanel({ analytics }: { analytics: NonNullable<ExecutiveDashboardProps['salesPipelineAnalytics']> }) {
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Executive Sales Intelligence Summary</h2>
+        </div>
+        <span>read only</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact"><span>Total Opportunities</span><strong>{analytics.totalOpportunities}</strong></div>
+        <div className="fact"><span>Hot / Warm / Cold</span><strong>{analytics.hotCount}/{analytics.warmCount}/{analytics.coldCount}</strong></div>
+        <div className="fact"><span>Not Ready</span><strong>{analytics.notReadyCount}</strong></div>
+        <div className="fact"><span>Pipeline Forecast</span><strong>${analytics.estimatedPipelineValue.toLocaleString()}</strong></div>
+        <div className="fact"><span>Proposal Ready</span><strong>{analytics.proposalReadyCount}</strong></div>
+        <div className="fact"><span>Executive Review</span><strong>{analytics.executiveReviewCount}</strong></div>
+        <div className="fact"><span>Blocked</span><strong>{analytics.blockedCount}</strong></div>
+        <div className="fact"><span>Average Confidence</span><strong>{analytics.averageConfidence}%</strong></div>
+      </div>
+      <p className="subtle-note">Scoring is local-only and advisory. Executive approval, external actions, emails, browsing, CRM sync, and proposal submission remain manual and gated.</p>
+    </section>
   );
 }
 

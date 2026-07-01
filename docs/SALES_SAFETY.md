@@ -39,3 +39,18 @@ Rejected imports do not persist.
 ## Export Safety
 
 Reports download locally. CSV cells that begin with spreadsheet-formula characters are prefixed before export.
+# Phase 50 Local Intelligence Safety
+
+Sales intelligence scoring, priority queues, duplicate detection, and pipeline analytics are advisory local outputs only.
+
+They do not:
+
+- Browse the web.
+- Send customer emails.
+- Sync CRM records.
+- Submit proposals.
+- Approve Executive gates.
+- Approve sources.
+- Merge duplicates automatically.
+
+The `sales:merge` command is review-only in Phase 50 and returns candidate context without writing merged records.

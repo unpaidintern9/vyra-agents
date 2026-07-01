@@ -1290,3 +1290,33 @@ Boundaries:
 - No Stripe writes.
 - No Supabase production writes.
 - No secrets committed.
+
+## Phase 50
+
+Sales Intelligence, Prioritization, and UI/UX Polish.
+
+Includes:
+
+- Local-only opportunity scoring for fit, size, geography, buying signals, existing relationship, revenue potential, confidence, workflow urgency, and proposal readiness.
+- Hot, Warm, Cold, and Not Ready labels with top reasons, risks, confidence level, and recommended next action.
+- Priority queues for Hot Prospects, Warm Prospects, Needs Research, Proposal Ready, Executive Review, and Blocked.
+- Duplicate and related opportunity candidates surfaced from company name, domain, contact email, opportunity title tokens, and source.
+- Pipeline analytics for total opportunities, score counts, estimated pipeline value, proposal-ready count, blocked count, Executive-review count, average confidence, and next-action breakdown.
+- Sales dashboard polish for intelligence cards, priority queues, duplicate review, workflow badges, proposal prep scanability, and clearer empty states.
+- Executive Sales Intelligence Summary.
+- Review-only duplicate merge behavior.
+- Root npm scripts for Sales intelligence, priority queue, duplicate candidates, and pipeline forecast reports.
+
+Boundaries:
+
+- Local execution only.
+- No autonomous browsing.
+- No external customer email sending.
+- No CRM synchronization.
+- No proposal submission.
+- No automatic Executive approval.
+- No automatic source approval.
+- No automatic duplicate merge.
+- No Stripe writes.
+- No Supabase production writes.
+- No secrets committed.

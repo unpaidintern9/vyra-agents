@@ -12,6 +12,8 @@ Phase 48 adds a local Research Source Manager and Research Intake Pipeline. It r
 
 Phase 49 adds local multi-agent workflow orchestration across Sales, Operator, Executive, and Proposal Prep. It creates handoff workflows, status transitions, approval gates, proposal prep queue records, and audit history without any external CRM dependency.
 
+Phase 50 adds local Sales intelligence scoring, priority queues, duplicate/related opportunity review, pipeline analytics, and UI polish for Sales, Executive, and Operator dashboards.
+
 ## Current Scope
 
 The Sales Agent MVP includes:
@@ -51,6 +53,7 @@ The Sales Agent MVP includes:
 - Research Source Manager with source categories, trust/confidence scoring, approval workflow, and source utilization reports.
 - Research Intake Pipeline with verification records, duplicate candidates, enrichment history, review history, confidence trends, and Executive/Operator/Sales read-only dashboards.
 - Multi-agent Sales workflow orchestration with Sales-to-Operator handoffs, Sales-to-Executive approval gates, Sales-to-Proposal Prep queue items, blocked workflow visibility, and transition audit trails.
+- Sales Intelligence Command Center with Hot/Warm/Cold/Not Ready opportunity scoring, priority queues, duplicate review, pipeline forecast, average confidence, and next-action breakdown.
 
 ## Local Storage
 
@@ -111,6 +114,12 @@ Sales lead and proposal records themselves are not written to production.
 Lead scoring is deterministic and explainable. Each lead receives a local score, priority label, prospect segment, weighted pipeline value, and factor-by-factor rationale.
 
 See `docs/SALES_LEAD_SCORING.md`.
+
+## Opportunity Intelligence
+
+Opportunity intelligence scoring is deterministic and local-only. It considers fit, size, geography, buying signals, relationships, confidence, workflow urgency, and proposal readiness.
+
+See `docs/SALES_INTELLIGENCE_SCORING.md`.
 
 ## Follow-Up Engine
 
