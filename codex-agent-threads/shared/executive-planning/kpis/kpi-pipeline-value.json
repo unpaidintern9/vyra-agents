@@ -1,0 +1,31 @@
+{
+  "kpiId": "kpi-pipeline-value",
+  "name": "Weighted Louisville pipeline",
+  "description": "Weighted local sales pipeline progress toward revenue goal.",
+  "category": "revenue",
+  "currentValue": 39708,
+  "targetValue": 75000,
+  "unit": "USD",
+  "trend": "rising",
+  "status": "behind",
+  "linkedGoal": "goal-revenue-louisville-sales",
+  "confidence": 72,
+  "lastUpdated": "2026-07-01T18:03:30.936Z",
+  "auditHistory": [
+    {
+      "timestamp": "2026-07-01T18:03:30.942Z",
+      "action": "seed_kpi",
+      "previousStatus": null,
+      "newStatus": "behind",
+      "actor": "Executive Planning Engine",
+      "reason": "Seeded deterministic local KPI.",
+      "affectedTasks": [],
+      "affectedWorkflows": [],
+      "nextAction": "Review locally before any external action.",
+      "localOnly": true
+    }
+  ],
+  "linkedTasks": [],
+  "linkedReports": [],
+  "localOnly": true
+}

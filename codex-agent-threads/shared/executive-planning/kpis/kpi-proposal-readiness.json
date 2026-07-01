@@ -1,0 +1,31 @@
+{
+  "kpiId": "kpi-proposal-readiness",
+  "name": "Proposal readiness coverage",
+  "description": "Share of proposal candidates with verified requirements and approval path.",
+  "category": "sales",
+  "currentValue": 62,
+  "targetValue": 90,
+  "unit": "percent",
+  "trend": "rising",
+  "status": "behind",
+  "linkedGoal": "goal-proposal-readiness",
+  "confidence": 68,
+  "lastUpdated": "2026-07-01T18:03:30.936Z",
+  "auditHistory": [
+    {
+      "timestamp": "2026-07-01T18:03:30.943Z",
+      "action": "seed_kpi",
+      "previousStatus": null,
+      "newStatus": "behind",
+      "actor": "Executive Planning Engine",
+      "reason": "Seeded deterministic local KPI.",
+      "affectedTasks": [],
+      "affectedWorkflows": [],
+      "nextAction": "Review locally before any external action.",
+      "localOnly": true
+    }
+  ],
+  "linkedTasks": [],
+  "linkedReports": [],
+  "localOnly": true
+}

@@ -41,3 +41,7 @@ Shared memory is advisory. It does not browse, send email, sync CRM records, sub
 Universal tasks can link shared memory facts, entities, and reports through local IDs. Memory maintenance tasks appear in the Memory Queue and Operator queues when conflicts, stale facts, or missing verification require human review.
 
 Task links do not resolve memory automatically. They preserve auditability and keep conflict resolution manual.
+
+## Phase 54 Planning Confidence
+
+Executive planning uses shared memory conflicts, risky facts, and confidence signals as advisory blockers. Low-confidence facts can increase attention scores, but the planning engine never overwrites memory or resolves conflicts automatically.

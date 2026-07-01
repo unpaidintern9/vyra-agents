@@ -1,0 +1,31 @@
+{
+  "kpiId": "kpi-blocked-work",
+  "name": "Blocked work clearance",
+  "description": "Share of local work queues without blockers.",
+  "category": "operations",
+  "currentValue": 80,
+  "targetValue": 95,
+  "unit": "percent",
+  "trend": "stable",
+  "status": "behind",
+  "linkedGoal": "goal-operating-control",
+  "confidence": 75,
+  "lastUpdated": "2026-07-01T18:03:30.936Z",
+  "auditHistory": [
+    {
+      "timestamp": "2026-07-01T18:03:30.942Z",
+      "action": "seed_kpi",
+      "previousStatus": null,
+      "newStatus": "behind",
+      "actor": "Executive Planning Engine",
+      "reason": "Seeded deterministic local KPI.",
+      "affectedTasks": [],
+      "affectedWorkflows": [],
+      "nextAction": "Review locally before any external action.",
+      "localOnly": true
+    }
+  ],
+  "linkedTasks": [],
+  "linkedReports": [],
+  "localOnly": true
+}

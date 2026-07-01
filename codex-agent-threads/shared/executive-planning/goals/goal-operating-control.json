@@ -1,0 +1,62 @@
+{
+  "goalId": "goal-operating-control",
+  "title": "Maintain local operating control",
+  "description": "Keep multi-agent execution auditable, local-only, and approval gated.",
+  "category": "operations",
+  "ownerAgent": "Executive",
+  "ownerUser": "Robert",
+  "priority": "high",
+  "status": "at_risk",
+  "timeframe": "month",
+  "startDate": "2026-07-01",
+  "targetDate": "2026-07-31",
+  "linkedTasks": [],
+  "linkedWorkflows": [
+    "universal-task-engine"
+  ],
+  "linkedEntities": [
+    "shared-memory",
+    "universal-task-engine"
+  ],
+  "linkedOpportunities": [],
+  "linkedOrganizations": [
+    "Vyra internal operations"
+  ],
+  "linkedReports": [
+    "executive-planning-summary"
+  ],
+  "linkedKpis": [
+    "kpi-blocked-work"
+  ],
+  "blockers": [
+    "Manual review queues need daily attention."
+  ],
+  "risks": [
+    "Unresolved memory conflicts can reduce decision confidence."
+  ],
+  "decisions": [
+    "decision-keep-local-only"
+  ],
+  "progressScore": 64,
+  "confidenceScore": 78,
+  "createdDate": "2026-07-01T18:03:30.936Z",
+  "updatedDate": "2026-07-01T18:03:30.936Z",
+  "auditHistory": [
+    {
+      "timestamp": "2026-07-01T18:03:30.938Z",
+      "action": "seed_goal",
+      "previousStatus": null,
+      "newStatus": "at_risk",
+      "actor": "Executive Planning Engine",
+      "reason": "Seeded deterministic local goal.",
+      "affectedTasks": [],
+      "affectedWorkflows": [
+        "universal-task-engine"
+      ],
+      "nextAction": "Review locally before any external action.",
+      "localOnly": true
+    }
+  ],
+  "completedDate": null,
+  "localOnly": true
+}

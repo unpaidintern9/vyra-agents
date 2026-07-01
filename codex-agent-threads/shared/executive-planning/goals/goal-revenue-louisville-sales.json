@@ -1,0 +1,61 @@
+{
+  "goalId": "goal-revenue-louisville-sales",
+  "title": "Grow Louisville KY sales pipeline",
+  "description": "Increase local Louisville and surrounding-area prospect conversion using safe local Sales workflows.",
+  "category": "revenue",
+  "ownerAgent": "Sales",
+  "ownerUser": "Robert",
+  "priority": "critical",
+  "status": "active",
+  "timeframe": "quarter",
+  "startDate": "2026-07-01",
+  "targetDate": "2026-09-30",
+  "linkedTasks": [],
+  "linkedWorkflows": [
+    "sales-workflow-louisville"
+  ],
+  "linkedEntities": [
+    "market:louisville-ky"
+  ],
+  "linkedOpportunities": [
+    "louisville-combat-academy",
+    "area-502-mma"
+  ],
+  "linkedOrganizations": [
+    "Louisville Combat Academy",
+    "Area 502 MMA"
+  ],
+  "linkedReports": [
+    "pipeline-forecast-report"
+  ],
+  "linkedKpis": [
+    "kpi-pipeline-value"
+  ],
+  "blockers": [],
+  "risks": [
+    "Contact verification and Executive approvals are required before external action."
+  ],
+  "decisions": [],
+  "progressScore": 55,
+  "confidenceScore": 72,
+  "createdDate": "2026-07-01T18:03:30.936Z",
+  "updatedDate": "2026-07-01T18:03:30.936Z",
+  "auditHistory": [
+    {
+      "timestamp": "2026-07-01T18:03:30.937Z",
+      "action": "seed_goal",
+      "previousStatus": null,
+      "newStatus": "active",
+      "actor": "Executive Planning Engine",
+      "reason": "Seeded deterministic local goal.",
+      "affectedTasks": [],
+      "affectedWorkflows": [
+        "sales-workflow-louisville"
+      ],
+      "nextAction": "Review locally before any external action.",
+      "localOnly": true
+    }
+  ],
+  "completedDate": null,
+  "localOnly": true
+}

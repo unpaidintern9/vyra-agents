@@ -5,6 +5,7 @@ import type { EngineeringTaskGeneratorSummary } from '../../runtime/engineeringT
 import type { ExecutiveAutomationSummary } from '../../runtime/executiveAutomation';
 import type { ExecutiveEmailBriefingSummary } from '../../runtime/executiveEmailBriefing';
 import type { ExecutiveOperationsDashboardSummary } from '../../runtime/executiveOperations';
+import type { ExecutivePlanningSummary } from '../../runtime/executivePlanning';
 import type { GmailEmailDashboardSummary } from '../../runtime/gmailEmail';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
@@ -122,6 +123,7 @@ export interface ExecutiveSummary {
   executiveAutomation?: ExecutiveAutomationSummary;
   executiveEmailBriefing?: ExecutiveEmailBriefingSummary;
   executiveOperations?: ExecutiveOperationsDashboardSummary;
+  executivePlanning?: ExecutivePlanningSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
@@ -154,6 +156,7 @@ export interface ExecutiveDashboardProps {
   executiveAutomation?: ExecutiveAutomationSummary;
   executiveEmailBriefing?: ExecutiveEmailBriefingSummary;
   executiveOperations?: ExecutiveOperationsDashboardSummary;
+  executivePlanning?: ExecutivePlanningSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;

@@ -5,6 +5,7 @@ import { defaultEngineeringTaskSummary, type EngineeringTaskGeneratorSummary } f
 import { buildDashboardExecutiveAutomationSummary, type ExecutiveAutomationSummary } from './executiveAutomation';
 import { buildDashboardExecutiveEmailBriefingSummary, type ExecutiveEmailBriefingSummary } from './executiveEmailBriefing';
 import { buildDashboardExecutiveOperationsSummary, type ExecutiveOperationsDashboardSummary } from './executiveOperations';
+import type { ExecutivePlanningSummary } from './executivePlanning';
 import { buildDashboardGmailEmailSummary, type GmailEmailDashboardSummary } from './gmailEmail';
 import { buildDashboardGitHubPlanningSummary, type GitHubPlanningDashboardSummary } from './githubPlanning';
 import { buildDashboardGitHubReadOnlySummary, type GitHubReadOnlyDashboardSummary } from './githubReadOnly';
@@ -43,6 +44,7 @@ export interface AiOperatorDashboardSnapshot {
   executiveAutomation: ExecutiveAutomationSummary;
   executiveEmailBriefing: ExecutiveEmailBriefingSummary;
   executiveOperations: ExecutiveOperationsDashboardSummary;
+  executivePlanning: ExecutivePlanningSummary;
   githubPlanning: GitHubPlanningDashboardSummary;
   githubReadOnly: GitHubReadOnlyDashboardSummary;
   projectRegistry: ProjectRegistryDashboardSummary;
@@ -285,7 +287,20 @@ export const aiOperatorCommands = [
   'npm run executive:automation-validate',
   'npm run executive:automation-safety-check',
   'npm run executive:briefing',
+  'npm run executive:goals',
+  'npm run executive:create-goal',
+  'npm run executive:update-goal',
   'npm run executive:kpis',
+  'npm run executive:create-kpi',
+  'npm run executive:update-kpi',
+  'npm run executive:initiatives',
+  'npm run executive:create-initiative',
+  'npm run executive:decision-log',
+  'npm run executive:add-decision',
+  'npm run executive:blockers',
+  'npm run executive:goal-report',
+  'npm run executive:kpi-report',
+  'npm run executive:planning-report',
   'npm run executive:operations',
   'npm run executive:health',
   'npm run executive:report',
@@ -354,6 +369,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   executiveAutomation?: ExecutiveAutomationSummary;
   executiveEmailBriefing?: ExecutiveEmailBriefingSummary;
   executiveOperations?: ExecutiveOperationsDashboardSummary;
+  executivePlanning?: ExecutivePlanningSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
@@ -458,6 +474,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
       runtime: input.runtime,
       sharedTasks,
     });
+  const executivePlanning = input.executivePlanning;
   const executiveEmailBriefing =
     input.executiveEmailBriefing ??
     buildDashboardExecutiveEmailBriefingSummary({
@@ -517,6 +534,26 @@ export function buildAiOperatorDashboardSnapshot(input: {
     executiveAutomation,
     executiveEmailBriefing,
     executiveOperations,
+    executivePlanning: executivePlanning ?? {
+      agentContribution: [],
+      blockers: [],
+      decisions: [],
+      goals: [],
+      initiatives: [],
+      kpis: [],
+      salesGoalAlignment: [],
+      strategicRisks: [],
+      summary: {
+        activeGoals: 0,
+        atRiskGoals: 0,
+        blockedGoals: 0,
+        decisionsLogged: 0,
+        executiveAttentionNeeded: 0,
+        initiativesActive: 0,
+        kpisOnTrack: 0,
+        totalGoals: 0,
+      },
+    },
     githubPlanning,
     githubReadOnly,
     projectRegistry,

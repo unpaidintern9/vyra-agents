@@ -85,6 +85,7 @@ export default function SalesPage({
   organizationIntelligence,
   sharedMemory,
   connectorReadiness,
+  executivePlanning,
   sharedTaskSummary,
   teamAgents,
   teamSummary,
@@ -914,6 +915,28 @@ export default function SalesPage({
               ))}
             </div>
             <p className="subtle-note">Disabled placeholders only. No connector clients are created and no external service calls occur.</p>
+          </section>
+        ) : null}
+
+        {executivePlanning ? (
+          <section className="panel wide-panel">
+            <div className="panel-header">
+              <div>
+                <Workflow size={18} />
+                <h2>Sales Goals</h2>
+              </div>
+              <StatusBadge value="Executive aligned" tone="good" />
+            </div>
+            <div className="batch-grid">
+              <Fact label="Revenue/KPI Alignment" value={`${executivePlanning.salesGoalAlignment.length} goal(s)`} />
+              <Fact label="Opportunity Contribution to Goals" value={executivePlanning.salesGoalAlignment.map((item) => item.opportunityContribution).join(', ') || 'None'} />
+              <Fact label="At-Risk Sales Goals" value={String(executivePlanning.goals.filter((goal) => goal.ownerAgent === 'Sales' && goal.attentionLabel !== 'Normal').length)} />
+            </div>
+            <DataTable
+              columns={['Sales Goals', 'Revenue/KPI Alignment', 'Opportunity Contribution to Goals', 'Status']}
+              rows={executivePlanning.salesGoalAlignment.map((item) => [item.goal, item.revenueKpi, item.opportunityContribution, item.status])}
+              emptyMessage="No Sales goals are linked to Executive planning."
+            />
           </section>
         ) : null}
 

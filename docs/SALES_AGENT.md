@@ -246,3 +246,9 @@ Sales dashboard sections include Sales Work Queue, Sales Follow-Up Tasks, Sales 
 Use `npm run tasks:queue -- --queue "Sales Queue"` to inspect Sales tasks locally. See `docs/UNIVERSAL_TASK_ENGINE.md`, `docs/WORK_QUEUES.md`, `docs/TASK_ROUTING.md`, and `docs/TASK_DEPENDENCIES.md`.
 
 The Sales Agent does not browse, send customer email, sync CRM data, submit proposals, approve Executive gates, approve sources, or merge records automatically.
+
+## Phase 54 Sales Goal Alignment
+
+The Sales dashboard includes Sales Goals, Revenue/KPI Alignment, and Opportunity Contribution to Goals.
+
+Sales goal alignment links local opportunities, organizations, KPIs, and Executive goals. It is advisory and does not trigger outreach, CRM sync, proposal submission, or automatic approvals.

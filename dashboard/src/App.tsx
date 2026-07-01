@@ -133,6 +133,7 @@ import { buildDashboardEngineeringTaskSummary } from './runtime/engineeringTaskG
 import { buildDashboardExecutiveAutomationSummary } from './runtime/executiveAutomation';
 import { buildDashboardExecutiveEmailBriefingSummary } from './runtime/executiveEmailBriefing';
 import { buildDashboardExecutiveOperationsSummary } from './runtime/executiveOperations';
+import { buildDashboardExecutivePlanningSummary } from './runtime/executivePlanning';
 import { buildDashboardGmailEmailSummary } from './runtime/gmailEmail';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
@@ -1530,6 +1531,10 @@ function App() {
     salesSummary,
     sharedTasks: sharedTaskSummary,
   });
+  const executivePlanning = buildDashboardExecutivePlanningSummary({
+    salesOpportunitySummary,
+    sharedTasks: sharedTaskSummary,
+  });
   const executiveEmailBriefing = buildDashboardExecutiveEmailBriefingSummary({
     email: emailSummary,
     executiveOperations,
@@ -1566,6 +1571,7 @@ function App() {
     salesLocalCrm: salesOpportunitySummary,
     salesResearchIntelligence: salesResearchIntelligenceSummary,
     salesWorkflowSummary,
+    executivePlanning,
     sharedTasks: sharedTaskSummary,
   });
   const recordOperatorRun = () => setOperatorDashboard((current) => ({ ...current, lastRun: new Date().toISOString() }));
@@ -1791,6 +1797,7 @@ function App() {
             salesPriorityQueues={salesPriorityQueues}
             salesRelatedOpportunityCandidates={salesRelatedOpportunityCandidates}
             connectorReadiness={connectorReadiness}
+            executivePlanning={executivePlanning}
             sharedTaskSummary={sharedTaskSummary}
             teamAgents={salesTeamAgents}
             teamSummary={salesAgentTeamSummary}
@@ -1886,6 +1893,7 @@ function App() {
             executiveAutomation={executiveAutomation}
             executiveEmailBriefing={executiveEmailBriefing}
             executiveOperations={executiveOperations}
+            executivePlanning={executivePlanning}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
             projectRegistry={projectRegistry}
@@ -2463,6 +2471,28 @@ function OperatorPage({
             <p>Blocked work: {operator.sharedTasks.blockedWork[0]?.title ?? 'None recorded'}</p>
           </div>
           <p className="subtle-note">Task queue commands write ignored local task/report files only. No background execution or production writes occur.</p>
+        </Panel>
+
+        <Panel title="Executive Priority Queue" icon={<Workflow size={18} />} wide>
+          <p className="panel-description">
+            Goal-linked tasks, blockers affecting goals, and Executive priorities are local planning signals. Operator can review them but cannot approve or execute external actions from this dashboard.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Goal-Linked Tasks" value={String(operator.executivePlanning.goals.reduce((count, goal) => count + goal.linkedOrganizations.length, 0))} />
+            <Fact label="Blockers Affecting Goals" value={String(operator.executivePlanning.blockers.length)} />
+            <Fact label="Executive Priority Queue" value={String(operator.executivePlanning.summary.executiveAttentionNeeded)} />
+            <Fact label="At-Risk Goals" value={String(operator.executivePlanning.summary.atRiskGoals)} />
+          </div>
+          <DataTable
+            columns={['Goal-Linked Tasks', 'Owner', 'Progress', 'Action']}
+            rows={operator.executivePlanning.goals.map((goal) => [goal.title, goal.ownerAgent, `${goal.progressScore}%`, goal.recommendations[0] ?? goal.attentionLabel])}
+            emptyMessage="No goal-linked tasks are available."
+          />
+          <DataTable
+            columns={['Blockers Affecting Goals', 'Owner', 'Severity', 'Next Action']}
+            rows={operator.executivePlanning.blockers.map((blocker) => [blocker.title, blocker.owner, blocker.severity, blocker.nextAction])}
+            emptyMessage="No blockers affecting goals."
+          />
         </Panel>
 
         <Panel title="Connector Readiness" icon={<Network size={18} />} wide>
@@ -4225,7 +4255,20 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('executive:automation-validate')) return 'Validate automation rule models, reports, commands, and safety gates.';
   if (command.endsWith('executive:automation-safety-check')) return 'Verify automation cannot perform external marketing, bulk, GitHub, CRM, Stripe, or Supabase writes.';
   if (command.endsWith('executive:briefing')) return 'Generate the deterministic Executive Daily Briefing from local runtime data.';
+  if (command.endsWith('executive:goals')) return 'List local Executive goals, blockers, attention scores, and recommendations.';
+  if (command.endsWith('executive:create-goal')) return 'Create a local Executive planning goal with audit history.';
+  if (command.endsWith('executive:update-goal')) return 'Update a local Executive goal and record status transition history.';
   if (command.endsWith('executive:kpis')) return 'Generate Executive KPI tracking across tasks, projects, releases, sales, email, automation, and connectors.';
+  if (command.endsWith('executive:create-kpi')) return 'Create a local KPI linked to Executive goals, reports, and tasks.';
+  if (command.endsWith('executive:update-kpi')) return 'Update a local KPI and record audit history.';
+  if (command.endsWith('executive:initiatives')) return 'List local initiatives linked to goals, KPIs, tasks, and workflows.';
+  if (command.endsWith('executive:create-initiative')) return 'Create a local Executive initiative.';
+  if (command.endsWith('executive:decision-log')) return 'List local Executive decisions with rationale and follow-up tasks.';
+  if (command.endsWith('executive:add-decision')) return 'Add a local Executive decision log entry.';
+  if (command.endsWith('executive:blockers')) return 'Show blockers affecting Executive goals and initiatives.';
+  if (command.endsWith('executive:goal-report')) return 'Generate the local Goal Progress Report.';
+  if (command.endsWith('executive:kpi-report')) return 'Generate the local KPI Scorecard Report.';
+  if (command.endsWith('executive:planning-report')) return 'Generate Executive planning, goal, KPI, initiative, decision, contribution, and risk reports.';
   if (command.endsWith('executive:operations')) return 'Print the full Executive Operations Center model.';
   if (command.endsWith('executive:health')) return 'Print Executive Operations health, alerts, score, and next actions.';
   if (command.endsWith('executive:report')) return 'Generate Executive Daily Briefing, KPI, Operations Markdown, and Operations JSON reports.';

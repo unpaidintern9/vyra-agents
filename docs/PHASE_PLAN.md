@@ -119,6 +119,35 @@ Boundaries:
 - No automatic source approval.
 - No automatic external action.
 
+## Phase 54
+
+Executive Planning & Goal Management.
+
+Includes:
+
+- Local Executive Planning Engine under `codex-agent-threads/shared/executive-planning/`.
+- Goal records with categories, statuses, owners, linked tasks, workflows, entities, opportunities, organizations, reports, KPIs, blockers, risks, decisions, progress, confidence, and audit history.
+- KPI records with deterministic evaluation: ahead, on_track, behind, at_risk, blocked, and unknown.
+- Initiative records linked to goals, KPIs, tasks, and workflows.
+- Executive Decision Log with approval, rejection, prioritization, strategic direction, resource allocation, risk acceptance, pause, resume, archive, and general decisions.
+- Deterministic progress, risk, blocker, confidence, and executive-attention scoring.
+- Executive dashboard Strategic Goals, KPI Scorecard, Initiative Tracker, Executive Decision Log, Blocked Goals, At-Risk Priorities, Goal Progress Timeline, and Agent Contribution Summary.
+- Sales dashboard Sales Goals, Revenue/KPI Alignment, and Opportunity Contribution to Goals.
+- Operator dashboard Goal-Linked Tasks, Blockers Affecting Goals, and Executive Priority Queue.
+- Root npm scripts for Executive planning goal, KPI, initiative, decision, blocker, and report commands.
+
+Boundaries:
+
+- Local execution only.
+- No autonomous browsing.
+- No autonomous email sending.
+- No external CRM synchronization.
+- No proposal submission.
+- No automatic approvals.
+- No automatic source approval.
+- No automatic duplicate merge.
+- No automatic goal completion without deterministic evidence.
+
 ## Phase 0
 
 Local repo setup, GitHub connection, folder structure, docs.

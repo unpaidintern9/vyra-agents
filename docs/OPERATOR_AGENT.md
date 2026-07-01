@@ -30,3 +30,9 @@ All memory maintenance is local and review-only. Operator can inspect what needs
 The Operator dashboard includes Operator Work Queue, Verification Tasks, Missing Info Tasks, Memory Maintenance Tasks, Blocked Work, Due Soon, Universal Work Queue, Cross-Agent Workload, Task Dependencies, Overdue Work, and Completed Today.
 
 Operator can use these queues to decide what local records need attention. CLI commands can route, block, unblock, complete, and archive local task records with audit history. No dashboard view executes external work.
+
+## Phase 54 Goal-Linked Operations
+
+The Operator dashboard includes Goal-Linked Tasks, Blockers Affecting Goals, and Executive Priority Queue signals from the Executive Planning Engine.
+
+These are review-only planning signals. Operator does not approve goals, complete goals, send messages, sync CRM data, browse, or submit proposals from this view.

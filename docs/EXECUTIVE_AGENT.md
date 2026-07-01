@@ -90,3 +90,11 @@ The Executive dashboard includes an Executive Work Queue with Approval Tasks, St
 Executive queue records are local task records from the Universal Task Engine. They can represent manual approval needs, strategic decisions, external-action gates, and blocked cross-agent work, but the dashboard does not approve or execute those actions.
 
 Use `npm run tasks:queue -- --queue "Executive Queue"` and `npm run tasks:dependencies` for local inspection.
+
+## Phase 54 Executive Planning
+
+The Executive dashboard includes Strategic Goals, KPI Scorecard, Initiative Tracker, Executive Decision Log, Blocked Goals, At-Risk Priorities, Goal Progress Timeline, and Agent Contribution Summary.
+
+Planning records live under `codex-agent-threads/shared/executive-planning/` and remain local, deterministic, auditable, and advisory.
+
+See `docs/EXECUTIVE_PLANNING.md`, `docs/GOAL_MANAGEMENT.md`, `docs/KPI_SCORECARD.md`, and `docs/DECISION_LOG.md`.

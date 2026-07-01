@@ -1,0 +1,61 @@
+{
+  "goalId": "goal-proposal-readiness",
+  "title": "Improve proposal readiness gates",
+  "description": "Ensure proposal prep work has verified sources, decision makers, and Executive approval before any external action.",
+  "category": "sales",
+  "ownerAgent": "Proposal Prep",
+  "ownerUser": "Robert",
+  "priority": "high",
+  "status": "review",
+  "timeframe": "month",
+  "startDate": "2026-07-01",
+  "targetDate": "2026-07-31",
+  "linkedTasks": [],
+  "linkedWorkflows": [
+    "proposal-prep-queue"
+  ],
+  "linkedEntities": [
+    "proposal-readiness"
+  ],
+  "linkedOpportunities": [
+    "core-combat-sports"
+  ],
+  "linkedOrganizations": [
+    "Core Combat Sports"
+  ],
+  "linkedReports": [
+    "proposal-prep-queue-report"
+  ],
+  "linkedKpis": [
+    "kpi-proposal-readiness"
+  ],
+  "blockers": [
+    "Missing decision maker confirmation on warm prospects."
+  ],
+  "risks": [
+    "Proposal readiness gaps can trigger premature external action requests."
+  ],
+  "decisions": [],
+  "progressScore": 48,
+  "confidenceScore": 68,
+  "createdDate": "2026-07-01T18:03:30.936Z",
+  "updatedDate": "2026-07-01T18:03:30.936Z",
+  "auditHistory": [
+    {
+      "timestamp": "2026-07-01T18:03:30.941Z",
+      "action": "seed_goal",
+      "previousStatus": null,
+      "newStatus": "review",
+      "actor": "Executive Planning Engine",
+      "reason": "Seeded deterministic local goal.",
+      "affectedTasks": [],
+      "affectedWorkflows": [
+        "proposal-prep-queue"
+      ],
+      "nextAction": "Review locally before any external action.",
+      "localOnly": true
+    }
+  ],
+  "completedDate": null,
+  "localOnly": true
+}

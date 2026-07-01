@@ -18,6 +18,7 @@ export default function ExecutiveDashboard({
   executiveAutomation,
   executiveEmailBriefing,
   executiveOperations,
+  executivePlanning,
   githubPlanning,
   githubReadOnly,
   integrationWarnings = [],
@@ -78,6 +79,7 @@ export default function ExecutiveDashboard({
         {salesOrganizationIntelligenceSummary ? <ExecutiveRelationshipSummaryPanel summary={salesOrganizationIntelligenceSummary} /> : null}
         {salesResearchIntelligenceSummary ? <ExecutiveResearchIntelligencePanel summary={salesResearchIntelligenceSummary} /> : null}
         {salesWorkflowSummary ? <ExecutiveSalesWorkflowPanel summary={salesWorkflowSummary} /> : null}
+        {executivePlanning ? <ExecutivePlanningPanel planning={executivePlanning} /> : null}
         {sharedTaskSummary ? <ExecutiveWorkQueuePanel sharedTaskSummary={sharedTaskSummary} /> : null}
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
         {summary.executiveEmailBriefing ? <ExecutiveEmailBriefingPanel briefing={summary.executiveEmailBriefing} /> : null}
@@ -92,6 +94,58 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutivePlanningPanel({ planning }: { planning: NonNullable<ExecutiveDashboardProps['executivePlanning']> }) {
+  return (
+    <section className="panel wide-panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Strategic Goals</h2>
+        </div>
+        <span>{planning.summary.executiveAttentionNeeded} need attention</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact"><span>KPI Scorecard</span><strong>{planning.summary.kpisOnTrack}/{planning.kpis.length}</strong></div>
+        <div className="fact"><span>Initiative Tracker</span><strong>{planning.summary.initiativesActive}</strong></div>
+        <div className="fact"><span>Executive Decision Log</span><strong>{planning.summary.decisionsLogged}</strong></div>
+        <div className="fact"><span>Blocked Goals</span><strong>{planning.summary.blockedGoals}</strong></div>
+        <div className="fact"><span>At-Risk Priorities</span><strong>{planning.summary.atRiskGoals}</strong></div>
+        <div className="fact"><span>Agent Contribution Summary</span><strong>{planning.agentContribution.length}</strong></div>
+      </div>
+      <DataTable
+        columns={['Strategic Goals', 'Owner', 'Progress', 'Next Action']}
+        rows={planning.goals.map((goal) => [goal.title, goal.ownerAgent, `${goal.progressScore}% · ${goal.status.replace(/_/g, ' ')}`, goal.recommendations[0] ?? goal.attentionLabel])}
+      />
+      <DataTable
+        columns={['KPI Scorecard', 'Current', 'Target', 'Status']}
+        rows={planning.kpis.map((kpi) => [kpi.name, `${kpi.currentValue} ${kpi.unit}`, `${kpi.targetValue} ${kpi.unit}`, kpi.status.replace(/_/g, ' ')])}
+      />
+      <DataTable
+        columns={['Initiative Tracker', 'Owner', 'Progress', 'Blockers']}
+        rows={planning.initiatives.map((initiative) => [initiative.title, initiative.owner, `${initiative.progress}%`, initiative.blockers.join('; ') || 'None'])}
+      />
+      <DataTable
+        columns={['Executive Decision Log', 'Decision', 'Maker', 'Status']}
+        rows={planning.decisions.map((decision) => [decision.title, decision.decision, decision.decisionMaker, decision.status])}
+      />
+      <DataTable
+        columns={['Blocked Goals', 'Owner', 'Severity', 'Next Action']}
+        rows={planning.blockers.map((blocker) => [blocker.title, blocker.owner, blocker.severity, blocker.nextAction])}
+      />
+      <DataTable
+        columns={['Goal Progress Timeline', 'Target', 'Confidence', 'Attention']}
+        rows={planning.goals.map((goal) => [goal.title, goal.targetDate, `${goal.confidenceScore}%`, goal.attentionLabel])}
+      />
+      <p className="subtle-note">Goal Progress Timeline tracks target dates, confidence, and Executive attention across active goals.</p>
+      <DataTable
+        columns={['Agent Contribution Summary', 'Goals', 'Tasks', 'Status']}
+        rows={planning.agentContribution.map((agent) => [agent.agent, String(agent.goalsOwned), String(agent.linkedTasks), agent.contributionLabel])}
+      />
+      <p className="subtle-note">Executive planning is local and advisory. It does not complete goals, approve decisions, browse, email, sync CRM data, or submit proposals.</p>
+    </section>
   );
 }
 

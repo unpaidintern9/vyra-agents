@@ -1,0 +1,33 @@
+{
+  "decisionId": "decision-keep-local-only",
+  "title": "Keep Executive planning local only",
+  "description": "Executive planning recommendations are advisory and cannot execute external actions.",
+  "decisionType": "strategic direction",
+  "relatedGoal": "goal-operating-control",
+  "decisionMaker": "Robert",
+  "decision": "Maintain local-only execution with manual approval gates.",
+  "rationale": "Preserves safety while agent orchestration matures.",
+  "status": "recorded",
+  "date": "2026-07-01T18:03:30.936Z",
+  "consequences": [
+    "No autonomous CRM sync",
+    "No autonomous emailing",
+    "No proposal submission"
+  ],
+  "followUpTasks": [],
+  "auditHistory": [
+    {
+      "timestamp": "2026-07-01T18:03:30.945Z",
+      "action": "seed_decision",
+      "previousStatus": null,
+      "newStatus": "recorded",
+      "actor": "Executive Planning Engine",
+      "reason": "Seeded local decision.",
+      "affectedTasks": [],
+      "affectedWorkflows": [],
+      "nextAction": "Review locally before any external action.",
+      "localOnly": true
+    }
+  ],
+  "localOnly": true
+}

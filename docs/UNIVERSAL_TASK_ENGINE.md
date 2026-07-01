@@ -18,4 +18,8 @@ Safety guarantees:
 - No CRM synchronization.
 - No proposal submission.
 - No automatic Executive approval.
+
+## Phase 54 Planning Links
+
+Executive goals and initiatives can link universal tasks by ID. The planning engine detects blocked or overdue linked tasks and surfaces recommended next actions, but it never resolves blockers or completes tasks automatically.
 - No automatic source approval.

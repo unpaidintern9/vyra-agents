@@ -2,6 +2,7 @@ import type { RiskLevel } from '../../components/RiskBadge';
 import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness';
 import type { CrossAgentCollaborationGraph, CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
+import type { ExecutivePlanningSummary } from '../../runtime/executivePlanning';
 
 export type LeadType = 'gym' | 'coach' | 'organization' | 'referral';
 export type PipelineStage =
@@ -1166,6 +1167,7 @@ export interface SalesPageProps {
   sharedMemory: SharedMemoryStore;
   connectorReadiness?: ConnectorReadinessSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
+  executivePlanning?: ExecutivePlanningSummary;
   teamAgents: SalesTeamAgentDefinition[];
   teamSummary: SalesAgentTeamSummary;
   scoringSummary: SalesScoringSummary;

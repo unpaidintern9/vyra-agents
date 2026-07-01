@@ -1,0 +1,40 @@
+{
+  "initiativeId": "initiative-sales-priority-queues",
+  "title": "Use Sales priority queues for daily planning",
+  "description": "Review hot prospects, proposal-ready work, and Executive review queues daily.",
+  "owner": "Sales",
+  "linkedGoal": "goal-revenue-louisville-sales",
+  "linkedKpis": [
+    "kpi-pipeline-value"
+  ],
+  "linkedTasks": [],
+  "linkedWorkflows": [
+    "sales-priority-queues"
+  ],
+  "priority": "high",
+  "status": "active",
+  "startDate": "2026-07-01",
+  "targetDate": "2026-07-15",
+  "blockers": [],
+  "risks": [
+    "Manual follow-up discipline required."
+  ],
+  "progress": 58,
+  "auditHistory": [
+    {
+      "timestamp": "2026-07-01T18:03:30.944Z",
+      "action": "seed_initiative",
+      "previousStatus": null,
+      "newStatus": "active",
+      "actor": "Executive Planning Engine",
+      "reason": "Seeded deterministic local initiative.",
+      "affectedTasks": [],
+      "affectedWorkflows": [
+        "sales-priority-queues"
+      ],
+      "nextAction": "Review locally before any external action.",
+      "localOnly": true
+    }
+  ],
+  "localOnly": true
+}

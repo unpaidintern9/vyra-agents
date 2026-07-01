@@ -1,0 +1,42 @@
+{
+  "initiativeId": "initiative-memory-review",
+  "title": "Resolve planning-critical memory conflicts",
+  "description": "Route shared memory conflicts that affect Executive decisions to Operator.",
+  "owner": "Operator",
+  "linkedGoal": "goal-operating-control",
+  "linkedKpis": [
+    "kpi-blocked-work"
+  ],
+  "linkedTasks": [],
+  "linkedWorkflows": [
+    "memory-maintenance"
+  ],
+  "priority": "high",
+  "status": "active",
+  "startDate": "2026-07-01",
+  "targetDate": "2026-07-12",
+  "blockers": [
+    "Memory conflict review queue is non-empty."
+  ],
+  "risks": [
+    "Low-confidence facts can affect goal scoring."
+  ],
+  "progress": 42,
+  "auditHistory": [
+    {
+      "timestamp": "2026-07-01T18:03:30.944Z",
+      "action": "seed_initiative",
+      "previousStatus": null,
+      "newStatus": "active",
+      "actor": "Executive Planning Engine",
+      "reason": "Seeded deterministic local initiative.",
+      "affectedTasks": [],
+      "affectedWorkflows": [
+        "memory-maintenance"
+      ],
+      "nextAction": "Review locally before any external action.",
+      "localOnly": true
+    }
+  ],
+  "localOnly": true
+}
