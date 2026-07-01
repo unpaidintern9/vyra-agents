@@ -19,3 +19,9 @@ Use:
 - `npm run assets:validate`
 
 Safety: local metadata only. No cloud sync, external uploads, autonomous publishing, automatic replacement, automatic approval, or external distribution.
+
+## Phase 58 Customer Success Training Assets
+
+The Customer Success Agent links onboarding guides, SOPs, FAQs, product documentation, and training material through Asset Library IDs.
+
+Assets are referenced, not duplicated. Customer Success cannot upload files, publish assets, send customer messages, or approve assets automatically.

@@ -1482,6 +1482,38 @@ Boundaries:
 - No automatic approvals.
 - Version and audit history are preserved.
 
+## Phase 58
+
+Customer Success & Onboarding Agent.
+
+Includes:
+
+- Local Customer Success storage under `codex-agent-threads/shared/customer-success/`.
+- Customer records for individual coaches, gyms, enterprise organizations, sports organizations, schools, and future customer types.
+- Local subscription references for plan, seats, trial, renewal date, billing status, and active features with no billing changes.
+- Deterministic success intelligence: health, adoption, engagement, risk, expansion opportunity, confidence, reasons, risks, recommendations, and next actions.
+- Onboarding engine with coach, gym, and enterprise templates, stages, milestones, required tasks, required assets, training, documentation, and completion rules.
+- Customer journey tracking from Lead through Archived with audit history for transitions.
+- Success milestones, support queue, health monitoring, renewal queue, expansion opportunities, and local reports.
+- Asset Library integration for onboarding guides, SOPs, FAQs, product documentation, and training material.
+- Dashboard sections for Customer Overview, Onboarding Queue, Active Customers, Health Dashboard, Adoption Dashboard, Success Milestones, Support Queue, Renewal Queue, and Expansion Opportunities.
+- Executive visibility for Customer Health Summary, Renewal Forecast, Expansion Pipeline, Churn Risks, Onboarding Progress, and Adoption KPIs.
+- Sales visibility for Customer Handoff Status, Onboarding Progress, Expansion Opportunities, and Customer Success Notes.
+- Operator visibility for Onboarding Tasks, Support Queue, Training Queue, Documentation Queue, and Health Review Queue.
+- Root npm scripts for `success:customers`, `success:create-customer`, `success:onboarding`, `success:templates`, `success:milestones`, `success:health`, `success:support`, `success:renewals`, `success:expansion`, `success:report`, and `success:validate`.
+
+Boundaries:
+
+- Local execution only.
+- No dependency on `vyraapp.fit`.
+- No automatic customer emails.
+- No automatic customer messaging.
+- No automatic account changes.
+- No external CRM synchronization.
+- No automatic renewals.
+- No autonomous support responses.
+- Recommendations remain advisory.
+
 ## Phase 56
 
 Marketing Content Studio & Draft Generation.

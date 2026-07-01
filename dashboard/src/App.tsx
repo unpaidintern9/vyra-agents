@@ -141,6 +141,7 @@ import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
 import { buildDashboardProjectRegistrySummary } from './runtime/projectRegistry';
 import { buildDashboardAssetLibrarySummary, type AssetLibraryDashboardSummary } from './runtime/assetLibrary';
+import { buildDashboardCustomerSuccessSummary, type CustomerSuccessDashboardSummary } from './runtime/customerSuccess';
 import { buildDashboardMarketingSummary, type MarketingDashboardSummary } from './runtime/marketingIntelligence';
 import { buildDashboardReleaseReadinessSummary } from './runtime/releaseReadiness';
 import { buildDashboardReleaseShipPlanSummary } from './runtime/releaseShipPlans';
@@ -1489,6 +1490,7 @@ function App() {
     workflows: salesWorkflows,
   });
   const assetLibrary = buildDashboardAssetLibrarySummary();
+  const customerSuccess = buildDashboardCustomerSuccessSummary();
   const releaseReadiness = buildDashboardReleaseReadinessSummary({
     graph: latestEngineeringGraph ?? undefined,
     githubPlanning,
@@ -1681,6 +1683,8 @@ function App() {
           ? 'Sales Agent'
           : activePage === 'Operator'
             ? 'AI Operator'
+            : activePage === 'Customer Success'
+              ? 'Customer Success Agent'
             : activePage === 'Marketing'
               ? 'Marketing Agent'
               : activePage === 'Assets'
@@ -1819,7 +1823,10 @@ function App() {
             teamSummary={salesAgentTeamSummary}
             scoringSummary={salesScoringSummary}
             assetLibrary={assetLibrary}
+            customerSuccess={customerSuccess}
           />
+        ) : activePage === 'Customer Success' ? (
+          <CustomerSuccessPage customerSuccess={customerSuccess} />
         ) : activePage === 'Marketing' ? (
           <MarketingPage assetLibrary={assetLibrary} marketing={marketing} />
         ) : activePage === 'Assets' ? (
@@ -1886,6 +1893,7 @@ function App() {
             operator={operatorSnapshot}
             organizationIntelligenceSummary={salesOrganizationIntelligence.summary}
             assetLibrary={assetLibrary}
+            customerSuccess={customerSuccess}
             sharedMemory={sharedMemory}
             runtime={runtime}
           />
@@ -1918,6 +1926,7 @@ function App() {
             executivePlanning={executivePlanning}
             marketing={marketing}
             assetLibrary={assetLibrary}
+            customerSuccess={customerSuccess}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
             projectRegistry={projectRegistry}
@@ -2150,6 +2159,84 @@ function AssetLibraryPage({ assetLibrary }: { assetLibrary: AssetLibraryDashboar
   );
 }
 
+function CustomerSuccessPage({ customerSuccess }: { customerSuccess: CustomerSuccessDashboardSummary }) {
+  return (
+    <section className="dashboard-grid">
+      <Panel title="Customer Overview" icon={<Users size={18} />} wide>
+        <div className="batch-grid supabase-detail-grid">
+          <Fact label="Customers" value={String(customerSuccess.summary.totalCustomers)} />
+          <Fact label="Active Customers" value={String(customerSuccess.summary.activeCustomers)} />
+          <Fact label="Average Health" value={`${customerSuccess.summary.averageHealth}%`} />
+          <Fact label="Support Open" value={String(customerSuccess.summary.supportOpen)} />
+        </div>
+        <DataTable
+          columns={['Customer Overview', 'Type', 'Status', 'Plan', 'Seats', 'Billing']}
+          rows={customerSuccess.customers.map((customer) => [customer.organization, customer.customerType, customer.status, customer.plan, String(customer.seats), customer.billingStatus])}
+        />
+      </Panel>
+
+      <Panel title="Onboarding Queue" icon={<Workflow size={18} />} wide>
+        <DataTable
+          columns={['Onboarding Queue', 'Template', 'Progress', 'Training', 'Next Action']}
+          rows={customerSuccess.onboarding.map((item) => [item.organization, item.template, `${item.progress}%`, `${item.trainingCompletion}%`, item.nextAction])}
+        />
+      </Panel>
+
+      <Panel title="Active Customers" icon={<ShieldCheck size={18} />} wide>
+        <DataTable
+          columns={['Active Customers', 'Features', 'Renewal', 'Owner']}
+          rows={customerSuccess.customers
+            .filter((customer) => ['Active', 'Growing', 'Expansion', 'Renewal'].includes(customer.status))
+            .map((customer) => [customer.organization, customer.activeFeatures.join(', '), formatDate(customer.renewalDate), customer.owner])}
+        />
+      </Panel>
+
+      <Panel title="Health Dashboard" icon={<Activity size={18} />} wide>
+        <DataTable
+          columns={['Health Dashboard', 'Health', 'Risk', 'Confidence', 'Next Action']}
+          rows={customerSuccess.health.map((item) => [item.organization, `${item.healthScore}%`, `${item.riskScore}%`, `${item.confidence}%`, item.nextActions[0]])}
+        />
+      </Panel>
+
+      <Panel title="Adoption Dashboard" icon={<ListChecks size={18} />} wide>
+        <DataTable
+          columns={['Adoption Dashboard', 'Adoption', 'Engagement', 'Reasons']}
+          rows={customerSuccess.health.map((item) => [item.organization, `${item.adoptionScore}%`, `${item.engagementScore}%`, item.reasons.join('; ')])}
+        />
+      </Panel>
+
+      <Panel title="Success Milestones" icon={<FileClock size={18} />} wide>
+        <DataTable
+          columns={['Success Milestones', 'Milestone', 'Status', 'Evidence']}
+          rows={customerSuccess.milestones.slice(0, 20).map((item) => [item.organization, item.name, item.status, item.evidence])}
+        />
+      </Panel>
+
+      <Panel title="Support Queue" icon={<AlertTriangle size={18} />} wide>
+        <DataTable
+          columns={['Support Queue', 'Type', 'Priority', 'Owner', 'Next Action']}
+          rows={customerSuccess.support.map((item) => [item.organization, item.type, item.priority, item.owner, item.nextAction])}
+        />
+      </Panel>
+
+      <Panel title="Renewal Queue" icon={<FileClock size={18} />} wide>
+        <DataTable
+          columns={['Renewal Queue', 'Renewal Date', 'Readiness', 'Status', 'Next Action']}
+          rows={customerSuccess.renewals.map((item) => [item.organization, formatDate(item.renewalDate), `${item.readiness}%`, item.status, item.nextAction])}
+        />
+      </Panel>
+
+      <Panel title="Expansion Opportunities" icon={<Activity size={18} />} wide>
+        <DataTable
+          columns={['Expansion Opportunities', 'Opportunity', 'Score', 'Confidence', 'Recommended Action']}
+          rows={customerSuccess.expansion.map((item) => [item.organization, item.opportunity, `${item.score}%`, `${item.confidence}%`, item.recommendedAction])}
+        />
+        <p className="subtle-note">Customer Success is local and advisory. It does not send customer messages, update accounts, sync CRM data, renew subscriptions, or respond to support automatically.</p>
+      </Panel>
+    </section>
+  );
+}
+
 function MarketingPage({ assetLibrary, marketing }: { assetLibrary: AssetLibraryDashboardSummary; marketing: MarketingDashboardSummary }) {
   const marketingAssets = assetLibrary.assets.filter((asset) => asset.category === 'Marketing' || asset.usageReferences.includes('Marketing'));
   const brandAssets = assetLibrary.assets.filter((asset) => asset.category === 'Brand' && asset.approvalStatus === 'Approved');
@@ -2349,6 +2436,7 @@ function OperatorPage({
   operator,
   organizationIntelligenceSummary,
   assetLibrary,
+  customerSuccess,
   sharedMemory,
   runtime,
 }: {
@@ -2366,6 +2454,7 @@ function OperatorPage({
   operator: AiOperatorDashboardSnapshot;
   organizationIntelligenceSummary: SalesOrganizationIntelligenceSummary;
   assetLibrary: AssetLibraryDashboardSummary;
+  customerSuccess: CustomerSuccessDashboardSummary;
   sharedMemory: SharedMemoryStore;
   runtime: AgentRuntimeSnapshot;
 }) {
@@ -2416,6 +2505,8 @@ function OperatorPage({
         <Metric icon={<FileClock size={20} />} label="Stale Facts" value={String(sharedMemory.agentViews.Operator.staleFactCount)} />
         <Metric icon={<FileText size={20} />} label="Asset Library" value={String(assetLibrary.summary.totalAssets)} />
         <Metric icon={<ShieldCheck size={20} />} label="Asset Approvals" value={String(assetLibrary.summary.approvalQueue)} />
+        <Metric icon={<Users size={20} />} label="CS Customers" value={String(customerSuccess.summary.totalCustomers)} />
+        <Metric icon={<AlertTriangle size={20} />} label="CS Support Queue" value={String(customerSuccess.summary.supportOpen)} />
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -2499,6 +2590,42 @@ function OperatorPage({
             <Fact label="Proposal Prep Support Queue" value={String(operator.salesWorkflowSummary.assignedToProposalPrep)} />
             <Fact label="Blocked Items" value={String(operator.salesWorkflowSummary.blockedWorkflows)} />
           </div>
+        </Panel>
+
+        <Panel title="Onboarding Tasks" icon={<Workflow size={18} />} wide>
+          <DataTable
+            columns={['Onboarding Tasks', 'Progress', 'Training', 'Next Action']}
+            rows={customerSuccess.onboarding.map((item) => [item.organization, `${item.progress}%`, `${item.trainingCompletion}%`, item.nextAction])}
+          />
+        </Panel>
+
+        <Panel title="Support Queue" icon={<AlertTriangle size={18} />} wide>
+          <DataTable
+            columns={['Support Queue', 'Type', 'Priority', 'Next Action']}
+            rows={customerSuccess.support.map((item) => [item.organization, item.type, item.priority, item.nextAction])}
+          />
+        </Panel>
+
+        <Panel title="Training Queue" icon={<ListChecks size={18} />} wide>
+          <DataTable
+            columns={['Training Queue', 'Completion', 'Required Assets', 'Status']}
+            rows={customerSuccess.onboarding.map((item) => [item.organization, `${item.trainingCompletion}%`, item.requiredAssets.join(', '), item.status])}
+          />
+        </Panel>
+
+        <Panel title="Documentation Queue" icon={<FileText size={18} />} wide>
+          <DataTable
+            columns={['Documentation Queue', 'Usage', 'Required Assets', 'Next Action']}
+            rows={customerSuccess.onboarding.map((item) => [item.organization, `${item.documentationUsage}%`, item.requiredAssets.join(', '), 'Review linked asset documentation.'])}
+          />
+        </Panel>
+
+        <Panel title="Health Review Queue" icon={<Activity size={18} />} wide>
+          <DataTable
+            columns={['Health Review Queue', 'Health', 'Risk', 'Recommendation']}
+            rows={customerSuccess.health.map((item) => [item.organization, `${item.healthScore}%`, `${item.riskScore}%`, item.recommendations[0]])}
+          />
+          <p className="subtle-note">Operator Customer Success queues are local review surfaces only. No autonomous support responses, customer messages, account changes, CRM sync, or renewals occur.</p>
         </Panel>
 
         <Panel title="SOP Library" icon={<FileText size={18} />} wide>
@@ -4168,6 +4295,7 @@ function pageCopy(page: string): string {
   const copy: Record<string, string> = {
     Migration: 'Migration dry-runs, staging review, member matching, table readiness, and mock approvals.',
     Sales: 'Local lead queue, prospect tracking, follow-up planning, and proposal prep without emails, Stripe, or CRM writes.',
+    'Customer Success': 'Local onboarding, adoption, health, support readiness, renewals, and expansion planning without customer messaging.',
     Marketing: 'Local brand intelligence, product messaging, audience planning, campaigns, and approvals without publishing or ad buying.',
     Assets: 'Shared local asset and knowledge library with approvals, version history, usage, and deterministic search.',
     Engineering: 'Read-only repository knowledge graph for files, routes, components, Supabase assets, dependencies, and docs.',

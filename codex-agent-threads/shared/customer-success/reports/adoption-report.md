@@ -1,0 +1,45 @@
+# Adoption Report
+
+Generated: 2026-07-01T21:59:36.707Z
+
+```json
+{
+  "title": "Adoption Report",
+  "generatedAt": "2026-07-01T21:59:36.707Z",
+  "rows": [
+    {
+      "customerId": "cust-louisville-combat-academy",
+      "adoptionScore": 45,
+      "engagementScore": 58
+    },
+    {
+      "customerId": "cust-area-502-mma",
+      "adoptionScore": 71,
+      "engagementScore": 76
+    },
+    {
+      "customerId": "cust-river-city-performance",
+      "adoptionScore": 79,
+      "engagementScore": 84
+    },
+    {
+      "customerId": "cust-kentucky-youth-sports",
+      "adoptionScore": 22,
+      "engagementScore": 42
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "automaticCustomerEmails": false,
+    "automaticCustomerMessaging": false,
+    "automaticAccountUpdates": false,
+    "externalCrmSynchronization": false,
+    "automaticRenewals": false,
+    "autonomousSupportResponses": false,
+    "billingChanges": false,
+    "advisoryOnly": true
+  }
+}
+```
+
+Local-only customer success safety: no automatic emails, customer messaging, account updates, CRM sync, renewals, or autonomous support responses.

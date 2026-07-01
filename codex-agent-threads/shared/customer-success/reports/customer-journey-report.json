@@ -1,0 +1,93 @@
+{
+  "title": "Customer Journey Report",
+  "generatedAt": "2026-07-01T21:59:36.707Z",
+  "journeys": [
+    {
+      "journeyId": "journey-cust-louisville-combat-academy-onboarding-202607012154",
+      "customerId": "cust-louisville-combat-academy",
+      "organization": "Louisville Combat Academy",
+      "previousState": "Closed",
+      "newState": "Onboarding",
+      "actor": "Customer Success",
+      "reason": "Seeded local customer journey state.",
+      "timestamp": "2026-07-01T21:54:29.132Z",
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-01T21:54:29.132Z",
+          "actor": "Customer Success",
+          "previousValue": "Closed",
+          "newValue": "Onboarding",
+          "reason": "Seeded local customer journey state."
+        }
+      ]
+    },
+    {
+      "journeyId": "journey-cust-area-502-mma-active-202607012154",
+      "customerId": "cust-area-502-mma",
+      "organization": "Area 502 MMA",
+      "previousState": "Closed",
+      "newState": "Active",
+      "actor": "Customer Success",
+      "reason": "Seeded local customer journey state.",
+      "timestamp": "2026-07-01T21:54:29.132Z",
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-01T21:54:29.132Z",
+          "actor": "Customer Success",
+          "previousValue": "Closed",
+          "newValue": "Active",
+          "reason": "Seeded local customer journey state."
+        }
+      ]
+    },
+    {
+      "journeyId": "journey-cust-river-city-performance-growing-202607012154",
+      "customerId": "cust-river-city-performance",
+      "organization": "River City Performance",
+      "previousState": "Closed",
+      "newState": "Growing",
+      "actor": "Customer Success",
+      "reason": "Seeded local customer journey state.",
+      "timestamp": "2026-07-01T21:54:29.132Z",
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-01T21:54:29.132Z",
+          "actor": "Customer Success",
+          "previousValue": "Closed",
+          "newValue": "Growing",
+          "reason": "Seeded local customer journey state."
+        }
+      ]
+    },
+    {
+      "journeyId": "journey-cust-kentucky-youth-sports-qualified-202607012154",
+      "customerId": "cust-kentucky-youth-sports",
+      "organization": "Kentucky Youth Sports",
+      "previousState": "Closed",
+      "newState": "Qualified",
+      "actor": "Customer Success",
+      "reason": "Seeded local customer journey state.",
+      "timestamp": "2026-07-01T21:54:29.132Z",
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-01T21:54:29.132Z",
+          "actor": "Customer Success",
+          "previousValue": "Closed",
+          "newValue": "Qualified",
+          "reason": "Seeded local customer journey state."
+        }
+      ]
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "automaticCustomerEmails": false,
+    "automaticCustomerMessaging": false,
+    "automaticAccountUpdates": false,
+    "externalCrmSynchronization": false,
+    "automaticRenewals": false,
+    "autonomousSupportResponses": false,
+    "billingChanges": false,
+    "advisoryOnly": true
+  }
+}

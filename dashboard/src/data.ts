@@ -24,6 +24,7 @@ export const navItems = [
   { label: 'Engineering', icon: Code2 },
   { label: 'Migration', icon: ClipboardList },
   { label: 'Sales', icon: DollarSign },
+  { label: 'Customer Success', icon: CheckCircle2 },
   { label: 'Marketing', icon: Megaphone },
   { label: 'Assets', icon: Files },
   { label: 'Products', icon: Package },

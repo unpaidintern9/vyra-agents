@@ -21,6 +21,7 @@ export default function ExecutiveDashboard({
   executivePlanning,
   marketing,
   assetLibrary,
+  customerSuccess,
   githubPlanning,
   githubReadOnly,
   integrationWarnings = [],
@@ -83,6 +84,7 @@ export default function ExecutiveDashboard({
         {salesWorkflowSummary ? <ExecutiveSalesWorkflowPanel summary={salesWorkflowSummary} /> : null}
         {executivePlanning ? <ExecutivePlanningPanel planning={executivePlanning} /> : null}
         {assetLibrary ? <ExecutiveAssetLibraryPanel assetLibrary={assetLibrary} /> : null}
+        {customerSuccess ? <ExecutiveCustomerSuccessPanel customerSuccess={customerSuccess} /> : null}
         {marketing ? <ExecutiveMarketingOverviewPanel marketing={marketing} /> : null}
         {sharedTaskSummary ? <ExecutiveWorkQueuePanel sharedTaskSummary={sharedTaskSummary} /> : null}
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
@@ -207,6 +209,54 @@ function ExecutiveAssetLibraryPanel({ assetLibrary }: { assetLibrary: NonNullabl
         rows={policyRecords.map((item) => [item.title, item.category, item.version, item.approvalStatus])}
       />
       <p className="subtle-note">Executive asset visibility is read-only and local. It does not approve assets, publish documents, sync files, or distribute resources externally.</p>
+    </section>
+  );
+}
+
+function ExecutiveCustomerSuccessPanel({ customerSuccess }: { customerSuccess: NonNullable<ExecutiveDashboardProps['customerSuccess']> }) {
+  return (
+    <section className="panel wide-panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Customer Health Summary</h2>
+        </div>
+        <span>{customerSuccess.summary.churnRisks} churn risk(s)</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact"><span>Average Health</span><strong>{customerSuccess.summary.averageHealth}%</strong></div>
+        <div className="fact"><span>Adoption KPIs</span><strong>{customerSuccess.summary.averageAdoption}%</strong></div>
+        <div className="fact"><span>Renewal Forecast</span><strong>{customerSuccess.summary.renewalQueue}</strong></div>
+        <div className="fact"><span>Expansion Pipeline</span><strong>{customerSuccess.summary.expansionOpportunities}</strong></div>
+      </div>
+      <DataTable
+        columns={['Customer Health Summary', 'Health', 'Risk', 'Next Action']}
+        rows={customerSuccess.health.map((item) => [item.organization, `${item.healthScore}%`, `${item.riskScore}%`, item.nextActions[0]])}
+      />
+      <DataTable
+        columns={['Renewal Forecast', 'Readiness', 'Status', 'Next Action']}
+        rows={customerSuccess.renewals.map((item) => [item.organization, `${item.readiness}%`, item.status, item.nextAction])}
+      />
+      <DataTable
+        columns={['Expansion Pipeline', 'Opportunity', 'Score', 'Action']}
+        rows={customerSuccess.expansion.map((item) => [item.organization, item.opportunity, `${item.score}%`, item.recommendedAction])}
+      />
+      <div className="dashboard-subsection">
+        <h3>Churn Risks</h3>
+        <DataTable
+          columns={['Customer', 'Risk', 'Recommendations']}
+          rows={customerSuccess.health.filter((item) => item.riskScore >= 45).map((item) => [item.organization, `${item.riskScore}%`, item.recommendations[0]])}
+          emptyMessage="No churn risks above threshold."
+        />
+      </div>
+      <div className="dashboard-subsection">
+        <h3>Onboarding Progress</h3>
+        <DataTable
+          columns={['Customer', 'Progress', 'Training', 'Documentation']}
+          rows={customerSuccess.onboarding.map((item) => [item.organization, `${item.progress}%`, `${item.trainingCompletion}%`, `${item.documentationUsage}%`])}
+        />
+      </div>
+      <p className="subtle-note">Executive Customer Success visibility is advisory and local. It does not message customers, change accounts, sync CRM records, or renew subscriptions.</p>
     </section>
   );
 }

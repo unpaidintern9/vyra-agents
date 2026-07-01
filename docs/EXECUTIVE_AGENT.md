@@ -116,3 +116,9 @@ Content Studio records live under `codex-agent-threads/shared/marketing/content-
 The Executive dashboard includes Executive Knowledge Base, Strategic Documents, Roadmaps, and Policy Library sections from the shared Asset & Knowledge Library.
 
 Asset records live under `codex-agent-threads/shared/assets/`. Executive visibility is read-only and does not approve assets, publish documents, sync files, replace resources, or distribute anything externally.
+
+## Phase 58 Customer Success Visibility
+
+The Executive dashboard includes Customer Health Summary, Renewal Forecast, Expansion Pipeline, Churn Risks, Onboarding Progress, and Adoption KPIs.
+
+Customer Success records live under `codex-agent-threads/shared/customer-success/`. Executive visibility is advisory and does not message customers, update accounts, sync CRM records, renew subscriptions, or answer support requests automatically.

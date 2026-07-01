@@ -1,0 +1,129 @@
+{
+  "title": "Support Summary",
+  "generatedAt": "2026-07-01T21:59:36.707Z",
+  "support": [
+    {
+      "supportId": "support-lca-member-import",
+      "type": "onboarding help",
+      "status": "open",
+      "priority": "high",
+      "owner": "Customer Success",
+      "linkedCustomerId": "cust-louisville-combat-academy",
+      "organization": "Louisville Combat Academy",
+      "summary": "Need local member import checklist reviewed.",
+      "linkedAssets": [
+        "asset-marketing-content-studio-doc",
+        "asset-sales-agent-guide",
+        "asset-operator-runtime-docs",
+        "asset-knowledge-graph-doc",
+        "asset-marketing-template-report"
+      ],
+      "linkedDocumentation": [
+        "asset-marketing-content-studio-doc",
+        "asset-sales-agent-guide",
+        "asset-operator-runtime-docs",
+        "asset-knowledge-graph-doc",
+        "asset-marketing-template-report"
+      ],
+      "customerCommunicationEnabled": false,
+      "nextAction": "Review locally and prepare internal notes.",
+      "createdAt": "2026-07-01T21:54:29.132Z",
+      "updatedAt": "2026-07-01T21:54:29.132Z"
+    },
+    {
+      "supportId": "support-area-502-training",
+      "type": "training request",
+      "status": "open",
+      "priority": "medium",
+      "owner": "Customer Success",
+      "linkedCustomerId": "cust-area-502-mma",
+      "organization": "Area 502 MMA",
+      "summary": "Coach training completion needs review.",
+      "linkedAssets": [
+        "asset-marketing-content-studio-doc",
+        "asset-sales-agent-guide",
+        "asset-operator-runtime-docs",
+        "asset-knowledge-graph-doc",
+        "asset-marketing-template-report"
+      ],
+      "linkedDocumentation": [
+        "asset-marketing-content-studio-doc",
+        "asset-sales-agent-guide",
+        "asset-operator-runtime-docs",
+        "asset-knowledge-graph-doc",
+        "asset-marketing-template-report"
+      ],
+      "customerCommunicationEnabled": false,
+      "nextAction": "Review locally and prepare internal notes.",
+      "createdAt": "2026-07-01T21:54:29.132Z",
+      "updatedAt": "2026-07-01T21:54:29.132Z"
+    },
+    {
+      "supportId": "support-river-city-feature",
+      "type": "feature request",
+      "status": "open",
+      "priority": "low",
+      "owner": "Customer Success",
+      "linkedCustomerId": "cust-river-city-performance",
+      "organization": "River City Performance",
+      "summary": "Requested client progress snapshot planning note.",
+      "linkedAssets": [
+        "asset-marketing-content-studio-doc",
+        "asset-sales-agent-guide",
+        "asset-operator-runtime-docs",
+        "asset-knowledge-graph-doc",
+        "asset-marketing-template-report"
+      ],
+      "linkedDocumentation": [
+        "asset-marketing-content-studio-doc",
+        "asset-sales-agent-guide",
+        "asset-operator-runtime-docs",
+        "asset-knowledge-graph-doc",
+        "asset-marketing-template-report"
+      ],
+      "customerCommunicationEnabled": false,
+      "nextAction": "Review locally and prepare internal notes.",
+      "createdAt": "2026-07-01T21:54:29.132Z",
+      "updatedAt": "2026-07-01T21:54:29.132Z"
+    },
+    {
+      "supportId": "support-kys-question",
+      "type": "question",
+      "status": "open",
+      "priority": "medium",
+      "owner": "Customer Success",
+      "linkedCustomerId": "cust-kentucky-youth-sports",
+      "organization": "Kentucky Youth Sports",
+      "summary": "Enterprise onboarding scope question for internal prep.",
+      "linkedAssets": [
+        "asset-marketing-content-studio-doc",
+        "asset-sales-agent-guide",
+        "asset-operator-runtime-docs",
+        "asset-knowledge-graph-doc",
+        "asset-marketing-template-report"
+      ],
+      "linkedDocumentation": [
+        "asset-marketing-content-studio-doc",
+        "asset-sales-agent-guide",
+        "asset-operator-runtime-docs",
+        "asset-knowledge-graph-doc",
+        "asset-marketing-template-report"
+      ],
+      "customerCommunicationEnabled": false,
+      "nextAction": "Review locally and prepare internal notes.",
+      "createdAt": "2026-07-01T21:54:29.132Z",
+      "updatedAt": "2026-07-01T21:54:29.132Z"
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "automaticCustomerEmails": false,
+    "automaticCustomerMessaging": false,
+    "automaticAccountUpdates": false,
+    "externalCrmSynchronization": false,
+    "automaticRenewals": false,
+    "autonomousSupportResponses": false,
+    "billingChanges": false,
+    "advisoryOnly": true
+  }
+}

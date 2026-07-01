@@ -1,0 +1,137 @@
+[
+  {
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "primaryContact": "Operations Lead",
+    "customerType": "Gym",
+    "owner": "Customer Success",
+    "status": "Onboarding",
+    "createdAt": "2026-07-01T21:54:29.132Z",
+    "updatedAt": "2026-07-01T21:54:29.132Z",
+    "subscription": {
+      "plan": "Gym Software Trial",
+      "seats": 8,
+      "trial": true,
+      "renewalDate": "2026-09-15T14:00:00.000Z",
+      "billingStatus": "trial reference",
+      "billingStatusChangeEnabled": false,
+      "activeFeatures": [
+        "gym settings",
+        "coach platform",
+        "member import"
+      ]
+    },
+    "linkedOrganizationId": "organization-louisville-combat-academy",
+    "linkedContactId": "contact-operations-lead",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:54:29.132Z",
+        "actor": "Customer Success",
+        "previousValue": null,
+        "newValue": "Onboarding",
+        "reason": "Customer record created locally."
+      }
+    ]
+  },
+  {
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "primaryContact": "Owner",
+    "customerType": "Gym",
+    "owner": "Customer Success",
+    "status": "Active",
+    "createdAt": "2026-07-01T21:54:29.132Z",
+    "updatedAt": "2026-07-01T21:54:29.132Z",
+    "subscription": {
+      "plan": "Coach Platform",
+      "seats": 4,
+      "trial": false,
+      "renewalDate": "2026-10-15T14:00:00.000Z",
+      "billingStatus": "active reference",
+      "billingStatusChangeEnabled": false,
+      "activeFeatures": [
+        "coach platform",
+        "workouts",
+        "messaging"
+      ]
+    },
+    "linkedOrganizationId": "organization-area-502-mma",
+    "linkedContactId": "contact-owner",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:54:29.132Z",
+        "actor": "Customer Success",
+        "previousValue": null,
+        "newValue": "Active",
+        "reason": "Customer record created locally."
+      }
+    ]
+  },
+  {
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "primaryContact": "Head Coach",
+    "customerType": "Individual Coach",
+    "owner": "Customer Success",
+    "status": "Growing",
+    "createdAt": "2026-07-01T21:54:29.132Z",
+    "updatedAt": "2026-07-01T21:54:29.132Z",
+    "subscription": {
+      "plan": "Coach Starter",
+      "seats": 1,
+      "trial": false,
+      "renewalDate": "2026-11-15T14:00:00.000Z",
+      "billingStatus": "active reference",
+      "billingStatusChangeEnabled": false,
+      "activeFeatures": [
+        "profile",
+        "first client",
+        "workouts"
+      ]
+    },
+    "linkedOrganizationId": "organization-river-city-performance",
+    "linkedContactId": "contact-head-coach",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:54:29.132Z",
+        "actor": "Customer Success",
+        "previousValue": null,
+        "newValue": "Growing",
+        "reason": "Customer record created locally."
+      }
+    ]
+  },
+  {
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "primaryContact": "Program Director",
+    "customerType": "Sports Organization",
+    "owner": "Customer Success",
+    "status": "Qualified",
+    "createdAt": "2026-07-01T21:54:29.132Z",
+    "updatedAt": "2026-07-01T21:54:29.132Z",
+    "subscription": {
+      "plan": "Enterprise Reference",
+      "seats": 20,
+      "trial": true,
+      "renewalDate": "2026-12-15T14:00:00.000Z",
+      "billingStatus": "trial reference",
+      "billingStatusChangeEnabled": false,
+      "activeFeatures": [
+        "enterprise onboarding",
+        "training"
+      ]
+    },
+    "linkedOrganizationId": "organization-kentucky-youth-sports",
+    "linkedContactId": "contact-program-director",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:54:29.132Z",
+        "actor": "Customer Success",
+        "previousValue": null,
+        "newValue": "Qualified",
+        "reason": "Customer record created locally."
+      }
+    ]
+  }
+]

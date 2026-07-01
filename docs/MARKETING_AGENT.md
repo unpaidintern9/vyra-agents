@@ -46,3 +46,9 @@ Approval remains internal only and does not publish or create external actions.
 Marketing uses the shared Asset & Knowledge Library for approved brand assets, marketing templates, and campaign resources.
 
 Asset records live under `codex-agent-threads/shared/assets/` and reference local files instead of duplicating them. Marketing does not upload, publish, replace, approve, or distribute assets automatically.
+
+## Phase 58 Customer Success Context
+
+Marketing may use local Customer Success insights as advisory context for training content, onboarding guides, FAQs, and adoption-support material.
+
+Customer Success context remains local. Marketing does not message customers, publish onboarding content, send emails, sync CRM data, or create autonomous support responses.

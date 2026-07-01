@@ -270,3 +270,9 @@ These drafts help sellers prepare local-only outreach and follow-up context whil
 The Sales dashboard includes Sales Resources, Product Assets, Pricing Resources, and Presentation Library sections from the shared Asset & Knowledge Library.
 
 Sales can reference approved local assets for prep and enablement, but it cannot publish assets, send customer emails, sync CRM records, replace files, or approve resources automatically.
+
+## Phase 58 Customer Success Handoff
+
+The Sales dashboard includes Customer Handoff Status, Onboarding Progress, Expansion Opportunities, and Customer Success Notes.
+
+Sales can review local Customer Success context for handoffs and expansion planning, but it cannot send customer messages, update accounts, sync CRM data, trigger renewals, or respond to support automatically.

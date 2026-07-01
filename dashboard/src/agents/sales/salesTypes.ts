@@ -5,6 +5,7 @@ import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 import type { ExecutivePlanningSummary } from '../../runtime/executivePlanning';
 import type { MarketingDashboardSummary } from '../../runtime/marketingIntelligence';
 import type { AssetLibraryDashboardSummary } from '../../runtime/assetLibrary';
+import type { CustomerSuccessDashboardSummary } from '../../runtime/customerSuccess';
 
 export type LeadType = 'gym' | 'coach' | 'organization' | 'referral';
 export type PipelineStage =
@@ -1169,6 +1170,7 @@ export interface SalesPageProps {
   sharedMemory: SharedMemoryStore;
   connectorReadiness?: ConnectorReadinessSummary;
   assetLibrary?: AssetLibraryDashboardSummary;
+  customerSuccess?: CustomerSuccessDashboardSummary;
   marketing?: MarketingDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
   executivePlanning?: ExecutivePlanningSummary;

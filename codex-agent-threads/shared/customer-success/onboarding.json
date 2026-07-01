@@ -1,0 +1,302 @@
+[
+  {
+    "onboardingId": "onboarding-cust-louisville-combat-academy",
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "templateId": "template-gym-onboarding",
+    "customerType": "Gym",
+    "status": "in progress",
+    "progress": 52,
+    "stages": [
+      {
+        "stage": "organization setup",
+        "status": "complete"
+      },
+      {
+        "stage": "coaches invited",
+        "status": "complete"
+      },
+      {
+        "stage": "members imported",
+        "status": "complete"
+      },
+      {
+        "stage": "branding",
+        "status": "complete"
+      },
+      {
+        "stage": "gym settings",
+        "status": "complete"
+      },
+      {
+        "stage": "check-in setup",
+        "status": "pending"
+      },
+      {
+        "stage": "first class",
+        "status": "pending"
+      },
+      {
+        "stage": "first workout",
+        "status": "pending"
+      }
+    ],
+    "requiredTasks": [
+      "Review organization setup",
+      "Review coaches invited",
+      "Review members imported",
+      "Review branding",
+      "Review gym settings",
+      "Review check-in setup",
+      "Review first class",
+      "Review first workout"
+    ],
+    "requiredAssets": [
+      "asset-marketing-content-studio-doc",
+      "asset-sales-agent-guide",
+      "asset-operator-runtime-docs",
+      "asset-knowledge-graph-doc",
+      "asset-marketing-template-report"
+    ],
+    "requiredTraining": [
+      "orientation",
+      "admin walkthrough",
+      "success review"
+    ],
+    "trainingCompletion": 40,
+    "documentationUsage": 44,
+    "linkedTasks": [],
+    "linkedGoals": [
+      "goal-operating-control",
+      "goal-proposal-readiness",
+      "goal-revenue-louisville-sales"
+    ],
+    "nextAction": "Schedule local onboarding review.",
+    "updatedAt": "2026-07-01T21:54:29.132Z"
+  },
+  {
+    "onboardingId": "onboarding-cust-area-502-mma",
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "templateId": "template-gym-onboarding",
+    "customerType": "Gym",
+    "status": "in progress",
+    "progress": 78,
+    "stages": [
+      {
+        "stage": "organization setup",
+        "status": "complete"
+      },
+      {
+        "stage": "coaches invited",
+        "status": "complete"
+      },
+      {
+        "stage": "members imported",
+        "status": "complete"
+      },
+      {
+        "stage": "branding",
+        "status": "complete"
+      },
+      {
+        "stage": "gym settings",
+        "status": "complete"
+      },
+      {
+        "stage": "check-in setup",
+        "status": "complete"
+      },
+      {
+        "stage": "first class",
+        "status": "complete"
+      },
+      {
+        "stage": "first workout",
+        "status": "pending"
+      }
+    ],
+    "requiredTasks": [
+      "Review organization setup",
+      "Review coaches invited",
+      "Review members imported",
+      "Review branding",
+      "Review gym settings",
+      "Review check-in setup",
+      "Review first class",
+      "Review first workout"
+    ],
+    "requiredAssets": [
+      "asset-marketing-content-studio-doc",
+      "asset-sales-agent-guide",
+      "asset-operator-runtime-docs",
+      "asset-knowledge-graph-doc",
+      "asset-marketing-template-report"
+    ],
+    "requiredTraining": [
+      "orientation",
+      "admin walkthrough",
+      "success review"
+    ],
+    "trainingCompletion": 66,
+    "documentationUsage": 70,
+    "linkedTasks": [],
+    "linkedGoals": [
+      "goal-operating-control",
+      "goal-proposal-readiness",
+      "goal-revenue-louisville-sales"
+    ],
+    "nextAction": "Prepare adoption review.",
+    "updatedAt": "2026-07-01T21:54:29.132Z"
+  },
+  {
+    "onboardingId": "onboarding-cust-river-city-performance",
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "templateId": "template-coach-onboarding",
+    "customerType": "Individual Coach",
+    "status": "near complete",
+    "progress": 86,
+    "stages": [
+      {
+        "stage": "account setup",
+        "status": "complete"
+      },
+      {
+        "stage": "profile completion",
+        "status": "complete"
+      },
+      {
+        "stage": "branding",
+        "status": "complete"
+      },
+      {
+        "stage": "first client",
+        "status": "complete"
+      },
+      {
+        "stage": "first workout",
+        "status": "complete"
+      },
+      {
+        "stage": "payments",
+        "status": "complete"
+      },
+      {
+        "stage": "messaging",
+        "status": "complete"
+      },
+      {
+        "stage": "training complete",
+        "status": "complete"
+      }
+    ],
+    "requiredTasks": [
+      "Review account setup",
+      "Review profile completion",
+      "Review branding",
+      "Review first client",
+      "Review first workout",
+      "Review payments",
+      "Review messaging",
+      "Review training complete"
+    ],
+    "requiredAssets": [
+      "asset-marketing-content-studio-doc",
+      "asset-sales-agent-guide",
+      "asset-operator-runtime-docs",
+      "asset-knowledge-graph-doc",
+      "asset-marketing-template-report"
+    ],
+    "requiredTraining": [
+      "orientation",
+      "admin walkthrough",
+      "success review"
+    ],
+    "trainingCompletion": 74,
+    "documentationUsage": 78,
+    "linkedTasks": [],
+    "linkedGoals": [
+      "goal-operating-control",
+      "goal-proposal-readiness",
+      "goal-revenue-louisville-sales"
+    ],
+    "nextAction": "Prepare adoption review.",
+    "updatedAt": "2026-07-01T21:54:29.132Z"
+  },
+  {
+    "onboardingId": "onboarding-cust-kentucky-youth-sports",
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "templateId": "template-gym-onboarding",
+    "customerType": "Sports Organization",
+    "status": "not started",
+    "progress": 25,
+    "stages": [
+      {
+        "stage": "organization setup",
+        "status": "complete"
+      },
+      {
+        "stage": "coaches invited",
+        "status": "complete"
+      },
+      {
+        "stage": "members imported",
+        "status": "complete"
+      },
+      {
+        "stage": "branding",
+        "status": "pending"
+      },
+      {
+        "stage": "gym settings",
+        "status": "pending"
+      },
+      {
+        "stage": "check-in setup",
+        "status": "pending"
+      },
+      {
+        "stage": "first class",
+        "status": "pending"
+      },
+      {
+        "stage": "first workout",
+        "status": "pending"
+      }
+    ],
+    "requiredTasks": [
+      "Review organization setup",
+      "Review coaches invited",
+      "Review members imported",
+      "Review branding",
+      "Review gym settings",
+      "Review check-in setup",
+      "Review first class",
+      "Review first workout"
+    ],
+    "requiredAssets": [
+      "asset-marketing-content-studio-doc",
+      "asset-sales-agent-guide",
+      "asset-operator-runtime-docs",
+      "asset-knowledge-graph-doc",
+      "asset-marketing-template-report"
+    ],
+    "requiredTraining": [
+      "orientation",
+      "admin walkthrough",
+      "success review"
+    ],
+    "trainingCompletion": 20,
+    "documentationUsage": 20,
+    "linkedTasks": [],
+    "linkedGoals": [
+      "goal-operating-control",
+      "goal-proposal-readiness",
+      "goal-revenue-louisville-sales"
+    ],
+    "nextAction": "Schedule local onboarding review.",
+    "updatedAt": "2026-07-01T21:54:29.132Z"
+  }
+]

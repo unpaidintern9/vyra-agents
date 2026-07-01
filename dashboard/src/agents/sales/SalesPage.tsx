@@ -86,6 +86,7 @@ export default function SalesPage({
   sharedMemory,
   connectorReadiness,
   assetLibrary,
+  customerSuccess,
   executivePlanning,
   marketing,
   sharedTaskSummary,
@@ -939,6 +940,50 @@ export default function SalesPage({
               rows={executivePlanning.salesGoalAlignment.map((item) => [item.goal, item.revenueKpi, item.opportunityContribution, item.status])}
               emptyMessage="No Sales goals are linked to Executive planning."
             />
+          </section>
+        ) : null}
+
+        {customerSuccess ? (
+          <section className="panel wide-panel">
+            <div className="panel-header">
+              <div>
+                <Users size={18} />
+                <h2>Customer Handoff Status</h2>
+              </div>
+              <StatusBadge value="Local CS handoff" tone="good" />
+            </div>
+            <DataTable
+              columns={['Customer Handoff Status', 'Status', 'Plan', 'Owner', 'Next Action']}
+              rows={customerSuccess.customers.map((customer) => [
+                customer.organization,
+                customer.status,
+                customer.plan,
+                customer.owner,
+                customer.status === 'Onboarding' ? 'Confirm onboarding owner and first success milestone.' : 'Review expansion or renewal notes.',
+              ])}
+            />
+            <div className="dashboard-subsection">
+              <h3>Onboarding Progress</h3>
+              <DataTable
+                columns={['Customer', 'Template', 'Progress', 'Training']}
+                rows={customerSuccess.onboarding.map((item) => [item.organization, item.template, `${item.progress}%`, `${item.trainingCompletion}%`])}
+              />
+            </div>
+            <div className="dashboard-subsection">
+              <h3>Expansion Opportunities</h3>
+              <DataTable
+                columns={['Customer', 'Opportunity', 'Score', 'Recommended Action']}
+                rows={customerSuccess.expansion.map((item) => [item.organization, item.opportunity, `${item.score}%`, item.recommendedAction])}
+              />
+            </div>
+            <div className="dashboard-subsection">
+              <h3>Customer Success Notes</h3>
+              <DataTable
+                columns={['Customer', 'Health', 'Risk', 'Note']}
+                rows={customerSuccess.health.map((item) => [item.organization, `${item.healthScore}%`, `${item.riskScore}%`, item.recommendations[0]])}
+              />
+            </div>
+            <p className="subtle-note">Sales can review Customer Success handoff context locally, but no customer messages, CRM sync, account updates, or renewals are automatic.</p>
           </section>
         ) : null}
 

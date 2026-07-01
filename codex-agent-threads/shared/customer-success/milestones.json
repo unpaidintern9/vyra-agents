@@ -1,0 +1,362 @@
+[
+  {
+    "milestoneId": "cust-louisville-combat-academy-first-login",
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "name": "first login",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-louisville-combat-academy-first-workout",
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "name": "first workout",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-louisville-combat-academy-first-client",
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "name": "first client",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-louisville-combat-academy-first-gym-member",
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "name": "first gym member",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-louisville-combat-academy-first-payment",
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "name": "first payment",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-louisville-combat-academy-first-message",
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "name": "first message",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-louisville-combat-academy-first-campaign",
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "name": "first campaign",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-louisville-combat-academy-onboarding-completion",
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "name": "onboarding completion",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-louisville-combat-academy-adoption-milestones",
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "name": "adoption milestones",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-louisville-combat-academy-renewal-readiness",
+    "customerId": "cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "name": "renewal readiness",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-area-502-mma-first-login",
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "name": "first login",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-area-502-mma-first-workout",
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "name": "first workout",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-area-502-mma-first-client",
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "name": "first client",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-area-502-mma-first-gym-member",
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "name": "first gym member",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-area-502-mma-first-payment",
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "name": "first payment",
+    "status": "complete",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-area-502-mma-first-message",
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "name": "first message",
+    "status": "complete",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-area-502-mma-first-campaign",
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "name": "first campaign",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-area-502-mma-onboarding-completion",
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "name": "onboarding completion",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-area-502-mma-adoption-milestones",
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "name": "adoption milestones",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-area-502-mma-renewal-readiness",
+    "customerId": "cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "name": "renewal readiness",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-river-city-performance-first-login",
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "name": "first login",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-river-city-performance-first-workout",
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "name": "first workout",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-river-city-performance-first-client",
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "name": "first client",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-river-city-performance-first-gym-member",
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "name": "first gym member",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-river-city-performance-first-payment",
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "name": "first payment",
+    "status": "complete",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-river-city-performance-first-message",
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "name": "first message",
+    "status": "complete",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-river-city-performance-first-campaign",
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "name": "first campaign",
+    "status": "complete",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-river-city-performance-onboarding-completion",
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "name": "onboarding completion",
+    "status": "complete",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-river-city-performance-adoption-milestones",
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "name": "adoption milestones",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-river-city-performance-renewal-readiness",
+    "customerId": "cust-river-city-performance",
+    "organization": "River City Performance",
+    "name": "renewal readiness",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-kentucky-youth-sports-first-login",
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "name": "first login",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-kentucky-youth-sports-first-workout",
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "name": "first workout",
+    "status": "complete",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-kentucky-youth-sports-first-client",
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "name": "first client",
+    "status": "pending",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-kentucky-youth-sports-first-gym-member",
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "name": "first gym member",
+    "status": "pending",
+    "completedAt": "2026-07-01T21:54:29.132Z",
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-kentucky-youth-sports-first-payment",
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "name": "first payment",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-kentucky-youth-sports-first-message",
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "name": "first message",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-kentucky-youth-sports-first-campaign",
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "name": "first campaign",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-kentucky-youth-sports-onboarding-completion",
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "name": "onboarding completion",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-kentucky-youth-sports-adoption-milestones",
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "name": "adoption milestones",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  },
+  {
+    "milestoneId": "cust-kentucky-youth-sports-renewal-readiness",
+    "customerId": "cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "name": "renewal readiness",
+    "status": "pending",
+    "completedAt": null,
+    "evidence": "Local deterministic milestone tracking."
+  }
+]

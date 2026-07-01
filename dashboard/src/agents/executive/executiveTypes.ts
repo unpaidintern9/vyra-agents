@@ -17,6 +17,7 @@ import type { AgentRuntimeSnapshot, RuntimeActivityEntry, RuntimeApproval } from
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 import type { MarketingDashboardSummary } from '../../runtime/marketingIntelligence';
 import type { AssetLibraryDashboardSummary } from '../../runtime/assetLibrary';
+import type { CustomerSuccessDashboardSummary } from '../../runtime/customerSuccess';
 import type { LocalReport } from '../../storage/reportExport';
 import type {
   SalesAgentTeamSummary,
@@ -128,6 +129,7 @@ export interface ExecutiveSummary {
   executivePlanning?: ExecutivePlanningSummary;
   marketing?: MarketingDashboardSummary;
   assetLibrary?: AssetLibraryDashboardSummary;
+  customerSuccess?: CustomerSuccessDashboardSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
@@ -163,6 +165,7 @@ export interface ExecutiveDashboardProps {
   executivePlanning?: ExecutivePlanningSummary;
   marketing?: MarketingDashboardSummary;
   assetLibrary?: AssetLibraryDashboardSummary;
+  customerSuccess?: CustomerSuccessDashboardSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;

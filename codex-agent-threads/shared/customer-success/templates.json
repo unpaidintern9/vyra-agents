@@ -1,0 +1,176 @@
+[
+  {
+    "templateId": "template-coach-onboarding",
+    "name": "Coach Onboarding",
+    "customerType": "Individual Coach",
+    "stages": [
+      "account setup",
+      "profile completion",
+      "branding",
+      "first client",
+      "first workout",
+      "payments",
+      "messaging",
+      "training complete"
+    ],
+    "milestones": [
+      "account setup complete",
+      "profile completion complete",
+      "branding complete",
+      "first client complete",
+      "first workout complete",
+      "payments complete",
+      "messaging complete",
+      "training complete complete"
+    ],
+    "requiredTasks": [
+      "Review account setup",
+      "Review profile completion",
+      "Review branding",
+      "Review first client",
+      "Review first workout",
+      "Review payments",
+      "Review messaging",
+      "Review training complete"
+    ],
+    "requiredAssets": [
+      "asset-marketing-content-studio-doc",
+      "asset-sales-agent-guide",
+      "asset-operator-runtime-docs",
+      "asset-knowledge-graph-doc",
+      "asset-marketing-template-report"
+    ],
+    "training": [
+      "orientation",
+      "admin walkthrough",
+      "success review"
+    ],
+    "documentation": [
+      "asset-marketing-content-studio-doc",
+      "asset-sales-agent-guide",
+      "asset-operator-runtime-docs",
+      "asset-knowledge-graph-doc",
+      "asset-marketing-template-report"
+    ],
+    "completionRules": [
+      "All required stages reviewed.",
+      "Training completion recorded.",
+      "Health review complete."
+    ]
+  },
+  {
+    "templateId": "template-gym-onboarding",
+    "name": "Gym Onboarding",
+    "customerType": "Gym",
+    "stages": [
+      "organization setup",
+      "coaches invited",
+      "members imported",
+      "branding",
+      "gym settings",
+      "check-in setup",
+      "first class",
+      "first workout"
+    ],
+    "milestones": [
+      "organization setup complete",
+      "coaches invited complete",
+      "members imported complete",
+      "branding complete",
+      "gym settings complete",
+      "check-in setup complete",
+      "first class complete",
+      "first workout complete"
+    ],
+    "requiredTasks": [
+      "Review organization setup",
+      "Review coaches invited",
+      "Review members imported",
+      "Review branding",
+      "Review gym settings",
+      "Review check-in setup",
+      "Review first class",
+      "Review first workout"
+    ],
+    "requiredAssets": [
+      "asset-marketing-content-studio-doc",
+      "asset-sales-agent-guide",
+      "asset-operator-runtime-docs",
+      "asset-knowledge-graph-doc",
+      "asset-marketing-template-report"
+    ],
+    "training": [
+      "orientation",
+      "admin walkthrough",
+      "success review"
+    ],
+    "documentation": [
+      "asset-marketing-content-studio-doc",
+      "asset-sales-agent-guide",
+      "asset-operator-runtime-docs",
+      "asset-knowledge-graph-doc",
+      "asset-marketing-template-report"
+    ],
+    "completionRules": [
+      "All required stages reviewed.",
+      "Training completion recorded.",
+      "Health review complete."
+    ]
+  },
+  {
+    "templateId": "template-enterprise-onboarding",
+    "name": "Enterprise Onboarding",
+    "customerType": "Enterprise Organization",
+    "stages": [
+      "stakeholder kickoff",
+      "workspace setup",
+      "roles configured",
+      "training plan",
+      "pilot cohort",
+      "success review",
+      "renewal readiness"
+    ],
+    "milestones": [
+      "stakeholder kickoff complete",
+      "workspace setup complete",
+      "roles configured complete",
+      "training plan complete",
+      "pilot cohort complete",
+      "success review complete",
+      "renewal readiness complete"
+    ],
+    "requiredTasks": [
+      "Review stakeholder kickoff",
+      "Review workspace setup",
+      "Review roles configured",
+      "Review training plan",
+      "Review pilot cohort",
+      "Review success review",
+      "Review renewal readiness"
+    ],
+    "requiredAssets": [
+      "asset-marketing-content-studio-doc",
+      "asset-sales-agent-guide",
+      "asset-operator-runtime-docs",
+      "asset-knowledge-graph-doc",
+      "asset-marketing-template-report"
+    ],
+    "training": [
+      "orientation",
+      "admin walkthrough",
+      "success review"
+    ],
+    "documentation": [
+      "asset-marketing-content-studio-doc",
+      "asset-sales-agent-guide",
+      "asset-operator-runtime-docs",
+      "asset-knowledge-graph-doc",
+      "asset-marketing-template-report"
+    ],
+    "completionRules": [
+      "All required stages reviewed.",
+      "Training completion recorded.",
+      "Health review complete."
+    ]
+  }
+]
