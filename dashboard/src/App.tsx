@@ -138,6 +138,7 @@ import { buildDashboardGmailEmailSummary } from './runtime/gmailEmail';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
 import { buildDashboardProjectRegistrySummary } from './runtime/projectRegistry';
+import { buildDashboardProposalSummary, type ProposalDashboardSummary } from './runtime/proposalEngine';
 import { buildDashboardReleaseReadinessSummary } from './runtime/releaseReadiness';
 import { buildDashboardReleaseShipPlanSummary } from './runtime/releaseShipPlans';
 import { defaultRepositoryIntelligenceSummary, summarizeRepositoryIntelligence } from './runtime/repositoryIntelligence';
@@ -1535,6 +1536,14 @@ function App() {
     salesOpportunitySummary,
     sharedTasks: sharedTaskSummary,
   });
+  const proposalEngine = buildDashboardProposalSummary({
+    executivePlanning,
+    opportunities: salesOpportunities,
+    researchIntake: salesResearchIntake,
+    sharedMemory,
+    sharedTasks: sharedTaskSummary,
+    workflows: salesWorkflows,
+  });
   const executiveEmailBriefing = buildDashboardExecutiveEmailBriefingSummary({
     email: emailSummary,
     executiveOperations,
@@ -1772,6 +1781,7 @@ function App() {
             onRunSalesResearch={runSalesResearch}
             onSaveProspectIntake={saveProspectIntake}
             proposalDrafts={salesProposalDrafts}
+            proposalEngine={proposalEngine}
             proposalSummary={salesProposalSummary}
             proposals={salesProposals}
             opportunities={salesOpportunities}
@@ -1864,6 +1874,7 @@ function App() {
             onRecordValidation={recordOperatorValidation}
             operator={operatorSnapshot}
             organizationIntelligenceSummary={salesOrganizationIntelligence.summary}
+            proposalEngine={proposalEngine}
             sharedMemory={sharedMemory}
             runtime={runtime}
           />
@@ -1894,6 +1905,7 @@ function App() {
             executiveEmailBriefing={executiveEmailBriefing}
             executiveOperations={executiveOperations}
             executivePlanning={executivePlanning}
+            proposalEngine={proposalEngine}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
             projectRegistry={projectRegistry}
@@ -2062,6 +2074,7 @@ function OperatorPage({
   onRecordValidation,
   operator,
   organizationIntelligenceSummary,
+  proposalEngine,
   sharedMemory,
   runtime,
 }: {
@@ -2078,6 +2091,7 @@ function OperatorPage({
   onRecordValidation(): void;
   operator: AiOperatorDashboardSnapshot;
   organizationIntelligenceSummary: SalesOrganizationIntelligenceSummary;
+  proposalEngine: ProposalDashboardSummary;
   sharedMemory: SharedMemoryStore;
   runtime: AgentRuntimeSnapshot;
 }) {
@@ -2209,6 +2223,35 @@ function OperatorPage({
             <Fact label="Proposal Prep Support Queue" value={String(operator.salesWorkflowSummary.assignedToProposalPrep)} />
             <Fact label="Blocked Items" value={String(operator.salesWorkflowSummary.blockedWorkflows)} />
           </div>
+        </Panel>
+
+        <Panel title="Proposal Task Queue" icon={<FileText size={18} />} wide>
+          <p className="panel-description">
+            Operator support for proposal workspaces: missing sections, missing evidence, compliance gaps, review assignments, and blocked proposal tasks. Review only; no proposal submission.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Proposal Task Queue" value={String(proposalEngine.operatorQueue.length)} />
+            <Fact label="Missing Sections" value={String(proposalEngine.sections.filter((section) => section.completion < 55).length)} />
+            <Fact label="Missing Evidence" value={String(proposalEngine.missingEvidence.length)} />
+            <Fact label="Compliance Gaps" value={String(proposalEngine.summary.complianceGaps)} />
+            <Fact label="Review Assignments" value={String(proposalEngine.reviews.filter((review) => review.approvalStatus === 'pending').length)} />
+            <Fact label="Blocked Proposal Tasks" value={String(proposalEngine.operatorQueue.filter((item) => item.blocker !== 'planned').length)} />
+          </div>
+          <DataTable
+            columns={['Proposal Task Queue', 'Queue', 'Owner', 'Blocker', 'Next Action']}
+            rows={proposalEngine.operatorQueue.map((item) => [item.item, item.queue, item.owner, item.blocker, item.nextAction])}
+            emptyMessage="No proposal task queue items."
+          />
+          <DataTable
+            columns={['Review Assignments', 'Reviewer', 'Status', 'Issues']}
+            rows={proposalEngine.reviews.slice(0, 8).map((review) => [
+              review.stage,
+              review.reviewer,
+              review.approvalStatus,
+              review.unresolvedIssues.join('; ') || review.risks.join('; ') || 'None',
+            ])}
+            emptyMessage="No proposal review assignments."
+          />
         </Panel>
 
         <Panel title="Operator Contact Queue" icon={<Users size={18} />} wide>

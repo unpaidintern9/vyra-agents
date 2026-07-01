@@ -98,3 +98,11 @@ The Executive dashboard includes Strategic Goals, KPI Scorecard, Initiative Trac
 Planning records live under `codex-agent-threads/shared/executive-planning/` and remain local, deterministic, auditable, and advisory.
 
 See `docs/EXECUTIVE_PLANNING.md`, `docs/GOAL_MANAGEMENT.md`, `docs/KPI_SCORECARD.md`, and `docs/DECISION_LOG.md`.
+
+## Phase 55 Proposal Portfolio
+
+The Executive dashboard includes Proposal Portfolio, Proposal Health, Proposal Readiness, Executive Review Queue, Compliance Risks, Upcoming Proposal Deadlines, and High-Risk Proposals.
+
+Proposal records are local workspace records linked to opportunities, tasks, workflows, shared memory, research, reports, and Executive planning. Executive views are read-only and advisory. They do not approve compliance, approve Executive gates, browse, email, sync CRM data, or submit proposals.
+
+See `docs/PROPOSAL_ENGINE.md`, `docs/PROPOSAL_WORKSPACE.md`, `docs/COMPLIANCE_MATRIX.md`, `docs/EVIDENCE_LIBRARY.md`, and `docs/PROPOSAL_REVIEWS.md`.

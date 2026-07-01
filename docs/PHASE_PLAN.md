@@ -1420,3 +1420,33 @@ Boundaries:
 - No Stripe writes.
 - No Supabase production writes.
 - No secrets committed.
+
+## Phase 55
+
+Proposal Intelligence & Assembly Engine.
+
+Includes:
+
+- Local proposal workspace records under `codex-agent-threads/shared/proposals/`.
+- Proposal identity, dates, status, priority, owner, contributors, related workflows, tasks, reports, research, shared memory, and Executive planning references.
+- Readiness scorecards for overall, compliance, technical, pricing, staffing, and Executive readiness with confidence, risk score, explanations, recommendations, and next actions.
+- Structured proposal sections for Executive Summary, Technical Approach, Scope Response, Management Plan, Staffing Plan, Key Personnel, Past Performance, Corporate Experience, Transition Plan, Risk Management, Quality Assurance, Pricing Inputs, Assumptions, Attachments, Required Forms, References, and Compliance Matrix.
+- Deterministic compliance matrix with Unknown, Pending, Partially Addressed, Addressed, Needs Review, and Approved states. Approval is never automatic.
+- Evidence library, review workflow, immutable timeline, proposal health reports, readiness reports, compliance summary, missing evidence report, review status report, timeline report, Executive proposal summary, portfolio report, section completion report, and proposal risk report.
+- Root npm scripts for `proposal:list`, `proposal:create`, `proposal:update`, `proposal:sections`, `proposal:compliance`, `proposal:evidence`, `proposal:review`, `proposal:timeline`, `proposal:readiness`, `proposal:health`, `proposal:report`, and `proposal:validate`.
+- Sales dashboard Proposal Workspace, Proposal Pipeline, Proposal Readiness, Opportunity-to-Proposal Conversion, Dependencies, and Risks.
+- Executive dashboard Proposal Portfolio, Health, Readiness, Review Queue, Compliance Risks, Upcoming Deadlines, and High-Risk Proposals.
+- Operator dashboard Proposal Task Queue, Missing Sections, Missing Evidence, Compliance Gaps, Review Assignments, and Blocked Proposal Tasks.
+
+Boundaries:
+
+- Local execution only.
+- No dependency on `vyraapp.fit`.
+- No autonomous browsing.
+- No email sending.
+- No CRM synchronization.
+- No proposal submission.
+- No automatic compliance approval.
+- No automatic Executive approval.
+- No customer communication.
+- No secrets committed.

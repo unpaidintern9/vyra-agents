@@ -1,0 +1,195 @@
+{
+  "title": "Proposal Portfolio Report",
+  "generatedAt": "2026-07-01T18:30:41.854Z",
+  "proposals": [
+    {
+      "proposalId": "proposal-area-502-mma",
+      "title": "Area 502 MMA Local Proposal Workspace",
+      "customer": "Area 502 MMA",
+      "solicitation": "Local sales-led proposal preparation, no submission",
+      "opportunityId": "opp-area-502-mma",
+      "organizationId": "organization:opp-area-502-mma",
+      "proposalOwner": "Proposal Prep",
+      "contributors": [
+        "Sales",
+        "Operator",
+        "Executive",
+        "Proposal Prep"
+      ],
+      "status": "Compliance Review",
+      "priority": "High",
+      "createdAt": "2026-07-01T12:00:00.000Z",
+      "updatedAt": "2026-07-01T12:00:00.000Z",
+      "dueDate": "2026-07-22T12:00:00.000Z",
+      "reviewDates": [
+        {
+          "stage": "Author Review",
+          "date": "2026-07-12T12:00:00.000Z"
+        },
+        {
+          "stage": "Red Team",
+          "date": "2026-07-17T12:00:00.000Z"
+        },
+        {
+          "stage": "Executive Review",
+          "date": "2026-07-20T12:00:00.000Z"
+        }
+      ],
+      "plannedSubmissionDate": "2026-07-21T12:00:00.000Z",
+      "relatedWorkflowIds": [
+        "wf-research-area-502",
+        "wf-risky-linkedin-source",
+        "wf-external-action-gate"
+      ],
+      "relatedTaskIds": [],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedResearchIds": [
+        "intake-opp-area-502-mma"
+      ],
+      "sharedMemoryReferences": {
+        "opportunity": "opp-area-502-mma",
+        "organization": "organization:opp-area-502-mma",
+        "facts": [
+          "fact:opp-area-502-mma:proposal-status",
+          "fact:opp-area-502-mma:stage"
+        ],
+        "executiveGoal": "goal-proposal-readiness"
+      }
+    },
+    {
+      "proposalId": "proposal-louisville-combat-academy",
+      "title": "Louisville Combat Academy Local Proposal Workspace",
+      "customer": "Louisville Combat Academy",
+      "solicitation": "Local sales-led proposal preparation, no submission",
+      "opportunityId": "opp-louisville-combat-academy",
+      "organizationId": "organization:opp-louisville-combat-academy",
+      "proposalOwner": "Sales",
+      "contributors": [
+        "Sales",
+        "Operator",
+        "Executive",
+        "Proposal Prep"
+      ],
+      "status": "Planning",
+      "priority": "High",
+      "createdAt": "2026-07-01T12:00:00.000Z",
+      "updatedAt": "2026-07-01T12:00:00.000Z",
+      "dueDate": "2026-07-29T12:00:00.000Z",
+      "reviewDates": [
+        {
+          "stage": "Author Review",
+          "date": "2026-07-19T12:00:00.000Z"
+        },
+        {
+          "stage": "Red Team",
+          "date": "2026-07-24T12:00:00.000Z"
+        },
+        {
+          "stage": "Executive Review",
+          "date": "2026-07-27T12:00:00.000Z"
+        }
+      ],
+      "plannedSubmissionDate": "2026-07-28T12:00:00.000Z",
+      "relatedWorkflowIds": [
+        "wf-verify-louisville-combat",
+        "wf-duplicate-louisville-combat"
+      ],
+      "relatedTaskIds": [],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedResearchIds": [
+        "intake-opp-louisville-combat-academy"
+      ],
+      "sharedMemoryReferences": {
+        "opportunity": "opp-louisville-combat-academy",
+        "organization": "organization:opp-louisville-combat-academy",
+        "facts": [
+          "fact:opp-louisville-combat-academy:proposal-status",
+          "fact:opp-louisville-combat-academy:stage"
+        ],
+        "executiveGoal": "goal-proposal-readiness"
+      }
+    },
+    {
+      "proposalId": "proposal-core-combat-sports",
+      "title": "Core Combat Sports Local Proposal Workspace",
+      "customer": "Core Combat Sports",
+      "solicitation": "Local sales-led proposal preparation, no submission",
+      "opportunityId": "opp-core-combat-sports",
+      "organizationId": "organization:opp-core-combat-sports",
+      "proposalOwner": "Sales",
+      "contributors": [
+        "Sales",
+        "Operator",
+        "Executive",
+        "Proposal Prep"
+      ],
+      "status": "Research",
+      "priority": "High",
+      "createdAt": "2026-07-01T12:00:00.000Z",
+      "updatedAt": "2026-07-01T12:00:00.000Z",
+      "dueDate": "2026-08-05T12:00:00.000Z",
+      "reviewDates": [
+        {
+          "stage": "Author Review",
+          "date": "2026-07-26T12:00:00.000Z"
+        },
+        {
+          "stage": "Red Team",
+          "date": "2026-07-31T12:00:00.000Z"
+        },
+        {
+          "stage": "Executive Review",
+          "date": "2026-08-03T12:00:00.000Z"
+        }
+      ],
+      "plannedSubmissionDate": "2026-08-04T12:00:00.000Z",
+      "relatedWorkflowIds": [
+        "wf-proposal-core-combat"
+      ],
+      "relatedTaskIds": [],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedResearchIds": [
+        "intake-opp-core-combat-sports"
+      ],
+      "sharedMemoryReferences": {
+        "opportunity": "opp-core-combat-sports",
+        "organization": "organization:opp-core-combat-sports",
+        "facts": [
+          "fact:opp-core-combat-sports:proposal-status",
+          "fact:opp-core-combat-sports:stage"
+        ],
+        "executiveGoal": "goal-proposal-readiness"
+      }
+    }
+  ],
+  "summary": {
+    "totalProposals": 3,
+    "activeProposals": 3,
+    "readyProposals": 0,
+    "executiveReviewQueue": 3,
+    "highRiskProposals": 3,
+    "averageReadiness": 38,
+    "complianceGaps": 12,
+    "missingEvidence": 6,
+    "upcomingDeadlines": 1
+  },
+  "safety": {
+    "localOnly": true,
+    "autonomousBrowsing": false,
+    "emailing": false,
+    "crmSync": false,
+    "proposalSubmission": false,
+    "automaticComplianceApproval": false,
+    "automaticExecutiveApproval": false,
+    "customerCommunication": false
+  }
+}

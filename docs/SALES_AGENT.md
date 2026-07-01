@@ -252,3 +252,11 @@ The Sales Agent does not browse, send customer email, sync CRM data, submit prop
 The Sales dashboard includes Sales Goals, Revenue/KPI Alignment, and Opportunity Contribution to Goals.
 
 Sales goal alignment links local opportunities, organizations, KPIs, and Executive goals. It is advisory and does not trigger outreach, CRM sync, proposal submission, or automatic approvals.
+
+## Phase 55 Proposal Workspace
+
+Sales now shows a Proposal Workspace panel with Proposal Pipeline, Proposal Readiness, Compliance Matrix, Evidence Library, Section Progress, Review Queue, Missing Evidence, Timeline, and Risks.
+
+Proposal workspaces live under `codex-agent-threads/shared/proposals/` and link back to local opportunities, research intake, workflows, tasks, shared memory, and Executive planning. They are advisory and local; Sales cannot submit proposals, browse, email customers, sync CRM data, approve compliance, or approve Executive gates automatically.
+
+Use `npm run proposal:health`, `npm run proposal:readiness`, `npm run proposal:report`, and `npm run proposal:validate` for local inspection.

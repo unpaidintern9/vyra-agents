@@ -19,6 +19,7 @@ export default function ExecutiveDashboard({
   executiveEmailBriefing,
   executiveOperations,
   executivePlanning,
+  proposalEngine,
   githubPlanning,
   githubReadOnly,
   integrationWarnings = [],
@@ -79,6 +80,7 @@ export default function ExecutiveDashboard({
         {salesOrganizationIntelligenceSummary ? <ExecutiveRelationshipSummaryPanel summary={salesOrganizationIntelligenceSummary} /> : null}
         {salesResearchIntelligenceSummary ? <ExecutiveResearchIntelligencePanel summary={salesResearchIntelligenceSummary} /> : null}
         {salesWorkflowSummary ? <ExecutiveSalesWorkflowPanel summary={salesWorkflowSummary} /> : null}
+        {proposalEngine ? <ExecutiveProposalPortfolioPanel proposalEngine={proposalEngine} /> : null}
         {executivePlanning ? <ExecutivePlanningPanel planning={executivePlanning} /> : null}
         {sharedTaskSummary ? <ExecutiveWorkQueuePanel sharedTaskSummary={sharedTaskSummary} /> : null}
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
@@ -94,6 +96,48 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveProposalPortfolioPanel({ proposalEngine }: { proposalEngine: NonNullable<ExecutiveDashboardProps['proposalEngine']> }) {
+  return (
+    <section className="panel wide-panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Proposal Portfolio</h2>
+        </div>
+        <span>{proposalEngine.summary.highRiskProposals} high risk</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact"><span>Proposal Health</span><strong>{Math.max(0, 100 - proposalEngine.summary.highRiskProposals * 12 - proposalEngine.summary.complianceGaps)}</strong></div>
+        <div className="fact"><span>Proposal Readiness</span><strong>{proposalEngine.summary.averageReadiness}%</strong></div>
+        <div className="fact"><span>Executive Review Queue</span><strong>{proposalEngine.summary.executiveReviewQueue}</strong></div>
+        <div className="fact"><span>Compliance Risks</span><strong>{proposalEngine.summary.complianceGaps}</strong></div>
+        <div className="fact"><span>Upcoming Deadlines</span><strong>{proposalEngine.summary.upcomingDeadlines}</strong></div>
+        <div className="fact"><span>Missing Evidence</span><strong>{proposalEngine.summary.missingEvidence}</strong></div>
+      </div>
+      <DataTable
+        columns={['Proposal Portfolio', 'Status', 'Readiness', 'Risk', 'Next Action']}
+        rows={proposalEngine.executivePortfolio.map((proposal) => [
+          proposal.customer,
+          proposal.status,
+          `${proposal.overallReadiness}%`,
+          `${proposal.riskScore}`,
+          proposal.nextAction,
+        ])}
+        emptyMessage="No Executive proposal portfolio records."
+      />
+      <DataTable
+        columns={['Compliance Risks', 'Requirement', 'Status', 'Missing']}
+        rows={proposalEngine.complianceMatrix
+          .filter((item) => item.risks.length || item.missingItems.length)
+          .slice(0, 6)
+          .map((item) => [item.section, item.requirement, item.status, item.missingItems.join(', ') || item.risks.join('; ')])}
+        emptyMessage="No compliance risks."
+      />
+      <p className="subtle-note">Executive proposal views are advisory and read-only. They do not approve compliance, approve Executive gates, browse, email, sync CRM data, or submit proposals.</p>
+    </section>
   );
 }
 

@@ -60,6 +60,7 @@ export default function SalesPage({
   onRunSalesResearch,
   onSaveProspectIntake,
   proposalDrafts,
+  proposalEngine,
   proposalSummary,
   proposals,
   opportunities,
@@ -334,6 +335,66 @@ export default function SalesPage({
             ])}
             emptyMessage="No source-backed Sales facts yet."
           />
+        </section>
+
+        <section className="panel wide-panel proposal-workspace-panel">
+          <div className="panel-header">
+            <div>
+              <FileClock size={18} />
+              <h2>Proposal Workspace</h2>
+            </div>
+            <span>{proposalEngine.summary.averageReadiness}% avg readiness</span>
+          </div>
+          <div className="batch-grid">
+            <div className="fact"><span>Proposal Health</span><strong>{100 - proposalEngine.summary.highRiskProposals * 12}</strong></div>
+            <div className="fact"><span>Readiness Scorecard</span><strong>{proposalEngine.summary.averageReadiness}%</strong></div>
+            <div className="fact"><span>Compliance Gaps</span><strong>{proposalEngine.summary.complianceGaps}</strong></div>
+            <div className="fact"><span>Missing Evidence</span><strong>{proposalEngine.summary.missingEvidence}</strong></div>
+            <div className="fact"><span>Review Queue</span><strong>{proposalEngine.reviews.filter((review) => review.approvalStatus === 'pending').length}</strong></div>
+            <div className="fact"><span>Timeline Events</span><strong>{proposalEngine.timeline.length}</strong></div>
+          </div>
+          <DataTable
+            columns={['Proposal Pipeline', 'Status', 'Readiness', 'Dependencies', 'Risks']}
+            rows={proposalEngine.salesPipeline.map((item) => [
+              item.customer,
+              <StatusBadge key={`${item.proposalId}-status`} value={item.proposalStatus} tone={item.proposalStatus === 'Compliance Review' ? 'warn' : 'neutral'} />,
+              `${item.readiness}%`,
+              item.dependencies.length ? `${item.dependencies.length} linked` : 'None',
+              item.risks.join('; ') || 'No major risk',
+            ])}
+            emptyMessage="No proposal workspace records."
+          />
+          <DataTable
+            columns={['Compliance Matrix', 'Requirement', 'Status', 'Missing Items']}
+            rows={proposalEngine.complianceMatrix.slice(0, 8).map((item) => [
+              item.section,
+              item.requirement,
+              <StatusBadge key={`${item.requirementId}-status`} value={item.status} tone={item.status === 'Addressed' ? 'good' : 'warn'} />,
+              item.missingItems.join(', ') || 'None',
+            ])}
+            emptyMessage="No compliance requirements."
+          />
+          <DataTable
+            columns={['Evidence Library', 'Type', 'Confidence', 'Verification']}
+            rows={proposalEngine.evidence.slice(0, 8).map((item) => [
+              item.description,
+              item.type,
+              `${item.confidence}%`,
+              <StatusBadge key={`${item.id}-verify`} value={item.verificationStatus.replace(/_/g, ' ')} tone={item.verificationStatus === 'verified' ? 'good' : item.verificationStatus === 'missing' ? 'warn' : 'neutral'} />,
+            ])}
+            emptyMessage="No evidence items."
+          />
+          <DataTable
+            columns={['Section Progress', 'Owner', 'Completion', 'Status']}
+            rows={proposalEngine.sections.slice(0, 8).map((section) => [
+              section.name,
+              section.owner,
+              `${section.completion}%`,
+              <StatusBadge key={`${section.sectionId}-status`} value={section.status.replace(/_/g, ' ')} tone={section.status === 'needs_input' ? 'warn' : 'neutral'} />,
+            ])}
+            emptyMessage="No proposal sections."
+          />
+          <p className="subtle-note">Proposal Workspace is local planning only. It does not browse, send email, sync CRM data, approve compliance, approve Executive gates, or submit proposals.</p>
         </section>
 
         <section className="panel">

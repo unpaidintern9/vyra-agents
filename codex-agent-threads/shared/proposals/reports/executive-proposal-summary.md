@@ -1,0 +1,9 @@
+# Executive Proposal Summary
+
+Generated: 2026-07-01T18:30:41.854Z
+
+- proposalId: proposal-area-502-mma | title: Area 502 MMA Local Proposal Workspace | customer: Area 502 MMA | status: Compliance Review | priority: High | dueDate: 2026-07-22T12:00:00.000Z | overallReadiness: 38 | riskScore: 88 | executiveReadiness: 35 | nextAction: Review compliance gaps.
+- proposalId: proposal-louisville-combat-academy | title: Louisville Combat Academy Local Proposal Workspace | customer: Louisville Combat Academy | status: Planning | priority: High | dueDate: 2026-07-29T12:00:00.000Z | overallReadiness: 38 | riskScore: 70 | executiveReadiness: 35 | nextAction: Review compliance gaps.
+- proposalId: proposal-core-combat-sports | title: Core Combat Sports Local Proposal Workspace | customer: Core Combat Sports | status: Research | priority: High | dueDate: 2026-08-05T12:00:00.000Z | overallReadiness: 38 | riskScore: 70 | executiveReadiness: 35 | nextAction: Review compliance gaps.
+
+Local-only safety: no browsing, email, CRM sync, proposal submission, or automatic approvals.

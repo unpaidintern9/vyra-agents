@@ -1,0 +1,301 @@
+{
+  "title": "Proposal Readiness Report",
+  "generatedAt": "2026-07-01T18:30:41.854Z",
+  "readiness": [
+    {
+      "proposalId": "proposal-area-502-mma",
+      "calculatedAt": "2026-07-01T12:00:00.000Z",
+      "overallReadiness": {
+        "score": 38,
+        "explanation": "Overall readiness blends local opportunity readiness, section progress, compliance, evidence, review, and approval dependencies.",
+        "risks": [],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "complianceReadiness": {
+        "score": 35,
+        "explanation": "Compliance readiness reflects matrix coverage and reviewer status.",
+        "risks": [
+          "Compliance reviewer required before approval."
+        ],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "technicalReadiness": {
+        "score": 40,
+        "explanation": "Technical readiness reflects linked facts, technical approach sections, and source-backed requirements.",
+        "risks": [],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "pricingReadiness": {
+        "score": 30,
+        "explanation": "Pricing readiness stays advisory until human pricing inputs are attached.",
+        "risks": [
+          "Pricing assumptions are incomplete."
+        ],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "staffingReadiness": {
+        "score": 45,
+        "explanation": "Staffing readiness reflects section ownership and required contributors.",
+        "risks": [],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "executiveReadiness": {
+        "score": 35,
+        "explanation": "Executive readiness depends on manual Executive review and approval gates.",
+        "risks": [
+          "Executive approval is not automatic."
+        ],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "confidence": 86,
+      "riskScore": 88,
+      "topRisks": [
+        "Blocked workflow affects proposal timing.",
+        "Pricing inputs need owner review.",
+        "Compliance matrix has unresolved requirements."
+      ],
+      "recommendations": [
+        "Resolve missing evidence first.",
+        "Schedule section owner review.",
+        "Keep Executive approval manual."
+      ],
+      "nextActions": [
+        "Review compliance gaps.",
+        "Attach source-backed evidence.",
+        "Confirm pricing assumptions locally."
+      ]
+    },
+    {
+      "proposalId": "proposal-louisville-combat-academy",
+      "calculatedAt": "2026-07-01T12:00:00.000Z",
+      "overallReadiness": {
+        "score": 38,
+        "explanation": "Overall readiness blends local opportunity readiness, section progress, compliance, evidence, review, and approval dependencies.",
+        "risks": [],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "complianceReadiness": {
+        "score": 35,
+        "explanation": "Compliance readiness reflects matrix coverage and reviewer status.",
+        "risks": [
+          "Compliance reviewer required before approval."
+        ],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "technicalReadiness": {
+        "score": 40,
+        "explanation": "Technical readiness reflects linked facts, technical approach sections, and source-backed requirements.",
+        "risks": [],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "pricingReadiness": {
+        "score": 30,
+        "explanation": "Pricing readiness stays advisory until human pricing inputs are attached.",
+        "risks": [
+          "Pricing assumptions are incomplete."
+        ],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "staffingReadiness": {
+        "score": 45,
+        "explanation": "Staffing readiness reflects section ownership and required contributors.",
+        "risks": [],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "executiveReadiness": {
+        "score": 35,
+        "explanation": "Executive readiness depends on manual Executive review and approval gates.",
+        "risks": [
+          "Executive approval is not automatic."
+        ],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "confidence": 85,
+      "riskScore": 70,
+      "topRisks": [
+        "Pricing inputs need owner review.",
+        "Compliance matrix has unresolved requirements."
+      ],
+      "recommendations": [
+        "Resolve missing evidence first.",
+        "Schedule section owner review.",
+        "Keep Executive approval manual."
+      ],
+      "nextActions": [
+        "Review compliance gaps.",
+        "Attach source-backed evidence.",
+        "Confirm pricing assumptions locally."
+      ]
+    },
+    {
+      "proposalId": "proposal-core-combat-sports",
+      "calculatedAt": "2026-07-01T12:00:00.000Z",
+      "overallReadiness": {
+        "score": 38,
+        "explanation": "Overall readiness blends local opportunity readiness, section progress, compliance, evidence, review, and approval dependencies.",
+        "risks": [],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "complianceReadiness": {
+        "score": 35,
+        "explanation": "Compliance readiness reflects matrix coverage and reviewer status.",
+        "risks": [
+          "Compliance reviewer required before approval."
+        ],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "technicalReadiness": {
+        "score": 40,
+        "explanation": "Technical readiness reflects linked facts, technical approach sections, and source-backed requirements.",
+        "risks": [],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "pricingReadiness": {
+        "score": 30,
+        "explanation": "Pricing readiness stays advisory until human pricing inputs are attached.",
+        "risks": [
+          "Pricing assumptions are incomplete."
+        ],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "staffingReadiness": {
+        "score": 45,
+        "explanation": "Staffing readiness reflects section ownership and required contributors.",
+        "risks": [],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "executiveReadiness": {
+        "score": 35,
+        "explanation": "Executive readiness depends on manual Executive review and approval gates.",
+        "risks": [
+          "Executive approval is not automatic."
+        ],
+        "recommendations": [
+          "Close missing inputs and rerun proposal readiness."
+        ],
+        "nextActions": [
+          "Assign owner for the lowest scoring area."
+        ]
+      },
+      "confidence": 83,
+      "riskScore": 70,
+      "topRisks": [
+        "Pricing inputs need owner review.",
+        "Compliance matrix has unresolved requirements."
+      ],
+      "recommendations": [
+        "Resolve missing evidence first.",
+        "Schedule section owner review.",
+        "Keep Executive approval manual."
+      ],
+      "nextActions": [
+        "Review compliance gaps.",
+        "Attach source-backed evidence.",
+        "Confirm pricing assumptions locally."
+      ]
+    }
+  ],
+  "summary": {
+    "averageOverall": 38,
+    "averageCompliance": 35,
+    "averageTechnical": 40,
+    "averagePricing": 30,
+    "averageExecutive": 35,
+    "averageRisk": 76
+  },
+  "safety": {
+    "localOnly": true,
+    "autonomousBrowsing": false,
+    "emailing": false,
+    "crmSync": false,
+    "proposalSubmission": false,
+    "automaticComplianceApproval": false,
+    "automaticExecutiveApproval": false,
+    "customerCommunication": false
+  }
+}

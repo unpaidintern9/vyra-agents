@@ -1,0 +1,278 @@
+[
+  {
+    "id": "proposal-area-502-mma-evidence-local-crm",
+    "type": "Local CRM opportunity",
+    "description": "Opportunity readiness, score, stage, contacts, and missing proposal fields.",
+    "source": "local-crm",
+    "linkedRequirement": "proposal-area-502-mma-REQ-005",
+    "linkedProposal": "proposal-area-502-mma",
+    "linkedFact": "opp-area-502-mma",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 76,
+    "verificationStatus": "partially_verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-area-502-mma-evidence-additions-20260701120000-hsoj",
+        "proposalId": "proposal-area-502-mma",
+        "type": "evidence additions",
+        "description": "Local CRM opportunity evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  },
+  {
+    "id": "proposal-area-502-mma-evidence-research-intake",
+    "type": "Research intake",
+    "description": "Approved source-backed research summary linked to the opportunity.",
+    "source": "research-intake",
+    "linkedRequirement": "proposal-area-502-mma-REQ-005",
+    "linkedProposal": "proposal-area-502-mma",
+    "linkedFact": "intake-opp-area-502-mma",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 72,
+    "verificationStatus": "partially_verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-area-502-mma-evidence-additions-20260701120000-nsb5",
+        "proposalId": "proposal-area-502-mma",
+        "type": "evidence additions",
+        "description": "Research intake evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  },
+  {
+    "id": "proposal-area-502-mma-evidence-workflow",
+    "type": "Workflow handoff",
+    "description": "Proposal prep, Executive approval, or compliance workflow dependency.",
+    "source": "workflow",
+    "linkedRequirement": "proposal-area-502-mma-REQ-005",
+    "linkedProposal": "proposal-area-502-mma",
+    "linkedFact": "wf-research-area-502",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 70,
+    "verificationStatus": "verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-area-502-mma-evidence-additions-20260701120000-vlb6",
+        "proposalId": "proposal-area-502-mma",
+        "type": "evidence additions",
+        "description": "Workflow handoff evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  },
+  {
+    "id": "proposal-area-502-mma-evidence-shared-memory",
+    "type": "Shared memory fact",
+    "description": "Existing opportunity and organization facts referenced instead of duplicated.",
+    "source": "shared-memory",
+    "linkedRequirement": "proposal-area-502-mma-REQ-005",
+    "linkedProposal": "proposal-area-502-mma",
+    "linkedFact": "fact:opp-area-502-mma:proposal-status",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 74,
+    "verificationStatus": "verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-area-502-mma-evidence-additions-20260701120000-h0sg",
+        "proposalId": "proposal-area-502-mma",
+        "type": "evidence additions",
+        "description": "Shared memory fact evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  },
+  {
+    "id": "proposal-louisville-combat-academy-evidence-local-crm",
+    "type": "Local CRM opportunity",
+    "description": "Opportunity readiness, score, stage, contacts, and missing proposal fields.",
+    "source": "local-crm",
+    "linkedRequirement": "proposal-louisville-combat-academy-REQ-005",
+    "linkedProposal": "proposal-louisville-combat-academy",
+    "linkedFact": "opp-louisville-combat-academy",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 76,
+    "verificationStatus": "partially_verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-louisville-combat-academy-evidence-additions-20260701120000-dqb7",
+        "proposalId": "proposal-louisville-combat-academy",
+        "type": "evidence additions",
+        "description": "Local CRM opportunity evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  },
+  {
+    "id": "proposal-louisville-combat-academy-evidence-research-intake",
+    "type": "Research intake",
+    "description": "Approved source-backed research summary linked to the opportunity.",
+    "source": "research-intake",
+    "linkedRequirement": "proposal-louisville-combat-academy-REQ-005",
+    "linkedProposal": "proposal-louisville-combat-academy",
+    "linkedFact": "intake-opp-louisville-combat-academy",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 72,
+    "verificationStatus": "partially_verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-louisville-combat-academy-evidence-additions-20260701120000-2lwk",
+        "proposalId": "proposal-louisville-combat-academy",
+        "type": "evidence additions",
+        "description": "Research intake evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  },
+  {
+    "id": "proposal-louisville-combat-academy-evidence-workflow",
+    "type": "Workflow handoff",
+    "description": "Proposal prep, Executive approval, or compliance workflow dependency.",
+    "source": "workflow",
+    "linkedRequirement": "proposal-louisville-combat-academy-REQ-005",
+    "linkedProposal": "proposal-louisville-combat-academy",
+    "linkedFact": "wf-verify-louisville-combat",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 70,
+    "verificationStatus": "verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-louisville-combat-academy-evidence-additions-20260701120000-iwbp",
+        "proposalId": "proposal-louisville-combat-academy",
+        "type": "evidence additions",
+        "description": "Workflow handoff evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  },
+  {
+    "id": "proposal-louisville-combat-academy-evidence-shared-memory",
+    "type": "Shared memory fact",
+    "description": "Existing opportunity and organization facts referenced instead of duplicated.",
+    "source": "shared-memory",
+    "linkedRequirement": "proposal-louisville-combat-academy-REQ-005",
+    "linkedProposal": "proposal-louisville-combat-academy",
+    "linkedFact": "fact:opp-louisville-combat-academy:proposal-status",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 74,
+    "verificationStatus": "verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-louisville-combat-academy-evidence-additions-20260701120000-uky9",
+        "proposalId": "proposal-louisville-combat-academy",
+        "type": "evidence additions",
+        "description": "Shared memory fact evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  },
+  {
+    "id": "proposal-core-combat-sports-evidence-local-crm",
+    "type": "Local CRM opportunity",
+    "description": "Opportunity readiness, score, stage, contacts, and missing proposal fields.",
+    "source": "local-crm",
+    "linkedRequirement": "proposal-core-combat-sports-REQ-005",
+    "linkedProposal": "proposal-core-combat-sports",
+    "linkedFact": "opp-core-combat-sports",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 76,
+    "verificationStatus": "partially_verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-core-combat-sports-evidence-additions-20260701120000-4hv4",
+        "proposalId": "proposal-core-combat-sports",
+        "type": "evidence additions",
+        "description": "Local CRM opportunity evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  },
+  {
+    "id": "proposal-core-combat-sports-evidence-research-intake",
+    "type": "Research intake",
+    "description": "Approved source-backed research summary linked to the opportunity.",
+    "source": "research-intake",
+    "linkedRequirement": "proposal-core-combat-sports-REQ-005",
+    "linkedProposal": "proposal-core-combat-sports",
+    "linkedFact": "intake-opp-core-combat-sports",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 72,
+    "verificationStatus": "partially_verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-core-combat-sports-evidence-additions-20260701120000-12al",
+        "proposalId": "proposal-core-combat-sports",
+        "type": "evidence additions",
+        "description": "Research intake evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  },
+  {
+    "id": "proposal-core-combat-sports-evidence-workflow",
+    "type": "Workflow handoff",
+    "description": "Proposal prep, Executive approval, or compliance workflow dependency.",
+    "source": "workflow",
+    "linkedRequirement": "proposal-core-combat-sports-REQ-005",
+    "linkedProposal": "proposal-core-combat-sports",
+    "linkedFact": "wf-proposal-core-combat",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 70,
+    "verificationStatus": "verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-core-combat-sports-evidence-additions-20260701120000-9nsy",
+        "proposalId": "proposal-core-combat-sports",
+        "type": "evidence additions",
+        "description": "Workflow handoff evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  },
+  {
+    "id": "proposal-core-combat-sports-evidence-shared-memory",
+    "type": "Shared memory fact",
+    "description": "Existing opportunity and organization facts referenced instead of duplicated.",
+    "source": "shared-memory",
+    "linkedRequirement": "proposal-core-combat-sports-REQ-005",
+    "linkedProposal": "proposal-core-combat-sports",
+    "linkedFact": "fact:opp-core-combat-sports:proposal-status",
+    "linkedReport": "Company Research Dossier",
+    "confidence": 74,
+    "verificationStatus": "verified",
+    "auditHistory": [
+      {
+        "id": "timeline-proposal-core-combat-sports-evidence-additions-20260701120000-7eb4",
+        "proposalId": "proposal-core-combat-sports",
+        "type": "evidence additions",
+        "description": "Shared memory fact evidence linked locally.",
+        "operator": "Proposal Engine",
+        "timestamp": "2026-07-01T12:00:00.000Z",
+        "immutable": true
+      }
+    ]
+  }
+]

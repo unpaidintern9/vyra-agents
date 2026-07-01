@@ -15,6 +15,7 @@ import type { ReleaseShipPlanDashboardSummary } from '../../runtime/releaseShipP
 import type { RepositoryIntelligenceDashboardSummary } from '../../runtime/repositoryIntelligence';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry, RuntimeApproval } from '../../runtime/runtimeTypes';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
+import type { ProposalDashboardSummary } from '../../runtime/proposalEngine';
 import type { LocalReport } from '../../storage/reportExport';
 import type {
   SalesAgentTeamSummary,
@@ -124,6 +125,7 @@ export interface ExecutiveSummary {
   executiveEmailBriefing?: ExecutiveEmailBriefingSummary;
   executiveOperations?: ExecutiveOperationsDashboardSummary;
   executivePlanning?: ExecutivePlanningSummary;
+  proposalEngine?: ProposalDashboardSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
@@ -157,6 +159,7 @@ export interface ExecutiveDashboardProps {
   executiveEmailBriefing?: ExecutiveEmailBriefingSummary;
   executiveOperations?: ExecutiveOperationsDashboardSummary;
   executivePlanning?: ExecutivePlanningSummary;
+  proposalEngine?: ProposalDashboardSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
