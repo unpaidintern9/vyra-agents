@@ -4,6 +4,7 @@ import type { EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator
 import type { GmailEmailDashboardSummary } from './gmailEmail';
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
+import type { ProjectRegistryDashboardSummary } from './projectRegistry';
 import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
@@ -87,6 +88,7 @@ export function buildDashboardExecutiveAutomationSummary(input: {
   engineeringTasks?: EngineeringTaskGeneratorSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
+  projectRegistry?: ProjectRegistryDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   runtime: AgentRuntimeSnapshot;
   sharedTasks?: SharedTaskDashboardSummary;
@@ -126,6 +128,7 @@ function buildRules(input: {
   engineeringTasks?: EngineeringTaskGeneratorSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
+  projectRegistry?: ProjectRegistryDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   runtime: AgentRuntimeSnapshot;
   sharedTasks?: SharedTaskDashboardSummary;
@@ -136,8 +139,10 @@ function buildRules(input: {
       'engineering health warnings',
       'threshold-crossed',
       ['create shared task', 'create GitHub plan', 'create Executive review item'],
-      input.repositoryIntelligence && input.repositoryIntelligence.repositoryRisk !== 'Low',
-      [`Repository risk ${input.repositoryIntelligence?.repositoryRisk ?? 'Unknown'}; health ${input.repositoryIntelligence?.engineeringHealthScore ?? 0}/100.`],
+      Boolean((input.repositoryIntelligence && input.repositoryIntelligence.repositoryRisk !== 'Low') || (input.projectRegistry?.blockedProjects ?? 0) > 0),
+      [
+        `Repository risk ${input.repositoryIntelligence?.repositoryRisk ?? 'Unknown'}; health ${input.repositoryIntelligence?.engineeringHealthScore ?? 0}/100; blocked projects ${input.projectRegistry?.blockedProjects ?? 0}.`,
+      ],
       'high',
     ),
     maybeRule(
@@ -219,8 +224,10 @@ function buildRules(input: {
       'cross-agent review needs',
       'report-ready',
       ['create Executive review item', 'create email draft', 'send configured internal email', 'generate report'],
-      Boolean(input.crossAgentSummary?.organizationsNeedingExecutiveReview),
-      [`${input.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0} organization(s) need Executive review.`],
+      Boolean(input.crossAgentSummary?.organizationsNeedingExecutiveReview || (input.projectRegistry && input.projectRegistry.releaseReadinessStatus !== 'Ready')),
+      [
+        `${input.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0} organization(s) need Executive review; project readiness ${input.projectRegistry?.releaseReadinessStatus ?? 'unknown'}.`,
+      ],
       'medium',
     ),
   ].filter((rule): rule is ExecutiveAutomationRuleSummary => Boolean(rule));

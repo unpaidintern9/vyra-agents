@@ -8,6 +8,7 @@ Phase 39 adds a local Engineering Task Generator that turns repository intellige
 - Local GitHub issue and PR plans.
 - Executive priority signals derived from local dashboards and runtime summaries.
 - Shared Task Queue blockers, especially Sales and Migration blockers.
+- Project Registry release readiness, missing paths, and blocked projects.
 
 ## Commands
 
@@ -31,6 +32,7 @@ Each candidate includes:
 - linked GitHub plan
 - linked Executive priority
 - linked Sales or Migration blocker
+- linked project id
 - approval-required marker
 
 ## Safety
@@ -40,3 +42,4 @@ Each candidate includes:
 - No Shared Task Queue records are created automatically.
 - No production data is written.
 - Reports are written only to ignored local report folders.
+- Project-specific candidates remain local release-readiness recommendations until reviewed.

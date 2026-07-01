@@ -19,6 +19,7 @@ export default function ExecutiveDashboard({
   githubReadOnly,
   integrationWarnings = [],
   onNavigate,
+  projectRegistry,
   repositoryIntelligence,
   runtime,
   salesAgentTeamSummary,
@@ -47,6 +48,7 @@ export default function ExecutiveDashboard({
     executiveAutomation,
     githubPlanning,
     githubReadOnly,
+    projectRegistry,
     repositoryIntelligence,
     sharedTaskSummary,
   );
@@ -60,11 +62,52 @@ export default function ExecutiveDashboard({
         <ExecutiveTimeline timeline={summary.timeline} />
         <ExecutiveRuntime runtime={summary.runtime} />
         {summary.executiveAutomation ? <ExecutiveAutomationPanel automation={summary.executiveAutomation} /> : null}
+        {summary.projectRegistry ? <ExecutiveProjectRegistryPanel projectRegistry={summary.projectRegistry} /> : null}
         <ExecutiveHealth healthRows={healthRows} onNavigate={onNavigate} />
         <ExecutiveApprovals approvals={runtime.approvals} />
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveProjectRegistryPanel({ projectRegistry }: { projectRegistry: NonNullable<ExecutiveDashboardProps['projectRegistry']> }) {
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Project Risk Summary</h2>
+        </div>
+        <span>{projectRegistry.releaseReadinessStatus}</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact">
+          <span>Registered Projects</span>
+          <strong>{projectRegistry.registeredProjects}</strong>
+        </div>
+        <div className="fact">
+          <span>Blocked Projects</span>
+          <strong>{projectRegistry.blockedProjects}</strong>
+        </div>
+        <div className="fact">
+          <span>Missing Paths</span>
+          <strong>{projectRegistry.missingPaths}</strong>
+        </div>
+        <div className="fact">
+          <span>Validation</span>
+          <strong>{projectRegistry.validationStatus}</strong>
+        </div>
+      </div>
+      <div className="activity-list">
+        {projectRegistry.projects.slice(0, 5).map((project) => (
+          <p key={project.id}>
+            <strong>{project.projectName}</strong>: {project.releaseReadiness} · {project.status}
+          </p>
+        ))}
+      </div>
+      <p className="subtle-note">{projectRegistry.highPriorityProjectIssues[0] ?? projectRegistry.safetyStatus}</p>
+    </section>
   );
 }
 

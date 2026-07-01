@@ -6,6 +6,7 @@ import type { ExecutiveAutomationSummary } from './executiveAutomation';
 import type { GmailEmailDashboardSummary } from './gmailEmail';
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
+import type { ProjectRegistryDashboardSummary } from './projectRegistry';
 import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
@@ -19,7 +20,7 @@ import type {
   SalesSummary,
 } from '../agents/sales/salesTypes';
 
-export const executiveRuleCount = 13;
+export const executiveRuleCount = 14;
 
 export function buildExecutivePriorities(
   runtime: AgentRuntimeSnapshot,
@@ -37,6 +38,7 @@ export function buildExecutivePriorities(
   executiveAutomation?: ExecutiveAutomationSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
+  projectRegistry?: ProjectRegistryDashboardSummary,
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutivePriority[] {
@@ -312,6 +314,18 @@ export function buildExecutivePriorities(
       priority: repositoryIntelligence.repositoryRisk === 'High' ? 'high' : 'medium',
       recommendedAction: 'Review Repository Intelligence before approving Engineering or GitHub planning work.',
       source: 'Repository Intelligence Engine',
+    });
+  }
+
+  if (projectRegistry && projectRegistry.releaseReadinessStatus !== 'Ready') {
+    priorities.push({
+      id: 'multi-project-release-readiness',
+      agent: 'Executive Agent',
+      department: 'Executive',
+      detail: `${projectRegistry.blockedProjects} blocked project(s), ${projectRegistry.missingPaths} missing path(s), and release readiness ${projectRegistry.releaseReadinessStatus}.`,
+      priority: projectRegistry.blockedProjects > 0 ? 'high' : 'medium',
+      recommendedAction: 'Open Engineering or Operator and review the Project Registry before release planning.',
+      source: 'Real Repo Multi-Project Registry',
     });
   }
 

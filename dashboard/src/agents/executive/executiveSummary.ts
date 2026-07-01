@@ -6,6 +6,7 @@ import type { ExecutiveAutomationSummary } from '../../runtime/executiveAutomati
 import type { GmailEmailDashboardSummary } from '../../runtime/gmailEmail';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
+import type { ProjectRegistryDashboardSummary } from '../../runtime/projectRegistry';
 import type { RepositoryIntelligenceDashboardSummary } from '../../runtime/repositoryIntelligence';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
@@ -45,6 +46,7 @@ export function buildExecutiveSummary(
   executiveAutomation?: ExecutiveAutomationSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
+  projectRegistry?: ProjectRegistryDashboardSummary,
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutiveSummary {
@@ -88,6 +90,7 @@ export function buildExecutiveSummary(
       executiveAutomation,
       githubPlanning,
       githubReadOnly,
+      projectRegistry,
       repositoryIntelligence,
       sharedTaskSummary,
     ),
@@ -113,6 +116,7 @@ export function buildExecutiveSummary(
     email,
     githubPlanning,
     githubReadOnly,
+    projectRegistry,
     repositoryIntelligence,
     sharedTaskSummary,
   };
@@ -168,6 +172,9 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     salesProposalsReadyForReview: summary.salesProposalSummary?.readyForReview ?? 0,
     salesProposalRiskCount: summary.salesProposalSummary?.riskCount ?? 0,
     salesBlockedExternalActions: summary.salesIntegration?.blockedExternalActionCount ?? 0,
+    registeredProjects: summary.projectRegistry?.registeredProjects ?? 0,
+    blockedProjects: summary.projectRegistry?.blockedProjects ?? 0,
+    releaseReadinessStatus: summary.projectRegistry?.releaseReadinessStatus ?? 'Not available',
     salesAgentTeamActiveAgents: summary.salesAgentTeamSummary?.activeAgents ?? 0,
     salesAgentTeamTotalAgents: summary.salesAgentTeamSummary?.totalAgents ?? 0,
     salesProspectResearchSlots: summary.salesAgentTeamSummary?.totalProspects ?? 0,

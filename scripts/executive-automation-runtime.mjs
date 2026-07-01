@@ -6,6 +6,7 @@ import { buildConnectorReadinessStatus } from './connector-readiness-runtime.mjs
 import { buildEngineeringTaskCandidateSet } from './engineering-task-generator-runtime.mjs';
 import { createEmailDraft, getEmailSafetyCheck, getEmailStatus, sendEmailDraft } from './gmail-email-runtime.mjs';
 import { createGitHubPlan } from './github-planning-runtime.mjs';
+import { buildProjectRegistry } from './project-registry-runtime.mjs';
 import { buildRepositoryIntelligence } from './repository-intelligence-runtime.mjs';
 import { buildSharedTaskStatus, createSharedTask } from './shared-task-runtime.mjs';
 
@@ -235,6 +236,7 @@ function buildAutomationContext(options = {}) {
   const sharedTasks = buildSharedTaskStatus();
   const repositoryIntelligence = safe(() => buildRepositoryIntelligence(), null);
   const engineeringTasks = safe(() => buildEngineeringTaskCandidateSet(), null);
+  const projectRegistry = safe(() => buildProjectRegistry(), null);
   const connectorReadiness = buildConnectorReadinessStatus();
   const email = getEmailStatus();
   return {
@@ -243,6 +245,7 @@ function buildAutomationContext(options = {}) {
     sharedTasks,
     repositoryIntelligence,
     engineeringTasks,
+    projectRegistry,
     connectorReadiness,
     email,
     trigger: String(options.trigger ?? 'manual'),
@@ -264,12 +267,16 @@ function evaluateAutomationRules(context) {
 function signalsForRule(id, context) {
   const repo = context.repositoryIntelligence?.summary;
   const engineering = context.engineeringTasks?.summary;
+  const projects = context.projectRegistry?.summary;
   const shared = context.sharedTasks;
   const email = context.email;
   const connectors = context.connectorReadiness;
   const signals = [];
   if (id === 'engineering-health-warnings' && repo && (repo.repositoryRisk !== 'Low' || repo.engineeringHealthScore < 85)) {
     signals.push(`Repository risk ${repo.repositoryRisk}; engineering health ${repo.engineeringHealthScore}/100.`);
+  }
+  if (id === 'engineering-health-warnings' && projects && projects.blockedProjects > 0) {
+    signals.push(`${projects.blockedProjects} registered project(s) are blocked for release readiness.`);
   }
   if (id === 'failed-validations' && repo?.validationTrend && repo.validationTrend !== 'Ready') signals.push(`Repository validation trend: ${repo.validationTrend}.`);
   if (id === 'github-repo-changes' && repo && (repo.dependencyEdges > 0 || repo.modules > 0)) signals.push(`${repo.modules} module(s) and ${repo.dependencyEdges} dependency edge(s) indexed.`);
@@ -283,6 +290,9 @@ function signalsForRule(id, context) {
   }
   if (id === 'cross-agent-review-needs' && context.operator.executive.crossAgentHealth.organizationsNeedingExecutiveReview > 0) {
     signals.push(`${context.operator.executive.crossAgentHealth.organizationsNeedingExecutiveReview} organization(s) need Executive review.`);
+  }
+  if (id === 'cross-agent-review-needs' && projects && projects.releaseReadinessStatus !== 'ready') {
+    signals.push(`Multi-project release readiness is ${projects.releaseReadinessStatus}.`);
   }
   return signals;
 }
@@ -300,6 +310,13 @@ function buildAutomationRunReport({ context, triggeredRules, generatedTasks, gen
       generatedEmails: generatedEmails.length,
       skippedOrBlockedActions: skippedOrBlockedActions.length,
     },
+    projectRegistry: context.projectRegistry
+      ? {
+          summary: context.projectRegistry.summary,
+          blockedProjects: context.projectRegistry.releaseReadiness.blockedProjects,
+          highPriorityProjectIssues: context.projectRegistry.releaseReadiness.blockedProjects.map((project) => project.projectName),
+        }
+      : null,
     triggeredRules,
     generatedTasks: generatedTasks.map((task) => ({ id: task.id, title: task.title, assignedAgent: task.assignedAgent, priority: task.priority, status: task.status })),
     generatedPlans: generatedPlans.map((plan) => ({ id: plan.id, title: plan.title, approvalStatus: plan.approvalStatus })),

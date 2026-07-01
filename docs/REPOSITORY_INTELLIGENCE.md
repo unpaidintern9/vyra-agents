@@ -14,6 +14,10 @@ It reads the generated Engineering graph and normalizes repository metadata into
 - migrations
 - configuration
 - scripts
+- registered projects
+- indexed projects
+- blocked projects
+- release readiness status
 
 ## Commands
 
@@ -42,3 +46,9 @@ Repository Intelligence is local analysis only. It does not modify repositories,
 ## Engineering Task Generator Link
 
 Phase 39 uses Repository Intelligence as a source for local Engineering task candidates. Repository risk, dependency health, orphaned modules, missing documentation, and validation state become explainable candidate tasks. The generator does not create Shared Task Queue records automatically and does not modify code.
+
+## Multi-Project Registry Link
+
+Phase 42 makes Repository Intelligence project-aware. The scanner reads configured local targets from the Project Registry and annotates each repository with project id, project type, owning agent, repo owner/name, and validation commands.
+
+Missing project paths fail safely as registry health data. Repository Intelligence still performs local metadata scans only and does not run project validation commands automatically.

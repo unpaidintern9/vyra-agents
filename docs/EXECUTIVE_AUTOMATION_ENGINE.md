@@ -25,6 +25,7 @@ The engine integrates these existing layers:
 - Shared Task Queue.
 - Gmail Email Connector workflow and audit trail.
 - Repository Intelligence.
+- Project Registry and release readiness.
 - GitHub Planning Queue.
 - Connector Readiness.
 - Cross-Agent Collaboration graph.
@@ -50,3 +51,7 @@ Automation runs can generate:
 The Operator Dashboard shows automation status, latest run, triggered rules, generated tasks, generated reports, generated emails, skipped/blocked actions, and safety status.
 
 The Executive Dashboard shows automation health, top triggered rules, unresolved automation items, emails sent/skipped, tasks created, agent workflows run, and the next recommended action.
+
+## Project Registry Link
+
+Phase 42 adds multi-project readiness to Executive automation. Blocked projects and non-ready release readiness can trigger Engineering health and cross-agent review signals. Generated tasks, plans, emails, and reports remain local and must pass the same safety gates as other automation output.

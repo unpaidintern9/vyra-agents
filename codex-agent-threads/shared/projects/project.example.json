@@ -1,0 +1,18 @@
+{
+  "exampleOnly": true,
+  "id": "future-project-example",
+  "projectName": "Future Project Example",
+  "localPath": "/absolute/local/path/not/committed",
+  "repoOwner": "repo-owner",
+  "repoName": "repo-name",
+  "projectType": "future_project",
+  "owningAgent": "Engineering",
+  "status": "configured",
+  "validationCommands": [
+    "npm run lint",
+    "npm run build"
+  ],
+  "notes": [
+    "Copy this template to a local ignored project config when future project registration is needed."
+  ]
+}

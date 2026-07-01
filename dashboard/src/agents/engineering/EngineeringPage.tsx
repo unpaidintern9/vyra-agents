@@ -5,6 +5,7 @@ import { EmptyState } from '../../components/EmptyState';
 import { StatusBadge } from '../../components/StatusBadge';
 import { buildDashboardEngineeringTaskSummary } from '../../runtime/engineeringTaskGenerator';
 import { buildDashboardGitHubPlanningSummary } from '../../runtime/githubPlanning';
+import { buildDashboardProjectRegistrySummary } from '../../runtime/projectRegistry';
 import { summarizeRepositoryIntelligence } from '../../runtime/repositoryIntelligence';
 import { buildDashboardSharedTaskSummary } from '../../runtime/sharedTaskQueue';
 import { loadEngineeringGraph } from './engineeringGraph';
@@ -131,14 +132,16 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
 
   const graph = scan.graph;
   const repositoryIntelligence = useMemo(() => summarizeRepositoryIntelligence(graph), [graph]);
+  const projectRegistry = useMemo(() => buildDashboardProjectRegistrySummary(graph), [graph]);
   const engineeringTaskSummary = useMemo(
     () =>
       buildDashboardEngineeringTaskSummary({
         githubPlanning: buildDashboardGitHubPlanningSummary(),
+        projectRegistry,
         repositoryIntelligence,
         sharedTasks: buildDashboardSharedTaskSummary(),
       }),
-    [repositoryIntelligence],
+    [projectRegistry, repositoryIntelligence],
   );
   const selectedNode = selectedNodeId ? graph.nodes.find((node) => node.id === selectedNodeId) ?? null : null;
   const searchResults = useMemo(() => searchEngineeringNodes(graph, query), [graph, query]);
@@ -554,6 +557,49 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
           <p className="subtle-note">Use repo:scan and repo:validate from the root CLI for generated intelligence reports. No repository files or GitHub records are modified.</p>
         </Panel>
 
+        <Panel title="Project Registry" icon={<Network size={18} />} wide>
+          <p className="panel-description">
+            Multi-project registry for Vyra Agents, mobile/backend, desktop, websites, Valor Solutions, and future projects. Engineering scans are local-only and never modify project repositories.
+          </p>
+          <div className="summary-grid compact-summary">
+            {[
+              ['Registered Projects', projectRegistry.registeredProjects],
+              ['Indexed Projects', projectRegistry.indexedProjects],
+              ['Blocked Projects', projectRegistry.blockedProjects],
+              ['Missing Paths', projectRegistry.missingPaths],
+              ['Release Readiness', projectRegistry.releaseReadinessStatus],
+              ['Validation', projectRegistry.validationStatus],
+            ].map(([label, value]) => (
+              <article className="metric-card" key={label}>
+                <Network size={18} />
+                <span>{label}</span>
+                <strong>{String(value)}</strong>
+              </article>
+            ))}
+          </div>
+          <DataTable
+            columns={['Project', 'Repo', 'Agent', 'Status', 'Branch', 'Health', 'Release', 'Path']}
+            rows={projectRegistry.projects.map((project) => [
+              project.projectName,
+              `${project.repoOwner}/${project.repoName}`,
+              project.owningAgent,
+              project.status.replace(/_/g, ' '),
+              project.branch,
+              `${project.healthScore}/100`,
+              project.releaseReadiness,
+              project.localPath,
+            ])}
+          />
+          <DataTable
+            columns={['Project', 'Validation Commands']}
+            rows={projectRegistry.projects.map((project) => [
+              project.projectName,
+              project.validationCommands.length ? project.validationCommands.join(', ') : 'None configured',
+            ])}
+          />
+          <p className="subtle-note">{projectRegistry.safetyStatus}</p>
+        </Panel>
+
         <Panel title="Engineering Task Generator" icon={<ListChecks size={18} />} wide>
           <p className="panel-description">
             Deterministic task candidates generated from repository health, dependency warnings, orphaned modules, missing documentation, GitHub plans, Executive priorities, and blocked Sales or Migration work. Candidates stay local and approval-only.
@@ -564,6 +610,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               ['Critical', engineeringTaskSummary.criticalEngineeringTasks],
               ['Sales Blocking', engineeringTaskSummary.salesBlockingEngineeringTasks],
               ['Migration Blocking', engineeringTaskSummary.migrationBlockingEngineeringTasks],
+              ['Project Specific', engineeringTaskSummary.projectSpecificEngineeringTasks],
               ['Release Readiness', engineeringTaskSummary.releaseReadinessTasks],
               ['Linked GitHub Plans', engineeringTaskSummary.linkedGitHubPlans],
               ['Linked Repo Risks', engineeringTaskSummary.linkedRepoRisks],

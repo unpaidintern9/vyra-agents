@@ -1051,3 +1051,29 @@ Boundaries:
 - No secrets output.
 - Gmail sends must use existing safety checks and audit logging.
 - Automatic emails only target approved internal recipients.
+
+## Phase 42
+
+Real Repo Multi-Project Registry.
+
+Includes:
+
+- Project registry model for project id, name, local path, repo owner/name, branch, project type, owning agent, status, validation commands, and notes.
+- Local config template directory at `codex-agent-threads/shared/projects/` with real local paths ignored.
+- Root npm scripts for `projects:status`, `projects:list`, `projects:scan`, `projects:health`, `projects:report`, and `projects:validate`.
+- Multi-project Repository Intelligence targets for Vyra Agents, mobile/backend, desktop software, Vyra website, Valor Solutions website, and future projects.
+- Project links into Shared Task Queue, GitHub planning, Executive automation, Engineering task generation, and dashboard runtime summaries.
+- Operator Dashboard Project Registry section.
+- Executive Dashboard project risk and release readiness section.
+- Engineering Dashboard Project Registry and project-specific task candidate sections.
+- Project Registry Report, Project Registry JSON, Multi-Project Health Report, and Release Readiness Report.
+
+Boundaries:
+
+- Local scans only.
+- No project file modifications.
+- No destructive commands.
+- No project-local generated data committed.
+- No GitHub writes.
+- No production writes.
+- No secrets committed.

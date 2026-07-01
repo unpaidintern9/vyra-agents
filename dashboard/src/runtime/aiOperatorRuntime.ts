@@ -5,6 +5,7 @@ import { buildDashboardExecutiveAutomationSummary, type ExecutiveAutomationSumma
 import { buildDashboardGmailEmailSummary, type GmailEmailDashboardSummary } from './gmailEmail';
 import { buildDashboardGitHubPlanningSummary, type GitHubPlanningDashboardSummary } from './githubPlanning';
 import { buildDashboardGitHubReadOnlySummary, type GitHubReadOnlyDashboardSummary } from './githubReadOnly';
+import { buildDashboardProjectRegistrySummary, type ProjectRegistryDashboardSummary } from './projectRegistry';
 import { defaultRepositoryIntelligenceSummary, type RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import { buildDashboardSharedTaskSummary, type SharedTaskDashboardSummary } from './sharedTaskQueue';
 
@@ -37,6 +38,7 @@ export interface AiOperatorDashboardSnapshot {
   executiveAutomation: ExecutiveAutomationSummary;
   githubPlanning: GitHubPlanningDashboardSummary;
   githubReadOnly: GitHubReadOnlyDashboardSummary;
+  projectRegistry: ProjectRegistryDashboardSummary;
   repositoryIntelligence: RepositoryIntelligenceDashboardSummary;
   safetyMode: string;
   sharedTasks: SharedTaskDashboardSummary;
@@ -182,6 +184,12 @@ export const aiOperatorCommands = [
   'npm run repo:health',
   'npm run repo:owners',
   'npm run repo:validate',
+  'npm run projects:status',
+  'npm run projects:list',
+  'npm run projects:scan',
+  'npm run projects:health',
+  'npm run projects:report',
+  'npm run projects:validate',
   'npm run engineering:tasks',
   'npm run engineering:generate-tasks',
   'npm run engineering:task-report',
@@ -251,6 +259,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   executiveAutomation?: ExecutiveAutomationSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
+  projectRegistry?: ProjectRegistryDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   sharedTasks?: SharedTaskDashboardSummary;
 }): AiOperatorDashboardSnapshot {
@@ -263,6 +272,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   const engineeringTasks = input.engineeringTasks ?? defaultEngineeringTaskSummary();
   const githubPlanning = input.githubPlanning ?? buildDashboardGitHubPlanningSummary();
   const githubReadOnly = input.githubReadOnly ?? buildDashboardGitHubReadOnlySummary();
+  const projectRegistry = input.projectRegistry ?? buildDashboardProjectRegistrySummary();
   const repositoryIntelligence = input.repositoryIntelligence ?? defaultRepositoryIntelligenceSummary();
   const sharedTasks = input.sharedTasks ?? buildDashboardSharedTaskSummary();
   const executiveAutomation =
@@ -273,6 +283,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
       engineeringTasks,
       githubPlanning,
       githubReadOnly,
+      projectRegistry,
       repositoryIntelligence,
       runtime: input.runtime,
       sharedTasks,
@@ -330,6 +341,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
     executiveAutomation,
     githubPlanning,
     githubReadOnly,
+    projectRegistry,
     repositoryIntelligence,
     safetyMode,
     sharedTasks,

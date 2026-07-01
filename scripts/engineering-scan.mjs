@@ -2,18 +2,12 @@ import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 
 import { basename, dirname, extname, join, relative, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { projectScanTargets } from './project-registry-runtime.mjs';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = resolve(scriptDir, '..');
 const outputPath = join(workspaceRoot, 'dashboard/public/engineering-graph.json');
-const home = process.env.HOME || '/Users/vyra';
-
-const repoTargets = [
-  { name: 'Vyra-Part-1', path: join(home, 'Documents/Vyra-Part-1') },
-  { name: 'vyra-agents', path: workspaceRoot },
-  { name: 'Vyra-Software', path: join(home, 'Documents/Vyra-Software') },
-  { name: 'vyra-website', path: join(home, 'Documents/vyra-website') },
-];
+const repoTargets = projectScanTargets();
 
 const ignoredDirectories = new Set([
   '.git',
@@ -172,6 +166,13 @@ function scanRepository(target) {
     latestCommit: String(metadata.latestCommit || 'unknown'),
     dirty: Boolean(metadata.dirty),
     packageManager: String(metadata.packageManager || 'unknown'),
+    projectId: target.id || target.name,
+    projectName: target.name,
+    projectType: target.projectType || 'future_project',
+    repoOwner: target.repoOwner || 'unknown',
+    repoName: target.repoName || target.name,
+    owningAgent: target.owningAgent || 'Engineering',
+    validationCommands: target.validationCommands || [],
     filesIndexed: 0,
     functions: 0,
     migrations: 0,

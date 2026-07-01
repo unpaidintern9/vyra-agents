@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildGitHubPlanningStatus } from './github-planning-runtime.mjs';
+import { buildProjectRegistry } from './project-registry-runtime.mjs';
 import { buildRepositoryIntelligence } from './repository-intelligence-runtime.mjs';
 import { buildSharedTaskStatus } from './shared-task-runtime.mjs';
 
@@ -42,6 +43,7 @@ const safety = {
 export function buildEngineeringTaskCandidateSet() {
   const repositoryIntelligence = buildRepositoryIntelligence();
   const githubPlanning = buildGitHubPlanningStatus();
+  const projectRegistry = buildProjectRegistry();
   const sharedTasks = buildSharedTaskStatus();
   const candidates = dedupeCandidates([
     ...repositoryRiskCandidates(repositoryIntelligence),
@@ -52,6 +54,7 @@ export function buildEngineeringTaskCandidateSet() {
     ...githubPlanCandidates(githubPlanning),
     ...executivePriorityCandidates(repositoryIntelligence, githubPlanning, sharedTasks),
     ...blockedOpportunityCandidates(sharedTasks),
+    ...projectRegistryCandidates(projectRegistry),
   ]);
   const summary = summarizeCandidates(candidates);
 
@@ -63,6 +66,7 @@ export function buildEngineeringTaskCandidateSet() {
     candidates,
     sources: {
       repositoryIntelligence: repositoryIntelligence.sourceGraph,
+      projectRegistry: projectRegistry.configRoot,
       githubPlanning: githubPlanning.planRoot,
       sharedTasks: sharedTasks.taskRoot,
       executivePriorities: 'derived locally from repository, GitHub planning, and shared task signals',
@@ -137,9 +141,30 @@ export function writeEngineeringTaskReports(set = buildEngineeringTaskCandidateS
       salesBlockingCandidates: set.candidates.filter((candidate) => candidate.category === 'sales blocker'),
       migrationBlockingCandidates: set.candidates.filter((candidate) => candidate.category === 'migration support'),
       releaseReadinessCandidates: set.candidates.filter((candidate) => candidate.category === 'release readiness'),
+      projectSpecificCandidates: set.candidates.filter((candidate) => candidate.linkedProjectId),
       safety,
     }),
   ].flat();
+}
+
+function projectRegistryCandidates(projectRegistry) {
+  return (projectRegistry.projects ?? [])
+    .filter((project) => String(project.health?.releaseReadiness).toLowerCase() === 'blocked' || ['missing_path', 'missing_git'].includes(project.status))
+    .slice(0, 12)
+    .map((project) =>
+      candidate({
+        id: `engineering-task:project-registry:${slugify(project.id)}`,
+        title: `Review ${project.projectName} project readiness`,
+        category: 'release readiness',
+        recommendedPriority: project.status === 'indexed' ? 'High' : 'Critical',
+        reason: `${project.projectName} is ${project.status} with release readiness ${project.health?.releaseReadiness ?? 'unknown'}.`,
+        linkedProjectId: project.id,
+        linkedRepoRisk: `${project.repoName}:${project.health?.riskLevel ?? 'unknown'}`,
+        linkedGraphNodeIds: [`project:${project.id}`],
+        linkedExecutivePriority: 'multi-project-release-readiness',
+        signals: [`projectStatus:${project.status}`, `releaseReadiness:${project.health?.releaseReadiness ?? 'unknown'}`],
+      }),
+    );
 }
 
 function repositoryRiskCandidates(intelligence) {
@@ -308,6 +333,7 @@ function candidate(input) {
     linkedExecutivePriority: input.linkedExecutivePriority ?? null,
     linkedGitHubPlan: input.linkedGitHubPlan ?? null,
     linkedGraphNodeIds: input.linkedGraphNodeIds ?? [],
+    linkedProjectId: input.linkedProjectId ?? null,
     linkedRepoRisk: input.linkedRepoRisk ?? null,
     linkedSalesMigrationBlocker: input.linkedSalesMigrationBlocker ?? null,
     linkedSharedTask: input.linkedSharedTask ?? null,
@@ -329,6 +355,7 @@ function summarizeCandidates(candidates) {
     highPriorityEngineeringTasks: candidates.filter((candidate) => candidate.recommendedPriority === 'High').length,
     salesBlockingEngineeringTasks: candidates.filter((candidate) => candidate.category === 'sales blocker').length,
     migrationBlockingEngineeringTasks: candidates.filter((candidate) => candidate.category === 'migration support').length,
+    projectSpecificEngineeringTasks: candidates.filter((candidate) => candidate.linkedProjectId).length,
     releaseReadinessTasks: candidates.filter((candidate) => candidate.category === 'release readiness').length,
     categoryCounts: countBy(candidates, 'category'),
     priorityCounts: countBy(candidates, 'recommendedPriority'),

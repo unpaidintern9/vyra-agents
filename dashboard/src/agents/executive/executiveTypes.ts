@@ -6,6 +6,7 @@ import type { ExecutiveAutomationSummary } from '../../runtime/executiveAutomati
 import type { GmailEmailDashboardSummary } from '../../runtime/gmailEmail';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
+import type { ProjectRegistryDashboardSummary } from '../../runtime/projectRegistry';
 import type { RepositoryIntelligenceDashboardSummary } from '../../runtime/repositoryIntelligence';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry, RuntimeApproval } from '../../runtime/runtimeTypes';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
@@ -107,6 +108,7 @@ export interface ExecutiveSummary {
   executiveAutomation?: ExecutiveAutomationSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
+  projectRegistry?: ProjectRegistryDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
 }
@@ -129,6 +131,7 @@ export interface ExecutiveDashboardProps {
   executiveAutomation?: ExecutiveAutomationSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
+  projectRegistry?: ProjectRegistryDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
 }

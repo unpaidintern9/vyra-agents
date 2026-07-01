@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildGitHubPlanningStatus } from './github-planning-runtime.mjs';
+import { buildProjectRegistry } from './project-registry-runtime.mjs';
 import { buildSharedTaskStatus } from './shared-task-runtime.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -30,6 +31,7 @@ export function buildRepositoryIntelligence() {
   const graph = loadEngineeringGraph();
   const sharedTasks = buildSharedTaskStatus();
   const githubPlanning = buildGitHubPlanningStatus();
+  const projectRegistry = buildProjectRegistry();
   const repositories = graph.repositories.map((repo) => buildRepositoryModel(repo, graph, sharedTasks, githubPlanning));
   const dependencyGraph = buildDependencyGraph(graph);
   const ownership = buildOwnershipModel(repositories, graph, sharedTasks, githubPlanning);
@@ -64,6 +66,29 @@ export function buildRepositoryIntelligence() {
       documentationCompleteness: health.documentationCompleteness,
       dependencyHealth: health.dependencyHealth,
       validationTrend: health.validationTrend,
+      registeredProjects: projectRegistry.summary.registeredProjects,
+      indexedProjects: projectRegistry.summary.indexedProjects,
+      blockedProjects: projectRegistry.summary.blockedProjects,
+      releaseReadinessStatus: projectRegistry.releaseReadiness.summary.releaseReadinessStatus,
+    },
+    projectRegistry: {
+      summary: projectRegistry.summary,
+      projects: projectRegistry.projects.map((project) => ({
+        id: project.id,
+        projectName: project.projectName,
+        repoName: project.repoName,
+        localPath: project.localPath,
+        branch: project.branch,
+        projectType: project.projectType,
+        owningAgent: project.owningAgent,
+        status: project.status,
+        validationStatus: project.validation.validationStatus,
+        healthScore: project.health.healthScore,
+        riskLevel: project.health.riskLevel,
+        releaseReadiness: project.health.releaseReadiness,
+        issues: project.health.issues,
+      })),
+      releaseReadiness: projectRegistry.releaseReadiness,
     },
     repositories,
     dependencyGraph,
@@ -80,6 +105,7 @@ export function getRepositoryStatus() {
     status: 'ready',
     generatedAt: intelligence.generatedAt,
     summary: intelligence.summary,
+    projectRegistry: intelligence.projectRegistry,
     repositories: intelligence.repositories.map((repo) => ({
       name: repo.name,
       owner: repo.ownership.owningAgent,
@@ -112,6 +138,7 @@ export function getRepositoryHealth() {
     generatedAt: intelligence.generatedAt,
     summary: intelligence.summary,
     health: intelligence.health,
+    projectRegistry: intelligence.projectRegistry,
     repositories: intelligence.repositories.map((repo) => ({ name: repo.name, health: repo.health })),
     safety: intelligence.safety,
   };
@@ -142,6 +169,7 @@ export function validateRepositoryIntelligence() {
     errors.push(error.message);
   }
   if (intelligence && intelligence.summary.repositories < 1) errors.push('at least one repository is required.');
+  if (intelligence && intelligence.projectRegistry.summary.registeredProjects < 5) errors.push('project registry must include required projects.');
   if (intelligence && !Array.isArray(intelligence.dependencyGraph.edges)) errors.push('dependency graph edges must be an array.');
   if (intelligence && !Array.isArray(intelligence.knowledgeGraph.nodes)) errors.push('knowledge graph nodes must be an array.');
   return {
@@ -163,12 +191,14 @@ export function writeRepositoryReports(intelligence = buildRepositoryIntelligenc
       graph: intelligence.knowledgeGraph,
       dependencyGraph: intelligence.dependencyGraph,
       safety: intelligence.safety,
+      projectRegistry: intelligence.projectRegistry,
     }),
     writeReport(repoIntelligenceReportRoot, 'engineering-health-report', {
       title: 'Engineering Health Report',
       generatedAt: intelligence.generatedAt,
       summary: intelligence.summary,
       health: intelligence.health,
+      projectRegistry: intelligence.projectRegistry,
       repositories: intelligence.repositories.map((repo) => ({ name: repo.name, health: repo.health })),
       safety: intelligence.safety,
     }),
@@ -204,6 +234,11 @@ function buildRepositoryModel(repo, graph, sharedTasks, githubPlanning) {
     latestCommit: repo.latestCommit,
     dirty: repo.dirty,
     packageManager: repo.packageManager,
+    projectId: repo.projectId,
+    projectName: repo.projectName ?? repo.name,
+    projectType: repo.projectType,
+    repoOwner: repo.repoOwner,
+    repoName: repo.repoName,
     modules: nodes.filter((node) => ['file', 'folder', 'component', 'hook', 'route', 'screen'].includes(node.type)).length,
     packages: nodes.filter((node) => node.type === 'package_dependency').length,
     applications: nodes.filter((node) => ['route', 'screen'].includes(node.type)).length,
@@ -214,7 +249,7 @@ function buildRepositoryModel(repo, graph, sharedTasks, githubPlanning) {
     configuration: nodes.filter((node) => isConfigNode(node)).length,
     scripts: nodes.filter((node) => node.type === 'npm_script').length,
     ownership: {
-      owningAgent: repo.name === 'vyra-agents' ? 'Engineering Agent' : 'Engineering Agent',
+      owningAgent: repo.owningAgent ? `${repo.owningAgent} Agent` : 'Engineering Agent',
       responsibleTeam: repo.owner || ownerForRepo(repo.name),
       relatedDocumentation: relatedDocs,
       relatedTasks: repoTasks.map((task) => task.id),

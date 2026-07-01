@@ -41,9 +41,13 @@ codex-agent-threads/shared/tasks/**/*.json
 codex-agent-threads/shared/tasks/**/*.md
 codex-agent-threads/shared/github-plans/**/*.json
 codex-agent-threads/shared/github-plans/**/*.md
+codex-agent-threads/shared/projects/**/*.json
+codex-agent-threads/shared/projects/**/*.md
 codex-agent-threads/shared/providers/**/*.json
 !codex-agent-threads/shared/**/.gitkeep
 !codex-agent-threads/shared/examples/**/*.json
 !codex-agent-threads/shared/examples/**/*.md
+!codex-agent-threads/shared/projects/**/*.example.json
+!codex-agent-threads/shared/projects/**/*.template.json
 !codex-agent-threads/shared/providers/**/*.example.json
 !codex-agent-threads/shared/schemas/**/*.json

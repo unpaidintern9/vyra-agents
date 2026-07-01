@@ -69,6 +69,13 @@ export interface EngineeringRepositorySummary {
   latestCommit: string;
   dirty: boolean;
   packageManager: string;
+  projectId?: string;
+  projectName?: string;
+  projectType?: string;
+  repoOwner?: string;
+  repoName?: string;
+  owningAgent?: string;
+  validationCommands?: string[];
   filesIndexed: number;
   functions: number;
   migrations: number;

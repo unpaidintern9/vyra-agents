@@ -92,6 +92,7 @@ import { buildDashboardExecutiveAutomationSummary } from './runtime/executiveAut
 import { buildDashboardGmailEmailSummary } from './runtime/gmailEmail';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
+import { buildDashboardProjectRegistrySummary } from './runtime/projectRegistry';
 import { defaultRepositoryIntelligenceSummary, summarizeRepositoryIntelligence } from './runtime/repositoryIntelligence';
 import { buildDashboardSharedTaskSummary } from './runtime/sharedTaskQueue';
 import {
@@ -1228,9 +1229,10 @@ function App() {
   const connectorReadiness = buildDashboardConnectorReadiness();
   const githubPlanning = buildDashboardGitHubPlanningSummary();
   const githubReadOnly = buildDashboardGitHubReadOnlySummary();
+  const projectRegistry = buildDashboardProjectRegistrySummary(latestEngineeringGraph ?? undefined);
   const repositoryIntelligence = latestEngineeringGraph ? summarizeRepositoryIntelligence(latestEngineeringGraph) : defaultRepositoryIntelligenceSummary();
   const sharedTaskSummary = buildDashboardSharedTaskSummary();
-  const engineeringTasks = buildDashboardEngineeringTaskSummary({ githubPlanning, repositoryIntelligence, sharedTasks: sharedTaskSummary });
+  const engineeringTasks = buildDashboardEngineeringTaskSummary({ githubPlanning, projectRegistry, repositoryIntelligence, sharedTasks: sharedTaskSummary });
   const emailSummary = buildDashboardGmailEmailSummary();
   const executiveAutomation = buildDashboardExecutiveAutomationSummary({
     connectorReadiness,
@@ -1239,6 +1241,7 @@ function App() {
     engineeringTasks,
     githubPlanning,
     githubReadOnly,
+    projectRegistry,
     repositoryIntelligence,
     runtime,
     sharedTasks: sharedTaskSummary,
@@ -1266,6 +1269,7 @@ function App() {
     executiveAutomation,
     githubPlanning,
     githubReadOnly,
+    projectRegistry,
     repositoryIntelligence,
     sharedTasks: sharedTaskSummary,
   });
@@ -1559,6 +1563,7 @@ function App() {
             executiveAutomation={executiveAutomation}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
+            projectRegistry={projectRegistry}
             repositoryIntelligence={repositoryIntelligence}
             sharedTaskSummary={sharedTaskSummary}
           />
@@ -1759,6 +1764,8 @@ function OperatorPage({
         <Metric icon={<ShieldCheck size={20} />} label="Connector Writes" value="Blocked" />
         <Metric icon={<GitBranch size={20} />} label="GitHub Read-Only" value={operator.githubReadOnly.status.replace(/_/g, ' ')} />
         <Metric icon={<GitBranch size={20} />} label="GitHub Plans" value={String(operator.githubPlanning.totalPlans)} />
+        <Metric icon={<Network size={20} />} label="Registered Projects" value={String(operator.projectRegistry.registeredProjects)} />
+        <Metric icon={<ShieldCheck size={20} />} label="Release Readiness" value={operator.projectRegistry.releaseReadinessStatus} />
         <Metric icon={<Network size={20} />} label="Repo Intelligence" value={operator.repositoryIntelligence.validationTrend} />
         <Metric icon={<ListChecks size={20} />} label="Engineering Candidates" value={String(operator.engineeringTasks.generatedTasks)} />
         <Metric icon={<ListChecks size={20} />} label="Open Tasks" value={String(operator.sharedTasks.openTasks)} />
@@ -2083,6 +2090,42 @@ function OperatorPage({
           <p className="subtle-note">Repository commands read local metadata and write ignored local reports only. No GitHub writes or repository modifications occur.</p>
         </Panel>
 
+        <Panel title="Project Registry" icon={<Network size={18} />} wide>
+          <p className="panel-description">
+            Tracks the real Vyra project repositories that Repository Intelligence can scan locally. Project configs are templates in-repo; real local paths stay ignored and scans do not modify project files.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Registered Projects" value={String(operator.projectRegistry.registeredProjects)} />
+            <Fact label="Indexed Projects" value={String(operator.projectRegistry.indexedProjects)} />
+            <Fact label="Blocked Projects" value={String(operator.projectRegistry.blockedProjects)} />
+            <Fact label="Missing Paths" value={String(operator.projectRegistry.missingPaths)} />
+            <Fact label="Missing Config" value={String(operator.projectRegistry.missingConfig)} />
+            <Fact label="Last Scan" value={formatOptionalDate(operator.projectRegistry.lastScan)} />
+            <Fact label="Validation Status" value={operator.projectRegistry.validationStatus} />
+            <Fact label="Safety Status" value={operator.projectRegistry.safetyStatus} />
+          </div>
+          <DataTable
+            columns={['Project', 'Type', 'Owner', 'Status', 'Branch', 'Health', 'Release']}
+            rows={operator.projectRegistry.projects.map((project) => [
+              project.projectName,
+              project.projectType.replace(/_/g, ' '),
+              project.owningAgent,
+              project.status.replace(/_/g, ' '),
+              project.branch,
+              `${project.healthScore}/100`,
+              project.releaseReadiness,
+            ])}
+          />
+          <DataTable
+            columns={['Report']}
+            rows={operator.projectRegistry.generatedReports.map((report) => [report])}
+          />
+          <DataTable
+            columns={['Command', 'Purpose']}
+            rows={operator.projectRegistry.commands.map((command) => [command, operatorCommandPurpose(command)])}
+          />
+        </Panel>
+
         <Panel title="Engineering Task Generator" icon={<ListChecks size={18} />} wide>
           <p className="panel-description">
             Generates local engineering task candidates from Repository Intelligence, GitHub plans, Executive priorities, and blocked Sales or Migration work. Candidates are not shared tasks until a human reviews and creates them separately.
@@ -2092,6 +2135,7 @@ function OperatorPage({
             <Fact label="Critical" value={String(operator.engineeringTasks.criticalEngineeringTasks)} />
             <Fact label="Sales Blocking" value={String(operator.engineeringTasks.salesBlockingEngineeringTasks)} />
             <Fact label="Migration Blocking" value={String(operator.engineeringTasks.migrationBlockingEngineeringTasks)} />
+            <Fact label="Project Specific" value={String(operator.engineeringTasks.projectSpecificEngineeringTasks)} />
             <Fact label="Release Readiness" value={String(operator.engineeringTasks.releaseReadinessTasks)} />
             <Fact label="Linked GitHub Plans" value={String(operator.engineeringTasks.linkedGitHubPlans)} />
           </div>
@@ -3490,6 +3534,12 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('repo:health')) return 'Generate Engineering health analysis from local repository intelligence.';
   if (command.endsWith('repo:owners')) return 'Generate repository ownership and related documentation/task/plan links.';
   if (command.endsWith('repo:validate')) return 'Validate repository intelligence models, graph output, reports, and safety gates.';
+  if (command.endsWith('projects:status')) return 'Print local multi-project registry status, health, last scan, and safety summary.';
+  if (command.endsWith('projects:list')) return 'List registered Vyra projects, paths, owners, branches, agents, and validation commands.';
+  if (command.endsWith('projects:scan')) return 'Scan configured local project repositories read-only and write ignored registry reports.';
+  if (command.endsWith('projects:health')) return 'Summarize per-project health, missing paths, validation status, and release readiness.';
+  if (command.endsWith('projects:report')) return 'Generate Project Registry, Multi-Project Health, and Release Readiness reports.';
+  if (command.endsWith('projects:validate')) return 'Validate registry schema, templates, required project slots, and local-only safety gates.';
   if (command.endsWith('engineering:tasks')) return 'List local Engineering task candidates without creating shared tasks.';
   if (command.endsWith('engineering:generate-tasks')) return 'Generate deterministic Engineering task candidate reports from local intelligence signals.';
   if (command.endsWith('engineering:task-report')) return 'Write Engineering Task Candidate and Executive Engineering Task Summary reports.';

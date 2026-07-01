@@ -1,4 +1,5 @@
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
+import type { ProjectRegistryDashboardSummary } from './projectRegistry';
 import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 
@@ -39,6 +40,7 @@ export interface EngineeringTaskGeneratorSummary {
   linkedRepoRisks: number;
   linkedSalesMigrationBlockers: number;
   migrationBlockingEngineeringTasks: number;
+  projectSpecificEngineeringTasks: number;
   releaseReadinessTasks: number;
   safetyLabels: string[];
   salesBlockingEngineeringTasks: number;
@@ -48,6 +50,7 @@ export interface EngineeringTaskGeneratorSummary {
 export function buildDashboardEngineeringTaskSummary(input: {
   githubPlanning: GitHubPlanningDashboardSummary;
   repositoryIntelligence: RepositoryIntelligenceDashboardSummary;
+  projectRegistry?: ProjectRegistryDashboardSummary;
   sharedTasks: SharedTaskDashboardSummary;
 }): EngineeringTaskGeneratorSummary {
   const candidates = dedupeCandidates([
@@ -57,6 +60,7 @@ export function buildDashboardEngineeringTaskSummary(input: {
     ...githubPlanCandidates(input.githubPlanning),
     ...executiveReviewCandidates(input.repositoryIntelligence, input.githubPlanning, input.sharedTasks),
     ...blockedOpportunityCandidates(input.sharedTasks),
+    ...projectRegistryCandidates(input.projectRegistry),
   ]);
 
   return {
@@ -70,6 +74,7 @@ export function buildDashboardEngineeringTaskSummary(input: {
     linkedRepoRisks: candidates.filter((candidate) => candidate.linkedRepoRisk).length,
     linkedSalesMigrationBlockers: candidates.filter((candidate) => candidate.linkedSalesMigrationBlocker).length,
     migrationBlockingEngineeringTasks: candidates.filter((candidate) => candidate.category === 'migration support').length,
+    projectSpecificEngineeringTasks: candidates.filter((candidate) => candidate.id.includes('project-registry')).length,
     releaseReadinessTasks: candidates.filter((candidate) => candidate.category === 'release readiness').length,
     safetyLabels: ['Local candidates only', 'No shared task creation', 'No GitHub issues', 'No PRs', 'No code changes', 'No production writes'],
     salesBlockingEngineeringTasks: candidates.filter((candidate) => candidate.category === 'sales blocker').length,
@@ -89,11 +94,30 @@ export function defaultEngineeringTaskSummary(): EngineeringTaskGeneratorSummary
     linkedRepoRisks: 0,
     linkedSalesMigrationBlockers: 0,
     migrationBlockingEngineeringTasks: 0,
+    projectSpecificEngineeringTasks: 0,
     releaseReadinessTasks: 0,
     safetyLabels: ['Local candidates only', 'No external actions'],
     salesBlockingEngineeringTasks: 0,
     totalCandidates: 0,
   };
+}
+
+function projectRegistryCandidates(projectRegistry?: ProjectRegistryDashboardSummary): EngineeringTaskCandidate[] {
+  if (!projectRegistry) return [];
+  return projectRegistry.projects
+    .filter((project) => project.releaseReadiness === 'blocked' || ['missing_path', 'missing_git'].includes(project.status))
+    .slice(0, 6)
+    .map((project) =>
+      candidate({
+        id: `dashboard-engineering-task-project-registry-${project.id}`,
+        title: `Review ${project.projectName} project readiness`,
+        category: 'release readiness',
+        recommendedPriority: project.status === 'indexed' ? 'High' : 'Critical',
+        reason: `${project.projectName} is ${project.status} with release readiness ${project.releaseReadiness}.`,
+        linkedRepoRisk: `${project.repoName}:${project.releaseReadiness}`,
+        linkedExecutivePriority: 'multi-project-release-readiness',
+      }),
+    );
 }
 
 function repoRiskCandidates(repo: RepositoryIntelligenceDashboardSummary): EngineeringTaskCandidate[] {

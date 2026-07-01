@@ -16,6 +16,10 @@ export interface RepositoryIntelligenceDashboardSummary {
   modules: number;
   orphanedModules: number;
   packages: number;
+  blockedProjects: number;
+  indexedProjects: number;
+  registeredProjects: number;
+  releaseReadinessStatus: string;
   repositories: number;
   repositoryRisk: string;
   scripts: number;
@@ -54,6 +58,10 @@ export function summarizeRepositoryIntelligence(graph?: EngineeringGraph): Repos
     modules: moduleNodes.length,
     orphanedModules,
     packages: graph.nodes.filter((node) => node.type === 'package_dependency').length,
+    blockedProjects: graph.repositories.filter((repo) => repo.dirty || repo.riskLevel === 'high').length,
+    indexedProjects: graph.repositories.filter((repo) => repo.status === 'indexed').length,
+    registeredProjects: Math.max(6, graph.repositories.length),
+    releaseReadinessStatus: graph.repositories.some((repo) => repo.dirty || repo.riskLevel === 'high') ? 'Blocked' : 'Ready',
     repositories,
     repositoryRisk: graph.repositories.some((repo) => repo.riskLevel === 'high') ? 'High' : graph.repositories.some((repo) => repo.riskLevel === 'medium') ? 'Medium' : 'Low',
     scripts: graph.nodes.filter((node) => node.type === 'npm_script').length,
@@ -80,6 +88,10 @@ export function defaultRepositoryIntelligenceSummary(): RepositoryIntelligenceDa
     modules: 0,
     orphanedModules: 0,
     packages: 0,
+    blockedProjects: 0,
+    indexedProjects: 0,
+    registeredProjects: 6,
+    releaseReadinessStatus: 'Needs scan',
     repositories: 0,
     repositoryRisk: 'Unknown',
     scripts: 0,
