@@ -89,6 +89,7 @@ import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } fr
 import { buildDashboardConnectorReadiness } from './runtime/connectorReadiness';
 import { buildDashboardEngineeringTaskSummary } from './runtime/engineeringTaskGenerator';
 import { buildDashboardExecutiveAutomationSummary } from './runtime/executiveAutomation';
+import { buildDashboardExecutiveOperationsSummary } from './runtime/executiveOperations';
 import { buildDashboardGmailEmailSummary } from './runtime/gmailEmail';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
@@ -1258,6 +1259,24 @@ function App() {
     runtime,
     sharedTasks: sharedTaskSummary,
   });
+  const executiveOperations = buildDashboardExecutiveOperationsSummary({
+    connectorReadiness,
+    crossAgentSummary,
+    email: emailSummary,
+    engineeringTasks,
+    executiveAutomation,
+    githubPlanning,
+    projectRegistry,
+    releaseReadiness,
+    releaseShipPlans,
+    repositoryIntelligence,
+    runtime,
+    salesIntegration,
+    salesIntelligenceSummary,
+    salesScoringSummary,
+    salesSummary,
+    sharedTasks: sharedTaskSummary,
+  });
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
     communicationDraftCounts: operatorDashboard.communicationDraftCounts,
     communicationDraftsByType: operatorDashboard.communicationDraftsByType,
@@ -1279,6 +1298,7 @@ function App() {
     email: emailSummary,
     engineeringTasks,
     executiveAutomation,
+    executiveOperations,
     githubPlanning,
     githubReadOnly,
     projectRegistry,
@@ -1575,6 +1595,7 @@ function App() {
             email={emailSummary}
             engineeringTasks={engineeringTasks}
             executiveAutomation={executiveAutomation}
+            executiveOperations={executiveOperations}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
             projectRegistry={projectRegistry}
@@ -1773,6 +1794,8 @@ function OperatorPage({
         <Metric icon={<ShieldCheck size={20} />} label="Human-Marked Sent" value={String(operator.communicationDrafts.manuallyMarkedSentDrafts)} />
         <Metric icon={<Network size={20} />} label="Provider Readiness" value={operator.communicationProviders.sendingDisabled ? 'Send Disabled' : 'Review'} />
         <Metric icon={<FileClock size={20} />} label="Gmail Automation" value={operator.email.automationStatus} />
+        <Metric icon={<Workflow size={20} />} label="Exec Ops Score" value={`${operator.executiveOperations.overallExecutiveScore}/100`} />
+        <Metric icon={<ShieldCheck size={20} />} label="Platform Health" value={operator.executiveOperations.dailyOperatingStatus} />
         <Metric icon={<Workflow size={20} />} label="Executive Automation" value={operator.executiveAutomation.automationEnabled ? 'Enabled' : 'Disabled'} />
         <Metric icon={<ListChecks size={20} />} label="Automation Rules" value={String(operator.executiveAutomation.triggeredRules.length)} />
         <Metric icon={<ShieldCheck size={20} />} label="Email Sent / Skipped" value={`${operator.email.sentEmailCount}/${operator.email.skippedEmailCount}`} />
@@ -1826,6 +1849,48 @@ function OperatorPage({
               <code key={command}>{command}</code>,
               operatorCommandPurpose(command),
             ])}
+          />
+        </Panel>
+
+        <Panel title="Executive Operations Center" icon={<Workflow size={18} />} wide>
+          <p className="panel-description">
+            Unified daily operating view across Engineering, Sales, Projects, Releases, Tasks, Communications, Automation, and Connectors. This is local reporting only.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Latest Executive Briefing" value={formatDate(operator.executiveOperations.latestBriefing)} />
+            <Fact label="Next Scheduled Briefing" value={operator.executiveOperations.nextScheduledBriefing} />
+            <Fact label="Latest KPI Snapshot" value={formatDate(operator.executiveOperations.latestKpiSnapshot)} />
+            <Fact label="Overall Platform Health" value={`${operator.executiveOperations.dailyOperatingStatus} · ${operator.executiveOperations.overallExecutiveScore}/100`} />
+            <Fact label="Open / Blocked Tasks" value={`${operator.executiveOperations.kpis.openTasks}/${operator.executiveOperations.kpis.blockedTasks}`} />
+            <Fact label="Release Readiness" value={`${operator.executiveOperations.kpis.releaseReadinessPercent}%`} />
+            <Fact label="Email Delivery" value={operator.executiveOperations.kpis.emailDeliveryStatus.replace(/_/g, ' ')} />
+            <Fact label="Connector Readiness" value={`${operator.executiveOperations.kpis.connectorReadiness}%`} />
+            <Fact label="Operational Alerts" value={String(operator.executiveOperations.operationalAlerts.length)} />
+          </div>
+          <DataTable
+            columns={['Daily Briefing']}
+            rows={operator.executiveOperations.briefing.todaysPriorities.slice(0, 8).map((priority) => [priority])}
+          />
+          <DataTable
+            columns={['Operational Alert']}
+            rows={operator.executiveOperations.operationalAlerts.map((alert) => [alert])}
+            emptyMessage="No operational alerts in the latest local snapshot."
+          />
+          <DataTable
+            columns={['KPI', 'Value']}
+            rows={[
+              ['Open tasks', String(operator.executiveOperations.kpis.openTasks)],
+              ['Completed tasks', String(operator.executiveOperations.kpis.completedTasks)],
+              ['Blocked tasks', String(operator.executiveOperations.kpis.blockedTasks)],
+              ['Projects on track', String(operator.executiveOperations.kpis.projectsOnTrack)],
+              ['Engineering health', `${operator.executiveOperations.kpis.engineeringHealthPercent}%`],
+              ['Sales pipeline health', `${operator.executiveOperations.kpis.salesPipelineHealth}%`],
+              ['Automation success', `${operator.executiveOperations.kpis.automationSuccess}%`],
+            ]}
+          />
+          <DataTable
+            columns={['Command', 'Purpose']}
+            rows={operator.executiveOperations.commands.map((command) => [command, operatorCommandPurpose(command)])}
           />
         </Panel>
 
@@ -3663,6 +3728,12 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('executive:automation-report')) return 'Generate Executive Automation, Triggered Rules, and Skipped/Blocked Actions reports.';
   if (command.endsWith('executive:automation-validate')) return 'Validate automation rule models, reports, commands, and safety gates.';
   if (command.endsWith('executive:automation-safety-check')) return 'Verify automation cannot perform external marketing, bulk, GitHub, CRM, Stripe, or Supabase writes.';
+  if (command.endsWith('executive:briefing')) return 'Generate the deterministic Executive Daily Briefing from local runtime data.';
+  if (command.endsWith('executive:kpis')) return 'Generate Executive KPI tracking across tasks, projects, releases, sales, email, automation, and connectors.';
+  if (command.endsWith('executive:operations')) return 'Print the full Executive Operations Center model.';
+  if (command.endsWith('executive:health')) return 'Print Executive Operations health, alerts, score, and next actions.';
+  if (command.endsWith('executive:report')) return 'Generate Executive Daily Briefing, KPI, Operations Markdown, and Operations JSON reports.';
+  if (command.endsWith('executive:validate')) return 'Validate Executive Operations Center model, reports, commands, and local-only safety.';
   return 'Shared local operator command.';
 }
 

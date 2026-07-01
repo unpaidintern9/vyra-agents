@@ -59,6 +59,23 @@ The Executive Runtime does not own write paths. It only summarizes existing runt
 
 The AI Operator command interface follows the same boundary. It writes local reports only and does not send email, create Stripe invoices, write CRM records, or write production business data.
 
+## Executive Operations Center
+
+Phase 45 adds the Executive Operations Center as the daily operating view for the Executive Agent. It aggregates runtime, Engineering, Sales, projects, releases, ship plans, shared tasks, Gmail reporting, connector readiness, GitHub planning, and Executive automation into a daily briefing, KPI snapshot, health model, and Operations report.
+
+Commands:
+
+```bash
+npm run executive:briefing
+npm run executive:kpis
+npm run executive:operations
+npm run executive:health
+npm run executive:report
+npm run executive:validate
+```
+
+These commands are local analysis and reporting only.
+
 ## Repository Intelligence Signals
 
 Phase 38 adds Repository Intelligence to Executive summaries:

@@ -15,6 +15,7 @@ export default function ExecutiveDashboard({
   email,
   engineeringTasks,
   executiveAutomation,
+  executiveOperations,
   githubPlanning,
   githubReadOnly,
   integrationWarnings = [],
@@ -48,6 +49,7 @@ export default function ExecutiveDashboard({
     email,
     engineeringTasks,
     executiveAutomation,
+    executiveOperations,
     githubPlanning,
     githubReadOnly,
     projectRegistry,
@@ -63,6 +65,7 @@ export default function ExecutiveDashboard({
       <ExecutiveOverview summary={summary} />
       <section className="dashboard-grid executive-dashboard-grid">
         <ExecutivePriorities onNavigate={onNavigate} priorities={summary.priorities} />
+        {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
         <ExecutiveTimeline timeline={summary.timeline} />
         <ExecutiveRuntime runtime={summary.runtime} />
         {summary.executiveAutomation ? <ExecutiveAutomationPanel automation={summary.executiveAutomation} /> : null}
@@ -74,6 +77,61 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveOperationsCenterPanel({ operations }: { operations: NonNullable<ExecutiveDashboardProps['executiveOperations']> }) {
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Operations Center</h2>
+        </div>
+        <span>{operations.dailyOperatingStatus}</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact">
+          <span>Executive Score</span>
+          <strong>{operations.overallExecutiveScore}/100</strong>
+        </div>
+        <div className="fact">
+          <span>Open Tasks</span>
+          <strong>{operations.kpis.openTasks}</strong>
+        </div>
+        <div className="fact">
+          <span>Release Ready</span>
+          <strong>{operations.kpis.releaseReadinessPercent}%</strong>
+        </div>
+        <div className="fact">
+          <span>Engineering</span>
+          <strong>{operations.kpis.engineeringHealthPercent}%</strong>
+        </div>
+        <div className="fact">
+          <span>Sales Pipeline</span>
+          <strong>{operations.kpis.salesPipelineHealth}%</strong>
+        </div>
+        <div className="fact">
+          <span>Automation</span>
+          <strong>{operations.kpis.automationSuccess}%</strong>
+        </div>
+      </div>
+      <div className="activity-list">
+        <p>
+          <strong>Daily Briefing</strong>: {operations.briefing.todaysPriorities[0] ?? 'No priority recorded.'}
+        </p>
+        <p>
+          <strong>Risks</strong>: {operations.operationalAlerts[0] ?? 'No operational alerts.'}
+        </p>
+        <p>
+          <strong>Releases</strong>: {operations.briefing.releaseReadinessSummary.releaseHealth} · {operations.briefing.releaseReadinessSummary.shipPlanDecision}
+        </p>
+        <p>
+          <strong>Projects</strong>: {operations.projectHealth}; <strong>Communications</strong>: {operations.communicationHealth}; <strong>Connectors</strong>: {operations.connectorReadiness}
+        </p>
+      </div>
+      <p className="subtle-note">{operations.briefing.recommendedNextActions[0] ?? 'No recommended action recorded.'}</p>
+    </section>
   );
 }
 

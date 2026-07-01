@@ -3,6 +3,7 @@ import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { EngineeringTaskGeneratorSummary } from '../../runtime/engineeringTaskGenerator';
 import type { ExecutiveAutomationSummary } from '../../runtime/executiveAutomation';
+import type { ExecutiveOperationsDashboardSummary } from '../../runtime/executiveOperations';
 import type { GmailEmailDashboardSummary } from '../../runtime/gmailEmail';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
@@ -46,6 +47,7 @@ export function buildExecutiveSummary(
   email?: GmailEmailDashboardSummary,
   engineeringTasks?: EngineeringTaskGeneratorSummary,
   executiveAutomation?: ExecutiveAutomationSummary,
+  executiveOperations?: ExecutiveOperationsDashboardSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   projectRegistry?: ProjectRegistryDashboardSummary,
@@ -92,6 +94,7 @@ export function buildExecutiveSummary(
       email,
       engineeringTasks,
       executiveAutomation,
+      executiveOperations,
       githubPlanning,
       githubReadOnly,
       projectRegistry,
@@ -112,6 +115,7 @@ export function buildExecutiveSummary(
     salesIntegration,
     engineeringTasks,
     executiveAutomation,
+    executiveOperations,
     salesAgentTeamSummary,
     salesIntelligenceSummary,
     salesProposalSummary,
@@ -227,6 +231,9 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     executiveAutomationGeneratedEmails: summary.executiveAutomation?.generatedEmails ?? 0,
     executiveAutomationSkippedActions: summary.executiveAutomation?.skippedOrBlockedActions ?? 0,
     executiveAutomationHealth: summary.executiveAutomation?.automationHealth ?? 'Not configured',
+    executiveOperationsScore: summary.executiveOperations?.overallExecutiveScore ?? 0,
+    executiveDailyOperatingStatus: summary.executiveOperations?.dailyOperatingStatus ?? 'Not configured',
+    executiveOperationalAlerts: summary.executiveOperations?.operationalAlerts.length ?? 0,
     engineeringCriticalTasks: summary.engineeringTasks?.criticalEngineeringTasks ?? 0,
     engineeringSalesBlockingTasks: summary.engineeringTasks?.salesBlockingEngineeringTasks ?? 0,
     engineeringMigrationBlockingTasks: summary.engineeringTasks?.migrationBlockingEngineeringTasks ?? 0,

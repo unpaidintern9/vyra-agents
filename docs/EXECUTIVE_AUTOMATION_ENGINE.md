@@ -65,3 +65,7 @@ Phase 43 adds blocked releases and critical release risks to Executive automatio
 ## Release Ship Plan Link
 
 Phase 44 adds ship-plan review signals. Blocked ship plans can trigger Engineering health warnings, and ship plans needing review can trigger cross-agent review needs. Automation may create local tasks, local GitHub plans, Gmail drafts, and reports, but it cannot approve real release execution, deploy, tag, push, create GitHub releases, or modify project files.
+
+## Operations Center Link
+
+Phase 45 adds Executive Operations Center signals. Automation health, triggered rules, generated local artifacts, skipped actions, and next actions feed the daily briefing, KPI model, operational alerts, and Executive score. The Operations Center remains report-only and does not run automation actions by itself.

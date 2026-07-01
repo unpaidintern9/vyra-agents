@@ -3,6 +3,7 @@ import type { ConnectorReadinessSummary } from './connectorReadiness';
 import type { CrossAgentCollaborationSummary } from './crossAgentCollaboration';
 import type { EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
 import type { ExecutiveAutomationSummary } from './executiveAutomation';
+import type { ExecutiveOperationsDashboardSummary } from './executiveOperations';
 import type { GmailEmailDashboardSummary } from './gmailEmail';
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
@@ -38,6 +39,7 @@ export function buildExecutivePriorities(
   email?: GmailEmailDashboardSummary,
   engineeringTasks?: EngineeringTaskGeneratorSummary,
   executiveAutomation?: ExecutiveAutomationSummary,
+  executiveOperations?: ExecutiveOperationsDashboardSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   projectRegistry?: ProjectRegistryDashboardSummary,
@@ -282,6 +284,18 @@ export function buildExecutivePriorities(
       priority: executiveAutomation.automationHealth === 'Attention' ? 'high' : 'medium',
       recommendedAction: executiveAutomation.nextRecommendedAction,
       source: 'Executive Automation Engine',
+    });
+  }
+
+  if (executiveOperations && executiveOperations.overallExecutiveScore < 70) {
+    priorities.push({
+      id: 'executive-operations-center',
+      agent: 'Executive Agent',
+      department: 'Executive',
+      detail: `Executive Operations score is ${executiveOperations.overallExecutiveScore}/100 with ${executiveOperations.operationalAlerts.length} operational alert(s).`,
+      priority: executiveOperations.overallExecutiveScore < 60 ? 'high' : 'medium',
+      recommendedAction: executiveOperations.briefing.recommendedNextActions[0] ?? 'Open the Operations Center and review daily priorities.',
+      source: 'Executive Operations Center',
     });
   }
 

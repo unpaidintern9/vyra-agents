@@ -2,6 +2,7 @@ import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import { buildDashboardConnectorReadiness, type ConnectorReadinessSummary } from './connectorReadiness';
 import { defaultEngineeringTaskSummary, type EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
 import { buildDashboardExecutiveAutomationSummary, type ExecutiveAutomationSummary } from './executiveAutomation';
+import { buildDashboardExecutiveOperationsSummary, type ExecutiveOperationsDashboardSummary } from './executiveOperations';
 import { buildDashboardGmailEmailSummary, type GmailEmailDashboardSummary } from './gmailEmail';
 import { buildDashboardGitHubPlanningSummary, type GitHubPlanningDashboardSummary } from './githubPlanning';
 import { buildDashboardGitHubReadOnlySummary, type GitHubReadOnlyDashboardSummary } from './githubReadOnly';
@@ -38,6 +39,7 @@ export interface AiOperatorDashboardSnapshot {
   email: GmailEmailDashboardSummary;
   engineeringTasks: EngineeringTaskGeneratorSummary;
   executiveAutomation: ExecutiveAutomationSummary;
+  executiveOperations: ExecutiveOperationsDashboardSummary;
   githubPlanning: GitHubPlanningDashboardSummary;
   githubReadOnly: GitHubReadOnlyDashboardSummary;
   projectRegistry: ProjectRegistryDashboardSummary;
@@ -217,6 +219,12 @@ export const aiOperatorCommands = [
   'npm run executive:automation-report',
   'npm run executive:automation-validate',
   'npm run executive:automation-safety-check',
+  'npm run executive:briefing',
+  'npm run executive:kpis',
+  'npm run executive:operations',
+  'npm run executive:health',
+  'npm run executive:report',
+  'npm run executive:validate',
 ];
 
 export const aiOperatorBlockedActions = [
@@ -274,6 +282,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   email?: GmailEmailDashboardSummary;
   engineeringTasks?: EngineeringTaskGeneratorSummary;
   executiveAutomation?: ExecutiveAutomationSummary;
+  executiveOperations?: ExecutiveOperationsDashboardSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
@@ -317,6 +326,21 @@ export function buildAiOperatorDashboardSnapshot(input: {
       engineeringTasks,
       githubPlanning,
       githubReadOnly,
+      projectRegistry,
+      releaseReadiness,
+      releaseShipPlans,
+      repositoryIntelligence,
+      runtime: input.runtime,
+      sharedTasks,
+    });
+  const executiveOperations =
+    input.executiveOperations ??
+    buildDashboardExecutiveOperationsSummary({
+      connectorReadiness,
+      email,
+      engineeringTasks,
+      executiveAutomation,
+      githubPlanning,
       projectRegistry,
       releaseReadiness,
       releaseShipPlans,
@@ -375,6 +399,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
     email,
     engineeringTasks,
     executiveAutomation,
+    executiveOperations,
     githubPlanning,
     githubReadOnly,
     projectRegistry,

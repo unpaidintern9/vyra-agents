@@ -239,3 +239,18 @@ npm run release:ship-plan-validate
 ```
 
 Ship plans are created from release readiness data and remain local-only. `approved_to_prepare` is a preparation status, not a deployment approval. These commands do not deploy, tag releases, create GitHub releases, push commits, modify project files, write production data, or output secrets.
+
+## Executive Operations
+
+Phase 45 adds Executive Operations Center commands:
+
+```bash
+npm run executive:briefing
+npm run executive:kpis
+npm run executive:operations
+npm run executive:health
+npm run executive:report
+npm run executive:validate
+```
+
+These commands generate the Executive daily briefing, KPI snapshot, Operations Center model, health summary, and reports from current local runtime data. They do not deploy, write GitHub records, write CRM records, create Stripe objects, write production data, or output secrets.
