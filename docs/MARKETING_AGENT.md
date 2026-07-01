@@ -40,3 +40,9 @@ The Marketing Agent now includes a Content Studio for draft-only campaign briefs
 Use `npm run marketing:drafts`, `npm run marketing:create-draft`, `npm run marketing:brand-check`, `npm run marketing:submit-draft`, `npm run marketing:approve-draft`, `npm run marketing:reject-draft`, `npm run marketing:archive-draft`, `npm run marketing:content-studio-report`, and `npm run marketing:draft-report`.
 
 Approval remains internal only and does not publish or create external actions.
+
+## Phase 57 Asset Library Integration
+
+Marketing uses the shared Asset & Knowledge Library for approved brand assets, marketing templates, and campaign resources.
+
+Asset records live under `codex-agent-threads/shared/assets/` and reference local files instead of duplicating them. Marketing does not upload, publish, replace, approve, or distribute assets automatically.

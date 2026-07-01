@@ -1,0 +1,288 @@
+# Marketing Asset Summary
+
+Generated: 2026-07-01T21:08:27.948Z
+
+```json
+{
+  "title": "Marketing Asset Summary",
+  "generatedAt": "2026-07-01T21:08:27.948Z",
+  "rows": [
+    {
+      "assetId": "asset-brand-dashboard-mark",
+      "title": "Vyra Dashboard Brand Mark",
+      "description": "Confirmed local V brand mark used by the dashboard.",
+      "category": "Brand",
+      "assetType": "logo mark",
+      "version": "1.0.0",
+      "status": "Approved",
+      "owner": "Marketing",
+      "createdDate": "2026-07-01T21:02:00.797Z",
+      "updatedDate": "2026-07-01T21:02:00.797Z",
+      "archivedDate": null,
+      "localFileReference": "dashboard/src/styles.css",
+      "relativeProjectPath": "dashboard/src/styles.css",
+      "previewReference": ".brand-mark",
+      "fileType": "css reference",
+      "size": 35699,
+      "tags": [
+        "brand",
+        "logo",
+        "dashboard"
+      ],
+      "keywords": [
+        "vyra",
+        "brand mark",
+        "logo"
+      ],
+      "products": [
+        "Vyra Performance"
+      ],
+      "audiences": [
+        "internal operators"
+      ],
+      "campaigns": [
+        "camp-athlete-app-foundation"
+      ],
+      "organizations": [
+        "Vyra internal operations"
+      ],
+      "relatedAssets": [],
+      "relatedDocuments": [],
+      "linkedTasks": [],
+      "linkedGoals": [
+        "goal-operating-control"
+      ],
+      "approvalStatus": "Approved",
+      "reviewer": "Robert",
+      "approvalDate": "2026-07-01T21:02:00.797Z",
+      "approvalNotes": "Local metadata approval only. No publication or external distribution.",
+      "usageReferences": [
+        "Marketing",
+        "Executive",
+        "Sales"
+      ],
+      "duplicatedAsset": false,
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-01T21:02:00.797Z",
+          "actor": "Marketing",
+          "previousValue": null,
+          "newValue": "Approved",
+          "reason": "Asset metadata created as a local reference."
+        }
+      ]
+    },
+    {
+      "assetId": "asset-brand-design-tokens",
+      "title": "Dashboard Design Tokens",
+      "description": "Local color, typography, radius, and surface references for consistent dashboard UI.",
+      "category": "Brand",
+      "assetType": "design tokens",
+      "version": "1.0.0",
+      "status": "Approved",
+      "owner": "Marketing",
+      "createdDate": "2026-07-01T21:02:00.797Z",
+      "updatedDate": "2026-07-01T21:02:00.797Z",
+      "archivedDate": null,
+      "localFileReference": "dashboard/src/styles.css",
+      "relativeProjectPath": "dashboard/src/styles.css",
+      "previewReference": ":root and dashboard classes",
+      "fileType": "css reference",
+      "size": 35699,
+      "tags": [
+        "brand",
+        "colors",
+        "typography"
+      ],
+      "keywords": [
+        "tokens",
+        "accent",
+        "surface"
+      ],
+      "products": [
+        "Vyra Performance"
+      ],
+      "audiences": [
+        "internal operators"
+      ],
+      "campaigns": [
+        "camp-athlete-app-foundation"
+      ],
+      "organizations": [
+        "Vyra internal operations"
+      ],
+      "relatedAssets": [],
+      "relatedDocuments": [],
+      "linkedTasks": [],
+      "linkedGoals": [
+        "goal-operating-control"
+      ],
+      "approvalStatus": "Approved",
+      "reviewer": "Robert",
+      "approvalDate": "2026-07-01T21:02:00.797Z",
+      "approvalNotes": "Local metadata approval only. No publication or external distribution.",
+      "usageReferences": [
+        "Marketing",
+        "Engineering"
+      ],
+      "duplicatedAsset": false,
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-01T21:02:00.797Z",
+          "actor": "Marketing",
+          "previousValue": null,
+          "newValue": "Approved",
+          "reason": "Asset metadata created as a local reference."
+        }
+      ]
+    },
+    {
+      "assetId": "asset-marketing-content-studio-doc",
+      "title": "Marketing Content Studio Guide",
+      "description": "Phase 56 guide for local draft generation and approval-safe marketing workflows.",
+      "category": "Marketing",
+      "assetType": "internal guide",
+      "version": "1.0.0",
+      "status": "Approved",
+      "owner": "Marketing",
+      "createdDate": "2026-07-01T21:02:00.797Z",
+      "updatedDate": "2026-07-01T21:02:00.797Z",
+      "archivedDate": null,
+      "localFileReference": "docs/MARKETING_CONTENT_STUDIO.md",
+      "relativeProjectPath": "docs/MARKETING_CONTENT_STUDIO.md",
+      "previewReference": "",
+      "fileType": "markdown",
+      "size": 751,
+      "tags": [
+        "marketing",
+        "content studio",
+        "drafts"
+      ],
+      "keywords": [
+        "draft generation",
+        "brand checks"
+      ],
+      "products": [
+        "Vyra Performance"
+      ],
+      "audiences": [
+        "marketing operators",
+        "sales"
+      ],
+      "campaigns": [
+        "camp-gym-growth-readiness"
+      ],
+      "organizations": [
+        "Vyra internal operations"
+      ],
+      "relatedAssets": [],
+      "relatedDocuments": [
+        "docs/BRAND_CONSISTENCY_CHECKS.md",
+        "docs/MARKETING_DRAFT_APPROVALS.md"
+      ],
+      "linkedTasks": [],
+      "linkedGoals": [
+        "goal-operating-control"
+      ],
+      "approvalStatus": "Approved",
+      "reviewer": "Robert",
+      "approvalDate": "2026-07-01T21:02:00.797Z",
+      "approvalNotes": "Local metadata approval only. No publication or external distribution.",
+      "usageReferences": [
+        "Marketing",
+        "Sales",
+        "Executive"
+      ],
+      "duplicatedAsset": false,
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-01T21:02:00.797Z",
+          "actor": "Marketing",
+          "previousValue": null,
+          "newValue": "Approved",
+          "reason": "Asset metadata created as a local reference."
+        }
+      ]
+    },
+    {
+      "assetId": "asset-marketing-template-report",
+      "title": "Draft Library Report Reference",
+      "description": "Generated local content-studio draft library report for template discovery.",
+      "category": "Marketing",
+      "assetType": "template library",
+      "version": "1.0.0",
+      "status": "Under Review",
+      "owner": "Marketing",
+      "createdDate": "2026-07-01T21:02:00.797Z",
+      "updatedDate": "2026-07-01T21:02:00.797Z",
+      "archivedDate": null,
+      "localFileReference": "codex-agent-threads/shared/marketing/reports/draft-library-report.md",
+      "relativeProjectPath": "codex-agent-threads/shared/marketing/reports/draft-library-report.md",
+      "previewReference": "",
+      "fileType": "markdown report",
+      "size": 29429,
+      "tags": [
+        "marketing templates",
+        "draft library"
+      ],
+      "keywords": [
+        "templates",
+        "drafts",
+        "campaign"
+      ],
+      "products": [
+        "Vyra Performance"
+      ],
+      "audiences": [
+        "marketing operators",
+        "sales"
+      ],
+      "campaigns": [
+        "camp-athlete-app-foundation",
+        "camp-gym-growth-readiness"
+      ],
+      "organizations": [
+        "Vyra internal operations"
+      ],
+      "relatedAssets": [],
+      "relatedDocuments": [],
+      "linkedTasks": [],
+      "linkedGoals": [
+        "goal-operating-control"
+      ],
+      "approvalStatus": "Under Review",
+      "reviewer": "",
+      "approvalDate": null,
+      "approvalNotes": "Local metadata approval only. No publication or external distribution.",
+      "usageReferences": [
+        "Marketing",
+        "Sales"
+      ],
+      "duplicatedAsset": false,
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-01T21:02:00.797Z",
+          "actor": "Marketing",
+          "previousValue": null,
+          "newValue": "Under Review",
+          "reason": "Asset metadata created as a local reference."
+        }
+      ]
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "autonomousPublishing": false,
+    "externalFileUploads": false,
+    "automaticAssetReplacement": false,
+    "automaticApprovals": false,
+    "cloudSynchronization": false,
+    "externalStorageProviders": false,
+    "autonomousDistribution": false,
+    "versionHistoryPreserved": true,
+    "auditHistoryPreserved": true
+  }
+}
+```
+
+Local-only asset library safety: no publishing, uploads, external storage, autonomous distribution, automatic replacement, or automatic approval.

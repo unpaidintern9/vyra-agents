@@ -85,6 +85,7 @@ export default function SalesPage({
   organizationIntelligence,
   sharedMemory,
   connectorReadiness,
+  assetLibrary,
   executivePlanning,
   marketing,
   sharedTaskSummary,
@@ -938,6 +939,50 @@ export default function SalesPage({
               rows={executivePlanning.salesGoalAlignment.map((item) => [item.goal, item.revenueKpi, item.opportunityContribution, item.status])}
               emptyMessage="No Sales goals are linked to Executive planning."
             />
+          </section>
+        ) : null}
+
+        {assetLibrary ? (
+          <section className="panel wide-panel">
+            <div className="panel-header">
+              <div>
+                <FileText size={18} />
+                <h2>Sales Resources</h2>
+              </div>
+              <StatusBadge value="Local references" tone="good" />
+            </div>
+            <div className="batch-grid">
+              <Fact label="Sales Resources" value={String(assetLibrary.assets.filter((asset) => asset.category === 'Sales' || asset.usageReferences.includes('Sales')).length)} />
+              <Fact label="Product Assets" value={String(assetLibrary.assets.filter((asset) => asset.products.length).length)} />
+              <Fact label="Pricing Resources" value={String(assetLibrary.assets.filter((asset) => asset.tags.includes('pricing') || asset.keywords.includes('pricing')).length)} />
+              <Fact label="Presentation Library" value={String(assetLibrary.assets.filter((asset) => asset.assetType.includes('presentation') || asset.assetType.includes('playbook')).length)} />
+            </div>
+            <DataTable
+              columns={['Sales Resources', 'Type', 'Products', 'Approval', 'Reference']}
+              rows={assetLibrary.assets
+                .filter((asset) => asset.category === 'Sales' || asset.usageReferences.includes('Sales'))
+                .map((asset) => [asset.title, asset.assetType, asset.products.join(', ') || 'General', asset.approvalStatus, asset.localFileReference])}
+            />
+            <DataTable
+              columns={['Product Assets', 'Audience', 'Usage', 'Status']}
+              rows={assetLibrary.assets
+                .filter((asset) => asset.products.length)
+                .map((asset) => [asset.title, asset.audiences.join(', '), asset.usageReferences.join(', '), asset.approvalStatus])}
+            />
+            <DataTable
+              columns={['Pricing Resources', 'Owner', 'Reference', 'Next Step']}
+              rows={assetLibrary.assets
+                .filter((asset) => asset.tags.includes('pricing') || asset.keywords.includes('pricing'))
+                .map((asset) => [asset.title, asset.owner, asset.localFileReference, 'Review before customer use'])}
+              emptyMessage="No pricing resources are approved in the shared library yet."
+            />
+            <DataTable
+              columns={['Presentation Library', 'Type', 'Owner', 'Approval']}
+              rows={assetLibrary.assets
+                .filter((asset) => asset.assetType.includes('presentation') || asset.assetType.includes('playbook'))
+                .map((asset) => [asset.title, asset.assetType, asset.owner, asset.approvalStatus])}
+            />
+            <p className="subtle-note">Sales resource references are local and approval-aware. They do not send emails, sync CRM data, publish assets, or replace files automatically.</p>
           </section>
         ) : null}
 

@@ -1,0 +1,164 @@
+[
+  {
+    "approvalId": "asset-brand-dashboard-mark-approval-approved",
+    "assetId": "asset-brand-dashboard-mark",
+    "title": "Vyra Dashboard Brand Mark",
+    "status": "Approved",
+    "reviewer": "Robert",
+    "approvalDate": "2026-07-01T21:02:00.797Z",
+    "notes": "Seeded approval status from existing local phase documentation.",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:02:00.797Z",
+        "actor": "Asset Library",
+        "previousValue": null,
+        "newValue": "Approved",
+        "reason": "Seeded approval status from existing local phase documentation."
+      }
+    ]
+  },
+  {
+    "approvalId": "asset-brand-design-tokens-approval-approved",
+    "assetId": "asset-brand-design-tokens",
+    "title": "Dashboard Design Tokens",
+    "status": "Approved",
+    "reviewer": "Robert",
+    "approvalDate": "2026-07-01T21:02:00.797Z",
+    "notes": "Seeded approval status from existing local phase documentation.",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:02:00.797Z",
+        "actor": "Asset Library",
+        "previousValue": null,
+        "newValue": "Approved",
+        "reason": "Seeded approval status from existing local phase documentation."
+      }
+    ]
+  },
+  {
+    "approvalId": "asset-marketing-content-studio-doc-approval-approved",
+    "assetId": "asset-marketing-content-studio-doc",
+    "title": "Marketing Content Studio Guide",
+    "status": "Approved",
+    "reviewer": "Robert",
+    "approvalDate": "2026-07-01T21:02:00.797Z",
+    "notes": "Seeded approval status from existing local phase documentation.",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:02:00.797Z",
+        "actor": "Asset Library",
+        "previousValue": null,
+        "newValue": "Approved",
+        "reason": "Seeded approval status from existing local phase documentation."
+      }
+    ]
+  },
+  {
+    "approvalId": "asset-sales-agent-guide-approval-approved",
+    "assetId": "asset-sales-agent-guide",
+    "title": "Sales Agent Guide",
+    "status": "Approved",
+    "reviewer": "Robert",
+    "approvalDate": "2026-07-01T21:02:00.797Z",
+    "notes": "Seeded approval status from existing local phase documentation.",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:02:00.797Z",
+        "actor": "Asset Library",
+        "previousValue": null,
+        "newValue": "Approved",
+        "reason": "Seeded approval status from existing local phase documentation."
+      }
+    ]
+  },
+  {
+    "approvalId": "asset-executive-planning-doc-approval-approved",
+    "assetId": "asset-executive-planning-doc",
+    "title": "Executive Planning Guide",
+    "status": "Approved",
+    "reviewer": "Robert",
+    "approvalDate": "2026-07-01T21:02:00.797Z",
+    "notes": "Seeded approval status from existing local phase documentation.",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:02:00.797Z",
+        "actor": "Asset Library",
+        "previousValue": null,
+        "newValue": "Approved",
+        "reason": "Seeded approval status from existing local phase documentation."
+      }
+    ]
+  },
+  {
+    "approvalId": "asset-operator-runtime-docs-approval-under-review",
+    "assetId": "asset-operator-runtime-docs",
+    "title": "Operator Runtime Documentation",
+    "status": "Under Review",
+    "reviewer": "Pending reviewer",
+    "approvalDate": null,
+    "notes": "Seeded approval status from existing local phase documentation.",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:02:00.797Z",
+        "actor": "Asset Library",
+        "previousValue": null,
+        "newValue": "Under Review",
+        "reason": "Seeded approval status from existing local phase documentation."
+      }
+    ]
+  },
+  {
+    "approvalId": "asset-architecture-local-runtime-approval-approved",
+    "assetId": "asset-architecture-local-runtime",
+    "title": "Local Runtime Architecture Reference",
+    "status": "Approved",
+    "reviewer": "Robert",
+    "approvalDate": "2026-07-01T21:02:00.797Z",
+    "notes": "Seeded approval status from existing local phase documentation.",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:02:00.797Z",
+        "actor": "Asset Library",
+        "previousValue": null,
+        "newValue": "Approved",
+        "reason": "Seeded approval status from existing local phase documentation."
+      }
+    ]
+  },
+  {
+    "approvalId": "asset-knowledge-graph-doc-approval-approved",
+    "assetId": "asset-knowledge-graph-doc",
+    "title": "Cross-Agent Memory Guide",
+    "status": "Approved",
+    "reviewer": "Robert",
+    "approvalDate": "2026-07-01T21:02:00.797Z",
+    "notes": "Seeded approval status from existing local phase documentation.",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:02:00.797Z",
+        "actor": "Asset Library",
+        "previousValue": null,
+        "newValue": "Approved",
+        "reason": "Seeded approval status from existing local phase documentation."
+      }
+    ]
+  },
+  {
+    "approvalId": "asset-marketing-template-report-approval-under-review",
+    "assetId": "asset-marketing-template-report",
+    "title": "Draft Library Report Reference",
+    "status": "Under Review",
+    "reviewer": "Pending reviewer",
+    "approvalDate": null,
+    "notes": "Seeded approval status from existing local phase documentation.",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-01T21:02:00.797Z",
+        "actor": "Asset Library",
+        "previousValue": null,
+        "newValue": "Under Review",
+        "reason": "Seeded approval status from existing local phase documentation."
+      }
+    ]
+  }
+]

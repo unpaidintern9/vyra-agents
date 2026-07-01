@@ -264,3 +264,9 @@ These records help sellers align outreach and follow-up prep with Vyra Performan
 The Sales dashboard includes Sales Enablement Drafts, Campaign Support Drafts, Product Messaging Drafts, and Audience-Specific Copy from the local Marketing Content Studio.
 
 These drafts help sellers prepare local-only outreach and follow-up context while preserving manual review. Sales cannot publish marketing drafts, send customer emails, post to social, buy ads, sync CRM records, or approve marketing content automatically.
+
+## Phase 57 Sales Resource Library
+
+The Sales dashboard includes Sales Resources, Product Assets, Pricing Resources, and Presentation Library sections from the shared Asset & Knowledge Library.
+
+Sales can reference approved local assets for prep and enablement, but it cannot publish assets, send customer emails, sync CRM records, replace files, or approve resources automatically.

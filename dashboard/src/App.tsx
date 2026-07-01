@@ -140,6 +140,7 @@ import { buildDashboardGmailEmailSummary } from './runtime/gmailEmail';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
 import { buildDashboardProjectRegistrySummary } from './runtime/projectRegistry';
+import { buildDashboardAssetLibrarySummary, type AssetLibraryDashboardSummary } from './runtime/assetLibrary';
 import { buildDashboardMarketingSummary, type MarketingDashboardSummary } from './runtime/marketingIntelligence';
 import { buildDashboardReleaseReadinessSummary } from './runtime/releaseReadiness';
 import { buildDashboardReleaseShipPlanSummary } from './runtime/releaseShipPlans';
@@ -1487,6 +1488,7 @@ function App() {
     sharedTaskSummary,
     workflows: salesWorkflows,
   });
+  const assetLibrary = buildDashboardAssetLibrarySummary();
   const releaseReadiness = buildDashboardReleaseReadinessSummary({
     graph: latestEngineeringGraph ?? undefined,
     githubPlanning,
@@ -1681,6 +1683,8 @@ function App() {
             ? 'AI Operator'
             : activePage === 'Marketing'
               ? 'Marketing Agent'
+              : activePage === 'Assets'
+                ? 'Asset & Knowledge Library'
               : activePage;
 
   return (
@@ -1814,9 +1818,12 @@ function App() {
             teamAgents={salesTeamAgents}
             teamSummary={salesAgentTeamSummary}
             scoringSummary={salesScoringSummary}
+            assetLibrary={assetLibrary}
           />
         ) : activePage === 'Marketing' ? (
-          <MarketingPage marketing={marketing} />
+          <MarketingPage assetLibrary={assetLibrary} marketing={marketing} />
+        ) : activePage === 'Assets' ? (
+          <AssetLibraryPage assetLibrary={assetLibrary} />
         ) : activePage === 'Integrations' ? (
           <IntegrationsPage snapshot={status} />
         ) : activePage === 'Settings' ? (
@@ -1878,6 +1885,7 @@ function App() {
             onRecordValidation={recordOperatorValidation}
             operator={operatorSnapshot}
             organizationIntelligenceSummary={salesOrganizationIntelligence.summary}
+            assetLibrary={assetLibrary}
             sharedMemory={sharedMemory}
             runtime={runtime}
           />
@@ -1909,6 +1917,7 @@ function App() {
             executiveOperations={executiveOperations}
             executivePlanning={executivePlanning}
             marketing={marketing}
+            assetLibrary={assetLibrary}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
             projectRegistry={projectRegistry}
@@ -2063,7 +2072,88 @@ function RuntimePage({ runtime, syncStatus }: { runtime: AgentRuntimeSnapshot; s
   );
 }
 
-function MarketingPage({ marketing }: { marketing: MarketingDashboardSummary }) {
+function AssetLibraryPage({ assetLibrary }: { assetLibrary: AssetLibraryDashboardSummary }) {
+  const approvedAssets = assetLibrary.assets.filter((asset) => asset.approvalStatus === 'Approved');
+  const approvalQueue = assetLibrary.approvals.filter((approval) => approval.status !== 'Approved');
+  const recentAssets = [...assetLibrary.assets].sort((a, b) => b.updatedDate.localeCompare(a.updatedDate)).slice(0, 8);
+  return (
+    <section className="dashboard-grid">
+      <Panel title="Asset Library" icon={<FileText size={18} />} wide>
+        <div className="batch-grid supabase-detail-grid">
+          <Fact label="Total Assets" value={String(assetLibrary.summary.totalAssets)} />
+          <Fact label="Approved Assets" value={String(assetLibrary.summary.approvedAssets)} />
+          <Fact label="Approval Queue" value={String(assetLibrary.summary.approvalQueue)} />
+          <Fact label="Usage References" value={String(assetLibrary.summary.usageReferences)} />
+        </div>
+        <DataTable
+          columns={['Asset Library', 'Category', 'Type', 'Owner', 'Approval', 'Reference']}
+          rows={assetLibrary.assets.map((asset) => [asset.title, asset.category, asset.assetType, asset.owner, asset.approvalStatus, asset.localFileReference])}
+        />
+      </Panel>
+
+      <Panel title="Knowledge Library" icon={<Database size={18} />} wide>
+        <DataTable
+          columns={['Knowledge Library', 'Type', 'Category', 'Confidence', 'Linked Assets']}
+          rows={assetLibrary.knowledge.map((item) => [item.title, item.recordType, item.category, `${item.confidence}%`, item.linkedAssets.length])}
+        />
+      </Panel>
+
+      <Panel title="Asset Search" icon={<Search size={18} />} wide>
+        <DataTable
+          columns={['Search Target', 'Tags', 'Keywords', 'Products', 'Audiences']}
+          rows={assetLibrary.assets.map((asset) => [asset.title, asset.tags.join(', '), asset.keywords.join(', '), asset.products.join(', '), asset.audiences.join(', ')])}
+        />
+      </Panel>
+
+      <Panel title="Recently Updated" icon={<FileClock size={18} />} wide>
+        <DataTable
+          columns={['Recently Updated', 'Version', 'Status', 'Updated']}
+          rows={recentAssets.map((asset) => [asset.title, asset.version, asset.status, formatDate(asset.updatedDate)])}
+        />
+      </Panel>
+
+      <Panel title="Approval Queue" icon={<ShieldCheck size={18} />} wide>
+        <DataTable
+          columns={['Approval Queue', 'Status', 'Reviewer', 'Notes']}
+          rows={approvalQueue.map((approval) => [approval.title, approval.status, approval.reviewer, approval.notes])}
+          emptyMessage="No asset approvals are pending."
+        />
+      </Panel>
+
+      <Panel title="Version History" icon={<Workflow size={18} />} wide>
+        <DataTable
+          columns={['Version History', 'Version', 'Author', 'Approval', 'Change']}
+          rows={assetLibrary.versions.map((version) => [version.title, version.versionNumber, version.author, version.approvalStatus, version.changeSummary])}
+        />
+      </Panel>
+
+      <Panel title="Related Assets" icon={<Network size={18} />} wide>
+        <DataTable
+          columns={['Asset', 'Related Asset', 'Reason']}
+          rows={assetLibrary.relatedAssets.map((item) => [item.asset, item.related, item.reason])}
+        />
+      </Panel>
+
+      <Panel title="Usage Overview" icon={<ListChecks size={18} />} wide>
+        <DataTable
+          columns={['Usage Overview', 'Used By', 'References', 'Last Used']}
+          rows={assetLibrary.usage.map((usage) => [
+            approvedAssets.find((asset) => asset.assetId === usage.assetId)?.title ?? usage.assetId,
+            usage.usedBy.join(', '),
+            usage.references.join(', '),
+            formatDate(usage.lastUsed),
+          ])}
+        />
+        <p className="subtle-note">Asset records are local metadata references only. No files are uploaded, published, synchronized, replaced, or approved automatically.</p>
+      </Panel>
+    </section>
+  );
+}
+
+function MarketingPage({ assetLibrary, marketing }: { assetLibrary: AssetLibraryDashboardSummary; marketing: MarketingDashboardSummary }) {
+  const marketingAssets = assetLibrary.assets.filter((asset) => asset.category === 'Marketing' || asset.usageReferences.includes('Marketing'));
+  const brandAssets = assetLibrary.assets.filter((asset) => asset.category === 'Brand' && asset.approvalStatus === 'Approved');
+  const templates = assetLibrary.assets.filter((asset) => asset.assetType.includes('template') || asset.tags.some((tag) => tag.includes('template')));
   return (
     <section className="dashboard-grid">
       <Panel title="Brand Intelligence" icon={<Megaphone size={18} />} wide>
@@ -2106,6 +2196,28 @@ function MarketingPage({ marketing }: { marketing: MarketingDashboardSummary }) 
             check.risks.join('; ') || check.violations.join('; ') || 'No major risk',
             check.nextActions[0],
           ])}
+        />
+      </Panel>
+
+      <Panel title="Approved Brand Assets" icon={<ShieldCheck size={18} />} wide>
+        <DataTable
+          columns={['Approved Brand Assets', 'Type', 'Reference', 'Usage']}
+          rows={brandAssets.map((asset) => [asset.title, asset.assetType, asset.localFileReference, asset.usageReferences.join(', ')])}
+        />
+      </Panel>
+
+      <Panel title="Marketing Templates" icon={<FileText size={18} />} wide>
+        <DataTable
+          columns={['Marketing Templates', 'Status', 'Campaigns', 'Reference']}
+          rows={templates.map((asset) => [asset.title, asset.approvalStatus, asset.campaigns.join(', ') || 'General', asset.localFileReference])}
+          emptyMessage="No marketing templates are approved yet."
+        />
+      </Panel>
+
+      <Panel title="Campaign Resources" icon={<Workflow size={18} />} wide>
+        <DataTable
+          columns={['Campaign Resources', 'Campaigns', 'Products', 'Approval']}
+          rows={marketingAssets.map((asset) => [asset.title, asset.campaigns.join(', ') || 'General', asset.products.join(', '), asset.approvalStatus])}
         />
       </Panel>
 
@@ -2236,6 +2348,7 @@ function OperatorPage({
   onRecordValidation,
   operator,
   organizationIntelligenceSummary,
+  assetLibrary,
   sharedMemory,
   runtime,
 }: {
@@ -2252,6 +2365,7 @@ function OperatorPage({
   onRecordValidation(): void;
   operator: AiOperatorDashboardSnapshot;
   organizationIntelligenceSummary: SalesOrganizationIntelligenceSummary;
+  assetLibrary: AssetLibraryDashboardSummary;
   sharedMemory: SharedMemoryStore;
   runtime: AgentRuntimeSnapshot;
 }) {
@@ -2300,6 +2414,8 @@ function OperatorPage({
         <Metric icon={<AlertTriangle size={20} />} label="Missing Decision Makers" value={String(organizationIntelligenceSummary.missingDecisionMakers)} />
         <Metric icon={<Database size={20} />} label="Memory Conflicts" value={String(sharedMemory.agentViews.Operator.conflictCount)} />
         <Metric icon={<FileClock size={20} />} label="Stale Facts" value={String(sharedMemory.agentViews.Operator.staleFactCount)} />
+        <Metric icon={<FileText size={20} />} label="Asset Library" value={String(assetLibrary.summary.totalAssets)} />
+        <Metric icon={<ShieldCheck size={20} />} label="Asset Approvals" value={String(assetLibrary.summary.approvalQueue)} />
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -2383,6 +2499,48 @@ function OperatorPage({
             <Fact label="Proposal Prep Support Queue" value={String(operator.salesWorkflowSummary.assignedToProposalPrep)} />
             <Fact label="Blocked Items" value={String(operator.salesWorkflowSummary.blockedWorkflows)} />
           </div>
+        </Panel>
+
+        <Panel title="SOP Library" icon={<FileText size={18} />} wide>
+          <DataTable
+            columns={['SOP Library', 'Category', 'Confidence', 'Linked Assets']}
+            rows={assetLibrary.knowledge
+              .filter((item) => item.recordType === 'SOP' || item.usageReferences.includes('Operator'))
+              .map((item) => [item.title, item.category, `${item.confidence}%`, String(item.linkedAssets.length)])}
+          />
+        </Panel>
+
+        <Panel title="Internal Documentation" icon={<FileText size={18} />} wide>
+          <DataTable
+            columns={['Internal Documentation', 'Type', 'Reference', 'Approval']}
+            rows={assetLibrary.assets
+              .filter((asset) => asset.category === 'Operations' || asset.usageReferences.includes('Operator'))
+              .map((asset) => [asset.title, asset.assetType, asset.localFileReference, asset.approvalStatus])}
+          />
+        </Panel>
+
+        <Panel title="Training Materials" icon={<ListChecks size={18} />} wide>
+          <DataTable
+            columns={['Training Materials', 'Type', 'Audience', 'Status']}
+            rows={assetLibrary.knowledge
+              .filter((item) => item.recordType === 'Training Material' || item.recordType === 'Internal Guide' || item.recordType === 'Process')
+              .map((item) => [item.title, item.recordType, item.linkedAudiences.join(', '), item.approvalStatus])}
+          />
+        </Panel>
+
+        <Panel title="Operational Resources" icon={<Workflow size={18} />} wide>
+          <DataTable
+            columns={['Operational Resources', 'Used By', 'References', 'Last Used']}
+            rows={assetLibrary.usage
+              .filter((usage) => usage.usedBy.includes('Operator') || usage.usedBy.includes('Shared Memory'))
+              .map((usage) => [
+                assetLibrary.assets.find((asset) => asset.assetId === usage.assetId)?.title ?? usage.assetId,
+                usage.usedBy.join(', '),
+                usage.references.join(', '),
+                formatDate(usage.lastUsed),
+              ])}
+          />
+          <p className="subtle-note">Operator asset views are local and read-only. They do not upload files, publish documents, or approve resources automatically.</p>
         </Panel>
 
         <Panel title="Operator Contact Queue" icon={<Users size={18} />} wide>
@@ -4011,6 +4169,7 @@ function pageCopy(page: string): string {
     Migration: 'Migration dry-runs, staging review, member matching, table readiness, and mock approvals.',
     Sales: 'Local lead queue, prospect tracking, follow-up planning, and proposal prep without emails, Stripe, or CRM writes.',
     Marketing: 'Local brand intelligence, product messaging, audience planning, campaigns, and approvals without publishing or ad buying.',
+    Assets: 'Shared local asset and knowledge library with approvals, version history, usage, and deterministic search.',
     Engineering: 'Read-only repository knowledge graph for files, routes, components, Supabase assets, dependencies, and docs.',
     Integrations: 'Read-only integration health with safe mock fallback and no production writes.',
     Runtime: 'Shared Agent OS for registry, lifecycle, permissions, health, workflows, memory, approvals, and sync.',

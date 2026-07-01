@@ -1453,6 +1453,35 @@ Boundaries:
 - No government contracting, SAM.gov, federal proposal, Valor, or contract logic.
 - No secrets committed.
 
+## Phase 57
+
+Asset & Knowledge Library.
+
+Includes:
+
+- Shared local asset metadata under `codex-agent-threads/shared/assets/`.
+- Structured asset records for Brand, Product, Marketing, Sales, Customer Success, Engineering, Executive, Legal, and Operations resources.
+- Structured knowledge records for FAQ, SOP, Best Practice, Process, Playbook, Internal Guide, Troubleshooting, Product Documentation, Release Notes, and Training Material.
+- Version history, approval records, usage tracking, deterministic search, related asset suggestions, and local reports.
+- Asset Library dashboard sections for Asset Library, Knowledge Library, Recently Updated, Approval Queue, Version History, Related Assets, Usage Overview, Asset Search.
+- Marketing visibility for Approved Brand Assets, Marketing Templates, and Campaign Resources.
+- Sales visibility for Sales Resources, Product Assets, Pricing Resources, and Presentation Library.
+- Executive visibility for Executive Knowledge Base, Strategic Documents, Roadmaps, and Policy Library.
+- Operator visibility for SOP Library, Internal Documentation, Training Materials, and Operational Resources.
+- Root npm scripts for `assets:list`, `assets:add`, `assets:update`, `assets:search`, `assets:approve`, `assets:archive`, `assets:versions`, `assets:usage`, `assets:knowledge`, `assets:report`, and `assets:validate`.
+
+Boundaries:
+
+- Local execution only.
+- Metadata references only where practical; no unnecessary asset duplication.
+- No dependency on `vyraapp.fit`.
+- No cloud synchronization.
+- No external uploads or external storage providers.
+- No autonomous publishing or distribution.
+- No automatic asset replacement.
+- No automatic approvals.
+- Version and audit history are preserved.
+
 ## Phase 56
 
 Marketing Content Studio & Draft Generation.

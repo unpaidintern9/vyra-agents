@@ -51,3 +51,9 @@ Executive planning uses shared memory conflicts, risky facts, and confidence sig
 Marketing uses shared memory brand asset and market segment records where useful, and it can reference Sales organizations, opportunities, Executive goals, and task IDs.
 
 Marketing does not duplicate customer records unnecessarily. Marketing memory references are planning-only and do not publish, email, post, sync CRM data, or approve content automatically.
+
+## Phase 57 Asset References
+
+The Asset & Knowledge Library references shared memory entities, tasks, goals, campaigns, products, organizations, and reports through local IDs.
+
+Assets remain metadata references under `codex-agent-threads/shared/assets/`; shared memory can point to assets, but it does not copy files, approve assets, replace files, sync externally, or publish resources.

@@ -1,0 +1,143 @@
+# Version History Report
+
+Generated: 2026-07-01T21:08:27.948Z
+
+```json
+{
+  "title": "Version History Report",
+  "generatedAt": "2026-07-01T21:08:27.948Z",
+  "versions": [
+    {
+      "versionId": "asset-brand-dashboard-mark-v-1-0-0",
+      "assetId": "asset-brand-dashboard-mark",
+      "title": "Vyra Dashboard Brand Mark",
+      "versionNumber": "1.0.0",
+      "changeSummary": "Seeded metadata reference without copying asset contents.",
+      "supersededVersion": null,
+      "approvalStatus": "Approved",
+      "author": "Marketing",
+      "reviewer": "Robert",
+      "releaseDate": "2026-07-01T21:02:00.797Z",
+      "createdDate": "2026-07-01T21:02:00.797Z"
+    },
+    {
+      "versionId": "asset-brand-design-tokens-v-1-0-0",
+      "assetId": "asset-brand-design-tokens",
+      "title": "Dashboard Design Tokens",
+      "versionNumber": "1.0.0",
+      "changeSummary": "Seeded metadata reference without copying asset contents.",
+      "supersededVersion": null,
+      "approvalStatus": "Approved",
+      "author": "Marketing",
+      "reviewer": "Robert",
+      "releaseDate": "2026-07-01T21:02:00.797Z",
+      "createdDate": "2026-07-01T21:02:00.797Z"
+    },
+    {
+      "versionId": "asset-marketing-content-studio-doc-v-1-0-0",
+      "assetId": "asset-marketing-content-studio-doc",
+      "title": "Marketing Content Studio Guide",
+      "versionNumber": "1.0.0",
+      "changeSummary": "Seeded metadata reference without copying asset contents.",
+      "supersededVersion": null,
+      "approvalStatus": "Approved",
+      "author": "Marketing",
+      "reviewer": "Robert",
+      "releaseDate": "2026-07-01T21:02:00.797Z",
+      "createdDate": "2026-07-01T21:02:00.797Z"
+    },
+    {
+      "versionId": "asset-sales-agent-guide-v-1-0-0",
+      "assetId": "asset-sales-agent-guide",
+      "title": "Sales Agent Guide",
+      "versionNumber": "1.0.0",
+      "changeSummary": "Seeded metadata reference without copying asset contents.",
+      "supersededVersion": null,
+      "approvalStatus": "Approved",
+      "author": "Sales",
+      "reviewer": "Robert",
+      "releaseDate": "2026-07-01T21:02:00.797Z",
+      "createdDate": "2026-07-01T21:02:00.797Z"
+    },
+    {
+      "versionId": "asset-executive-planning-doc-v-1-0-0",
+      "assetId": "asset-executive-planning-doc",
+      "title": "Executive Planning Guide",
+      "versionNumber": "1.0.0",
+      "changeSummary": "Seeded metadata reference without copying asset contents.",
+      "supersededVersion": null,
+      "approvalStatus": "Approved",
+      "author": "Executive",
+      "reviewer": "Robert",
+      "releaseDate": "2026-07-01T21:02:00.797Z",
+      "createdDate": "2026-07-01T21:02:00.797Z"
+    },
+    {
+      "versionId": "asset-operator-runtime-docs-v-1-0-0",
+      "assetId": "asset-operator-runtime-docs",
+      "title": "Operator Runtime Documentation",
+      "versionNumber": "1.0.0",
+      "changeSummary": "Seeded metadata reference without copying asset contents.",
+      "supersededVersion": null,
+      "approvalStatus": "Under Review",
+      "author": "Operator",
+      "reviewer": "Pending human review",
+      "releaseDate": null,
+      "createdDate": "2026-07-01T21:02:00.797Z"
+    },
+    {
+      "versionId": "asset-architecture-local-runtime-v-1-0-0",
+      "assetId": "asset-architecture-local-runtime",
+      "title": "Local Runtime Architecture Reference",
+      "versionNumber": "1.0.0",
+      "changeSummary": "Seeded metadata reference without copying asset contents.",
+      "supersededVersion": null,
+      "approvalStatus": "Approved",
+      "author": "Engineering",
+      "reviewer": "Robert",
+      "releaseDate": "2026-07-01T21:02:00.797Z",
+      "createdDate": "2026-07-01T21:02:00.797Z"
+    },
+    {
+      "versionId": "asset-knowledge-graph-doc-v-1-0-0",
+      "assetId": "asset-knowledge-graph-doc",
+      "title": "Cross-Agent Memory Guide",
+      "versionNumber": "1.0.0",
+      "changeSummary": "Seeded metadata reference without copying asset contents.",
+      "supersededVersion": null,
+      "approvalStatus": "Approved",
+      "author": "Memory",
+      "reviewer": "Robert",
+      "releaseDate": "2026-07-01T21:02:00.797Z",
+      "createdDate": "2026-07-01T21:02:00.797Z"
+    },
+    {
+      "versionId": "asset-marketing-template-report-v-1-0-0",
+      "assetId": "asset-marketing-template-report",
+      "title": "Draft Library Report Reference",
+      "versionNumber": "1.0.0",
+      "changeSummary": "Seeded metadata reference without copying asset contents.",
+      "supersededVersion": null,
+      "approvalStatus": "Under Review",
+      "author": "Marketing",
+      "reviewer": "Pending human review",
+      "releaseDate": null,
+      "createdDate": "2026-07-01T21:02:00.797Z"
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "autonomousPublishing": false,
+    "externalFileUploads": false,
+    "automaticAssetReplacement": false,
+    "automaticApprovals": false,
+    "cloudSynchronization": false,
+    "externalStorageProviders": false,
+    "autonomousDistribution": false,
+    "versionHistoryPreserved": true,
+    "auditHistoryPreserved": true
+  }
+}
+```
+
+Local-only asset library safety: no publishing, uploads, external storage, autonomous distribution, automatic replacement, or automatic approval.

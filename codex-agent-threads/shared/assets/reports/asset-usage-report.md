@@ -1,0 +1,171 @@
+# Asset Usage Report
+
+Generated: 2026-07-01T21:08:27.948Z
+
+```json
+{
+  "title": "Asset Usage Report",
+  "generatedAt": "2026-07-01T21:08:27.948Z",
+  "usage": [
+    {
+      "usageId": "asset-brand-dashboard-mark-usage",
+      "assetId": "asset-brand-dashboard-mark",
+      "usedBy": [
+        "Marketing",
+        "Executive",
+        "Sales"
+      ],
+      "references": [
+        "camp-athlete-app-foundation",
+        "Vyra Performance",
+        "Vyra internal operations"
+      ],
+      "usageCount": 6,
+      "lastUsed": "2026-07-01T21:02:00.797Z",
+      "notes": "Local reference tracking only. No external distribution."
+    },
+    {
+      "usageId": "asset-brand-design-tokens-usage",
+      "assetId": "asset-brand-design-tokens",
+      "usedBy": [
+        "Marketing",
+        "Engineering"
+      ],
+      "references": [
+        "camp-athlete-app-foundation",
+        "Vyra Performance",
+        "Vyra internal operations"
+      ],
+      "usageCount": 5,
+      "lastUsed": "2026-07-01T21:02:00.797Z",
+      "notes": "Local reference tracking only. No external distribution."
+    },
+    {
+      "usageId": "asset-marketing-content-studio-doc-usage",
+      "assetId": "asset-marketing-content-studio-doc",
+      "usedBy": [
+        "Marketing",
+        "Sales",
+        "Executive"
+      ],
+      "references": [
+        "camp-gym-growth-readiness",
+        "Vyra Performance",
+        "Vyra internal operations"
+      ],
+      "usageCount": 6,
+      "lastUsed": "2026-07-01T21:02:00.797Z",
+      "notes": "Local reference tracking only. No external distribution."
+    },
+    {
+      "usageId": "asset-sales-agent-guide-usage",
+      "assetId": "asset-sales-agent-guide",
+      "usedBy": [
+        "Sales",
+        "Operator",
+        "Executive"
+      ],
+      "references": [
+        "camp-gym-growth-readiness",
+        "Sales/CRM tools",
+        "Louisville fitness prospects"
+      ],
+      "usageCount": 6,
+      "lastUsed": "2026-07-01T21:02:00.797Z",
+      "notes": "Local reference tracking only. No external distribution."
+    },
+    {
+      "usageId": "asset-executive-planning-doc-usage",
+      "assetId": "asset-executive-planning-doc",
+      "usedBy": [
+        "Executive",
+        "Operator"
+      ],
+      "references": [
+        "Vyra Performance",
+        "Vyra internal operations"
+      ],
+      "usageCount": 4,
+      "lastUsed": "2026-07-01T21:02:00.797Z",
+      "notes": "Local reference tracking only. No external distribution."
+    },
+    {
+      "usageId": "asset-operator-runtime-docs-usage",
+      "assetId": "asset-operator-runtime-docs",
+      "usedBy": [
+        "Operator",
+        "Shared Memory"
+      ],
+      "references": [
+        "Vyra Agent Platform",
+        "Vyra internal operations"
+      ],
+      "usageCount": 4,
+      "lastUsed": "2026-07-01T21:02:00.797Z",
+      "notes": "Local reference tracking only. No external distribution."
+    },
+    {
+      "usageId": "asset-architecture-local-runtime-usage",
+      "assetId": "asset-architecture-local-runtime",
+      "usedBy": [
+        "Engineering",
+        "Executive"
+      ],
+      "references": [
+        "Vyra Agent Platform",
+        "Vyra internal operations"
+      ],
+      "usageCount": 4,
+      "lastUsed": "2026-07-01T21:02:00.797Z",
+      "notes": "Local reference tracking only. No external distribution."
+    },
+    {
+      "usageId": "asset-knowledge-graph-doc-usage",
+      "assetId": "asset-knowledge-graph-doc",
+      "usedBy": [
+        "Shared Memory",
+        "Executive",
+        "Operator"
+      ],
+      "references": [
+        "Vyra Agent Platform",
+        "Vyra internal operations"
+      ],
+      "usageCount": 5,
+      "lastUsed": "2026-07-01T21:02:00.797Z",
+      "notes": "Local reference tracking only. No external distribution."
+    },
+    {
+      "usageId": "asset-marketing-template-report-usage",
+      "assetId": "asset-marketing-template-report",
+      "usedBy": [
+        "Marketing",
+        "Sales"
+      ],
+      "references": [
+        "camp-athlete-app-foundation",
+        "camp-gym-growth-readiness",
+        "Vyra Performance",
+        "Vyra internal operations"
+      ],
+      "usageCount": 6,
+      "lastUsed": "2026-07-01T21:02:00.797Z",
+      "notes": "Local reference tracking only. No external distribution."
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "autonomousPublishing": false,
+    "externalFileUploads": false,
+    "automaticAssetReplacement": false,
+    "automaticApprovals": false,
+    "cloudSynchronization": false,
+    "externalStorageProviders": false,
+    "autonomousDistribution": false,
+    "versionHistoryPreserved": true,
+    "auditHistoryPreserved": true
+  }
+}
+```
+
+Local-only asset library safety: no publishing, uploads, external storage, autonomous distribution, automatic replacement, or automatic approval.

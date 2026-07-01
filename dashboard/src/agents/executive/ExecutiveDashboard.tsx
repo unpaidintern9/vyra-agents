@@ -20,6 +20,7 @@ export default function ExecutiveDashboard({
   executiveOperations,
   executivePlanning,
   marketing,
+  assetLibrary,
   githubPlanning,
   githubReadOnly,
   integrationWarnings = [],
@@ -81,6 +82,7 @@ export default function ExecutiveDashboard({
         {salesResearchIntelligenceSummary ? <ExecutiveResearchIntelligencePanel summary={salesResearchIntelligenceSummary} /> : null}
         {salesWorkflowSummary ? <ExecutiveSalesWorkflowPanel summary={salesWorkflowSummary} /> : null}
         {executivePlanning ? <ExecutivePlanningPanel planning={executivePlanning} /> : null}
+        {assetLibrary ? <ExecutiveAssetLibraryPanel assetLibrary={assetLibrary} /> : null}
         {marketing ? <ExecutiveMarketingOverviewPanel marketing={marketing} /> : null}
         {sharedTaskSummary ? <ExecutiveWorkQueuePanel sharedTaskSummary={sharedTaskSummary} /> : null}
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
@@ -162,6 +164,49 @@ function ExecutiveMarketingOverviewPanel({ marketing }: { marketing: NonNullable
         />
       </div>
       <p className="subtle-note">Executive Marketing Overview is read-only and local. It does not publish, post, email, buy ads, sync CRM data, or approve marketing automatically.</p>
+    </section>
+  );
+}
+
+function ExecutiveAssetLibraryPanel({ assetLibrary }: { assetLibrary: NonNullable<ExecutiveDashboardProps['assetLibrary']> }) {
+  const executiveAssets = assetLibrary.assets.filter((asset) => asset.category === 'Executive' || asset.usageReferences.includes('Executive'));
+  const policyRecords = assetLibrary.knowledge.filter((item) => item.title.includes('Policy') || item.category === 'Executive');
+  return (
+    <section className="panel wide-panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Executive Knowledge Base</h2>
+        </div>
+        <span>{assetLibrary.summary.approvedAssets} approved assets</span>
+      </div>
+      <DataTable
+        columns={['Executive Knowledge Base', 'Type', 'Confidence', 'Linked Assets']}
+        rows={assetLibrary.knowledge
+          .filter((item) => item.usageReferences.includes('Executive') || item.category === 'Executive')
+          .map((item) => [item.title, item.recordType, `${item.confidence}%`, String(item.linkedAssets.length)])}
+      />
+      <div className="dashboard-subsection">
+        <h3>Strategic Documents</h3>
+        <DataTable
+          columns={['Document', 'Owner', 'Reference', 'Approval']}
+          rows={executiveAssets.map((asset) => [asset.title, asset.owner, asset.localFileReference, asset.approvalStatus])}
+        />
+      </div>
+      <div className="dashboard-subsection">
+        <h3>Roadmaps</h3>
+        <DataTable
+          columns={['Roadmap', 'Products', 'Usage', 'Status']}
+          rows={assetLibrary.assets
+            .filter((asset) => asset.tags.includes('planning') || asset.tags.includes('architecture'))
+            .map((asset) => [asset.title, asset.products.join(', '), asset.usageReferences.join(', '), asset.approvalStatus])}
+        />
+      </div>
+      <DataTable
+        columns={['Policy Library', 'Category', 'Version', 'Approval']}
+        rows={policyRecords.map((item) => [item.title, item.category, item.version, item.approvalStatus])}
+      />
+      <p className="subtle-note">Executive asset visibility is read-only and local. It does not approve assets, publish documents, sync files, or distribute resources externally.</p>
     </section>
   );
 }

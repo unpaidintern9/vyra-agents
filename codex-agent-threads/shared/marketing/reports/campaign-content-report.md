@@ -1,11 +1,11 @@
 # Campaign Content Report
 
-Generated: 2026-07-01T20:01:59.964Z
+Generated: 2026-07-01T21:08:37.181Z
 
 ```json
 {
   "title": "Campaign Content Report",
-  "generatedAt": "2026-07-01T20:01:59.964Z",
+  "generatedAt": "2026-07-01T21:08:37.181Z",
   "rows": [
     {
       "campaign": "Athlete App Foundation",

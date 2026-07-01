@@ -4,6 +4,7 @@ import type { CrossAgentCollaborationGraph, CrossAgentCollaborationSummary } fro
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 import type { ExecutivePlanningSummary } from '../../runtime/executivePlanning';
 import type { MarketingDashboardSummary } from '../../runtime/marketingIntelligence';
+import type { AssetLibraryDashboardSummary } from '../../runtime/assetLibrary';
 
 export type LeadType = 'gym' | 'coach' | 'organization' | 'referral';
 export type PipelineStage =
@@ -1167,6 +1168,7 @@ export interface SalesPageProps {
   organizationIntelligence: SalesOrganizationIntelligenceStore;
   sharedMemory: SharedMemoryStore;
   connectorReadiness?: ConnectorReadinessSummary;
+  assetLibrary?: AssetLibraryDashboardSummary;
   marketing?: MarketingDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
   executivePlanning?: ExecutivePlanningSummary;

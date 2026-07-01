@@ -110,3 +110,9 @@ Marketing records live under `codex-agent-threads/shared/marketing/` and remain 
 The Executive dashboard includes Marketing Draft Pipeline, Brand Risk Queue, Campaign Readiness, and Launch Content Status.
 
 Content Studio records live under `codex-agent-threads/shared/marketing/content-studio/`. Executive visibility is read-only and approval-aware; approved drafts remain local drafts and do not publish, email, post, buy ads, sync CRM records, or trigger external actions.
+
+## Phase 57 Asset & Knowledge Visibility
+
+The Executive dashboard includes Executive Knowledge Base, Strategic Documents, Roadmaps, and Policy Library sections from the shared Asset & Knowledge Library.
+
+Asset records live under `codex-agent-threads/shared/assets/`. Executive visibility is read-only and does not approve assets, publish documents, sync files, replace resources, or distribute anything externally.
