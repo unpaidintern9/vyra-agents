@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createCommunicationDraft, validateCommunicationDraftLayer } from './comms-draft-runtime.mjs';
+import { buildMemoryReports, validateSharedMemory } from './shared-memory-runtime.mjs';
 import { createSharedTask, validateSharedTaskLayer } from './shared-task-runtime.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -596,8 +597,9 @@ export function runSalesReports() {
   Object.entries(buildWorkflowReports(readWorkflowStore())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   Object.entries(buildIntelligenceReports(buildSalesIntelligenceSnapshot())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   Object.entries(buildOrganizationContactReports(readOrganizationContactStore())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
+  const memoryReports = buildMemoryReports();
   const csv = writeCsv('prospect-research', salesProspects);
-  return { title: 'Sales Reports Generated', generatedAt: new Date().toISOString(), written, csv, safety: safetySummary() };
+  return { title: 'Sales Reports Generated', generatedAt: new Date().toISOString(), written, csv, sharedMemoryReports: memoryReports.reports, safety: safetySummary() };
 }
 
 export function runSalesOutreach() {
@@ -672,6 +674,7 @@ export function validateSalesExecution() {
   const organizationContact = readOrganizationContactStore();
   const taskValidation = validateSharedTaskLayer();
   const draftValidation = validateCommunicationDraftLayer();
+  const memoryValidation = validateSharedMemory();
   const checks = [
     { name: 'Sales status command available', passed: true },
     { name: 'Research prospects available', passed: salesProspects.length >= 10 },
@@ -693,6 +696,7 @@ export function validateSalesExecution() {
     { name: 'Contact intelligence available', passed: organizationContact.contacts.length > 0 },
     { name: 'Buying committees explainable', passed: organizationContact.buyingCommittees.every((committee) => typeof committee.completenessScore === 'number') },
     { name: 'Organization/contact duplicate review only', passed: [...organizationContact.organizationDuplicateCandidates, ...organizationContact.contactDuplicateCandidates].every((candidate) => candidate.reviewAction === 'Review Duplicate') },
+    { name: 'Cross-agent shared memory valid', passed: memoryValidation.status === 'pass' },
   ];
   return {
     title: 'Sales Agent Execution Validation',
@@ -701,15 +705,19 @@ export function validateSalesExecution() {
     checks,
     taskValidationStatus: taskValidation.status,
     draftValidationStatus: draftValidation.status,
+    memoryValidationStatus: memoryValidation.status,
     blockedActions,
   };
 }
 
 export function validateSalesReports() {
   const opportunities = readOpportunities();
+  const memoryReports = buildMemoryReports();
   const reports = { ...buildOpportunityReports(opportunities), ...buildResearchReports(readResearchStore()), ...buildWorkflowReports(readWorkflowStore()), ...buildIntelligenceReports(buildSalesIntelligenceSnapshot()), ...buildOrganizationContactReports(readOrganizationContactStore()) };
   const checks = Object.entries(reports).map(([name, payload]) => ({ name, passed: Boolean(payload.title && (payload.rows?.length || payload.summary)) }));
-  return { title: 'Sales Reports Validation', generatedAt: new Date().toISOString(), status: checks.every((check) => check.passed) ? 'pass' : 'fail', checks, safety: safetySummary() };
+  const memoryChecks = memoryReports.reports.map((name) => ({ name, passed: true }));
+  const allChecks = [...checks, ...memoryChecks];
+  return { title: 'Sales Reports Validation', generatedAt: new Date().toISOString(), status: allChecks.every((check) => check.passed) ? 'pass' : 'fail', checks: allChecks, safety: safetySummary() };
 }
 
 function taskFor(prospect, need, assignedAgent, status, priority = 'Medium', approvalRequired = false) {

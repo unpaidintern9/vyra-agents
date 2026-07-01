@@ -25,6 +25,7 @@ import type {
   SalesProspectDossierSummary,
   SalesResearchIntelligenceSummary,
   SalesScoringSummary,
+  SharedMemoryStore,
   SalesSummary,
   SalesWorkflowSummary,
 } from '../sales/salesTypes';
@@ -109,6 +110,7 @@ export interface ExecutiveSummary {
   salesIntelligenceSummary?: SalesIntelligenceSummary;
   salesPipelineAnalytics?: SalesPipelineAnalytics;
   salesOrganizationIntelligenceSummary?: SalesOrganizationIntelligenceSummary;
+  sharedMemory?: SharedMemoryStore;
   salesProposalSummary?: SalesProposalSummary;
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesResearchIntelligenceSummary?: SalesResearchIntelligenceSummary;
@@ -139,6 +141,7 @@ export interface ExecutiveDashboardProps {
   salesIntelligenceSummary?: SalesIntelligenceSummary;
   salesPipelineAnalytics?: SalesPipelineAnalytics;
   salesOrganizationIntelligenceSummary?: SalesOrganizationIntelligenceSummary;
+  sharedMemory?: SharedMemoryStore;
   salesProposalSummary?: SalesProposalSummary;
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesResearchIntelligenceSummary?: SalesResearchIntelligenceSummary;

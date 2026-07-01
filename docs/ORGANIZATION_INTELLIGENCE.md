@@ -43,3 +43,7 @@ Organization Health, Relationship Health, Decision Maker Coverage, Buying Commit
 ## Safety
 
 The engine is local-only. It does not browse, sync to `vyraapp.fit`, write to any CRM, send email, submit proposals, approve Executive actions, or merge duplicates automatically.
+
+## Shared Memory
+
+Phase 52 publishes organization intelligence into local shared memory. Organization health, relationship health, decision maker coverage, proposal readiness, contacts, opportunities, research intake, and workflows become shared entities, facts, and relationships for Sales, Executive, Operator, Proposal Prep, and Contract Intelligence views.

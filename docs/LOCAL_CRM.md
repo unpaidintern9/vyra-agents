@@ -40,3 +40,9 @@ Phase 51 adds `organization-contact-intelligence.json` under `codex-agent-thread
 It contains organization records, contact records, buying committee records, relationship graph edges, organization timelines, contact timelines, deterministic relationship health evaluations, decision maker coverage, buying committee completeness, proposal relationship readiness, and duplicate organization/contact candidates.
 
 The file is local-only. It is not synchronized with `vyraapp.fit`, Supabase production, Stripe, Gmail, or any external CRM. Duplicate candidates are review packets only; no organization, contact, email, phone, domain, or opportunity is merged automatically.
+
+## Shared Memory Integration
+
+Phase 52 maps Local CRM opportunities into the shared memory entity model. Opportunity facts such as stage, proposal status, estimated value, organization relationship, research support, and workflow handoffs become local shared facts and relationships.
+
+The Local CRM remains the source for opportunity state. Shared memory is advisory and does not sync to `vyraapp.fit` or any external CRM.

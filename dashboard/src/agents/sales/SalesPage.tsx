@@ -83,6 +83,7 @@ export default function SalesPage({
   salesIntelligenceGraph,
   salesIntelligenceSummary,
   organizationIntelligence,
+  sharedMemory,
   connectorReadiness,
   sharedTaskSummary,
   teamAgents,
@@ -290,6 +291,87 @@ export default function SalesPage({
             <Fact label="Duplicate Reviews" value={String(organizationIntelligence.summary.duplicateOrganizationCandidates + organizationIntelligence.summary.duplicateContactCandidates)} />
           </div>
           <OrganizationIntelligenceWorkspace store={organizationIntelligence} selectedOrganization={selectedRichOrganization} onSelectOrganization={(id) => setSelectedOrganizationId(id)} />
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Brain size={18} />
+              <h2>Shared Memory View</h2>
+            </div>
+            <StatusBadge value="Local knowledge graph" tone="good" />
+          </div>
+          <p className="panel-description">
+            Cross-agent memory for Sales, Executive, Operator, Proposal Prep, Contract Intelligence, and future Marketing workflows. Facts are source-backed where possible, conflict-reviewed, and never silently overwritten.
+          </p>
+          <div className="batch-grid">
+            <Fact label="Entities" value={String(sharedMemory.summary.entityCount)} />
+            <Fact label="Facts" value={String(sharedMemory.summary.factCount)} />
+            <Fact label="Relationships" value={String(sharedMemory.summary.relationshipCount)} />
+            <Fact label="Open Conflicts" value={String(sharedMemory.summary.conflictCount)} />
+            <Fact label="Risky Facts" value={String(sharedMemory.summary.riskyFacts)} />
+            <Fact label="Avg Confidence" value={`${sharedMemory.summary.averageEntityConfidence}%`} />
+          </div>
+          <DataTable
+            compact
+            columns={['Entity', 'Type', 'Confidence', 'Status']}
+            rows={sharedMemory.agentViews.Sales.topEntities.map((entity) => [
+              entity.displayName,
+              entity.entityType,
+              `${entity.confidence}%`,
+              entity.status.replace(/_/g, ' '),
+            ])}
+            emptyMessage="No shared Sales memory entities yet."
+          />
+          <DataTable
+            compact
+            columns={['Source-Backed Fact', 'Value', 'Confidence']}
+            rows={sharedMemory.agentViews.Sales.sourceBackedFacts.slice(0, 8).map((fact) => [
+              fact.factType,
+              String(fact.value),
+              `${fact.confidence}% · ${fact.verificationStatus.replace(/_/g, ' ')}`,
+            ])}
+            emptyMessage="No source-backed Sales facts yet."
+          />
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <Network size={18} />
+              <h2>Relationship Graph</h2>
+            </div>
+          </div>
+          <DataTable
+            compact
+            columns={['From', 'Relationship', 'To']}
+            rows={sharedMemory.agentViews.Sales.relationshipGraph.slice(0, 8).map((edge) => [
+              edge.fromEntity,
+              `${edge.relationshipType.replace(/_/g, ' ')} · ${edge.confidence}%`,
+              edge.toEntity,
+            ])}
+            emptyMessage="No shared relationships yet."
+          />
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <AlertTriangle size={18} />
+              <h2>Conflict Queue</h2>
+            </div>
+            <StatusBadge value="Review only" tone="warn" />
+          </div>
+          <DataTable
+            compact
+            columns={['Conflict', 'Affected', 'Action']}
+            rows={sharedMemory.agentViews.Sales.conflictQueue.slice(0, 8).map((conflict) => [
+              conflict.conflictType,
+              conflict.entityIds.join(', '),
+              conflict.recommendedReviewAction,
+            ])}
+            emptyMessage="No memory conflicts for Sales."
+          />
         </section>
 
         <section className="panel wide-panel">

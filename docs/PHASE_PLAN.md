@@ -23,6 +23,27 @@ Boundaries:
 - No autonomous browsing, messaging, CRM sync, proposal submission, Executive approval, source approval, duplicate merge, or external write.
 - All generated organization/contact intelligence remains local and auditable.
 
+## Phase 52
+
+Cross-Agent Memory & Shared Knowledge Graph.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Local shared memory store under `codex-agent-threads/shared/agent-memory`.
+- Shared entity model for organizations, contacts, opportunities, workflows, proposals, sources, research intake, reports, tasks, approvals, contracts, market segments, brand assets, notes, and artifacts.
+- Source-backed fact records with supersession instead of silent overwrite.
+- Cross-agent relationship graph across Sales, Executive, Operator, Proposal Prep, Contract Intelligence, and future Marketing.
+- Agent-filtered memory views for Sales, Executive, Operator, Proposal Prep, Contract Intelligence, and Marketing placeholder.
+- Deterministic conflict detection and review queues.
+- Memory CLI commands and reports.
+- Sales, Executive, and Operator dashboard shared memory visibility.
+
+Boundaries:
+
+- No external sync, autonomous browsing, autonomous emailing, CRM sync, proposal submission, automatic approvals, automatic source approval, automatic merge, or hidden fact overwrite.
+
 ## Phase 47
 
 Sales Agent Opportunity Management & Local CRM.

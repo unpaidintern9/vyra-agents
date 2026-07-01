@@ -111,6 +111,7 @@ import type {
   SalesResearchSource,
   SalesWorkflowRecord,
   SalesOrganizationIntelligenceSummary,
+  SharedMemoryStore,
 } from './agents/sales/salesTypes';
 import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
 import { EmptyState } from './components/EmptyState';
@@ -139,6 +140,7 @@ import { buildDashboardProjectRegistrySummary } from './runtime/projectRegistry'
 import { buildDashboardReleaseReadinessSummary } from './runtime/releaseReadiness';
 import { buildDashboardReleaseShipPlanSummary } from './runtime/releaseShipPlans';
 import { defaultRepositoryIntelligenceSummary, summarizeRepositoryIntelligence } from './runtime/repositoryIntelligence';
+import { buildSharedKnowledgeGraph } from './runtime/sharedKnowledgeGraph';
 import { buildDashboardSharedTaskSummary } from './runtime/sharedTaskQueue';
 import {
   buildCrossAgentCollaborationGraph,
@@ -1472,6 +1474,15 @@ function App() {
   const projectRegistry = buildDashboardProjectRegistrySummary(latestEngineeringGraph ?? undefined);
   const repositoryIntelligence = latestEngineeringGraph ? summarizeRepositoryIntelligence(latestEngineeringGraph) : defaultRepositoryIntelligenceSummary();
   const sharedTaskSummary = buildDashboardSharedTaskSummary();
+  const sharedMemory = buildSharedKnowledgeGraph({
+    localReports: [],
+    opportunities: salesOpportunities,
+    organizationIntelligence: salesOrganizationIntelligence,
+    researchIntake: salesResearchIntake,
+    researchSources: salesResearchSources,
+    sharedTaskSummary,
+    workflows: salesWorkflows,
+  });
   const releaseReadiness = buildDashboardReleaseReadinessSummary({
     graph: latestEngineeringGraph ?? undefined,
     githubPlanning,
@@ -1774,6 +1785,7 @@ function App() {
             salesIntelligenceGraph={salesIntelligenceGraph}
             salesIntelligenceSummary={salesIntelligenceSummary}
             organizationIntelligence={salesOrganizationIntelligence}
+            sharedMemory={sharedMemory}
             salesIntelligenceScores={salesIntelligenceScores}
             salesPipelineAnalytics={salesPipelineAnalytics}
             salesPriorityQueues={salesPriorityQueues}
@@ -1845,6 +1857,7 @@ function App() {
             onRecordValidation={recordOperatorValidation}
             operator={operatorSnapshot}
             organizationIntelligenceSummary={salesOrganizationIntelligence.summary}
+            sharedMemory={sharedMemory}
             runtime={runtime}
           />
         ) : activePage === 'Runtime' ? (
@@ -1863,6 +1876,7 @@ function App() {
             salesWorkflowSummary={salesWorkflowSummary}
             salesPipelineAnalytics={salesPipelineAnalytics}
             salesOrganizationIntelligenceSummary={salesOrganizationIntelligence.summary}
+            sharedMemory={sharedMemory}
             salesProposalSummary={salesProposalSummary}
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
@@ -2040,6 +2054,7 @@ function OperatorPage({
   onRecordValidation,
   operator,
   organizationIntelligenceSummary,
+  sharedMemory,
   runtime,
 }: {
   onRecordCommunicationArchive(): void;
@@ -2055,6 +2070,7 @@ function OperatorPage({
   onRecordValidation(): void;
   operator: AiOperatorDashboardSnapshot;
   organizationIntelligenceSummary: SalesOrganizationIntelligenceSummary;
+  sharedMemory: SharedMemoryStore;
   runtime: AgentRuntimeSnapshot;
 }) {
   return (
@@ -2100,6 +2116,8 @@ function OperatorPage({
         <Metric icon={<AlertTriangle size={20} />} label="Blocked Workflows" value={String(operator.salesWorkflowSummary.blockedWorkflows)} />
         <Metric icon={<Users size={20} />} label="Organizations Missing Contacts" value={String(organizationIntelligenceSummary.organizationsMissingContacts)} />
         <Metric icon={<AlertTriangle size={20} />} label="Missing Decision Makers" value={String(organizationIntelligenceSummary.missingDecisionMakers)} />
+        <Metric icon={<Database size={20} />} label="Memory Conflicts" value={String(sharedMemory.agentViews.Operator.conflictCount)} />
+        <Metric icon={<FileClock size={20} />} label="Stale Facts" value={String(sharedMemory.agentViews.Operator.staleFactCount)} />
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -2197,6 +2215,43 @@ function OperatorPage({
             <Fact label="Contact Maintenance Queue" value={String(organizationIntelligenceSummary.contactMaintenanceQueue)} />
             <Fact label="Duplicate Contact Review" value={String(organizationIntelligenceSummary.duplicateContactCandidates)} />
           </div>
+        </Panel>
+
+        <Panel title="Memory Maintenance Queue" icon={<Database size={18} />} wide>
+          <p className="panel-description">
+            Local shared memory queue for missing verification, stale facts, duplicates, and conflicts. Review only; no external sync or automatic merge.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Operator Entities" value={String(sharedMemory.agentViews.Operator.entityCount)} />
+            <Fact label="Missing Verification" value={String(sharedMemory.agentViews.Operator.riskyFactCount)} />
+            <Fact label="Conflicts To Review" value={String(sharedMemory.agentViews.Operator.conflictCount)} />
+            <Fact label="Duplicate Entity Queue" value={String(sharedMemory.summary.duplicateEntityQueue)} />
+            <Fact label="Stale Fact Queue" value={String(sharedMemory.agentViews.Operator.staleFactCount)} />
+            <Fact label="Auto Merge" value="Disabled" />
+          </div>
+          <DataTable
+            columns={['Queue Item', 'Detail', 'Action']}
+            rows={sharedMemory.agentViews.Operator.maintenanceQueue.map((item) => [item.label, item.detail, item.action])}
+            emptyMessage="No memory maintenance items."
+          />
+          <DataTable
+            columns={['Duplicate Entity Queue', 'Affected', 'Action']}
+            rows={sharedMemory.conflicts.filter((conflict) => conflict.conflictType.includes('duplicate')).slice(0, 6).map((conflict) => [
+              conflict.conflictType,
+              conflict.entityIds.join(', '),
+              conflict.recommendedReviewAction,
+            ])}
+            emptyMessage="No duplicate entity candidates."
+          />
+          <DataTable
+            columns={['Stale Fact Queue', 'Entity', 'Status']}
+            rows={sharedMemory.agentViews.Operator.sourceBackedFacts.filter((fact) => fact.supersededBy || fact.verificationStatus !== 'verified' || fact.confidence < 55).slice(0, 8).map((fact) => [
+              fact.factType,
+              fact.entityId,
+              `${fact.confidence}% · ${fact.verificationStatus.replace(/_/g, ' ')}`,
+            ])}
+            emptyMessage="No stale facts in the Operator view."
+          />
         </Panel>
 
         <Panel title="Executive Operations Center" icon={<Workflow size={18} />} wide>
@@ -4063,6 +4118,7 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('tasks:archive')) return 'Archive a local shared task record.';
   if (command.endsWith('tasks:report')) return 'Generate local Work Queue, Executive Task Summary, Agent Workload, and Blocked Work reports.';
   if (command.endsWith('tasks:validate')) return 'Validate shared task schema, examples, generated tasks, and safety rails.';
+  if (command.includes('memory:')) return 'Manage local cross-agent shared memory, facts, relationships, conflicts, reports, and validation.';
   if (command.endsWith('connectors:status')) return 'Print local connector readiness and approval-gate status.';
   if (command.endsWith('connectors:readiness')) return 'Generate local connector readiness Markdown and JSON reports.';
   if (command.endsWith('connectors:approval-map')) return 'Generate the local map from task types to future connector approval requests.';

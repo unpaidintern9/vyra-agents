@@ -28,3 +28,7 @@ Organization and contact timelines record local changes and important linked act
 ## Safety
 
 The graph never performs autonomous relationship changes. It does not browse, send messages, sync CRM data, submit proposals, approve sources, approve Executive gates, or merge duplicates automatically.
+
+## Cross-Agent Expansion
+
+Phase 52 expands the relationship graph beyond Sales organization intelligence into shared cross-agent memory. The graph now supports organizations, contacts, opportunities, workflows, proposals, sources, research intake, reports, tasks, Executive reviews, contract opportunities, and future marketing assets.

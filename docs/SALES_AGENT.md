@@ -16,6 +16,8 @@ Phase 50 adds local Sales intelligence scoring, priority queues, duplicate/relat
 
 Phase 51 adds local organization and contact intelligence. It models organizations, unlimited contacts, buying committees, relationship health, decision maker coverage, relationship maps, timelines, and duplicate organization/contact candidates without browsing, syncing, sending, or auto-merging anything.
 
+Phase 52 adds cross-agent shared memory and a local knowledge graph. Sales now shows shared entities, source-backed facts, relationship graph links, and conflict review queues that are also visible to Executive and Operator.
+
 ## Current Scope
 
 The Sales Agent MVP includes:
@@ -57,6 +59,7 @@ The Sales Agent MVP includes:
 - Multi-agent Sales workflow orchestration with Sales-to-Operator handoffs, Sales-to-Executive approval gates, Sales-to-Proposal Prep queue items, blocked workflow visibility, and transition audit trails.
 - Sales Intelligence Command Center with Hot/Warm/Cold/Not Ready opportunity scoring, priority queues, duplicate review, pipeline forecast, average confidence, and next-action breakdown.
 - Organization & Contact Intelligence workspace with organization profiles, contact intelligence, buying committee coverage, relationship health, relationship graph, recent contact activity, and manual duplicate review queues.
+- Shared Memory View with related entities, source-backed facts, relationship graph links, and review-only conflict queue.
 
 ## Local Storage
 
@@ -79,6 +82,8 @@ These are local browser records, not CRM records.
 CLI reports are written to `reports/agents/sales`. CLI shared tasks, draft emails, local CRM records, research intelligence records, and Phase 51 organization/contact intelligence records are written under `codex-agent-threads/shared`.
 
 Phase 51 CLI organization/contact intelligence is stored at `codex-agent-threads/shared/sales-opportunities/organization-contact-intelligence.json`.
+
+Phase 52 shared memory is stored at `codex-agent-threads/shared/agent-memory/shared-memory.json`.
 
 ## Pipeline Stages
 

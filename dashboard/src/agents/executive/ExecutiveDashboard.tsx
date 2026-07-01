@@ -1,4 +1,5 @@
 import { Workflow } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { buildExecutiveHealthRows, buildExecutiveSummary } from './executiveSummary';
 import { ExecutiveApprovals } from './ExecutiveApprovals';
 import { ExecutiveHealth } from './ExecutiveHealth';
@@ -30,6 +31,7 @@ export default function ExecutiveDashboard({
   salesIntelligenceSummary,
   salesPipelineAnalytics,
   salesOrganizationIntelligenceSummary,
+  sharedMemory,
   salesIntegration,
   salesProposalSummary,
   salesProspectDossierSummary,
@@ -71,6 +73,7 @@ export default function ExecutiveDashboard({
       <ExecutiveOverview summary={summary} />
       <section className="dashboard-grid executive-dashboard-grid">
         <ExecutivePriorities onNavigate={onNavigate} priorities={summary.priorities} />
+        {sharedMemory ? <ExecutiveKnowledgeSummaryPanel sharedMemory={sharedMemory} /> : null}
         {salesPipelineAnalytics ? <ExecutiveSalesIntelligencePanel analytics={salesPipelineAnalytics} /> : null}
         {salesOrganizationIntelligenceSummary ? <ExecutiveRelationshipSummaryPanel summary={salesOrganizationIntelligenceSummary} /> : null}
         {salesResearchIntelligenceSummary ? <ExecutiveResearchIntelligencePanel summary={salesResearchIntelligenceSummary} /> : null}
@@ -88,6 +91,65 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveKnowledgeSummaryPanel({ sharedMemory }: { sharedMemory: NonNullable<ExecutiveDashboardProps['sharedMemory']> }) {
+  const view = sharedMemory.agentViews.Executive;
+  return (
+    <section className="panel wide-panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Cross-Agent Knowledge Summary</h2>
+        </div>
+        <span>read only</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact"><span>Strategic Entities</span><strong>{view.entityCount}</strong></div>
+        <div className="fact"><span>Relationships</span><strong>{view.relationshipCount}</strong></div>
+        <div className="fact"><span>Risky Facts</span><strong>{view.riskyFactCount}</strong></div>
+        <div className="fact"><span>Memory Conflicts</span><strong>{view.conflictCount}</strong></div>
+        <div className="fact"><span>Decision History</span><strong>{view.sourceBackedFacts.length}</strong></div>
+        <div className="fact"><span>Avg Entity Confidence</span><strong>{sharedMemory.summary.averageEntityConfidence}%</strong></div>
+        <div className="fact"><span>Duplicate Entity Queue</span><strong>{sharedMemory.summary.duplicateEntityQueue}</strong></div>
+      </div>
+      <DataTable
+        columns={['Strategic Entity', 'Type', 'Status', 'Confidence']}
+        rows={view.topEntities.slice(0, 6).map((entity) => [entity.displayName, entity.entityType, entity.status.replace(/_/g, ' '), `${entity.confidence}%`])}
+      />
+      <DataTable
+        columns={['Decision History', 'Source', 'Confidence']}
+        rows={view.sourceBackedFacts.slice(0, 6).map((fact) => [fact.factType, fact.source, `${fact.confidence}% · ${fact.verificationStatus.replace(/_/g, ' ')}`])}
+        emptyMessage="No Executive decision history facts yet."
+      />
+      <DataTable
+        columns={['Risky Fact', 'Entity', 'Review']}
+        rows={view.sourceBackedFacts.filter((fact) => fact.confidence < 55 || fact.verificationStatus !== 'verified').slice(0, 6).map((fact) => [fact.factType, fact.entityId, 'Review before Executive decision'])}
+        emptyMessage="No risky facts in the Executive view."
+      />
+      <p className="subtle-note">Shared memory is advisory and local. It does not approve decisions, sync CRM data, browse, email, submit proposals, or merge entities.</p>
+    </section>
+  );
+}
+
+function DataTable({ columns, emptyMessage = 'No rows to show.', rows }: { columns: string[]; emptyMessage?: string; rows: ReactNode[][] }) {
+  if (!rows.length) return <p className="empty-state">{emptyMessage}</p>;
+  return (
+    <div className="table-shell compact-table-shell">
+      <table>
+        <thead>
+          <tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr>
+        </thead>
+        <tbody>
+          {rows.map((row, index) => (
+            <tr key={`${row.map((cell) => String(cell)).join('-')}-${index}`}>
+              {row.map((cell, cellIndex) => <td key={`${columns[cellIndex]}-${cellIndex}`}>{cell}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

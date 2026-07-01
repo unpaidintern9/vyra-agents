@@ -928,6 +928,137 @@ export interface SalesOrganizationIntelligenceStore {
   summary: SalesOrganizationIntelligenceSummary;
 }
 
+export type SharedMemoryEntityType =
+  | 'organization'
+  | 'contact'
+  | 'opportunity'
+  | 'workflow'
+  | 'proposal'
+  | 'research source'
+  | 'research intake'
+  | 'report'
+  | 'task'
+  | 'approval'
+  | 'contract'
+  | 'market segment'
+  | 'brand asset'
+  | 'note'
+  | 'artifact';
+
+export interface SharedMemoryEntity {
+  aliases: string[];
+  archivedDate: string | null;
+  auditHistory: string[];
+  confidence: number;
+  createdDate: string;
+  displayName: string;
+  entityId: string;
+  entityType: SharedMemoryEntityType;
+  owningAgent: string;
+  relatedAgents: string[];
+  riskRating: string;
+  sourceReferences: string[];
+  status: string;
+  tags: string[];
+  updatedDate: string;
+}
+
+export interface SharedMemoryFact {
+  auditTrail: string[];
+  confidence: number;
+  createdBy: string;
+  createdDate: string;
+  entityId: string;
+  evidenceLevel: string;
+  factId: string;
+  factType: string;
+  source: string;
+  supersededBy: string | null;
+  updatedDate: string;
+  value: string | number;
+  verificationStatus: string;
+  verifiedBy: string | null;
+}
+
+export interface SharedMemoryRelationship {
+  auditTrail: string[];
+  confidence: number;
+  createdBy: string;
+  createdDate: string;
+  direction: 'directed' | 'bidirectional';
+  fromEntity: string;
+  relationshipId: string;
+  relationshipType: string;
+  source: string;
+  toEntity: string;
+  updatedDate: string;
+}
+
+export interface SharedMemoryConflict {
+  autoResolved: false;
+  conflictId: string;
+  conflictType: string;
+  createdDate: string;
+  description: string;
+  entityIds: string[];
+  factIds: string[];
+  recommendedReviewAction: string;
+  relationshipIds: string[];
+  reviewedAt: string | null;
+  reviewedBy: string | null;
+  severity: 'low' | 'medium' | 'high';
+  status: 'open' | 'reviewed';
+}
+
+export interface SharedMemoryAgentView {
+  agent: string;
+  conflictCount: number;
+  conflictQueue: SharedMemoryConflict[];
+  entityCount: number;
+  factCount: number;
+  maintenanceQueue: Array<{ action: string; detail: string; label: string; type: string }>;
+  relationshipCount: number;
+  relationshipGraph: SharedMemoryRelationship[];
+  riskyFactCount: number;
+  sourceBackedFacts: SharedMemoryFact[];
+  staleFactCount: number;
+  topEntities: SharedMemoryEntity[];
+}
+
+export interface SharedMemorySummary {
+  averageEntityConfidence: number;
+  averageFactConfidence: number;
+  conflictCount: number;
+  duplicateEntityQueue: number;
+  entityCount: number;
+  factCount: number;
+  recommendedReviewAction: string;
+  relationshipCount: number;
+  riskyFacts: number;
+  staleFacts: number;
+}
+
+export interface SharedMemoryStore {
+  agentViews: Record<string, SharedMemoryAgentView>;
+  conflicts: SharedMemoryConflict[];
+  entities: SharedMemoryEntity[];
+  facts: SharedMemoryFact[];
+  generatedAt: string;
+  localOnly: true;
+  relationships: SharedMemoryRelationship[];
+  safety: {
+    automaticApprovals: false;
+    automaticMerge: false;
+    autonomousBrowsing: false;
+    autonomousEmailing: false;
+    externalSync: false;
+    hiddenFactOverwrite: false;
+    localOnly: true;
+    proposalSubmission: false;
+  };
+  summary: SharedMemorySummary;
+}
+
 export interface SalesIntelligenceGraph {
   edges: SalesIntelligenceEdge[];
   generatedAt: string;
@@ -1032,6 +1163,7 @@ export interface SalesPageProps {
   salesIntelligenceGraph: SalesIntelligenceGraph;
   salesIntelligenceSummary: SalesIntelligenceSummary;
   organizationIntelligence: SalesOrganizationIntelligenceStore;
+  sharedMemory: SharedMemoryStore;
   connectorReadiness?: ConnectorReadinessSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
   teamAgents: SalesTeamAgentDefinition[];

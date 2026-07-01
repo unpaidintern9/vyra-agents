@@ -76,3 +76,9 @@ This view is read-only. It does not approve handoffs, browse, email, sync CRM da
 The Executive dashboard includes a read-only Executive Relationship Summary with high-value organizations, decision maker coverage, relationship health, buying committee completeness, executive relationship risks, and largest opportunity value.
 
 This summary helps identify where major opportunities need relationship work before proposal or external-action gates. It does not approve proposals, approve Executive gates, browse, send email, sync CRM records, or merge duplicate organizations or contacts.
+
+## Phase 52 Cross-Agent Knowledge Visibility
+
+The Executive dashboard includes a Cross-Agent Knowledge Summary with strategic entities, relationships, risky facts, memory conflicts, duplicate entity queue, and decision-history facts.
+
+This view is read-only and advisory. It does not approve decisions, sync CRM data, browse, email, submit proposals, or merge entities.

@@ -18,3 +18,9 @@ Phase 50 does not allow Operator to browse, send customer email, sync CRM record
 The Operator dashboard includes a read-only Operator Contact Queue with organizations missing contacts, missing decision makers, incomplete buying committees, relationship follow-ups, contact maintenance items, and duplicate contact review counts.
 
 Operator can use this queue to decide what local records need attention. It does not browse, send email, sync CRM data, submit proposals, approve sources, approve Executive gates, or merge organizations/contacts automatically.
+
+## Phase 52 Memory Maintenance
+
+The Operator dashboard includes a Memory Maintenance Queue for shared memory conflicts, missing verification, duplicate entity review, and stale fact review.
+
+All memory maintenance is local and review-only. Operator can inspect what needs work, but the dashboard does not auto-resolve conflicts, merge entities, overwrite facts, or perform external actions.

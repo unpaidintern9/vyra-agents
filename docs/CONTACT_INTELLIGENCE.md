@@ -39,3 +39,7 @@ No contact is merged automatically.
 ## Safety
 
 No sensitive personal data collection is added. The system uses local/mock/manual fields only and does not browse, scrape, message, enrich from private sources, or write to external systems.
+
+## Shared Memory
+
+Phase 52 maps contacts into the shared memory graph as contact entities connected to organizations. Email, phone, decision authority, relationship strength, and missing verification become reviewable facts. Contact conflicts remain review-only and are never auto-merged.
