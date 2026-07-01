@@ -92,6 +92,31 @@ Boundaries:
 - No CRM, Stripe, or Supabase production writes.
 - No secrets committed.
 
+## Phase 59
+
+Finance & Revenue Intelligence.
+
+Includes:
+
+- Local Finance Agent storage under `codex-agent-threads/shared/finance/`.
+- Revenue records for coach, gym, enterprise, white-label, setup, migration, and future product references.
+- Local pricing library, subscription references, MRR, ARR, revenue forecasts, renewals, expansion forecasts, revenue health, and audit history.
+- Finance dashboard sections for Revenue Overview, MRR Summary, ARR Summary, Revenue by Product, Revenue by Customer Type, Revenue Forecast, Subscription Overview, Pricing Library, Renewal Forecast, and Expansion Forecast.
+- Executive Revenue Summary, Sales Revenue Pipeline, and Customer Success revenue health views.
+- Root npm scripts for `finance:overview`, `finance:revenue`, `finance:mrr`, `finance:arr`, `finance:forecast`, `finance:pricing`, `finance:subscriptions`, `finance:renewals`, `finance:expansion`, `finance:report`, and `finance:validate`.
+
+Boundaries:
+
+- Local execution only.
+- No dependency on `vyraapp.fit`.
+- No Stripe mutations.
+- No billing updates.
+- No payment collection.
+- No invoice sending.
+- No payout processing.
+- No accounting synchronization.
+- No autonomous financial actions.
+
 ## Phase 53
 
 Universal Task & Work Queue Engine.

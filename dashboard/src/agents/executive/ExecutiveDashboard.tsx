@@ -19,6 +19,7 @@ export default function ExecutiveDashboard({
   executiveEmailBriefing,
   executiveOperations,
   executivePlanning,
+  finance,
   marketing,
   assetLibrary,
   customerSuccess,
@@ -85,6 +86,7 @@ export default function ExecutiveDashboard({
         {executivePlanning ? <ExecutivePlanningPanel planning={executivePlanning} /> : null}
         {assetLibrary ? <ExecutiveAssetLibraryPanel assetLibrary={assetLibrary} /> : null}
         {customerSuccess ? <ExecutiveCustomerSuccessPanel customerSuccess={customerSuccess} /> : null}
+        {finance ? <ExecutiveFinancePanel finance={finance} /> : null}
         {marketing ? <ExecutiveMarketingOverviewPanel marketing={marketing} /> : null}
         {sharedTaskSummary ? <ExecutiveWorkQueuePanel sharedTaskSummary={sharedTaskSummary} /> : null}
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
@@ -100,6 +102,36 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveFinancePanel({ finance }: { finance: NonNullable<ExecutiveDashboardProps['finance']> }) {
+  const risks = finance.health.filter((item) => item.retentionRisk >= 40);
+  return (
+    <section className="panel wide-panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Executive Revenue Summary</h2>
+        </div>
+        <span>local only</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact"><span>MRR Summary</span><strong>${finance.summary.totalEstimatedMrr.toLocaleString()}</strong></div>
+        <div className="fact"><span>ARR Summary</span><strong>${finance.summary.totalEstimatedArr.toLocaleString()}</strong></div>
+        <div className="fact"><span>Revenue Forecast</span><strong>${finance.summary.forecastRevenue.toLocaleString()}</strong></div>
+        <div className="fact"><span>Growth Trends</span><strong>${finance.summary.expansionRevenue.toLocaleString()}</strong></div>
+        <div className="fact"><span>Expansion Pipeline</span><strong>{finance.health.filter((item) => item.expansionOpportunity > 0).length}</strong></div>
+        <div className="fact"><span>Renewal Health</span><strong>{Math.round(finance.health.reduce((sum, row) => sum + row.renewalReadiness, 0) / Math.max(finance.health.length, 1))}%</strong></div>
+        <div className="fact"><span>Revenue Risks</span><strong>{risks.length}</strong></div>
+      </div>
+      <DataTable
+        columns={['Revenue Risks', 'Retention Risk', 'Renewal', 'Next Action']}
+        rows={risks.map((item) => [item.organization, `${item.retentionRisk}%`, `${item.renewalReadiness}%`, item.nextActions[0]])}
+        emptyMessage="No Executive revenue risks above review threshold."
+      />
+      <p className="subtle-note">Finance intelligence is advisory and local. It does not mutate Stripe, send invoices, collect payments, sync accounting, or approve billing changes.</p>
+    </section>
   );
 }
 

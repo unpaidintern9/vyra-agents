@@ -1,11 +1,11 @@
 # Adoption Report
 
-Generated: 2026-07-01T21:59:36.707Z
+Generated: 2026-07-01T22:25:09.646Z
 
 ```json
 {
   "title": "Adoption Report",
-  "generatedAt": "2026-07-01T21:59:36.707Z",
+  "generatedAt": "2026-07-01T22:25:09.646Z",
   "rows": [
     {
       "customerId": "cust-louisville-combat-academy",

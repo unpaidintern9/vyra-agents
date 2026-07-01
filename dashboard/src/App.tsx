@@ -2,9 +2,11 @@ import {
   Activity,
   AlertTriangle,
   ArrowRight,
+  BarChart3,
   Bot,
   CircleDot,
   Database,
+  DollarSign,
   Download,
   FileClock,
   FileText,
@@ -142,6 +144,7 @@ import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
 import { buildDashboardProjectRegistrySummary } from './runtime/projectRegistry';
 import { buildDashboardAssetLibrarySummary, type AssetLibraryDashboardSummary } from './runtime/assetLibrary';
 import { buildDashboardCustomerSuccessSummary, type CustomerSuccessDashboardSummary } from './runtime/customerSuccess';
+import { buildDashboardFinanceSummary, type FinanceDashboardSummary } from './runtime/financeIntelligence';
 import { buildDashboardMarketingSummary, type MarketingDashboardSummary } from './runtime/marketingIntelligence';
 import { buildDashboardReleaseReadinessSummary } from './runtime/releaseReadiness';
 import { buildDashboardReleaseShipPlanSummary } from './runtime/releaseShipPlans';
@@ -1491,6 +1494,7 @@ function App() {
   });
   const assetLibrary = buildDashboardAssetLibrarySummary();
   const customerSuccess = buildDashboardCustomerSuccessSummary();
+  const finance = buildDashboardFinanceSummary();
   const releaseReadiness = buildDashboardReleaseReadinessSummary({
     graph: latestEngineeringGraph ?? undefined,
     githubPlanning,
@@ -1681,6 +1685,8 @@ function App() {
         ? 'Migration Agent'
         : activePage === 'Sales'
           ? 'Sales Agent'
+          : activePage === 'Finance'
+            ? 'Finance Agent'
           : activePage === 'Operator'
             ? 'AI Operator'
             : activePage === 'Customer Success'
@@ -1824,9 +1830,12 @@ function App() {
             scoringSummary={salesScoringSummary}
             assetLibrary={assetLibrary}
             customerSuccess={customerSuccess}
+            finance={finance}
           />
+        ) : activePage === 'Finance' ? (
+          <FinancePage finance={finance} />
         ) : activePage === 'Customer Success' ? (
-          <CustomerSuccessPage customerSuccess={customerSuccess} />
+          <CustomerSuccessPage customerSuccess={customerSuccess} finance={finance} />
         ) : activePage === 'Marketing' ? (
           <MarketingPage assetLibrary={assetLibrary} marketing={marketing} />
         ) : activePage === 'Assets' ? (
@@ -1927,6 +1936,7 @@ function App() {
             marketing={marketing}
             assetLibrary={assetLibrary}
             customerSuccess={customerSuccess}
+            finance={finance}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
             projectRegistry={projectRegistry}
@@ -2159,7 +2169,68 @@ function AssetLibraryPage({ assetLibrary }: { assetLibrary: AssetLibraryDashboar
   );
 }
 
-function CustomerSuccessPage({ customerSuccess }: { customerSuccess: CustomerSuccessDashboardSummary }) {
+function FinancePage({ finance }: { finance: FinanceDashboardSummary }) {
+  return (
+    <section className="dashboard-grid">
+      <Panel title="Revenue Overview" icon={<BarChart3 size={18} />} wide>
+        <div className="batch-grid supabase-detail-grid">
+          <Fact label="Estimated MRR" value={formatMoney(finance.summary.totalEstimatedMrr)} />
+          <Fact label="Estimated ARR" value={formatMoney(finance.summary.totalEstimatedArr)} />
+          <Fact label="Expansion Revenue" value={formatMoney(finance.summary.expansionRevenue)} />
+          <Fact label="Pipeline Revenue" value={formatMoney(finance.summary.pipelineRevenue)} />
+          <Fact label="Forecast Revenue" value={formatMoney(finance.summary.forecastRevenue)} />
+          <Fact label="Revenue Risks" value={String(finance.summary.revenueRisks)} />
+        </div>
+        <DataTable
+          columns={['Customer', 'Type', 'Product', 'Plan', 'Status', 'MRR', 'ARR']}
+          rows={finance.revenue.map((row) => [row.organization, row.customerType, row.product, row.plan, row.status, formatMoney(row.monthlyAmount), formatMoney(row.annualAmount)])}
+        />
+      </Panel>
+
+      <Panel title="MRR Summary" icon={<DollarSign size={18} />} wide>
+        <DataTable columns={['Product', 'Annualized Value']} rows={Object.entries(finance.summary.revenueByProduct).map(([label, value]) => [label, formatMoney(value)])} />
+      </Panel>
+
+      <Panel title="ARR Summary" icon={<FileText size={18} />} wide>
+        <DataTable columns={['Customer Type', 'ARR']} rows={Object.entries(finance.summary.revenueByCustomerType).map(([label, value]) => [label, formatMoney(value)])} />
+      </Panel>
+
+      <Panel title="Revenue by Product" icon={<PackageIcon size={18} />} wide>
+        <DataTable columns={['Product', 'ARR']} rows={Object.entries(finance.summary.revenueByProduct).map(([label, value]) => [label, formatMoney(value)])} />
+      </Panel>
+
+      <Panel title="Revenue by Customer Type" icon={<Users size={18} />} wide>
+        <DataTable columns={['Customer Type', 'ARR']} rows={Object.entries(finance.summary.revenueByCustomerType).map(([label, value]) => [label, formatMoney(value)])} />
+      </Panel>
+
+      <Panel title="Revenue Forecast" icon={<Activity size={18} />} wide>
+        <DataTable
+          columns={['Forecast', 'Period', 'Base', 'Expansion', 'Churn Exposure', 'Forecast Revenue', 'Confidence']}
+          rows={finance.forecasts.map((row) => [row.label, row.period, formatMoney(row.baseRevenue), formatMoney(row.expansionRevenue), formatMoney(row.churnExposure), formatMoney(row.forecastRevenue), `${row.confidence}%`])}
+        />
+      </Panel>
+
+      <Panel title="Subscription Overview" icon={<ListChecks size={18} />} wide>
+        <DataTable columns={['Organization', 'State', 'Product', 'Plan', 'Renewal']} rows={finance.subscriptions.map((row) => [row.organization, row.subscriptionState, row.product, row.plan, formatDate(row.renewalDate)])} />
+      </Panel>
+
+      <Panel title="Pricing Library" icon={<Database size={18} />} wide>
+        <DataTable columns={['Plan', 'Category', 'Product', 'Monthly', 'Annual', 'Version']} rows={finance.pricing.map((row) => [row.plan, row.category, row.product, formatMoney(row.monthlyReference), formatMoney(row.annualReference), row.version])} />
+      </Panel>
+
+      <Panel title="Renewal Forecast" icon={<FileClock size={18} />} wide>
+        <DataTable columns={['Organization', 'Readiness', 'Retention Risk', 'Next Action']} rows={finance.health.map((row) => [row.organization, `${row.renewalReadiness}%`, `${row.retentionRisk}%`, row.nextActions[0]])} />
+      </Panel>
+
+      <Panel title="Expansion Forecast" icon={<ArrowRight size={18} />} wide>
+        <DataTable columns={['Organization', 'Expansion', 'Upsell Readiness', 'Recommendation']} rows={finance.health.map((row) => [row.organization, formatMoney(row.expansionOpportunity), `${row.upsellReadiness}%`, row.recommendations[0]])} />
+        <p className="subtle-note">Finance is local-only and advisory. It does not mutate Stripe, collect payments, send invoices, sync accounting, or change billing automatically.</p>
+      </Panel>
+    </section>
+  );
+}
+
+function CustomerSuccessPage({ customerSuccess, finance }: { customerSuccess: CustomerSuccessDashboardSummary; finance: FinanceDashboardSummary }) {
   return (
     <section className="dashboard-grid">
       <Panel title="Customer Overview" icon={<Users size={18} />} wide>
@@ -2232,6 +2303,18 @@ function CustomerSuccessPage({ customerSuccess }: { customerSuccess: CustomerSuc
           rows={customerSuccess.expansion.map((item) => [item.organization, item.opportunity, `${item.score}%`, `${item.confidence}%`, item.recommendedAction])}
         />
         <p className="subtle-note">Customer Success is local and advisory. It does not send customer messages, update accounts, sync CRM data, renew subscriptions, or respond to support automatically.</p>
+      </Panel>
+
+      <Panel title="Renewal Readiness" icon={<ShieldCheck size={18} />} wide>
+        <DataTable columns={['Customer', 'Revenue Health', 'Renewal Readiness', 'Retention Risk']} rows={finance.health.map((item) => [item.organization, `${item.revenueHealth}%`, `${item.renewalReadiness}%`, `${item.retentionRisk}%`])} />
+      </Panel>
+
+      <Panel title="Revenue Health" icon={<DollarSign size={18} />} wide>
+        <DataTable columns={['Customer', 'LTV Estimate', 'Expansion', 'Churn Exposure']} rows={finance.health.map((item) => [item.organization, formatMoney(item.lifetimeValueEstimate), formatMoney(item.expansionOpportunity), `${item.retentionRisk}%`])} />
+      </Panel>
+
+      <Panel title="Churn Exposure" icon={<AlertTriangle size={18} />} wide>
+        <DataTable columns={['Customer', 'Risk', 'Recommendation']} rows={finance.health.filter((item) => item.retentionRisk >= 40).map((item) => [item.organization, `${item.retentionRisk}%`, item.recommendations[0]])} emptyMessage="No revenue churn exposure above review threshold." />
       </Panel>
     </section>
   );
@@ -4295,6 +4378,7 @@ function pageCopy(page: string): string {
   const copy: Record<string, string> = {
     Migration: 'Migration dry-runs, staging review, member matching, table readiness, and mock approvals.',
     Sales: 'Local lead queue, prospect tracking, follow-up planning, and proposal prep without emails, Stripe, or CRM writes.',
+    Finance: 'Local revenue intelligence, pricing references, forecasts, renewals, and expansion signals without billing writes.',
     'Customer Success': 'Local onboarding, adoption, health, support readiness, renewals, and expansion planning without customer messaging.',
     Marketing: 'Local brand intelligence, product messaging, audience planning, campaigns, and approvals without publishing or ad buying.',
     Assets: 'Shared local asset and knowledge library with approvals, version history, usage, and deterministic search.',
@@ -4599,6 +4683,10 @@ function formatDate(value: string): string {
   }
   const parsed = new Date(value);
   return Number.isNaN(parsed.valueOf()) ? value : parsed.toLocaleString();
+}
+
+function formatMoney(value: number): string {
+  return new Intl.NumberFormat('en-US', { currency: 'USD', maximumFractionDigits: 0, style: 'currency' }).format(value);
 }
 
 function formatOptionalDate(value: string): string {

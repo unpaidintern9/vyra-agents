@@ -276,3 +276,9 @@ Sales can reference approved local assets for prep and enablement, but it cannot
 The Sales dashboard includes Customer Handoff Status, Onboarding Progress, Expansion Opportunities, and Customer Success Notes.
 
 Sales can review local Customer Success context for handoffs and expansion planning, but it cannot send customer messages, update accounts, sync CRM data, trigger renewals, or respond to support automatically.
+
+## Phase 59 Revenue Pipeline
+
+The Sales dashboard includes Sales Revenue Pipeline, Estimated Opportunity Value, Expansion Revenue, Customer Revenue Health, renewal readiness, and revenue risk context from the local Finance Agent.
+
+Sales revenue intelligence is advisory. Sales cannot mutate billing, send invoices, collect payments, sync accounting, update Stripe, or change customer subscription state.

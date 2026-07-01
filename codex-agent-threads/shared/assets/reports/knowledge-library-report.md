@@ -1,11 +1,11 @@
 # Knowledge Library Report
 
-Generated: 2026-07-01T21:59:36.649Z
+Generated: 2026-07-01T22:25:09.070Z
 
 ```json
 {
   "title": "Knowledge Library Report",
-  "generatedAt": "2026-07-01T21:59:36.649Z",
+  "generatedAt": "2026-07-01T22:25:09.070Z",
   "summary": {
     "totalKnowledgeRecords": 6,
     "approvedKnowledge": 6,

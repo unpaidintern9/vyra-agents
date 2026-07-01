@@ -1,0 +1,109 @@
+[
+  {
+    "healthId": "rev-health-fin-cust-louisville-combat-academy",
+    "financialRecordId": "fin-cust-louisville-combat-academy",
+    "organization": "Louisville Combat Academy",
+    "revenueHealth": 58,
+    "retentionRisk": 42,
+    "expansionOpportunity": 299,
+    "lifetimeValueEstimate": 7774,
+    "renewalReadiness": 53,
+    "upsellReadiness": 35,
+    "score": 56,
+    "confidence": 74,
+    "risks": [],
+    "recommendations": [
+      "Review revenue health with Executive and Customer Success.",
+      "Keep billing changes manual."
+    ],
+    "nextActions": [
+      "Monitor renewal readiness."
+    ]
+  },
+  {
+    "healthId": "rev-health-fin-cust-area-502-mma",
+    "financialRecordId": "fin-cust-area-502-mma",
+    "organization": "Area 502 MMA",
+    "revenueHealth": 76,
+    "retentionRisk": 24,
+    "expansionOpportunity": 299,
+    "lifetimeValueEstimate": 8524,
+    "renewalReadiness": 71,
+    "upsellReadiness": 35,
+    "score": 74,
+    "confidence": 74,
+    "risks": [],
+    "recommendations": [
+      "Review revenue health with Executive and Customer Success.",
+      "Keep billing changes manual."
+    ],
+    "nextActions": [
+      "Monitor renewal readiness."
+    ]
+  },
+  {
+    "healthId": "rev-health-fin-cust-river-city-performance",
+    "financialRecordId": "fin-cust-river-city-performance",
+    "organization": "River City Performance",
+    "revenueHealth": 76,
+    "retentionRisk": 24,
+    "expansionOpportunity": 79,
+    "lifetimeValueEstimate": 2304,
+    "renewalReadiness": 71,
+    "upsellReadiness": 35,
+    "score": 74,
+    "confidence": 74,
+    "risks": [],
+    "recommendations": [
+      "Review revenue health with Executive and Customer Success.",
+      "Keep billing changes manual."
+    ],
+    "nextActions": [
+      "Monitor renewal readiness."
+    ]
+  },
+  {
+    "healthId": "rev-health-fin-cust-kentucky-youth-sports",
+    "financialRecordId": "fin-cust-kentucky-youth-sports",
+    "organization": "Kentucky Youth Sports",
+    "revenueHealth": 45,
+    "retentionRisk": 55,
+    "expansionOpportunity": 1500,
+    "lifetimeValueEstimate": 39000,
+    "renewalReadiness": 40,
+    "upsellReadiness": 35,
+    "score": 43,
+    "confidence": 74,
+    "risks": [
+      "Retention or onboarding risk requires review."
+    ],
+    "recommendations": [
+      "Review revenue health with Executive and Customer Success.",
+      "Keep billing changes manual."
+    ],
+    "nextActions": [
+      "Create manual revenue risk review."
+    ]
+  },
+  {
+    "healthId": "rev-health-fin-future-white-label",
+    "financialRecordId": "fin-future-white-label",
+    "organization": "Future White Label Partner",
+    "revenueHealth": 70,
+    "retentionRisk": 30,
+    "expansionOpportunity": 5000,
+    "lifetimeValueEstimate": 56500,
+    "renewalReadiness": 65,
+    "upsellReadiness": 92,
+    "score": 68,
+    "confidence": 68,
+    "risks": [],
+    "recommendations": [
+      "Review revenue health with Executive and Customer Success.",
+      "Keep billing changes manual."
+    ],
+    "nextActions": [
+      "Monitor renewal readiness."
+    ]
+  }
+]

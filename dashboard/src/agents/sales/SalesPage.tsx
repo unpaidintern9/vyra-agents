@@ -1,4 +1,4 @@
-import { Activity, AlertTriangle, Brain, CalendarClock, Download, FileClock, FileText, Flame, ListChecks, Network, Search, ShieldCheck, Target, Upload, Users, Workflow } from 'lucide-react';
+import { Activity, AlertTriangle, Brain, CalendarClock, DollarSign, Download, FileClock, FileText, Flame, ListChecks, Network, Search, ShieldCheck, Target, Upload, Users, Workflow } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { RiskBadge } from '../../components/RiskBadge';
@@ -87,6 +87,7 @@ export default function SalesPage({
   connectorReadiness,
   assetLibrary,
   customerSuccess,
+  finance,
   executivePlanning,
   marketing,
   sharedTaskSummary,
@@ -273,6 +274,36 @@ export default function SalesPage({
       </section>
 
       <section className="dashboard-grid">
+        {finance ? (
+          <section className="panel wide-panel">
+            <div className="panel-header">
+              <div>
+                <DollarSign size={18} />
+              <h2>Sales Revenue Pipeline</h2>
+              </div>
+              <StatusBadge value="local estimate" tone="good" />
+            </div>
+            <p className="panel-description">
+              Estimated opportunity value, expansion revenue, and customer revenue health for sales planning only. No billing, Stripe, invoices, CRM sync, or customer messaging happens here.
+            </p>
+            <div className="batch-grid">
+              <Fact label="Estimated Opportunity Value" value={formatCurrency(finance.summary.pipelineRevenue)} />
+              <Fact label="Expansion Revenue" value={formatCurrency(finance.summary.expansionRevenue)} />
+              <Fact label="Estimated MRR" value={formatCurrency(finance.summary.totalEstimatedMrr)} />
+              <Fact label="Estimated ARR" value={formatCurrency(finance.summary.totalEstimatedArr)} />
+              <Fact label="Revenue Risks" value={String(finance.summary.revenueRisks)} />
+              <Fact label="Forecast Revenue" value={formatCurrency(finance.summary.forecastRevenue)} />
+            </div>
+            <DataTable
+              compact
+              columns={['Revenue Account', 'Expansion', 'Renewal', 'Next Action']}
+              rows={finance.health.map((item) => [item.organization, formatCurrency(item.expansionOpportunity), `${item.renewalReadiness}%`, item.nextActions[0]])}
+              emptyMessage="No revenue health records yet."
+            />
+            <p className="subtle-note">Customer Revenue Health is review-only and intended for manual prioritization.</p>
+          </section>
+        ) : null}
+
         <section className="panel wide-panel">
           <div className="panel-header">
             <div>

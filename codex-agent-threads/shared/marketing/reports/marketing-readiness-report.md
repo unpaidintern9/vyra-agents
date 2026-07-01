@@ -1,11 +1,11 @@
 # Marketing Readiness Report
 
-Generated: 2026-07-01T21:59:47.659Z
+Generated: 2026-07-01T22:25:08.486Z
 
 ```json
 {
   "title": "Marketing Readiness Report",
-  "generatedAt": "2026-07-01T21:59:47.659Z",
+  "generatedAt": "2026-07-01T22:25:08.486Z",
   "readiness": {
     "brandCompleteness": {
       "score": 54,

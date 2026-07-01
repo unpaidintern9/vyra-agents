@@ -52,3 +52,9 @@ Asset records live under `codex-agent-threads/shared/assets/` and reference loca
 Marketing may use local Customer Success insights as advisory context for training content, onboarding guides, FAQs, and adoption-support material.
 
 Customer Success context remains local. Marketing does not message customers, publish onboarding content, send emails, sync CRM data, or create autonomous support responses.
+
+## Phase 59 Finance Context
+
+Marketing may reference the local Pricing Library and revenue intelligence for positioning, campaign planning, and offer consistency.
+
+Marketing does not change prices, update billing systems, mutate Stripe, send invoices, collect payments, buy ads, publish pricing pages, or sync accounting.

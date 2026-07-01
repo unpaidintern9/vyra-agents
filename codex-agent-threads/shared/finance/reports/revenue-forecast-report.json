@@ -1,0 +1,65 @@
+{
+  "title": "Revenue Forecast Report",
+  "generatedAt": "2026-07-01T22:25:10.348Z",
+  "forecasts": [
+    {
+      "forecastId": "forecast-monthly",
+      "label": "Monthly Forecast",
+      "period": "monthly",
+      "baseRevenue": 3677,
+      "expansionRevenue": 861,
+      "churnExposure": 1491,
+      "forecastRevenue": 3047,
+      "confidence": 72,
+      "linkedGoals": [
+        "goal-operating-control",
+        "goal-proposal-readiness",
+        "goal-revenue-louisville-sales"
+      ],
+      "rule": "Deterministic local forecast from revenue references, customer success status, and expansion estimates."
+    },
+    {
+      "forecastId": "forecast-quarterly",
+      "label": "Quarterly Forecast",
+      "period": "quarterly",
+      "baseRevenue": 11031,
+      "expansionRevenue": 2512,
+      "churnExposure": 4474,
+      "forecastRevenue": 9069,
+      "confidence": 72,
+      "linkedGoals": [
+        "goal-operating-control",
+        "goal-proposal-readiness",
+        "goal-revenue-louisville-sales"
+      ],
+      "rule": "Deterministic local forecast from revenue references, customer success status, and expansion estimates."
+    },
+    {
+      "forecastId": "forecast-annual",
+      "label": "Annual Forecast",
+      "period": "annual",
+      "baseRevenue": 44124,
+      "expansionRevenue": 7177,
+      "churnExposure": 17896,
+      "forecastRevenue": 33405,
+      "confidence": 72,
+      "linkedGoals": [
+        "goal-operating-control",
+        "goal-proposal-readiness",
+        "goal-revenue-louisville-sales"
+      ],
+      "rule": "Deterministic local forecast from revenue references, customer success status, and expansion estimates."
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "stripeMutations": false,
+    "paymentProcessing": false,
+    "invoiceSending": false,
+    "payoutProcessing": false,
+    "accountingSync": false,
+    "financialTransactions": false,
+    "automaticBillingChanges": false,
+    "advisoryOnly": true
+  }
+}

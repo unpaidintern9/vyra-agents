@@ -1,11 +1,11 @@
 # Campaign Planning Report
 
-Generated: 2026-07-01T21:59:47.659Z
+Generated: 2026-07-01T22:25:08.486Z
 
 ```json
 {
   "title": "Campaign Planning Report",
-  "generatedAt": "2026-07-01T21:59:47.659Z",
+  "generatedAt": "2026-07-01T22:25:08.486Z",
   "campaigns": [
     {
       "campaignId": "camp-athlete-app-foundation",

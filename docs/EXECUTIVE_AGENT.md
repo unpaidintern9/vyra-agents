@@ -122,3 +122,9 @@ Asset records live under `codex-agent-threads/shared/assets/`. Executive visibil
 The Executive dashboard includes Customer Health Summary, Renewal Forecast, Expansion Pipeline, Churn Risks, Onboarding Progress, and Adoption KPIs.
 
 Customer Success records live under `codex-agent-threads/shared/customer-success/`. Executive visibility is advisory and does not message customers, update accounts, sync CRM records, renew subscriptions, or answer support requests automatically.
+
+## Phase 59 Finance Visibility
+
+The Executive dashboard includes Executive Revenue Summary, Revenue Forecast, Growth Trends, Expansion Pipeline, Renewal Health, and Revenue Risks.
+
+Finance records live under `codex-agent-threads/shared/finance/`. Executive visibility is advisory and local. It does not mutate Stripe, send invoices, collect payments, sync accounting, change billing, or approve financial actions automatically.

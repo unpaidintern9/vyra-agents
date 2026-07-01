@@ -1,11 +1,11 @@
 # Brand Consistency Report
 
-Generated: 2026-07-01T21:59:47.660Z
+Generated: 2026-07-01T22:25:08.486Z
 
 ```json
 {
   "title": "Brand Consistency Report",
-  "generatedAt": "2026-07-01T21:59:47.660Z",
+  "generatedAt": "2026-07-01T22:25:08.486Z",
   "consistency": {
     "confirmedReferences": [
       {

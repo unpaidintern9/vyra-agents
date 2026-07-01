@@ -1,0 +1,192 @@
+[
+  {
+    "financialRecordId": "fin-cust-louisville-combat-academy",
+    "customer": "Operations Lead",
+    "organization": "Louisville Combat Academy",
+    "customerType": "Gym",
+    "product": "Gym Software",
+    "plan": "Gym Software Trial",
+    "status": "Renewal Due",
+    "monthlyAmount": 299,
+    "annualAmount": 3588,
+    "setupRevenue": 0,
+    "expansionRevenue": 299,
+    "estimatedLifetimeValue": 7774,
+    "revenueCategory": "subscription",
+    "forecast": {
+      "mrrContribution": 299,
+      "arrContribution": 3588,
+      "expansionPotential": 299,
+      "churnExposure": 42,
+      "renewalProbability": 53,
+      "forecastConfidence": 74,
+      "reasons": [
+        "Local customer success status.",
+        "Subscription reference amount.",
+        "Deterministic renewal and expansion rules."
+      ],
+      "risks": [],
+      "recommendations": [
+        "Review revenue health with Executive and Customer Success.",
+        "Keep billing changes manual."
+      ],
+      "nextActions": [
+        "Monitor renewal readiness."
+      ]
+    },
+    "createdAt": "2026-07-01T22:17:22.880Z",
+    "updatedAt": "2026-07-01T22:17:22.880Z"
+  },
+  {
+    "financialRecordId": "fin-cust-area-502-mma",
+    "customer": "Owner",
+    "organization": "Area 502 MMA",
+    "customerType": "Gym",
+    "product": "Gym Software",
+    "plan": "Coach Platform",
+    "status": "Active",
+    "monthlyAmount": 299,
+    "annualAmount": 3588,
+    "setupRevenue": 750,
+    "expansionRevenue": 299,
+    "estimatedLifetimeValue": 8524,
+    "revenueCategory": "subscription",
+    "forecast": {
+      "mrrContribution": 299,
+      "arrContribution": 3588,
+      "expansionPotential": 299,
+      "churnExposure": 24,
+      "renewalProbability": 71,
+      "forecastConfidence": 74,
+      "reasons": [
+        "Local customer success status.",
+        "Subscription reference amount.",
+        "Deterministic renewal and expansion rules."
+      ],
+      "risks": [],
+      "recommendations": [
+        "Review revenue health with Executive and Customer Success.",
+        "Keep billing changes manual."
+      ],
+      "nextActions": [
+        "Monitor renewal readiness."
+      ]
+    },
+    "createdAt": "2026-07-01T22:17:22.880Z",
+    "updatedAt": "2026-07-01T22:17:22.880Z"
+  },
+  {
+    "financialRecordId": "fin-cust-river-city-performance",
+    "customer": "Head Coach",
+    "organization": "River City Performance",
+    "customerType": "Individual Coach",
+    "product": "Coach Platform",
+    "plan": "Coach Starter",
+    "status": "Active",
+    "monthlyAmount": 79,
+    "annualAmount": 948,
+    "setupRevenue": 250,
+    "expansionRevenue": 79,
+    "estimatedLifetimeValue": 2304,
+    "revenueCategory": "subscription",
+    "forecast": {
+      "mrrContribution": 79,
+      "arrContribution": 948,
+      "expansionPotential": 79,
+      "churnExposure": 24,
+      "renewalProbability": 71,
+      "forecastConfidence": 74,
+      "reasons": [
+        "Local customer success status.",
+        "Subscription reference amount.",
+        "Deterministic renewal and expansion rules."
+      ],
+      "risks": [],
+      "recommendations": [
+        "Review revenue health with Executive and Customer Success.",
+        "Keep billing changes manual."
+      ],
+      "nextActions": [
+        "Monitor renewal readiness."
+      ]
+    },
+    "createdAt": "2026-07-01T22:17:22.880Z",
+    "updatedAt": "2026-07-01T22:17:22.880Z"
+  },
+  {
+    "financialRecordId": "fin-cust-kentucky-youth-sports",
+    "customer": "Program Director",
+    "organization": "Kentucky Youth Sports",
+    "customerType": "Sports Organization",
+    "product": "Enterprise",
+    "plan": "Enterprise Reference",
+    "status": "Trial",
+    "monthlyAmount": 1500,
+    "annualAmount": 18000,
+    "setupRevenue": 0,
+    "expansionRevenue": 1500,
+    "estimatedLifetimeValue": 39000,
+    "revenueCategory": "pipeline revenue",
+    "forecast": {
+      "mrrContribution": 1500,
+      "arrContribution": 18000,
+      "expansionPotential": 1500,
+      "churnExposure": 55,
+      "renewalProbability": 40,
+      "forecastConfidence": 74,
+      "reasons": [
+        "Local customer success status.",
+        "Subscription reference amount.",
+        "Deterministic renewal and expansion rules."
+      ],
+      "risks": [
+        "Retention or onboarding risk requires review."
+      ],
+      "recommendations": [
+        "Review revenue health with Executive and Customer Success.",
+        "Keep billing changes manual."
+      ],
+      "nextActions": [
+        "Create manual revenue risk review."
+      ]
+    },
+    "createdAt": "2026-07-01T22:17:22.880Z",
+    "updatedAt": "2026-07-01T22:17:22.880Z"
+  },
+  {
+    "financialRecordId": "fin-future-white-label",
+    "customer": "Future White Label Partner",
+    "organization": "Future White Label Partner",
+    "customerType": "White Label subscription",
+    "product": "White Label Platform",
+    "plan": "Partner Platform",
+    "status": "Enterprise Review",
+    "monthlyAmount": 1500,
+    "annualAmount": 18000,
+    "setupRevenue": 2500,
+    "expansionRevenue": 5000,
+    "estimatedLifetimeValue": 56500,
+    "revenueCategory": "future product",
+    "forecast": {
+      "mrrContribution": 1500,
+      "arrContribution": 18000,
+      "expansionPotential": 5000,
+      "churnExposure": 30,
+      "renewalProbability": 65,
+      "forecastConfidence": 68,
+      "reasons": [
+        "Local customer success status.",
+        "Subscription reference amount.",
+        "Deterministic renewal and expansion rules."
+      ],
+      "risks": [],
+      "recommendations": [
+        "Review revenue health with Executive and Customer Success.",
+        "Keep billing changes manual."
+      ],
+      "nextActions": [
+        "Monitor renewal readiness."
+      ]
+    }
+  }
+]

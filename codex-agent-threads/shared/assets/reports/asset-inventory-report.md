@@ -1,11 +1,11 @@
 # Asset Inventory Report
 
-Generated: 2026-07-01T21:59:36.646Z
+Generated: 2026-07-01T22:25:09.066Z
 
 ```json
 {
   "title": "Asset Inventory Report",
-  "generatedAt": "2026-07-01T21:59:36.646Z",
+  "generatedAt": "2026-07-01T22:25:09.066Z",
   "summary": {
     "totalAssets": 9,
     "approvedAssets": 7,

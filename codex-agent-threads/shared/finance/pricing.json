@@ -1,0 +1,124 @@
+[
+  {
+    "pricingId": "price-athlete-monthly",
+    "category": "Athlete plans",
+    "product": "Athlete App",
+    "plan": "Athlete Monthly",
+    "monthlyReference": 19,
+    "annualReference": 228,
+    "version": "1.0.0",
+    "effectiveDate": "2026-07-01T22:17:22.880Z",
+    "positioning": "Entry athlete plan reference.",
+    "linkedProducts": [
+      "prod-athlete-app"
+    ],
+    "linkedCampaigns": [
+      "camp-athlete-app-foundation"
+    ],
+    "livePricingChangeEnabled": false
+  },
+  {
+    "pricingId": "price-coach-starter",
+    "category": "Coach plans",
+    "product": "Coach Platform",
+    "plan": "Coach Starter",
+    "monthlyReference": 79,
+    "annualReference": 948,
+    "version": "1.0.0",
+    "effectiveDate": "2026-07-01T22:17:22.880Z",
+    "positioning": "Independent coach subscription reference.",
+    "linkedProducts": [
+      "prod-coach-platform"
+    ],
+    "linkedCampaigns": [
+      "camp-gym-growth-readiness"
+    ],
+    "livePricingChangeEnabled": false
+  },
+  {
+    "pricingId": "price-gym-software",
+    "category": "Gym plans",
+    "product": "Gym Software",
+    "plan": "Gym Growth",
+    "monthlyReference": 299,
+    "annualReference": 3588,
+    "version": "1.0.0",
+    "effectiveDate": "2026-07-01T22:17:22.880Z",
+    "positioning": "Gym operations subscription reference.",
+    "linkedProducts": [
+      "prod-gym-software"
+    ],
+    "linkedCampaigns": [
+      "camp-gym-growth-readiness"
+    ],
+    "livePricingChangeEnabled": false
+  },
+  {
+    "pricingId": "price-white-label",
+    "category": "White Label",
+    "product": "White Label Platform",
+    "plan": "Partner Platform",
+    "monthlyReference": 1500,
+    "annualReference": 18000,
+    "version": "1.0.0",
+    "effectiveDate": "2026-07-01T22:17:22.880Z",
+    "positioning": "White label planning reference.",
+    "linkedProducts": [
+      "prod-white-label"
+    ],
+    "linkedCampaigns": [
+      "camp-white-label-positioning"
+    ],
+    "livePricingChangeEnabled": false
+  },
+  {
+    "pricingId": "price-enterprise",
+    "category": "Enterprise",
+    "product": "Enterprise",
+    "plan": "Enterprise Review",
+    "monthlyReference": 2500,
+    "annualReference": 30000,
+    "version": "1.0.0",
+    "effectiveDate": "2026-07-01T22:17:22.880Z",
+    "positioning": "Enterprise review reference.",
+    "linkedProducts": [
+      "prod-white-label"
+    ],
+    "linkedCampaigns": [
+      "camp-white-label-positioning"
+    ],
+    "livePricingChangeEnabled": false
+  },
+  {
+    "pricingId": "price-setup",
+    "category": "Setup services",
+    "product": "Setup Services",
+    "plan": "Implementation Setup",
+    "monthlyReference": 750,
+    "annualReference": 9000,
+    "version": "1.0.0",
+    "effectiveDate": "2026-07-01T22:17:22.880Z",
+    "positioning": "One-time setup service reference.",
+    "linkedProducts": [
+      "setup"
+    ],
+    "linkedCampaigns": [],
+    "livePricingChangeEnabled": false
+  },
+  {
+    "pricingId": "price-migration",
+    "category": "Migration services",
+    "product": "Migration Services",
+    "plan": "Data Migration",
+    "monthlyReference": 1200,
+    "annualReference": 14400,
+    "version": "1.0.0",
+    "effectiveDate": "2026-07-01T22:17:22.880Z",
+    "positioning": "One-time migration service reference.",
+    "linkedProducts": [
+      "migration"
+    ],
+    "linkedCampaigns": [],
+    "livePricingChangeEnabled": false
+  }
+]

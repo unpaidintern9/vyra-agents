@@ -34,3 +34,9 @@ Safety:
 - No automatic renewals.
 - No autonomous support responses.
 - No billing changes.
+
+## Phase 59 Revenue Context
+
+Customer Success now includes Renewal Readiness, Revenue Health, Expansion Opportunities, and Churn Exposure from the local Finance Agent.
+
+These records help prioritize retention and expansion planning, but they do not renew subscriptions, change billing, send invoices, collect payments, update Stripe, or sync accounting.

@@ -1,11 +1,11 @@
 # Sales Resource Summary
 
-Generated: 2026-07-01T21:59:36.650Z
+Generated: 2026-07-01T22:25:09.070Z
 
 ```json
 {
   "title": "Sales Resource Summary",
-  "generatedAt": "2026-07-01T21:59:36.650Z",
+  "generatedAt": "2026-07-01T22:25:09.070Z",
   "rows": [
     {
       "assetId": "asset-brand-dashboard-mark",

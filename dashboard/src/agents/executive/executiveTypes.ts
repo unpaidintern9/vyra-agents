@@ -18,6 +18,7 @@ import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 import type { MarketingDashboardSummary } from '../../runtime/marketingIntelligence';
 import type { AssetLibraryDashboardSummary } from '../../runtime/assetLibrary';
 import type { CustomerSuccessDashboardSummary } from '../../runtime/customerSuccess';
+import type { FinanceDashboardSummary } from '../../runtime/financeIntelligence';
 import type { LocalReport } from '../../storage/reportExport';
 import type {
   SalesAgentTeamSummary,
@@ -130,6 +131,7 @@ export interface ExecutiveSummary {
   marketing?: MarketingDashboardSummary;
   assetLibrary?: AssetLibraryDashboardSummary;
   customerSuccess?: CustomerSuccessDashboardSummary;
+  finance?: FinanceDashboardSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
@@ -166,6 +168,7 @@ export interface ExecutiveDashboardProps {
   marketing?: MarketingDashboardSummary;
   assetLibrary?: AssetLibraryDashboardSummary;
   customerSuccess?: CustomerSuccessDashboardSummary;
+  finance?: FinanceDashboardSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
