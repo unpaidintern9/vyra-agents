@@ -19,6 +19,7 @@ export default function ExecutiveDashboard({
   executiveEmailBriefing,
   executiveOperations,
   executivePlanning,
+  marketing,
   githubPlanning,
   githubReadOnly,
   integrationWarnings = [],
@@ -80,6 +81,7 @@ export default function ExecutiveDashboard({
         {salesResearchIntelligenceSummary ? <ExecutiveResearchIntelligencePanel summary={salesResearchIntelligenceSummary} /> : null}
         {salesWorkflowSummary ? <ExecutiveSalesWorkflowPanel summary={salesWorkflowSummary} /> : null}
         {executivePlanning ? <ExecutivePlanningPanel planning={executivePlanning} /> : null}
+        {marketing ? <ExecutiveMarketingOverviewPanel marketing={marketing} /> : null}
         {sharedTaskSummary ? <ExecutiveWorkQueuePanel sharedTaskSummary={sharedTaskSummary} /> : null}
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
         {summary.executiveEmailBriefing ? <ExecutiveEmailBriefingPanel briefing={summary.executiveEmailBriefing} /> : null}
@@ -94,6 +96,35 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveMarketingOverviewPanel({ marketing }: { marketing: NonNullable<ExecutiveDashboardProps['marketing']> }) {
+  return (
+    <section className="panel wide-panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Marketing Overview</h2>
+        </div>
+        <span>{marketing.executiveOverview.approvalsPending} approvals pending</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact"><span>Brand Health</span><strong>{marketing.executiveOverview.brandHealth}%</strong></div>
+        <div className="fact"><span>Campaign Pipeline</span><strong>{marketing.executiveOverview.campaignPipeline}</strong></div>
+        <div className="fact"><span>Content Progress</span><strong>{marketing.executiveOverview.contentProgress}</strong></div>
+        <div className="fact"><span>Upcoming Launches</span><strong>{marketing.executiveOverview.upcomingLaunches}</strong></div>
+      </div>
+      <DataTable
+        columns={['Campaign Pipeline', 'Audience', 'Status', 'Risk']}
+        rows={marketing.campaigns.map((campaign) => [campaign.name, campaign.audience.join(', '), campaign.status, campaign.risks.join('; ') || 'No major risk'])}
+      />
+      <DataTable
+        columns={['Upcoming Launches', 'Date', 'Publishing', 'Status']}
+        rows={marketing.calendar.map((item) => [item.title, item.date.slice(0, 10), item.publishingEnabled ? 'Enabled' : 'Disabled', item.status])}
+      />
+      <p className="subtle-note">Executive Marketing Overview is read-only and local. It does not publish, post, email, buy ads, sync CRM data, or approve marketing automatically.</p>
+    </section>
   );
 }
 

@@ -98,3 +98,9 @@ The Executive dashboard includes Strategic Goals, KPI Scorecard, Initiative Trac
 Planning records live under `codex-agent-threads/shared/executive-planning/` and remain local, deterministic, auditable, and advisory.
 
 See `docs/EXECUTIVE_PLANNING.md`, `docs/GOAL_MANAGEMENT.md`, `docs/KPI_SCORECARD.md`, and `docs/DECISION_LOG.md`.
+
+## Phase 55 Marketing Overview
+
+The Executive dashboard includes Marketing Overview, Brand Health, Campaign Pipeline, Content Progress, and Upcoming Launches.
+
+Marketing records live under `codex-agent-threads/shared/marketing/` and remain local planning records for Vyra Performance. Executive can review brand gaps, pending approvals, and launch readiness, but the dashboard does not publish, post, email, buy ads, sync CRM records, or approve marketing automatically.

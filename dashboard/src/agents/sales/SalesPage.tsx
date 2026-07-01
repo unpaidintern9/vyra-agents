@@ -86,6 +86,7 @@ export default function SalesPage({
   sharedMemory,
   connectorReadiness,
   executivePlanning,
+  marketing,
   sharedTaskSummary,
   teamAgents,
   teamSummary,
@@ -937,6 +938,38 @@ export default function SalesPage({
               rows={executivePlanning.salesGoalAlignment.map((item) => [item.goal, item.revenueKpi, item.opportunityContribution, item.status])}
               emptyMessage="No Sales goals are linked to Executive planning."
             />
+          </section>
+        ) : null}
+
+        {marketing ? (
+          <section className="panel wide-panel">
+            <div className="panel-header">
+              <div>
+                <FileText size={18} />
+                <h2>Sales Marketing Assets</h2>
+              </div>
+              <StatusBadge value="Draft-only" tone="warn" />
+            </div>
+            <div className="batch-grid">
+              <Fact label="Marketing Assets" value={String(marketing.content.length)} />
+              <Fact label="Product Messaging" value={String(marketing.products.length)} />
+              <Fact label="Audience Messaging" value={String(marketing.audiences.length)} />
+              <Fact label="Campaign Support" value={String(marketing.campaigns.length)} />
+            </div>
+            <DataTable
+              columns={['Marketing Asset', 'Product', 'Audience', 'Message', 'Status']}
+              rows={marketing.salesSupport.map((asset) => [asset.asset, asset.product, asset.audience, asset.message, asset.status])}
+              emptyMessage="No Sales marketing assets."
+            />
+            <DataTable
+              columns={['Product Messaging', 'Audience', 'Launch Status', 'Positioning']}
+              rows={marketing.products.slice(0, 6).map((product) => [product.name, product.audience.join(', '), product.launchStatus, product.positioning])}
+            />
+            <DataTable
+              columns={['Audience Messaging', 'Preferred Channels', 'Content Ideas']}
+              rows={marketing.audiences.slice(0, 6).map((audience) => [audience.name, audience.preferredChannels.join(', '), audience.contentIdeas.join('; ')])}
+            />
+            <p className="subtle-note">Sales marketing support is local enablement only. It does not publish, email, post to social, buy ads, sync CRM data, or approve assets automatically.</p>
           </section>
         ) : null}
 

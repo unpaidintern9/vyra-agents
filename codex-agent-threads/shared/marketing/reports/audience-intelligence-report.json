@@ -1,0 +1,330 @@
+{
+  "title": "Audience Intelligence Report",
+  "generatedAt": "2026-07-01T18:53:55.419Z",
+  "audiences": [
+    {
+      "id": "aud-athletes",
+      "name": "athletes",
+      "goals": [
+        "Train consistently",
+        "Understand progress"
+      ],
+      "painPoints": [
+        "Scattered plans",
+        "Low visibility"
+      ],
+      "objections": [
+        "Will this fit my training?"
+      ],
+      "motivations": [
+        "Progress clarity",
+        "Coach connection"
+      ],
+      "recommendedMessaging": [
+        "Show progress and accountability."
+      ],
+      "preferredChannels": [
+        "app",
+        "coach",
+        "newsletter"
+      ],
+      "contentIdeas": [
+        "athletes workflow checklist",
+        "athletes readiness guide",
+        "athletes product FAQ"
+      ]
+    },
+    {
+      "id": "aud-independent-coaches",
+      "name": "independent coaches",
+      "goals": [
+        "Manage clients",
+        "Save admin time"
+      ],
+      "painPoints": [
+        "Manual tracking",
+        "Follow-up drift"
+      ],
+      "objections": [
+        "Will this add work?"
+      ],
+      "motivations": [
+        "Professional delivery"
+      ],
+      "recommendedMessaging": [
+        "Less admin, clearer athlete follow-through."
+      ],
+      "preferredChannels": [
+        "email draft",
+        "landing page",
+        "demo"
+      ],
+      "contentIdeas": [
+        "independent coaches workflow checklist",
+        "independent coaches readiness guide",
+        "independent coaches product FAQ"
+      ]
+    },
+    {
+      "id": "aud-gym-owners",
+      "name": "gym owners",
+      "goals": [
+        "Grow retention",
+        "Improve operations"
+      ],
+      "painPoints": [
+        "Disconnected tools",
+        "Member churn"
+      ],
+      "objections": [
+        "Will staff use it?"
+      ],
+      "motivations": [
+        "Operational clarity"
+      ],
+      "recommendedMessaging": [
+        "Member experience plus growth workflows."
+      ],
+      "preferredChannels": [
+        "landing page",
+        "case study",
+        "sales enablement"
+      ],
+      "contentIdeas": [
+        "gym owners workflow checklist",
+        "gym owners readiness guide",
+        "gym owners product FAQ"
+      ]
+    },
+    {
+      "id": "aud-gym-managers",
+      "name": "gym managers",
+      "goals": [
+        "Run daily operations",
+        "Coordinate staff"
+      ],
+      "painPoints": [
+        "Too many spreadsheets",
+        "Unclear handoffs"
+      ],
+      "objections": [
+        "Is setup hard?"
+      ],
+      "motivations": [
+        "Cleaner daily workflow"
+      ],
+      "recommendedMessaging": [
+        "Make recurring work easier to see and own."
+      ],
+      "preferredChannels": [
+        "checklist",
+        "video",
+        "FAQ"
+      ],
+      "contentIdeas": [
+        "gym managers workflow checklist",
+        "gym managers readiness guide",
+        "gym managers product FAQ"
+      ]
+    },
+    {
+      "id": "aud-personal-trainers",
+      "name": "personal trainers",
+      "goals": [
+        "Keep clients engaged",
+        "Show outcomes"
+      ],
+      "painPoints": [
+        "Client accountability",
+        "Programming overhead"
+      ],
+      "objections": [
+        "Will clients adopt it?"
+      ],
+      "motivations": [
+        "Better client experience"
+      ],
+      "recommendedMessaging": [
+        "A simple performance loop for trainer and client."
+      ],
+      "preferredChannels": [
+        "social post",
+        "blog",
+        "email draft"
+      ],
+      "contentIdeas": [
+        "personal trainers workflow checklist",
+        "personal trainers readiness guide",
+        "personal trainers product FAQ"
+      ]
+    },
+    {
+      "id": "aud-strength-coaches",
+      "name": "strength coaches",
+      "goals": [
+        "Track athlete development",
+        "Scale programming"
+      ],
+      "painPoints": [
+        "Team visibility",
+        "Data scattered"
+      ],
+      "objections": [
+        "Can it handle groups?"
+      ],
+      "motivations": [
+        "Performance credibility"
+      ],
+      "recommendedMessaging": [
+        "Organized training delivery for athletes and groups."
+      ],
+      "preferredChannels": [
+        "video",
+        "landing page",
+        "FAQ"
+      ],
+      "contentIdeas": [
+        "strength coaches workflow checklist",
+        "strength coaches readiness guide",
+        "strength coaches product FAQ"
+      ]
+    },
+    {
+      "id": "aud-nutrition-coaches",
+      "name": "nutrition coaches",
+      "goals": [
+        "Support behavior change",
+        "Coordinate with training"
+      ],
+      "painPoints": [
+        "Low adherence",
+        "Fragmented notes"
+      ],
+      "objections": [
+        "Is nutrition core?"
+      ],
+      "motivations": [
+        "Client progress"
+      ],
+      "recommendedMessaging": [
+        "Connect nutrition support to performance routines."
+      ],
+      "preferredChannels": [
+        "blog",
+        "newsletter",
+        "FAQ"
+      ],
+      "contentIdeas": [
+        "nutrition coaches workflow checklist",
+        "nutrition coaches readiness guide",
+        "nutrition coaches product FAQ"
+      ]
+    },
+    {
+      "id": "aud-sports-organizations",
+      "name": "sports organizations",
+      "goals": [
+        "Standardize athlete support",
+        "Improve visibility"
+      ],
+      "painPoints": [
+        "Program inconsistency",
+        "Reporting gaps"
+      ],
+      "objections": [
+        "Can it fit our brand?"
+      ],
+      "motivations": [
+        "Organization-level clarity"
+      ],
+      "recommendedMessaging": [
+        "Branded performance workflows for teams and programs."
+      ],
+      "preferredChannels": [
+        "deck",
+        "case study",
+        "landing page"
+      ],
+      "contentIdeas": [
+        "sports organizations workflow checklist",
+        "sports organizations readiness guide",
+        "sports organizations product FAQ"
+      ]
+    },
+    {
+      "id": "aud-schools",
+      "name": "schools",
+      "goals": [
+        "Support student athletes",
+        "Coordinate programs"
+      ],
+      "painPoints": [
+        "Resource limits",
+        "Approval complexity"
+      ],
+      "objections": [
+        "Is it simple and safe?"
+      ],
+      "motivations": [
+        "Better program structure"
+      ],
+      "recommendedMessaging": [
+        "Planning-focused messaging for school performance programs."
+      ],
+      "preferredChannels": [
+        "FAQ",
+        "one-pager",
+        "webinar"
+      ],
+      "contentIdeas": [
+        "schools workflow checklist",
+        "schools readiness guide",
+        "schools product FAQ"
+      ]
+    },
+    {
+      "id": "aud-enterprise-gyms",
+      "name": "enterprise gyms",
+      "goals": [
+        "Standardize multi-site operations",
+        "Protect brand experience"
+      ],
+      "painPoints": [
+        "Location variance",
+        "Reporting gaps"
+      ],
+      "objections": [
+        "Can it scale?"
+      ],
+      "motivations": [
+        "Brand consistency"
+      ],
+      "recommendedMessaging": [
+        "Operational visibility across branded fitness locations."
+      ],
+      "preferredChannels": [
+        "white paper",
+        "case study",
+        "demo"
+      ],
+      "contentIdeas": [
+        "enterprise gyms workflow checklist",
+        "enterprise gyms readiness guide",
+        "enterprise gyms product FAQ"
+      ]
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "autonomousPublishing": false,
+    "autonomousSocialPosting": false,
+    "autonomousEmailing": false,
+    "paidAdExecution": false,
+    "externalCrmSync": false,
+    "automaticApproval": false,
+    "inventedBrandAssets": false,
+    "governmentContractingLogic": false,
+    "samGovLogic": false,
+    "federalProposalLogic": false
+  }
+}

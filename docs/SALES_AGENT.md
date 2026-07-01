@@ -252,3 +252,9 @@ The Sales Agent does not browse, send customer email, sync CRM data, submit prop
 The Sales dashboard includes Sales Goals, Revenue/KPI Alignment, and Opportunity Contribution to Goals.
 
 Sales goal alignment links local opportunities, organizations, KPIs, and Executive goals. It is advisory and does not trigger outreach, CRM sync, proposal submission, or automatic approvals.
+
+## Phase 55 Marketing Support
+
+The Sales dashboard includes Marketing Assets, Product Messaging, Audience Messaging, and Campaign Support from the local Marketing Agent.
+
+These records help sellers align outreach and follow-up prep with Vyra Performance messaging. They are draft-only and do not publish content, send email, post to social, buy ads, sync CRM records, or approve marketing assets automatically.

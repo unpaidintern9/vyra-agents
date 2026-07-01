@@ -10,7 +10,9 @@ import {
   FileText,
   GitBranch,
   ListChecks,
+  Megaphone,
   Network,
+  Package as PackageIcon,
   RefreshCcw,
   Search,
   Settings,
@@ -138,6 +140,7 @@ import { buildDashboardGmailEmailSummary } from './runtime/gmailEmail';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
 import { buildDashboardProjectRegistrySummary } from './runtime/projectRegistry';
+import { buildDashboardMarketingSummary, type MarketingDashboardSummary } from './runtime/marketingIntelligence';
 import { buildDashboardReleaseReadinessSummary } from './runtime/releaseReadiness';
 import { buildDashboardReleaseShipPlanSummary } from './runtime/releaseShipPlans';
 import { defaultRepositoryIntelligenceSummary, summarizeRepositoryIntelligence } from './runtime/repositoryIntelligence';
@@ -1535,6 +1538,12 @@ function App() {
     salesOpportunitySummary,
     sharedTasks: sharedTaskSummary,
   });
+  const marketing = buildDashboardMarketingSummary({
+    executivePlanning,
+    opportunities: salesOpportunities,
+    sharedMemory,
+    sharedTasks: sharedTaskSummary,
+  });
   const executiveEmailBriefing = buildDashboardExecutiveEmailBriefingSummary({
     email: emailSummary,
     executiveOperations,
@@ -1670,7 +1679,9 @@ function App() {
           ? 'Sales Agent'
           : activePage === 'Operator'
             ? 'AI Operator'
-            : activePage;
+            : activePage === 'Marketing'
+              ? 'Marketing Agent'
+              : activePage;
 
   return (
     <div className="app-shell">
@@ -1798,11 +1809,14 @@ function App() {
             salesRelatedOpportunityCandidates={salesRelatedOpportunityCandidates}
             connectorReadiness={connectorReadiness}
             executivePlanning={executivePlanning}
+            marketing={marketing}
             sharedTaskSummary={sharedTaskSummary}
             teamAgents={salesTeamAgents}
             teamSummary={salesAgentTeamSummary}
             scoringSummary={salesScoringSummary}
           />
+        ) : activePage === 'Marketing' ? (
+          <MarketingPage marketing={marketing} />
         ) : activePage === 'Integrations' ? (
           <IntegrationsPage snapshot={status} />
         ) : activePage === 'Settings' ? (
@@ -1894,6 +1908,7 @@ function App() {
             executiveEmailBriefing={executiveEmailBriefing}
             executiveOperations={executiveOperations}
             executivePlanning={executivePlanning}
+            marketing={marketing}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
             projectRegistry={projectRegistry}
@@ -2043,6 +2058,85 @@ function RuntimePage({ runtime, syncStatus }: { runtime: AgentRuntimeSnapshot; s
             approval.completed ?? 'Open',
           ])}
         />
+      </Panel>
+    </section>
+  );
+}
+
+function MarketingPage({ marketing }: { marketing: MarketingDashboardSummary }) {
+  return (
+    <section className="dashboard-grid">
+      <Panel title="Brand Intelligence" icon={<Megaphone size={18} />} wide>
+        <div className="batch-grid supabase-detail-grid">
+          <Fact label="Brand" value={marketing.brand.brandName} />
+          <Fact label="Confirmed Assets" value={String(marketing.brand.assetReferences.filter((asset) => asset.status === 'confirmed').length)} />
+          <Fact label="Missing Assets" value={String(marketing.brand.assetReferences.filter((asset) => asset.status === 'missing').length)} />
+          <Fact label="Brand Health" value={`${marketing.readiness.brandCompleteness.score}%`} />
+        </div>
+        <DataTable
+          columns={['Asset', 'Type', 'Status', 'Reference']}
+          rows={marketing.brand.assetReferences.map((asset) => [asset.name, asset.type, asset.status, asset.localReference || asset.notes])}
+        />
+        <DataTable
+          columns={['Words To Use', 'Words To Avoid', 'Voice']}
+          rows={[[marketing.brand.wordsToUse.join(', '), marketing.brand.wordsToAvoid.join(', '), marketing.brand.brandVoice.join(', ')]]}
+        />
+      </Panel>
+
+      <Panel title="Product Library" icon={<PackageIcon size={18} />} wide>
+        <DataTable
+          columns={['Product', 'Audience', 'Launch Status', 'Pricing', 'Positioning']}
+          rows={marketing.products.map((product) => [product.name, product.audience.join(', '), product.launchStatus, product.pricing, product.positioning])}
+        />
+      </Panel>
+
+      <Panel title="Audience Intelligence" icon={<Users size={18} />} wide>
+        <DataTable
+          columns={['Audience', 'Goals', 'Pain Points', 'Recommended Messaging']}
+          rows={marketing.audiences.map((audience) => [audience.name, audience.goals.join('; '), audience.painPoints.join('; '), audience.recommendedMessaging.join('; ')])}
+        />
+      </Panel>
+
+      <Panel title="Content Library" icon={<FileText size={18} />} wide>
+        <DataTable
+          columns={['Content', 'Type', 'Audience', 'Product', 'Approval']}
+          rows={marketing.content.map((item) => [item.title, item.type, item.audience, item.product, item.approvalStatus])}
+        />
+      </Panel>
+
+      <Panel title="Campaign Planner" icon={<Workflow size={18} />} wide>
+        <DataTable
+          columns={['Campaign', 'Objective', 'Audience', 'Status', 'Next Action']}
+          rows={marketing.campaigns.map((campaign) => [campaign.name, campaign.objective, campaign.audience.join(', '), campaign.status, campaign.nextActions[0]])}
+        />
+      </Panel>
+
+      <Panel title="Marketing Calendar" icon={<FileClock size={18} />} wide>
+        <DataTable
+          columns={['Item', 'Type', 'Date', 'Status', 'Publishing']}
+          rows={marketing.calendar.map((item) => [item.title, item.type, formatDate(item.date), item.status, item.publishingEnabled ? 'Enabled' : 'Disabled'])}
+        />
+      </Panel>
+
+      <Panel title="Approval Queue" icon={<ShieldCheck size={18} />} wide>
+        <DataTable
+          columns={['Approval', 'Owner', 'Status', 'Reason']}
+          rows={marketing.approvals.map((approval) => [approval.item, approval.owner, approval.status, approval.reason])}
+        />
+      </Panel>
+
+      <Panel title="Marketing Readiness" icon={<ListChecks size={18} />} wide>
+        <DataTable
+          columns={['Area', 'Score', 'Label', 'Risk', 'Next Action']}
+          rows={Object.entries(marketing.readiness).map(([area, evaluation]) => [
+            area.replace(/[A-Z]/g, (match) => ` ${match.toLowerCase()}`),
+            `${evaluation.score}%`,
+            evaluation.label,
+            evaluation.risks.join('; ') || 'No major risk',
+            evaluation.nextActions[0],
+          ])}
+        />
+        <p className="subtle-note">Marketing is local planning only. It does not publish, post, email, buy ads, sync CRM data, or approve content automatically.</p>
       </Panel>
     </section>
   );
@@ -3836,6 +3930,7 @@ function pageCopy(page: string): string {
   const copy: Record<string, string> = {
     Migration: 'Migration dry-runs, staging review, member matching, table readiness, and mock approvals.',
     Sales: 'Local lead queue, prospect tracking, follow-up planning, and proposal prep without emails, Stripe, or CRM writes.',
+    Marketing: 'Local brand intelligence, product messaging, audience planning, campaigns, and approvals without publishing or ad buying.',
     Engineering: 'Read-only repository knowledge graph for files, routes, components, Supabase assets, dependencies, and docs.',
     Integrations: 'Read-only integration health with safe mock fallback and no production writes.',
     Runtime: 'Shared Agent OS for registry, lifecycle, permissions, health, workflows, memory, approvals, and sync.',

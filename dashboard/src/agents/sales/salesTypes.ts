@@ -3,6 +3,7 @@ import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness
 import type { CrossAgentCollaborationGraph, CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 import type { ExecutivePlanningSummary } from '../../runtime/executivePlanning';
+import type { MarketingDashboardSummary } from '../../runtime/marketingIntelligence';
 
 export type LeadType = 'gym' | 'coach' | 'organization' | 'referral';
 export type PipelineStage =
@@ -1166,6 +1167,7 @@ export interface SalesPageProps {
   organizationIntelligence: SalesOrganizationIntelligenceStore;
   sharedMemory: SharedMemoryStore;
   connectorReadiness?: ConnectorReadinessSummary;
+  marketing?: MarketingDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
   executivePlanning?: ExecutivePlanningSummary;
   teamAgents: SalesTeamAgentDefinition[];

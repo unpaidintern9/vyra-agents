@@ -45,3 +45,9 @@ Task links do not resolve memory automatically. They preserve auditability and k
 ## Phase 54 Planning Confidence
 
 Executive planning uses shared memory conflicts, risky facts, and confidence signals as advisory blockers. Low-confidence facts can increase attention scores, but the planning engine never overwrites memory or resolves conflicts automatically.
+
+## Phase 55 Marketing References
+
+Marketing uses shared memory brand asset and market segment records where useful, and it can reference Sales organizations, opportunities, Executive goals, and task IDs.
+
+Marketing does not duplicate customer records unnecessarily. Marketing memory references are planning-only and do not publish, email, post, sync CRM data, or approve content automatically.

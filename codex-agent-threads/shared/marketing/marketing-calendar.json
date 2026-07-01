@@ -1,0 +1,47 @@
+[
+  {
+    "id": "mkt-calendar-1",
+    "type": "launch",
+    "title": "Athlete App Foundation",
+    "date": "2026-07-22T14:00:00.000Z",
+    "linkedCampaign": "camp-athlete-app-foundation",
+    "linkedContent": [
+      "content-landing-page",
+      "content-email-draft",
+      "content-release-notes",
+      "content-faq"
+    ],
+    "status": "planned",
+    "publishingEnabled": false
+  },
+  {
+    "id": "mkt-calendar-2",
+    "type": "campaign",
+    "title": "Gym Growth Readiness",
+    "date": "2026-07-22T14:00:00.000Z",
+    "linkedCampaign": "camp-gym-growth-readiness",
+    "linkedContent": [
+      "content-blog-post",
+      "content-newsletter",
+      "content-video",
+      "content-case-study"
+    ],
+    "status": "planned",
+    "publishingEnabled": false
+  },
+  {
+    "id": "mkt-calendar-3",
+    "type": "content schedule",
+    "title": "White Label Positioning",
+    "date": "2026-07-22T14:00:00.000Z",
+    "linkedCampaign": "camp-white-label-positioning",
+    "linkedContent": [
+      "content-social-post",
+      "content-product-announcement",
+      "content-podcast-idea",
+      "content-testimonial"
+    ],
+    "status": "planned",
+    "publishingEnabled": false
+  }
+]

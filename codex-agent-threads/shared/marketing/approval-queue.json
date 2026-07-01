@@ -1,0 +1,18 @@
+[
+  {
+    "id": "mkt-approval-brand-assets",
+    "item": "Confirm official logo and product screenshots",
+    "owner": "Marketing",
+    "status": "pending",
+    "reason": "Brand asset gaps must be reviewed before public use.",
+    "linkedCampaign": "camp-athlete-app-foundation"
+  },
+  {
+    "id": "mkt-approval-launch-messaging",
+    "item": "Review Athlete App launch messaging",
+    "owner": "Executive",
+    "status": "pending",
+    "reason": "Launch messaging requires human approval.",
+    "linkedCampaign": "camp-athlete-app-foundation"
+  }
+]

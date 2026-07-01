@@ -23,3 +23,9 @@ Safety guarantees:
 
 Executive goals and initiatives can link universal tasks by ID. The planning engine detects blocked or overdue linked tasks and surfaces recommended next actions, but it never resolves blockers or completes tasks automatically.
 - No automatic source approval.
+
+## Phase 55 Marketing Task Links
+
+Marketing content, campaigns, approvals, and launch planning can link universal task IDs. Marketing tasks route to Sales when useful and remain local planning records.
+
+The task engine does not publish content, post to social, send marketing email, buy ads, sync CRM data, or approve Marketing work automatically.

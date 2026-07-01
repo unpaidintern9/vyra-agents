@@ -1,0 +1,211 @@
+{
+  "title": "Content Library Report",
+  "generatedAt": "2026-07-01T18:53:55.419Z",
+  "content": [
+    {
+      "id": "content-landing-page",
+      "title": "Landing Page for Athlete App Foundation",
+      "type": "landing page",
+      "audience": "athletes",
+      "product": "prod-athlete-app",
+      "status": "draft",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-athlete-app-foundation",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    },
+    {
+      "id": "content-blog-post",
+      "title": "Blog Post for Gym Growth Readiness",
+      "type": "blog post",
+      "audience": "gym owners",
+      "product": "prod-gym-software",
+      "status": "draft",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-gym-growth-readiness",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    },
+    {
+      "id": "content-social-post",
+      "title": "Social Post for White Label Positioning",
+      "type": "social post",
+      "audience": "sports organizations",
+      "product": "prod-white-label",
+      "status": "draft",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-white-label-positioning",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    },
+    {
+      "id": "content-email-draft",
+      "title": "Email Draft for Athlete App Foundation",
+      "type": "email draft",
+      "audience": "athletes",
+      "product": "prod-athlete-app",
+      "status": "planned",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-athlete-app-foundation",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    },
+    {
+      "id": "content-newsletter",
+      "title": "Newsletter for Gym Growth Readiness",
+      "type": "newsletter",
+      "audience": "gym owners",
+      "product": "prod-gym-software",
+      "status": "planned",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-gym-growth-readiness",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    },
+    {
+      "id": "content-product-announcement",
+      "title": "Product Announcement for White Label Positioning",
+      "type": "product announcement",
+      "audience": "sports organizations",
+      "product": "prod-white-label",
+      "status": "planned",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-white-label-positioning",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    },
+    {
+      "id": "content-release-notes",
+      "title": "Release Notes for Athlete App Foundation",
+      "type": "release notes",
+      "audience": "athletes",
+      "product": "prod-athlete-app",
+      "status": "planned",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-athlete-app-foundation",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    },
+    {
+      "id": "content-video",
+      "title": "Video for Gym Growth Readiness",
+      "type": "video",
+      "audience": "gym owners",
+      "product": "prod-gym-software",
+      "status": "planned",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-gym-growth-readiness",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    },
+    {
+      "id": "content-podcast-idea",
+      "title": "Podcast Idea for White Label Positioning",
+      "type": "podcast idea",
+      "audience": "sports organizations",
+      "product": "prod-white-label",
+      "status": "planned",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-white-label-positioning",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    },
+    {
+      "id": "content-faq",
+      "title": "FAQ for Athlete App Foundation",
+      "type": "FAQ",
+      "audience": "athletes",
+      "product": "prod-athlete-app",
+      "status": "planned",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-athlete-app-foundation",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    },
+    {
+      "id": "content-case-study",
+      "title": "Case Study for Gym Growth Readiness",
+      "type": "case study",
+      "audience": "gym owners",
+      "product": "prod-gym-software",
+      "status": "planned",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-gym-growth-readiness",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    },
+    {
+      "id": "content-testimonial",
+      "title": "Testimonial for White Label Positioning",
+      "type": "testimonial",
+      "audience": "sports organizations",
+      "product": "prod-white-label",
+      "status": "planned",
+      "owner": "Marketing",
+      "approvalStatus": "pending",
+      "linkedCampaign": "camp-white-label-positioning",
+      "linkedGoal": "goal-marketing-foundation",
+      "linkedTask": "",
+      "notes": [
+        "Draft/planning record only. No publishing, sending, posting, or paid promotion."
+      ]
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "autonomousPublishing": false,
+    "autonomousSocialPosting": false,
+    "autonomousEmailing": false,
+    "paidAdExecution": false,
+    "externalCrmSync": false,
+    "automaticApproval": false,
+    "inventedBrandAssets": false,
+    "governmentContractingLogic": false,
+    "samGovLogic": false,
+    "federalProposalLogic": false
+  }
+}

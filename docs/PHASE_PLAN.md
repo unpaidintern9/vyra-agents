@@ -1420,3 +1420,35 @@ Boundaries:
 - No Stripe writes.
 - No Supabase production writes.
 - No secrets committed.
+
+## Phase 55
+
+Marketing Agent Foundation & Brand Intelligence.
+
+Includes:
+
+- Local Marketing Intelligence system under `codex-agent-threads/shared/marketing/`.
+- Brand intelligence for confirmed local dashboard brand mark, color tokens, typography, brand voice, approved messaging, words to use, words to avoid, visual style notes, and explicit missing asset records.
+- Product intelligence for Athlete App, Coach Platform, Gym Software, White Label Platform, Sales/CRM tools, and Future Vyra products.
+- Audience intelligence for athletes, independent coaches, gym owners, gym managers, personal trainers, strength coaches, nutrition coaches, sports organizations, schools, and enterprise gyms.
+- Content library for landing pages, blog posts, social posts, email drafts, newsletters, announcements, release notes, videos, podcast ideas, FAQs, case studies, and testimonials.
+- Campaign planner, marketing calendar, approval queue, and readiness evaluations.
+- Marketing dashboard sections for Brand Intelligence, Product Library, Audience Intelligence, Content Library, Campaign Planner, Marketing Calendar, Approval Queue, and Marketing Readiness.
+- Executive Marketing Overview for Brand Health, Campaign Pipeline, Content Progress, and Upcoming Launches.
+- Sales Marketing Assets, Product Messaging, Audience Messaging, and Campaign Support.
+- Root npm scripts for `marketing:brand`, `marketing:products`, `marketing:audiences`, `marketing:content`, `marketing:campaigns`, `marketing:calendar`, `marketing:brand-report`, `marketing:campaign-report`, `marketing:content-report`, and `marketing:validate`.
+
+Boundaries:
+
+- Local execution only.
+- Vyra Performance only.
+- No dependency on `vyraapp.fit`.
+- No autonomous publishing.
+- No autonomous social posting.
+- No autonomous email sending.
+- No paid ad execution.
+- No external CRM sync.
+- No automatic approval.
+- No invented brand assets.
+- No government contracting, SAM.gov, federal proposal, Valor, or contract logic.
+- No secrets committed.
