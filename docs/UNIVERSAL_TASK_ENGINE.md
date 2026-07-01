@@ -23,9 +23,3 @@ Safety guarantees:
 
 Executive goals and initiatives can link universal tasks by ID. The planning engine detects blocked or overdue linked tasks and surfaces recommended next actions, but it never resolves blockers or completes tasks automatically.
 - No automatic source approval.
-
-## Phase 55 Proposal Task Links
-
-Proposal workspaces can link universal tasks through local IDs. Operator and Proposal Prep queues can surface missing sections, missing evidence, compliance gaps, review assignments, and blocked proposal tasks.
-
-Task links remain advisory. The task engine does not submit proposals, approve Executive gates, approve compliance, browse, email, or sync CRM records.

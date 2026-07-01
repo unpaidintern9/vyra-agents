@@ -737,7 +737,7 @@ function taskFor(prospect, need, assignedAgent, status, priority = 'Medium', app
   };
 }
 
-export function readOpportunities() {
+function readOpportunities() {
   ensureCrmRoot();
   if (!existsSync(crmPath)) {
     const seeded = salesProspects.slice(0, 8).map(opportunityFromProspect);
@@ -752,7 +752,7 @@ function writeOpportunities(opportunities) {
   writeFileSync(crmPath, `${JSON.stringify(opportunities, null, 2)}\n`);
 }
 
-export function readResearchStore() {
+function readResearchStore() {
   ensureCrmRoot();
   if (!existsSync(researchPath)) {
     const seeded = seedResearchStore(readOpportunities());
@@ -767,7 +767,7 @@ function writeResearchStore(store) {
   writeFileSync(researchPath, `${JSON.stringify(store, null, 2)}\n`);
 }
 
-export function readWorkflowStore() {
+function readWorkflowStore() {
   ensureCrmRoot();
   if (!existsSync(workflowPath)) {
     const seeded = seedWorkflowStore(readOpportunities(), readResearchStore());

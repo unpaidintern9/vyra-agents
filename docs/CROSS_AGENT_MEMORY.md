@@ -45,9 +45,3 @@ Task links do not resolve memory automatically. They preserve auditability and k
 ## Phase 54 Planning Confidence
 
 Executive planning uses shared memory conflicts, risky facts, and confidence signals as advisory blockers. Low-confidence facts can increase attention scores, but the planning engine never overwrites memory or resolves conflicts automatically.
-
-## Phase 55 Proposal References
-
-Proposal workspaces reference shared memory organizations, opportunities, facts, reports, tasks, workflows, research intake, Executive goals, decisions, and approvals instead of duplicating those entities.
-
-Proposal references preserve auditability. The memory layer does not approve proposal content, resolve compliance, browse, email, sync CRM data, or submit proposals.

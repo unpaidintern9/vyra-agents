@@ -3,7 +3,6 @@ import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness
 import type { CrossAgentCollaborationGraph, CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
 import type { ExecutivePlanningSummary } from '../../runtime/executivePlanning';
-import type { ProposalDashboardSummary } from '../../runtime/proposalEngine';
 
 export type LeadType = 'gym' | 'coach' | 'organization' | 'referral';
 export type PipelineStage =
@@ -1142,7 +1141,6 @@ export interface SalesPageProps {
   onRunProspectSearch(_filters: SalesRecommendedSearchFilters): void;
   onRunSalesResearch(): void;
   proposalDrafts: SalesProposalDraft[];
-  proposalEngine: ProposalDashboardSummary;
   proposalSummary: SalesProposalSummary;
   proposals: ProposalPrep[];
   opportunities: SalesOpportunity[];
