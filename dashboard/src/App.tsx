@@ -12,6 +12,7 @@ import {
   ListChecks,
   Network,
   RefreshCcw,
+  Search,
   Settings,
   ShieldCheck,
   Trash2,
@@ -47,6 +48,12 @@ import {
   moveSalesOpportunityStage,
   summarizeSalesOpportunities,
 } from './agents/sales/salesOpportunityEngine';
+import {
+  createInitialSalesEnrichmentHistory,
+  createInitialSalesResearchIntake,
+  createInitialSalesResearchSources,
+  summarizeSalesResearchIntelligence,
+} from './agents/sales/salesResearchIntelligence';
 import {
   buildOrganizationIntelligenceReport,
   buildOrganizationTimelineReport,
@@ -85,7 +92,10 @@ import type {
   SalesExecutionStatus,
   SalesOpportunity,
   SalesOpportunityStage,
+  SalesEnrichmentHistoryItem,
+  SalesResearchIntakeItem,
   SalesResearchDossier,
+  SalesResearchSource,
 } from './agents/sales/salesTypes';
 import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
 import { EmptyState } from './components/EmptyState';
@@ -251,6 +261,15 @@ function App() {
   const [salesResearchDossiers, setSalesResearchDossiers] = useState(() =>
     loadLocalState<SalesResearchDossier[]>(localStorageKeys.salesProspectDossiers, () => []),
   );
+  const [salesResearchSources] = useState(() =>
+    loadLocalState<SalesResearchSource[]>(localStorageKeys.salesResearchSources, createInitialSalesResearchSources),
+  );
+  const [salesResearchIntake] = useState(() =>
+    loadLocalState<SalesResearchIntakeItem[]>(localStorageKeys.salesResearchIntake, () => createInitialSalesResearchIntake(salesOpportunities)),
+  );
+  const [salesResearchEnrichmentHistory] = useState(() =>
+    loadLocalState<SalesEnrichmentHistoryItem[]>(localStorageKeys.salesResearchEnrichmentHistory, () => createInitialSalesEnrichmentHistory(salesOpportunities)),
+  );
   const [lastSalesExecutionStatus, setLastSalesExecutionStatus] = useState<SalesExecutionStatus>({
     detail: 'No local Sales execution run recorded in this dashboard session.',
     generatedAt: null,
@@ -349,6 +368,10 @@ function App() {
     [salesActivities, salesFollowUpQueue, salesLeads, salesProposalDrafts, salesProposals, salesProspectIntakes, salesResearchDossiers],
   );
   const salesIntelligenceSummary = useMemo(() => summarizeSalesIntelligenceGraph(salesIntelligenceGraph), [salesIntelligenceGraph]);
+  const salesResearchIntelligenceSummary = useMemo(
+    () => summarizeSalesResearchIntelligence(salesResearchSources, salesResearchIntake, salesResearchEnrichmentHistory),
+    [salesResearchEnrichmentHistory, salesResearchIntake, salesResearchSources],
+  );
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
   const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
   const syncStatus = useMemo(
@@ -418,6 +441,9 @@ function App() {
   useEffect(() => saveLocalState(localStorageKeys.salesProspectResearch, salesProspectResearch), [salesProspectResearch]);
   useEffect(() => saveLocalState(localStorageKeys.salesProspectIntakes, salesProspectIntakes), [salesProspectIntakes]);
   useEffect(() => saveLocalState(localStorageKeys.salesProspectDossiers, salesResearchDossiers), [salesResearchDossiers]);
+  useEffect(() => saveLocalState(localStorageKeys.salesResearchSources, salesResearchSources), [salesResearchSources]);
+  useEffect(() => saveLocalState(localStorageKeys.salesResearchIntake, salesResearchIntake), [salesResearchIntake]);
+  useEffect(() => saveLocalState(localStorageKeys.salesResearchEnrichmentHistory, salesResearchEnrichmentHistory), [salesResearchEnrichmentHistory]);
   useEffect(() => saveLocalState(localStorageKeys.workflowResults, workflowRuns), [workflowRuns]);
   useEffect(() => saveLocalState(localStorageKeys.migrationDryRuns, migrationDryRuns), [migrationDryRuns]);
   useEffect(() => saveLocalState(localStorageKeys.approvalHistory, approvalHistory), [approvalHistory]);
@@ -1441,6 +1467,7 @@ function App() {
     salesIntegration,
     salesIntelligenceSummary,
     salesOpportunitySummary,
+    salesResearchIntelligenceSummary,
     salesScoringSummary,
     salesSummary,
     sharedTasks: sharedTaskSummary,
@@ -1479,6 +1506,7 @@ function App() {
     releaseShipPlans,
     repositoryIntelligence,
     salesLocalCrm: salesOpportunitySummary,
+    salesResearchIntelligence: salesResearchIntelligenceSummary,
     sharedTasks: sharedTaskSummary,
   });
   const recordOperatorRun = () => setOperatorDashboard((current) => ({ ...current, lastRun: new Date().toISOString() }));
@@ -1687,6 +1715,10 @@ function App() {
             prospectDossiers={salesResearchDossiers}
             prospectIntakes={salesProspectIntakes}
             prospectResearch={salesProspectResearch}
+            researchEnrichmentHistory={salesResearchEnrichmentHistory}
+            researchIntake={salesResearchIntake}
+            researchIntelligenceSummary={salesResearchIntelligenceSummary}
+            researchSources={salesResearchSources}
             scores={salesScores}
             salesIntelligenceGraph={salesIntelligenceGraph}
             salesIntelligenceSummary={salesIntelligenceSummary}
@@ -1770,6 +1802,7 @@ function App() {
             salesAgentTeamSummary={salesAgentTeamSummary}
             salesIntelligenceSummary={salesIntelligenceSummary}
             salesProspectDossierSummary={salesProspectDossierSummary}
+            salesResearchIntelligenceSummary={salesResearchIntelligenceSummary}
             salesProposalSummary={salesProposalSummary}
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
@@ -1998,6 +2031,9 @@ function OperatorPage({
         <Metric icon={<Workflow size={20} />} label="Local CRM Opps" value={String(operator.salesLocalCrm.totalOpportunities)} />
         <Metric icon={<FileClock size={20} />} label="Pending Follow-Ups" value={String(operator.salesLocalCrm.awaitingFollowUp)} />
         <Metric icon={<FileText size={20} />} label="Proposal Queue" value={String(operator.salesLocalCrm.proposalReady)} />
+        <Metric icon={<Search size={20} />} label="Research Backlog" value={String(operator.salesResearchIntelligence.researchBacklog)} />
+        <Metric icon={<ShieldCheck size={20} />} label="Approved Sources" value={String(operator.salesResearchIntelligence.approvedSources)} />
+        <Metric icon={<AlertTriangle size={20} />} label="Duplicate Review" value={String(operator.salesResearchIntelligence.duplicateAlerts)} />
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -2050,6 +2086,22 @@ function OperatorPage({
             <Fact label="Proposal Tasks" value={String(operator.salesLocalCrm.proposalReady)} />
             <Fact label="Proposal Sent" value={String(operator.salesLocalCrm.proposalSent)} />
             <Fact label="Average Lead Score" value={String(operator.salesLocalCrm.averageLeadScore)} />
+          </div>
+        </Panel>
+
+        <Panel title="Sales Research Intelligence" icon={<Search size={18} />} wide>
+          <p className="panel-description">
+            Read-only Operator view of source approvals, intake review, duplicate detection, verification, and enrichment progress. No source is auto-approved and no merge is automatic.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Intake Queue" value={String(operator.salesResearchIntelligence.researchBacklog)} />
+            <Fact label="Pending Reviews" value={String(operator.salesResearchIntelligence.pendingReviews)} />
+            <Fact label="Duplicate Review Queue" value={String(operator.salesResearchIntelligence.duplicateAlerts)} />
+            <Fact label="Verification Tasks" value={String(operator.salesResearchIntelligence.verificationQueue)} />
+            <Fact label="Enrichment Progress" value={`${operator.salesResearchIntelligence.enrichmentProgress}%`} />
+            <Fact label="Rejected Research Sources" value={String(operator.salesResearchIntelligence.rejectedSources)} />
+            <Fact label="Approved Sources" value={String(operator.salesResearchIntelligence.approvedSources)} />
+            <Fact label="Confidence Trend" value={`${operator.salesResearchIntelligence.confidenceTrend}%`} />
           </div>
         </Panel>
 

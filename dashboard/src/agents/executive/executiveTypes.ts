@@ -21,6 +21,7 @@ import type {
   SalesIntelligenceSummary,
   SalesProposalSummary,
   SalesProspectDossierSummary,
+  SalesResearchIntelligenceSummary,
   SalesScoringSummary,
   SalesSummary,
 } from '../sales/salesTypes';
@@ -105,6 +106,7 @@ export interface ExecutiveSummary {
   salesIntelligenceSummary?: SalesIntelligenceSummary;
   salesProposalSummary?: SalesProposalSummary;
   salesProspectDossierSummary?: SalesProspectDossierSummary;
+  salesResearchIntelligenceSummary?: SalesResearchIntelligenceSummary;
   salesScoringSummary?: SalesScoringSummary;
   connectorReadiness?: ConnectorReadinessSummary;
   email?: GmailEmailDashboardSummary;
@@ -131,6 +133,7 @@ export interface ExecutiveDashboardProps {
   salesIntelligenceSummary?: SalesIntelligenceSummary;
   salesProposalSummary?: SalesProposalSummary;
   salesProspectDossierSummary?: SalesProspectDossierSummary;
+  salesResearchIntelligenceSummary?: SalesResearchIntelligenceSummary;
   salesScoringSummary?: SalesScoringSummary;
   salesSummary?: SalesSummary;
   connectorReadiness?: ConnectorReadinessSummary;

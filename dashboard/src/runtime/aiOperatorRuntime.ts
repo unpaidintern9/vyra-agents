@@ -1,5 +1,5 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
-import type { SalesOpportunityPipelineSummary } from '../agents/sales/salesTypes';
+import type { SalesOpportunityPipelineSummary, SalesResearchIntelligenceSummary } from '../agents/sales/salesTypes';
 import { buildDashboardConnectorReadiness, type ConnectorReadinessSummary } from './connectorReadiness';
 import { defaultEngineeringTaskSummary, type EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
 import { buildDashboardExecutiveAutomationSummary, type ExecutiveAutomationSummary } from './executiveAutomation';
@@ -49,6 +49,7 @@ export interface AiOperatorDashboardSnapshot {
   releaseReadiness: ReleaseReadinessDashboardSummary;
   releaseShipPlans: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence: RepositoryIntelligenceDashboardSummary;
+  salesResearchIntelligence: SalesResearchIntelligenceSummary;
   salesLocalCrm: SalesOpportunityPipelineSummary;
   safetyMode: string;
   sharedTasks: SharedTaskDashboardSummary;
@@ -172,6 +173,18 @@ export const aiOperatorCommands = [
   'npm run sales:restore',
   'npm run sales:merge',
   'npm run sales:dashboard',
+  'npm run sales:sources',
+  'npm run sales:add-source',
+  'npm run sales:update-source',
+  'npm run sales:disable-source',
+  'npm run sales:approve-source',
+  'npm run sales:reject-source',
+  'npm run sales:intake',
+  'npm run sales:verify',
+  'npm run sales:duplicates',
+  'npm run sales:enrich',
+  'npm run sales:research-report',
+  'npm run sales:sources-report',
   'npm run reports:validate',
   'npm run sales:validate',
   'npm run tasks:status',
@@ -314,6 +327,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   releaseShipPlans?: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   salesLocalCrm?: SalesOpportunityPipelineSummary;
+  salesResearchIntelligence?: SalesResearchIntelligenceSummary;
   sharedTasks?: SharedTaskDashboardSummary;
 }): AiOperatorDashboardSnapshot {
   const metadata = buildAiOperatorMetadata(input.integrationMode);
@@ -339,6 +353,16 @@ export function buildAiOperatorDashboardSnapshot(input: {
     proposalSent: 0,
     totalOpportunities: 0,
     won: 0,
+  };
+  const salesResearchIntelligence = input.salesResearchIntelligence ?? {
+    approvedSources: 0,
+    confidenceTrend: 0,
+    duplicateAlerts: 0,
+    enrichmentProgress: 0,
+    pendingReviews: 0,
+    rejectedSources: 0,
+    researchBacklog: 0,
+    verificationQueue: 0,
   };
   const releaseReadiness =
     input.releaseReadiness ??
@@ -451,6 +475,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
     releaseReadiness,
     releaseShipPlans,
     repositoryIntelligence,
+    salesResearchIntelligence,
     salesLocalCrm,
     safetyMode,
     sharedTasks,

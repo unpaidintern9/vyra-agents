@@ -43,6 +43,8 @@ The Executive Agent does not duplicate Engineering or Migration logic. Those age
 
 Phase 47 adds read-only Local CRM visibility. Executive summaries include Sales pipeline health, local CRM opportunity health, high-priority opportunities, stalled/follow-up opportunities, executive approvals, and proposal queue signals without writing to `vyraapp.fit` or any external CRM.
 
+Phase 48 adds read-only Research Intelligence visibility. Executive summaries include pending source/intake reviews, approved/rejected source counts, backlog, verification queue, duplicate alerts, confidence trend, and enrichment progress.
+
 ## Navigation
 
 Department health rows and priority actions deep-link into existing dashboard pages:

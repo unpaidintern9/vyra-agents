@@ -31,6 +31,7 @@ export default function ExecutiveDashboard({
   salesIntegration,
   salesProposalSummary,
   salesProspectDossierSummary,
+  salesResearchIntelligenceSummary,
   salesScoringSummary,
   salesSummary,
   sharedTaskSummary,
@@ -67,6 +68,7 @@ export default function ExecutiveDashboard({
       <ExecutiveOverview summary={summary} />
       <section className="dashboard-grid executive-dashboard-grid">
         <ExecutivePriorities onNavigate={onNavigate} priorities={summary.priorities} />
+        {salesResearchIntelligenceSummary ? <ExecutiveResearchIntelligencePanel summary={salesResearchIntelligenceSummary} /> : null}
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
         {summary.executiveEmailBriefing ? <ExecutiveEmailBriefingPanel briefing={summary.executiveEmailBriefing} /> : null}
         <ExecutiveTimeline timeline={summary.timeline} />
@@ -80,6 +82,55 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveResearchIntelligencePanel({ summary }: { summary: NonNullable<ExecutiveDashboardProps['salesResearchIntelligenceSummary']> }) {
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Research Intelligence</h2>
+        </div>
+        <span>read only</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact">
+          <span>Pending Reviews</span>
+          <strong>{summary.pendingReviews}</strong>
+        </div>
+        <div className="fact">
+          <span>Approved Sources</span>
+          <strong>{summary.approvedSources}</strong>
+        </div>
+        <div className="fact">
+          <span>Rejected Sources</span>
+          <strong>{summary.rejectedSources}</strong>
+        </div>
+        <div className="fact">
+          <span>Research Backlog</span>
+          <strong>{summary.researchBacklog}</strong>
+        </div>
+        <div className="fact">
+          <span>Duplicate Alerts</span>
+          <strong>{summary.duplicateAlerts}</strong>
+        </div>
+        <div className="fact">
+          <span>Verification Queue</span>
+          <strong>{summary.verificationQueue}</strong>
+        </div>
+        <div className="fact">
+          <span>Enrichment Progress</span>
+          <strong>{summary.enrichmentProgress}%</strong>
+        </div>
+        <div className="fact">
+          <span>Confidence Trend</span>
+          <strong>{summary.confidenceTrend}%</strong>
+        </div>
+      </div>
+      <p className="subtle-note">Executive view is read-only. No source approval, duplicate merge, browsing, messaging, CRM sync, or proposal submission occurs here.</p>
+    </section>
   );
 }
 

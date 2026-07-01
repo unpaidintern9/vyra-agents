@@ -94,6 +94,27 @@ export type SalesOpportunityTimelineType =
   | 'follow_up_scheduled'
   | 'manual_action'
   | 'executive_review';
+export type SalesResearchSourceCategory =
+  | 'Manual Research'
+  | 'Public Website'
+  | 'Government'
+  | 'Business Directory'
+  | 'Chamber of Commerce'
+  | 'LinkedIn (manual reference only)'
+  | 'Industry Association'
+  | 'State Registry'
+  | 'Federal Registry'
+  | 'Local File'
+  | 'CSV Import'
+  | 'Internal Notes'
+  | 'Existing Reports'
+  | 'User Generated';
+export type SalesResearchSourceApprovalStatus = 'Draft' | 'Pending Review' | 'Approved' | 'Rejected' | 'Disabled' | 'Archived';
+export type SalesResearchSourceMode = 'Manual' | 'Semi-Automatic';
+export type SalesResearchScope = 'Local' | 'External';
+export type SalesResearchReviewStatus = 'pending_review' | 'reviewed' | 'approved' | 'rejected';
+export type SalesResearchEvidenceLevel = 'low' | 'medium' | 'high';
+export type SalesResearchRiskRating = 'low' | 'medium' | 'high';
 export type SalesIntelligenceNodeType =
   | 'prospect'
   | 'organization'
@@ -237,6 +258,82 @@ export interface SalesOpportunityPipelineSummary {
   proposalSent: number;
   totalOpportunities: number;
   won: number;
+}
+
+export interface SalesResearchSource {
+  approvalStatus: SalesResearchSourceApprovalStatus;
+  authenticationRequired: boolean;
+  category: SalesResearchSourceCategory;
+  confidenceScore: number;
+  createdAt: string;
+  description: string;
+  enabled: boolean;
+  id: string;
+  lastUsedAt: string | null;
+  mode: SalesResearchSourceMode;
+  name: string;
+  notes: string[];
+  scope: SalesResearchScope;
+  status: 'active' | 'inactive' | 'needs_review';
+  trustScore: number;
+  updatedAt: string;
+}
+
+export interface SalesResearchIntakeItem {
+  analyst: string;
+  company: string;
+  completeness: number;
+  confidence: number;
+  date: string;
+  duplicateDetection: SalesDuplicateCandidate[];
+  evidenceLevel: SalesResearchEvidenceLevel;
+  humanReviewRequired: boolean;
+  id: string;
+  missingInformation: string[];
+  opportunityId: string;
+  rawNotes: string;
+  researchType: string;
+  reviewStatus: SalesResearchReviewStatus;
+  riskRating: SalesResearchRiskRating;
+  sourceId: string;
+  suggestedActions: string[];
+  summary: string;
+  verificationStatus: 'unverified' | 'partially_verified' | 'verified';
+}
+
+export interface SalesDuplicateCandidate {
+  confidence: number;
+  detectedAt: string;
+  fields: string[];
+  id: string;
+  reason: string;
+  suggestedMergeAction: string;
+  targetId: string;
+  targetType: 'company' | 'contact' | 'website' | 'phone' | 'email' | 'opportunity';
+}
+
+export interface SalesEnrichmentHistoryItem {
+  confidence: number;
+  field: string;
+  id: string;
+  newValue: string;
+  operator: string;
+  opportunityId: string;
+  previousValue: string;
+  reason: string;
+  sourceId: string;
+  timestamp: string;
+}
+
+export interface SalesResearchIntelligenceSummary {
+  approvedSources: number;
+  confidenceTrend: number;
+  duplicateAlerts: number;
+  enrichmentProgress: number;
+  pendingReviews: number;
+  rejectedSources: number;
+  researchBacklog: number;
+  verificationQueue: number;
 }
 
 export interface SalesGym {
@@ -595,6 +692,10 @@ export interface SalesPageProps {
   prospectDossiers: SalesResearchDossier[];
   prospectIntakes: SalesProspectIntake[];
   prospectResearch: SalesProspectResearchRecord[];
+  researchEnrichmentHistory: SalesEnrichmentHistoryItem[];
+  researchIntake: SalesResearchIntakeItem[];
+  researchIntelligenceSummary: SalesResearchIntelligenceSummary;
+  researchSources: SalesResearchSource[];
   scores: LeadScore[];
   salesIntelligenceGraph: SalesIntelligenceGraph;
   salesIntelligenceSummary: SalesIntelligenceSummary;

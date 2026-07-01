@@ -8,6 +8,8 @@ Phase 46A adds local Sales execution: the agent can run prospect searches, gener
 
 Phase 47 adds a complete local CRM and opportunity management engine. It is independent of the existing `vyraapp.fit` Sales CRM and should remain useful even if that CRM is removed.
 
+Phase 48 adds a local Research Source Manager and Research Intake Pipeline. It remains independent of `vyraapp.fit` and stores all source, intake, verification, duplicate, enrichment, and review records under the local Sales opportunity folder.
+
 ## Current Scope
 
 The Sales Agent MVP includes:
@@ -44,6 +46,8 @@ The Sales Agent MVP includes:
 - Execution report exports for pipeline, prospect research, company dossier, outreach prep, follow-up, ICP fit, proposal prep, executive summary, lead scoring, follow-up queue, and weighted pipeline.
 - CLI execution commands for local Sales status, research, reports, outreach drafts, shared tasks, and validation.
 - Local CRM opportunity management with pipeline overview, Kanban, table, detail view, immutable timelines, deterministic scoring, follow-up planning, proposal readiness, archive/restore/merge CLI actions, and Executive/Operator read-only summaries.
+- Research Source Manager with source categories, trust/confidence scoring, approval workflow, and source utilization reports.
+- Research Intake Pipeline with verification records, duplicate candidates, enrichment history, review history, confidence trends, and Executive/Operator/Sales read-only dashboards.
 
 ## Local Storage
 
@@ -55,10 +59,13 @@ Sales records persist in browser localStorage:
 - `vyra-agents:sales-prospect-research`
 - `vyra-agents:sales-prospect-intakes`
 - `vyra-agents:sales-prospect-dossiers`
+- `vyra-agents:sales-research-sources`
+- `vyra-agents:sales-research-intake`
+- `vyra-agents:sales-research-enrichment-history`
 
 These are local browser records, not CRM records.
 
-CLI reports are written to `reports/agents/sales`. CLI shared tasks and draft emails are written under `codex-agent-threads/shared`.
+CLI reports are written to `reports/agents/sales`. CLI shared tasks, draft emails, local CRM records, and research intelligence records are written under `codex-agent-threads/shared`.
 
 ## Pipeline Stages
 
@@ -161,3 +168,22 @@ Use these local commands:
 - `npm run sales:validate`
 
 See `docs/SALES_AGENT_EXECUTION.md`, `docs/SALES_RESEARCH_WORKFLOW.md`, `docs/SALES_REPORTS.md`, and `docs/SALES_SAFE_WEB_RESEARCH.md`.
+
+## Phase 48 Research Intelligence
+
+Use these local commands:
+
+- `npm run sales:sources`
+- `npm run sales:add-source`
+- `npm run sales:update-source`
+- `npm run sales:disable-source`
+- `npm run sales:approve-source`
+- `npm run sales:reject-source`
+- `npm run sales:intake`
+- `npm run sales:verify`
+- `npm run sales:duplicates`
+- `npm run sales:enrich`
+- `npm run sales:research-report`
+- `npm run sales:sources-report`
+
+See `docs/RESEARCH_SOURCES.md` and `docs/RESEARCH_INTAKE.md`.

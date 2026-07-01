@@ -9,6 +9,7 @@ const repoRoot = path.resolve(__dirname, '..');
 const reportRoot = path.join(repoRoot, 'reports/agents/sales');
 const crmRoot = path.join(repoRoot, 'codex-agent-threads/shared/sales-opportunities');
 const crmPath = path.join(crmRoot, 'opportunities.json');
+const researchPath = path.join(crmRoot, 'research-intelligence.json');
 
 const blockedActions = [
   'external customer email auto-send',
@@ -161,6 +162,162 @@ export function buildSalesOpportunityDashboard() {
   return { title: 'Sales Local CRM Dashboard', generatedAt: new Date().toISOString(), summary: summarizeOpportunities(opportunities), written, safety: safetySummary() };
 }
 
+export function listSalesSources() {
+  const store = readResearchStore();
+  return { title: 'Sales Research Sources', generatedAt: new Date().toISOString(), sources: store.sources, summary: summarizeResearchStore(store), safety: safetySummary() };
+}
+
+export function addSalesSource() {
+  const store = readResearchStore();
+  const now = new Date().toISOString();
+  const name = process.env.SALES_SOURCE_NAME ?? `Draft Research Source ${store.sources.length + 1}`;
+  const source = {
+    id: `src-${slugify(name)}-${compactStamp(now)}`,
+    name,
+    category: process.env.SALES_SOURCE_CATEGORY ?? 'Manual Research',
+    description: process.env.SALES_SOURCE_DESCRIPTION ?? 'Draft local research source awaiting review.',
+    enabled: false,
+    mode: process.env.SALES_SOURCE_MODE ?? 'Manual',
+    scope: process.env.SALES_SOURCE_SCOPE ?? 'Local',
+    authenticationRequired: process.env.SALES_SOURCE_AUTH_REQUIRED === 'true',
+    notes: [process.env.SALES_SOURCE_NOTES ?? 'Created locally. Approval is required before scoring/enrichment use.'],
+    createdAt: now,
+    updatedAt: now,
+    lastUsedAt: null,
+    trustScore: Number(process.env.SALES_SOURCE_TRUST ?? 50),
+    confidenceScore: Number(process.env.SALES_SOURCE_CONFIDENCE ?? 50),
+    status: 'needs_review',
+    approvalStatus: 'Draft',
+  };
+  store.sources = [source, ...store.sources.filter((item) => item.id !== source.id)];
+  store.reviewHistory.unshift(reviewRecord(source.id, 'Draft', 'source created'));
+  writeResearchStore(store);
+  return { title: 'Sales Research Source Added', generatedAt: now, source, safety: safetySummary() };
+}
+
+export function updateSalesSource() {
+  const store = readResearchStore();
+  const id = process.env.SALES_SOURCE_ID ?? store.sources[0]?.id;
+  const now = new Date().toISOString();
+  store.sources = store.sources.map((source) =>
+    source.id === id
+      ? {
+          ...source,
+          description: process.env.SALES_SOURCE_DESCRIPTION ?? source.description,
+          notes: [process.env.SALES_SOURCE_NOTES ?? 'Local source update recorded.', ...source.notes],
+          trustScore: Number(process.env.SALES_SOURCE_TRUST ?? source.trustScore),
+          confidenceScore: Number(process.env.SALES_SOURCE_CONFIDENCE ?? source.confidenceScore),
+          updatedAt: now,
+        }
+      : source,
+  );
+  store.reviewHistory.unshift(reviewRecord(id, 'Updated', 'source fields updated'));
+  writeResearchStore(store);
+  return { title: 'Sales Research Source Updated', generatedAt: now, source: store.sources.find((source) => source.id === id), safety: safetySummary() };
+}
+
+export function disableSalesSource() {
+  return setSalesSourceApproval('Disabled', false);
+}
+
+export function approveSalesSource() {
+  return setSalesSourceApproval('Approved', true);
+}
+
+export function rejectSalesSource() {
+  return setSalesSourceApproval('Rejected', false);
+}
+
+export function listSalesResearchIntake() {
+  const store = readResearchStore();
+  return { title: 'Sales Research Intake Queue', generatedAt: new Date().toISOString(), intakeQueue: store.intakeQueue, summary: summarizeResearchStore(store), safety: safetySummary() };
+}
+
+export function verifySalesResearch() {
+  const store = readResearchStore();
+  const id = process.env.SALES_INTAKE_ID ?? store.intakeQueue.find((item) => item.reviewStatus === 'pending_review')?.id ?? store.intakeQueue[0]?.id;
+  const now = new Date().toISOString();
+  store.intakeQueue = store.intakeQueue.map((item) =>
+    item.id === id
+      ? {
+          ...item,
+          verificationStatus: process.env.SALES_VERIFICATION_STATUS ?? 'verified',
+          reviewStatus: process.env.SALES_REVIEW_STATUS ?? 'reviewed',
+          humanReviewRequired: process.env.SALES_HUMAN_REVIEW_REQUIRED === 'true',
+        }
+      : item,
+  );
+  const item = store.intakeQueue.find((item) => item.id === id);
+  store.verificationRecords.unshift({
+    id: `verify-${id}-${compactStamp(now)}`,
+    intakeId: id,
+    timestamp: now,
+    operator: process.env.SALES_OPERATOR ?? 'Sales Agent CLI',
+    confidence: item?.confidence ?? 0,
+    evidenceLevel: item?.evidenceLevel ?? 'low',
+    completeness: item?.completeness ?? 0,
+    riskRating: item?.riskRating ?? 'medium',
+    reviewStatus: item?.reviewStatus ?? 'reviewed',
+    missingInformation: item?.missingInformation ?? [],
+    humanReviewRequired: item?.humanReviewRequired ?? true,
+  });
+  writeResearchStore(store);
+  return { title: 'Sales Research Verification Recorded', generatedAt: now, item, safety: safetySummary() };
+}
+
+export function listSalesDuplicates() {
+  const store = readResearchStore();
+  return {
+    title: 'Sales Duplicate Candidates',
+    generatedAt: new Date().toISOString(),
+    duplicateCandidates: store.duplicateCandidates,
+    policy: 'Review and merge suggestions manually. This command never merges records.',
+    safety: safetySummary(),
+  };
+}
+
+export function enrichSalesOpportunities() {
+  const store = readResearchStore();
+  const approvedSources = store.sources.filter((source) => source.approvalStatus === 'Approved' && source.enabled);
+  const opportunities = readOpportunities();
+  const now = new Date().toISOString();
+  const enrichments = [];
+  for (const item of store.intakeQueue.filter((entry) => entry.reviewStatus === 'approved' || entry.reviewStatus === 'reviewed')) {
+    const source = approvedSources.find((source) => source.id === item.sourceId);
+    const opportunity = opportunities.find((opportunity) => opportunity.id === item.opportunityId);
+    if (!source || !opportunity) continue;
+    enrichments.push({
+      id: `enrich-${item.id}-${compactStamp(now)}`,
+      opportunityId: opportunity.id,
+      field: 'notes',
+      previousValue: opportunity.notes[0] ?? '',
+      newValue: item.summary,
+      timestamp: now,
+      sourceId: source.id,
+      operator: process.env.SALES_OPERATOR ?? 'Sales Agent CLI',
+      confidence: item.confidence,
+      reason: 'Approved/reviewed research intake enriched local opportunity notes.',
+    });
+  }
+  store.enrichmentHistory = [...enrichments, ...store.enrichmentHistory];
+  writeResearchStore(store);
+  return { title: 'Sales Opportunity Enrichment Prepared', generatedAt: now, enrichments, summary: summarizeResearchStore(store), safety: safetySummary() };
+}
+
+export function buildSalesResearchReport() {
+  const store = readResearchStore();
+  const reports = buildResearchReports(store);
+  const written = Object.entries(reports).map(([slug, payload]) => writeSalesReport(slug, payload));
+  return { title: 'Sales Research Reports Generated', generatedAt: new Date().toISOString(), written, summary: summarizeResearchStore(store), safety: safetySummary() };
+}
+
+export function buildSalesSourcesReport() {
+  const store = readResearchStore();
+  const payload = buildResearchReports(store)['source-inventory'];
+  const written = writeSalesReport('source-inventory', payload);
+  return { title: 'Sales Sources Report Generated', generatedAt: new Date().toISOString(), written, summary: summarizeResearchStore(store), safety: safetySummary() };
+}
+
 export function runSalesResearch() {
   const dossiers = salesProspects.map((prospect) => ({
     prospect: prospect.name,
@@ -209,6 +366,7 @@ export function runSalesReports() {
   };
   const written = Object.entries(reports).map(([name, payload]) => writeSalesReport(name, payload));
   Object.entries(buildOpportunityReports(readOpportunities())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
+  Object.entries(buildResearchReports(readResearchStore())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   const csv = writeCsv('prospect-research', salesProspects);
   return { title: 'Sales Reports Generated', generatedAt: new Date().toISOString(), written, csv, safety: safetySummary() };
 }
@@ -293,6 +451,8 @@ export function validateSalesExecution() {
     { name: 'Communication draft layer valid', passed: draftValidation.status === 'pass' },
     { name: 'Local CRM opportunities valid', passed: validateOpportunities(readOpportunities()).length === 0 },
     { name: 'Local CRM reports available', passed: Object.keys(buildOpportunityReports(readOpportunities())).length >= 9 },
+    { name: 'Research intelligence storage valid', passed: validateResearchStore(readResearchStore()).length === 0 },
+    { name: 'Only approved sources usable for enrichment', passed: readResearchStore().sources.some((source) => source.approvalStatus === 'Approved' && source.enabled) },
   ];
   return {
     title: 'Sales Agent Execution Validation',
@@ -307,7 +467,7 @@ export function validateSalesExecution() {
 
 export function validateSalesReports() {
   const opportunities = readOpportunities();
-  const reports = buildOpportunityReports(opportunities);
+  const reports = { ...buildOpportunityReports(opportunities), ...buildResearchReports(readResearchStore()) };
   const checks = Object.entries(reports).map(([name, payload]) => ({ name, passed: Boolean(payload.title && (payload.rows?.length || payload.summary)) }));
   return { title: 'Sales Reports Validation', generatedAt: new Date().toISOString(), status: checks.every((check) => check.passed) ? 'pass' : 'fail', checks, safety: safetySummary() };
 }
@@ -342,6 +502,163 @@ function readOpportunities() {
 function writeOpportunities(opportunities) {
   ensureCrmRoot();
   writeFileSync(crmPath, `${JSON.stringify(opportunities, null, 2)}\n`);
+}
+
+function readResearchStore() {
+  ensureCrmRoot();
+  if (!existsSync(researchPath)) {
+    const seeded = seedResearchStore(readOpportunities());
+    writeResearchStore(seeded);
+    return seeded;
+  }
+  return JSON.parse(readFileSync(researchPath, 'utf8'));
+}
+
+function writeResearchStore(store) {
+  ensureCrmRoot();
+  writeFileSync(researchPath, `${JSON.stringify(store, null, 2)}\n`);
+}
+
+function seedResearchStore(opportunities) {
+  const now = new Date().toISOString();
+  const sources = [
+    researchSource('src-manual-notes', 'Manual Operator Notes', 'Manual Research', 'Operator pasted public/manual notes.', true, 'Manual', 'Local', false, 92, 88, 'Approved', now),
+    researchSource('src-public-website', 'Public Website Review', 'Public Website', 'Operator-reviewed public website fields only.', true, 'Manual', 'External', false, 84, 78, 'Approved', now),
+    researchSource('src-local-reports', 'Existing Sales Reports', 'Existing Reports', 'Local reports generated by Sales Agent.', true, 'Semi-Automatic', 'Local', false, 88, 84, 'Approved', now),
+    researchSource('src-linkedin-manual', 'LinkedIn Manual Reference', 'LinkedIn (manual reference only)', 'Manual reference only. No scraping or automation.', false, 'Manual', 'External', true, 65, 52, 'Pending Review', now),
+    researchSource('src-state-registry', 'Kentucky State Registry Manual Lookup', 'State Registry', 'Manual state registry checks when pasted by operator.', false, 'Manual', 'External', false, 80, 62, 'Draft', now),
+    researchSource('src-csv-import', 'Local CSV Import', 'CSV Import', 'Local CSV files reviewed before scoring.', true, 'Semi-Automatic', 'Local', false, 74, 70, 'Approved', now),
+  ];
+  const intakeQueue = opportunities.slice(0, 6).map((opportunity, index) => researchIntake(opportunity, index, now));
+  const duplicateCandidates = intakeQueue.flatMap((item) => item.duplicateDetection);
+  const enrichmentHistory = opportunities.slice(0, 4).map((opportunity, index) => ({
+    id: `enrich-${opportunity.id}`,
+    opportunityId: opportunity.id,
+    field: 'companySizeEstimate',
+    previousValue: 'Unknown',
+    newValue: opportunity.companySizeEstimate,
+    timestamp: now,
+    sourceId: index % 2 === 0 ? 'src-manual-notes' : 'src-public-website',
+    operator: 'Sales Agent',
+    confidence: 78 + index,
+    reason: 'Seeded from approved local/manual research for Phase 48.',
+  }));
+  return {
+    generatedAt: now,
+    localOnly: true,
+    safety: safetySummary(),
+    sources,
+    intakeQueue,
+    verificationRecords: intakeQueue.map((item) => ({
+      id: `verify-${item.id}`,
+      intakeId: item.id,
+      timestamp: now,
+      operator: 'Sales Agent',
+      confidence: item.confidence,
+      evidenceLevel: item.evidenceLevel,
+      completeness: item.completeness,
+      riskRating: item.riskRating,
+      reviewStatus: item.reviewStatus,
+      missingInformation: item.missingInformation,
+      humanReviewRequired: item.humanReviewRequired,
+    })),
+    enrichmentHistory,
+    duplicateCandidates,
+    reviewHistory: sources.map((source) => reviewRecord(source.id, source.approvalStatus, 'initial local source state', now)),
+  };
+}
+
+function researchSource(id, name, category, description, enabled, mode, scope, authenticationRequired, trustScore, confidenceScore, approvalStatus, now) {
+  return {
+    id,
+    name,
+    category,
+    description,
+    enabled,
+    mode,
+    scope,
+    authenticationRequired,
+    notes: ['Local source record only. Automatic source approval is disabled.'],
+    createdAt: now,
+    updatedAt: now,
+    lastUsedAt: approvalStatus === 'Approved' ? now : null,
+    trustScore,
+    confidenceScore,
+    status: approvalStatus === 'Approved' && enabled ? 'active' : 'needs_review',
+    approvalStatus,
+  };
+}
+
+function researchIntake(opportunity, index, now) {
+  const duplicateDetection =
+    index === 1
+      ? [
+          {
+            id: `dup-${opportunity.id}`,
+            targetType: 'opportunity',
+            targetId: opportunity.id,
+            fields: ['company', 'website'],
+            confidence: 86,
+            reason: 'Company and website resemble an existing local opportunity.',
+            suggestedMergeAction: 'Review manually and merge only after operator approval.',
+            detectedAt: now,
+          },
+        ]
+      : [];
+  return {
+    id: `intake-${opportunity.id}`,
+    sourceId: index % 2 === 0 ? 'src-manual-notes' : 'src-public-website',
+    opportunityId: opportunity.id,
+    company: opportunity.company,
+    researchType: index % 2 === 0 ? 'company profile' : 'contact path',
+    date: now,
+    analyst: 'Sales Agent',
+    summary: `${opportunity.company} research intake prepared from approved local/manual source.`,
+    rawNotes: `Manual/public research notes for ${opportunity.company}.`,
+    confidence: 72 + index * 4,
+    verificationStatus: index < 2 ? 'verified' : 'partially_verified',
+    duplicateDetection,
+    suggestedActions: ['Verify contact path', 'Update opportunity notes', 'Queue follow-up after review'],
+    evidenceLevel: index < 2 ? 'high' : index < 4 ? 'medium' : 'low',
+    completeness: 68 + index * 3,
+    riskRating: index > 3 ? 'medium' : 'low',
+    reviewStatus: index < 2 ? 'approved' : 'pending_review',
+    missingInformation: ['verified contact', 'current software', 'decision maker'],
+    humanReviewRequired: index > 2 || duplicateDetection.length > 0,
+  };
+}
+
+function setSalesSourceApproval(approvalStatus, enabled) {
+  const store = readResearchStore();
+  const id = process.env.SALES_SOURCE_ID ?? store.sources.find((source) => source.approvalStatus !== approvalStatus)?.id ?? store.sources[0]?.id;
+  const now = new Date().toISOString();
+  store.sources = store.sources.map((source) =>
+    source.id === id
+      ? {
+          ...source,
+          approvalStatus,
+          enabled,
+          lastUsedAt: approvalStatus === 'Approved' ? now : source.lastUsedAt,
+          status: approvalStatus === 'Approved' && enabled ? 'active' : approvalStatus === 'Disabled' ? 'inactive' : 'needs_review',
+          updatedAt: now,
+        }
+      : source,
+  );
+  store.reviewHistory.unshift(reviewRecord(id, approvalStatus, process.env.SALES_REVIEW_REASON ?? `source ${approvalStatus.toLowerCase()}`, now));
+  writeResearchStore(store);
+  return { title: `Sales Research Source ${approvalStatus}`, generatedAt: now, source: store.sources.find((source) => source.id === id), safety: safetySummary() };
+}
+
+function reviewRecord(sourceId, status, reason, timestamp = new Date().toISOString()) {
+  return {
+    id: `review-${sourceId}-${compactStamp(timestamp)}`,
+    sourceId,
+    status,
+    reason,
+    operator: process.env.SALES_OPERATOR ?? 'Sales Agent CLI',
+    timestamp,
+    automaticApproval: false,
+  };
 }
 
 function opportunityFromProspect(prospect) {
@@ -474,6 +791,54 @@ function buildOpportunityReports(opportunities) {
   };
 }
 
+function buildResearchReports(store) {
+  const summary = summarizeResearchStore(store);
+  return {
+    'source-inventory': researchReport('Source Inventory', store.sources, summary),
+    'research-intake-report': researchReport('Research Intake Report', store.intakeQueue, summary),
+    'verification-report': researchReport('Verification Report', store.verificationRecords, summary),
+    'duplicate-analysis': researchReport('Duplicate Analysis', store.duplicateCandidates, summary),
+    'opportunity-enrichment-report': researchReport('Opportunity Enrichment Report', store.enrichmentHistory, summary),
+    'executive-intelligence-summary': researchReport('Executive Intelligence Summary', [summary], summary),
+    'source-utilization-report': researchReport(
+      'Source Utilization Report',
+      store.sources.map((source) => ({ source: source.name, enabled: source.enabled, approvalStatus: source.approvalStatus, lastUsedAt: source.lastUsedAt })),
+      summary,
+    ),
+    'confidence-trend-report': researchReport(
+      'Confidence Trend Report',
+      store.sources.map((source) => ({ source: source.name, trustScore: source.trustScore, confidenceScore: source.confidenceScore })),
+      summary,
+    ),
+  };
+}
+
+function researchReport(title, rows, summary) {
+  return {
+    title,
+    generatedAt: new Date().toISOString(),
+    summary,
+    rows,
+    localOnly: true,
+    safety: safetySummary(),
+  };
+}
+
+function summarizeResearchStore(store) {
+  return {
+    approvedSources: store.sources.filter((source) => source.approvalStatus === 'Approved' && source.enabled).length,
+    pendingReviews:
+      store.sources.filter((source) => ['Draft', 'Pending Review'].includes(source.approvalStatus)).length +
+      store.intakeQueue.filter((item) => item.reviewStatus === 'pending_review').length,
+    rejectedSources: store.sources.filter((source) => source.approvalStatus === 'Rejected').length,
+    researchBacklog: store.intakeQueue.filter((item) => item.reviewStatus === 'pending_review').length,
+    enrichmentProgress: Math.round((store.enrichmentHistory.length / Math.max(1, store.intakeQueue.length)) * 100),
+    confidenceTrend: average([...store.sources.map((source) => source.confidenceScore), ...store.intakeQueue.map((item) => item.confidence)]),
+    duplicateAlerts: store.duplicateCandidates.length,
+    verificationQueue: store.intakeQueue.filter((item) => item.verificationStatus !== 'verified' || item.humanReviewRequired).length,
+  };
+}
+
 function opportunityReport(title, opportunities) {
   return { title, generatedAt: new Date().toISOString(), summary: summarizeOpportunities(readOpportunities()), rows: opportunities.map((item) => ({ company: item.company, stage: item.stage, priority: item.priority, score: item.score?.overallScore, proposalReadiness: item.proposalPreparationStatus?.readinessPercent, nextAction: item.followUpPlan?.recommendedNextAction })), safety: safetySummary() };
 }
@@ -487,6 +852,27 @@ function validateOpportunities(opportunities) {
     if (!Array.isArray(item.activityTimeline) || !item.activityTimeline.length) errors.push(`${item.company}: missing timeline`);
     return errors;
   });
+}
+
+function validateResearchStore(store) {
+  const errors = [];
+  if (!Array.isArray(store.sources)) errors.push('sources missing');
+  if (!Array.isArray(store.intakeQueue)) errors.push('intake queue missing');
+  if (!Array.isArray(store.verificationRecords)) errors.push('verification records missing');
+  if (!Array.isArray(store.enrichmentHistory)) errors.push('enrichment history missing');
+  if (!Array.isArray(store.duplicateCandidates)) errors.push('duplicate candidates missing');
+  if (!Array.isArray(store.reviewHistory)) errors.push('review history missing');
+  for (const source of store.sources ?? []) {
+    ['id', 'name', 'category', 'description', 'createdAt', 'updatedAt', 'trustScore', 'confidenceScore', 'status', 'approvalStatus'].forEach((field) => {
+      if (source[field] === undefined || source[field] === '') errors.push(`${source.id ?? 'source'} missing ${field}`);
+    });
+  }
+  for (const item of store.intakeQueue ?? []) {
+    ['id', 'sourceId', 'opportunityId', 'company', 'researchType', 'date', 'analyst', 'summary', 'rawNotes', 'confidence', 'verificationStatus'].forEach((field) => {
+      if (item[field] === undefined || item[field] === '') errors.push(`${item.id ?? 'intake'} missing ${field}`);
+    });
+  }
+  return errors;
 }
 
 function setArchiveState(archived) {

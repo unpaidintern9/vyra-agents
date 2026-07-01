@@ -1226,3 +1226,36 @@ Boundaries:
 - No Supabase production writes.
 - No GitHub writes.
 - No secrets committed.
+
+## Phase 48
+
+Sales Intelligence Sources & Research Intake.
+
+Includes:
+
+- Local Research Source Manager for source category, mode, scope, authentication requirement, trust score, confidence score, status, and approval status.
+- Source approval workflow: Draft, Pending Review, Approved, Rejected, Disabled, and Archived.
+- Local Research Intake Pipeline for source, opportunity, company, research type, analyst, summary, raw notes, confidence, verification, duplicate detection, and suggested actions.
+- Duplicate candidate detection for companies, contacts, websites, phone numbers, emails, and opportunities with manual merge suggestions only.
+- Verification records for confidence, evidence level, completeness, risk rating, review status, missing information, and human review requirement.
+- Opportunity enrichment history with timestamp, source, operator, previous value, new value, confidence, and reason.
+- Sales dashboard sections for Research Queue, Sources, Verification, Duplicate Review, Enrichment Status, and Recent Research.
+- Executive read-only Research Intelligence signals.
+- Operator read-only Research Intelligence queue.
+- Root npm scripts for `sales:sources`, `sales:add-source`, `sales:update-source`, `sales:disable-source`, `sales:approve-source`, `sales:reject-source`, `sales:intake`, `sales:verify`, `sales:duplicates`, `sales:enrich`, `sales:research-report`, and `sales:sources-report`.
+- Source Inventory, Research Intake, Verification, Duplicate Analysis, Opportunity Enrichment, Executive Intelligence, Source Utilization, and Confidence Trend reports.
+
+Boundaries:
+
+- Local execution only.
+- No dependency on `vyraapp.fit` Sales CRM.
+- No autonomous browsing.
+- No unauthorized scraping.
+- No autonomous messaging.
+- No autonomous CRM synchronization.
+- No autonomous proposal submission.
+- No automatic source approval.
+- No automatic duplicate merge.
+- No Stripe writes.
+- No Supabase production writes.
+- No secrets committed.

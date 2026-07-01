@@ -1,4 +1,4 @@
-import { Brain, CalendarClock, Download, FileText, Flame, ListChecks, Network, Search, ShieldCheck, Target, Upload, Users, Workflow } from 'lucide-react';
+import { Brain, CalendarClock, Download, FileClock, FileText, Flame, ListChecks, Network, Search, ShieldCheck, Target, Upload, Users, Workflow } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { RiskBadge } from '../../components/RiskBadge';
@@ -65,6 +65,10 @@ export default function SalesPage({
   prospectDossiers,
   prospectIntakes,
   prospectResearch,
+  researchEnrichmentHistory,
+  researchIntake,
+  researchIntelligenceSummary,
+  researchSources,
   scores,
   salesIntelligenceGraph,
   salesIntelligenceSummary,
@@ -138,6 +142,14 @@ export default function SalesPage({
     return b.score.overallScore - a.score.overallScore;
   });
   const selectedDossier = prospectDossiers.find((dossier) => dossier.dossierId === selectedDossierId) ?? prospectDossiers[0] ?? null;
+  const duplicateCandidates = researchIntake.flatMap((item) =>
+    item.duplicateDetection.map((candidate) => ({
+      ...candidate,
+      company: item.company,
+      intakeId: item.id,
+    })),
+  );
+  const recentResearch = [...researchIntake].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   const selectedDossierIntake = selectedDossier ? prospectIntakes.find((intake) => intake.id === selectedDossier.intakeId) ?? null : null;
   const selectedOrganization =
     salesIntelligenceGraph.organizationProfiles.find((profile) => profile.id === selectedOrganizationId) ??
@@ -211,6 +223,10 @@ export default function SalesPage({
         <SalesMetric icon={<Target size={20} />} label="Migration Opportunities" value={String(prospectDossierSummary.migrationOpportunityProspects)} tone={prospectDossierSummary.migrationOpportunityProspects ? 'warn' : 'good'} />
         <SalesMetric icon={<Brain size={20} />} label="Organizations Tracked" value={String(salesIntelligenceSummary.organizationsTracked)} />
         <SalesMetric icon={<Target size={20} />} label="Intel Completeness" value={`${salesIntelligenceSummary.intelligenceCompletenessScore}/100`} />
+        <SalesMetric icon={<ShieldCheck size={20} />} label="Approved Sources" value={String(researchIntelligenceSummary.approvedSources)} tone="good" />
+        <SalesMetric icon={<FileClock size={20} />} label="Research Reviews" value={String(researchIntelligenceSummary.pendingReviews)} tone={researchIntelligenceSummary.pendingReviews ? 'warn' : 'good'} />
+        <SalesMetric icon={<Search size={20} />} label="Verification Queue" value={String(researchIntelligenceSummary.verificationQueue)} tone={researchIntelligenceSummary.verificationQueue ? 'warn' : 'good'} />
+        <SalesMetric icon={<Network size={20} />} label="Duplicate Alerts" value={String(researchIntelligenceSummary.duplicateAlerts)} tone={researchIntelligenceSummary.duplicateAlerts ? 'warn' : 'good'} />
         <SalesMetric icon={<Workflow size={20} />} label="Cross-Agent Signals" value={String(crossAgentSummary.activeSignals)} tone={crossAgentSummary.activeSignals ? 'warn' : 'good'} />
         {connectorReadiness ? (
           <SalesMetric icon={<Network size={20} />} label="Connector Writes Blocked" value={String(connectorReadiness.blockedWriteActionCount)} tone="warn" />
@@ -221,6 +237,134 @@ export default function SalesPage({
             <SalesMetric icon={<ShieldCheck size={20} />} label="Task Review" value={String(sharedTaskSummary.tasksRequiringExecutiveReview)} tone={sharedTaskSummary.tasksRequiringExecutiveReview ? 'warn' : 'good'} />
           </>
         ) : null}
+      </section>
+
+      <section className="dashboard-grid">
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Search size={18} />
+              <h2>Research Queue</h2>
+            </div>
+            <StatusBadge value={`${researchIntelligenceSummary.researchBacklog} backlog`} tone={researchIntelligenceSummary.researchBacklog ? 'warn' : 'good'} />
+          </div>
+          <p className="panel-description">
+            Local-only intake queue for opportunity research. Items are not used for scoring until their source is approved and the intake is reviewed.
+          </p>
+          <DataTable
+            columns={['Company', 'Type', 'Source', 'Confidence', 'Review', 'Suggested Action']}
+            rows={researchIntake.map((item) => {
+              const source = researchSources.find((source) => source.id === item.sourceId);
+              return [
+                item.company,
+                item.researchType,
+                source?.name ?? item.sourceId,
+                `${item.confidence}%`,
+                item.reviewStatus.replace(/_/g, ' '),
+                item.suggestedActions[0] ?? 'Review manually',
+              ];
+            })}
+            emptyMessage="No research intake yet. Add a source, paste manual research, then run the local intake workflow."
+          />
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <ShieldCheck size={18} />
+              <h2>Sources</h2>
+            </div>
+            <StatusBadge value="approval required" tone="neutral" />
+          </div>
+          <DataTable
+            columns={['Source', 'Category', 'Mode', 'Scope', 'Approval', 'Trust', 'Confidence']}
+            rows={researchSources.map((source) => [
+              source.name,
+              source.category,
+              source.mode,
+              source.scope,
+              `${source.enabled ? 'Enabled' : 'Disabled'} / ${source.approvalStatus}`,
+              `${source.trustScore}%`,
+              `${source.confidenceScore}%`,
+            ])}
+            emptyMessage="No research sources configured. Create a draft source, review it, then approve it before use."
+          />
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <ListChecks size={18} />
+              <h2>Verification</h2>
+            </div>
+          </div>
+          <DataTable
+            columns={['Company', 'Evidence', 'Completeness', 'Risk', 'Missing Info']}
+            rows={researchIntake.map((item) => [
+              item.company,
+              item.evidenceLevel,
+              `${item.completeness}%`,
+              item.riskRating,
+              item.missingInformation.join(', '),
+            ])}
+            emptyMessage="Verification queue is empty."
+          />
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <Network size={18} />
+              <h2>Duplicate Review</h2>
+            </div>
+          </div>
+          <DataTable
+            columns={['Company', 'Type', 'Fields', 'Confidence', 'Merge Action']}
+            rows={duplicateCandidates.map((candidate) => [
+              candidate.company,
+              candidate.targetType,
+              candidate.fields.join(', '),
+              `${candidate.confidence}%`,
+              candidate.suggestedMergeAction,
+            ])}
+            emptyMessage="No duplicate candidates. The agent never merges automatically."
+          />
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <Workflow size={18} />
+              <h2>Enrichment Status</h2>
+            </div>
+            <StatusBadge value={`${researchIntelligenceSummary.enrichmentProgress}%`} tone="good" />
+          </div>
+          <DataTable
+            columns={['Opportunity', 'Field', 'Previous', 'New', 'Confidence']}
+            rows={researchEnrichmentHistory.map((item) => [
+              opportunities.find((opportunity) => opportunity.id === item.opportunityId)?.company ?? item.opportunityId,
+              item.field,
+              item.previousValue,
+              item.newValue,
+              `${item.confidence}%`,
+            ])}
+            emptyMessage="No enrichment changes have been recorded."
+          />
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <FileText size={18} />
+              <h2>Recent Research</h2>
+            </div>
+          </div>
+          <DataTable
+            columns={['Company', 'Summary', 'Human Review']}
+            rows={recentResearch.map((item) => [item.company, item.summary, item.humanReviewRequired ? 'Required' : 'Not required'])}
+            emptyMessage="No recent research intake."
+          />
+        </section>
       </section>
 
       <section className="dashboard-grid">

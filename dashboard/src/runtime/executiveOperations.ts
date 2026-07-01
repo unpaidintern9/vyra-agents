@@ -14,6 +14,7 @@ import type {
   SalesIntegrationSummary,
   SalesIntelligenceSummary,
   SalesOpportunityPipelineSummary,
+  SalesResearchIntelligenceSummary,
   SalesScoringSummary,
   SalesSummary,
 } from '../agents/sales/salesTypes';
@@ -108,6 +109,7 @@ export function buildDashboardExecutiveOperationsSummary(input: {
   salesIntegration?: SalesIntegrationSummary;
   salesIntelligenceSummary?: SalesIntelligenceSummary;
   salesOpportunitySummary?: SalesOpportunityPipelineSummary;
+  salesResearchIntelligenceSummary?: SalesResearchIntelligenceSummary;
   salesScoringSummary?: SalesScoringSummary;
   salesSummary?: SalesSummary;
   sharedTasks: SharedTaskDashboardSummary;
@@ -171,6 +173,8 @@ function buildBriefing(
       `${input.salesSummary?.proposalNeeded ?? 0} proposal-needed lead(s)`,
       `${input.salesOpportunitySummary?.activeOpportunities ?? 0} local CRM active opportunity(s)`,
       `${input.salesOpportunitySummary?.proposalReady ?? 0} local CRM proposal-ready opportunity(s)`,
+      `${input.salesResearchIntelligenceSummary?.pendingReviews ?? 0} sales research review item(s) pending.`,
+      `${input.salesResearchIntelligenceSummary?.duplicateAlerts ?? 0} sales duplicate alert(s) need manual review.`,
       `${input.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0} organization(s) need Executive sales review.`,
     ],
     date: generatedAt.slice(0, 10),
@@ -211,6 +215,9 @@ function buildBriefing(
       input.releaseShipPlans.recommendedExecutiveDecision,
       `${kpis.criticalEngineeringTasks} critical Engineering task candidate(s) need triage.`,
       input.salesOpportunitySummary?.highPriority ? `Review ${input.salesOpportunitySummary.highPriority} high-priority local CRM opportunity(s).` : null,
+      input.salesResearchIntelligenceSummary?.verificationQueue
+        ? `Review ${input.salesResearchIntelligenceSummary.verificationQueue} sales research verification item(s).`
+        : null,
       input.salesIntegration?.crmReadinessStatus !== 'ready' ? 'Keep Sales external actions disabled until CRM/email/Stripe gates exist.' : null,
     ]).slice(0, 10),
   };
