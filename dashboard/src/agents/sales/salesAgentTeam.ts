@@ -5,6 +5,7 @@ import type {
   SalesTeamAgentDefinition,
   SalesTeamAgentId,
 } from './salesTypes';
+import { louisvilleProspectResearchSeed } from './louisvilleProspectSeed';
 
 export const salesTargetMarkets = ['Louisville, KY', 'Cincinnati, OH', 'Los Angeles, CA', 'New York, NY'] as const;
 
@@ -99,6 +100,7 @@ export const salesTeamAgents: SalesTeamAgentDefinition[] = [
 
 export function createInitialSalesProspectResearch(): SalesProspectResearchRecord[] {
   return [
+    ...louisvilleProspectResearchSeed,
     prospect({
       id: 'prospect_louisville_mma_owner_gym',
       prospectName: 'Louisville Combat Sports Candidate',

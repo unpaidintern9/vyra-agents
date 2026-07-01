@@ -1,5 +1,32 @@
 # Phase Plan
 
+## Phase 46A
+
+Sales Agent Real Execution Upgrade.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Active Sales Agent execution dashboard for local prospect research, report status, task prep, draft prep, missing info, and next actions.
+- Local prospect/company research workflow for Louisville, Kentucky and surrounding areas.
+- Safe manual/public-field enrichment with business type, ICP fit, likely pain points, recommended Vyra product, outreach angle, follow-up plan, missing info, and next actions.
+- Markdown/JSON report generation for pipeline, prospect research, company dossier, outreach prep, follow-up, ICP fit, proposal prep, and executive Sales summary.
+- CSV export where useful through pipeline/prospect research outputs.
+- Shared local task creation for contact info, company research, outreach drafts, proposals, follow-ups, executive review, and high-fit prospects.
+- Draft-only email generation for prospect outreach, internal prospect summary, follow-up reminder, and proposal-ready notification.
+- `sales:*` CLI commands for status, research, reports, outreach, tasks, and validation.
+- Recommended Sales searches that populate filters, run immediately, and show status.
+
+Boundaries:
+
+- No unauthorized scraping.
+- No scraping behind logins, paywalls, robots.txt restrictions, or rate-limit bypass.
+- No sensitive personal data collection.
+- No automatic external customer emails.
+- No CRM, Stripe, or Supabase production writes.
+- No secrets committed.
+
 ## Phase 0
 
 Local repo setup, GitHub connection, folder structure, docs.

@@ -52,6 +52,19 @@ export type SalesProspectFitTier = 'prime_target' | 'good_fit' | 'research_neede
 export type SalesProspectSourceStatus = 'mock_seed' | 'needs_public_research' | 'public_research_ready';
 export type SalesProspectBusinessType = SalesProspectCategory | 'independent_coach' | 'multi_location_gym' | 'unknown';
 export type SalesMigrationComplexity = 'unknown' | 'low' | 'medium' | 'high';
+export type SalesReportKind =
+  | 'pipeline'
+  | 'prospect_research'
+  | 'company_dossier'
+  | 'outreach_prep'
+  | 'follow_up'
+  | 'icp_fit'
+  | 'proposal'
+  | 'executive_summary'
+  | 'lead_scoring'
+  | 'follow_up_queue'
+  | 'weighted_pipeline';
+export type SalesExecutionStatusType = 'idle' | 'loading' | 'success' | 'error';
 export type SalesIntelligenceNodeType =
   | 'prospect'
   | 'organization'
@@ -432,19 +445,24 @@ export interface SalesPageProps {
   followUpQueue: FollowUpQueueItem[];
   importResult: SalesImportResult;
   integration: SalesIntegrationSummary;
+  lastSalesExecutionStatus: SalesExecutionStatus;
   leads: SalesLead[];
   onAction(_leadId: string, _action: SalesAction): void;
+  onCreateSalesExecutionTasks(): void;
   onExport(
     _format: 'json' | 'markdown' | 'csv',
-    _report: 'pipeline' | 'follow_up' | 'proposal' | 'lead_scoring' | 'follow_up_queue' | 'weighted_pipeline',
+    _report: SalesReportKind,
   ): void;
   onExportResearchDossier(_dossierId: string, _format: 'json' | 'markdown'): void;
   onExportSalesIntelligence(_report: 'organization_intelligence' | 'graph' | 'timeline', _organizationId: string | null): void;
   onExportCrossAgent(_report: 'collaboration' | 'graph' | 'priority_queue'): void;
   onExportProposalDraft(_draftId: string, _format: 'json' | 'markdown'): void;
   onGenerateProposalDraft(_leadId: string, _templateType: SalesProposalTemplateType): void;
+  onGenerateSalesEmailDrafts(): void;
   onSaveProspectIntake(_draft: SalesProspectIntakeDraft): void;
   onImportJson(_content: string): void;
+  onRunProspectSearch(_filters: SalesRecommendedSearchFilters): void;
+  onRunSalesResearch(): void;
   proposalDrafts: SalesProposalDraft[];
   proposalSummary: SalesProposalSummary;
   proposals: ProposalPrep[];
@@ -463,3 +481,25 @@ export interface SalesPageProps {
 }
 
 export type SalesProspectIntakeDraft = Omit<SalesProspectIntake, 'createdAt' | 'id' | 'localOnly' | 'updatedAt'>;
+
+export interface SalesRecommendedSearchFilters {
+  category?: SalesProspectCategory | 'all';
+  market?: string;
+  minimumFitScore?: number;
+  sourceStatus?: SalesProspectSourceStatus | 'all';
+}
+
+export interface SalesRecommendedSearch {
+  description: string;
+  filters: SalesRecommendedSearchFilters;
+  id: string;
+  label: string;
+}
+
+export interface SalesExecutionStatus {
+  detail: string;
+  generatedAt: string | null;
+  resultCount: number;
+  status: SalesExecutionStatusType;
+  title: string;
+}

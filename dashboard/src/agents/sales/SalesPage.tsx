@@ -8,6 +8,7 @@ import { filterSalesLeads, formatCurrency, isFollowUpDue, isFollowUpThisWeek, is
 import { generateSalesProposalDraft, inferProposalTemplate, salesProposalTemplateLabels } from './salesProposalBuilder';
 import { emptyProspectIntakeDraft, labelBusinessType, missingInfoForIntake } from './salesProspectDossiers';
 import { salesPriorityTone } from './salesScoring';
+import { filterProspectsForSearch, salesRecommendedSearches } from './salesExecution';
 import type {
   FollowUpQueueItem,
   LeadScore,
@@ -21,6 +22,7 @@ import type {
   SalesProspectIntake,
   SalesProspectIntakeDraft,
   SalesProspectResearchRecord,
+  SalesRecommendedSearchFilters,
   SalesProposalDraft,
   SalesProposalTemplateType,
   SalesResearchDossier,
@@ -35,15 +37,20 @@ export default function SalesPage({
   followUpQueue,
   importResult,
   integration,
+  lastSalesExecutionStatus,
   leads,
   onAction,
+  onCreateSalesExecutionTasks,
   onExport,
   onExportCrossAgent,
   onExportResearchDossier,
   onExportSalesIntelligence,
   onExportProposalDraft,
   onGenerateProposalDraft,
+  onGenerateSalesEmailDrafts,
   onImportJson,
+  onRunProspectSearch,
+  onRunSalesResearch,
   onSaveProspectIntake,
   proposalDrafts,
   proposalSummary,
@@ -64,6 +71,9 @@ export default function SalesPage({
   const [filters, setFilters] = useState<SalesFilters>({ priority: 'all', scorePriority: 'all', source: 'all', stage: 'all', type: 'all' });
   const [prospectMarketFilter, setProspectMarketFilter] = useState('all');
   const [prospectCategoryFilter, setProspectCategoryFilter] = useState('all');
+  const [prospectMinimumFitScore, setProspectMinimumFitScore] = useState('0');
+  const [prospectSourceStatusFilter, setProspectSourceStatusFilter] = useState('all');
+  const [searchStatus, setSearchStatus] = useState(lastSalesExecutionStatus);
   const [selectedScoreId, setSelectedScoreId] = useState<string | null>(scores[0]?.leadId ?? null);
   const [selectedDossierId, setSelectedDossierId] = useState<string | null>(prospectDossiers[0]?.dossierId ?? null);
   const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(salesIntelligenceGraph.organizationProfiles[0]?.id ?? null);
@@ -91,13 +101,22 @@ export default function SalesPage({
     .filter((row) => row.lead);
   const activeLeads = leads.filter((lead) => lead.status === 'active');
   const prospectMarkets = Array.from(new Set(prospectResearch.map((prospect) => `${prospect.city}, ${prospect.state}`))).sort();
+  const currentProspectSearchFilters: SalesRecommendedSearchFilters = {
+    category: prospectCategoryFilter as SalesRecommendedSearchFilters['category'],
+    market: prospectMarketFilter === 'all' ? undefined : prospectMarketFilter,
+    minimumFitScore: Number(prospectMinimumFitScore) || undefined,
+    sourceStatus: prospectSourceStatusFilter as SalesRecommendedSearchFilters['sourceStatus'],
+  };
   const filteredProspects = prospectResearch.filter((prospect) => {
     const market = `${prospect.city}, ${prospect.state}`;
     return (
       (prospectMarketFilter === 'all' || market === prospectMarketFilter) &&
-      (prospectCategoryFilter === 'all' || prospect.category === prospectCategoryFilter)
+      (prospectCategoryFilter === 'all' || prospect.category === prospectCategoryFilter) &&
+      (prospectSourceStatusFilter === 'all' || prospect.sourceStatus === prospectSourceStatusFilter) &&
+      prospect.fitScore >= (Number(prospectMinimumFitScore) || 0)
     );
   });
+  const searchedProspects = filterProspectsForSearch(prospectResearch, currentProspectSearchFilters);
   const selectedProposalLead = leads.find((lead) => lead.id === selectedProposalLeadId) ?? leads[0] ?? null;
   const selectedDossier = prospectDossiers.find((dossier) => dossier.dossierId === selectedDossierId) ?? prospectDossiers[0] ?? null;
   const selectedDossierIntake = selectedDossier ? prospectIntakes.find((intake) => intake.id === selectedDossier.intakeId) ?? null : null;
@@ -115,6 +134,42 @@ export default function SalesPage({
         templateType: selectedProposalType,
       })
     : null;
+  const runCurrentProspectSearch = () => {
+    setSearchStatus({
+      detail: 'Searching local prospect slots...',
+      generatedAt: new Date().toISOString(),
+      resultCount: 0,
+      status: 'loading',
+      title: 'Prospect search running',
+    });
+    onRunProspectSearch(currentProspectSearchFilters);
+    setSearchStatus({
+      detail: searchedProspects.length
+        ? `Found ${searchedProspects.length} local prospect(s). Top result: ${searchedProspects[0].prospectName}.`
+        : 'No prospects matched. Try lowering the fit score or selecting all markets/categories.',
+      generatedAt: new Date().toISOString(),
+      resultCount: searchedProspects.length,
+      status: searchedProspects.length ? 'success' : 'error',
+      title: 'Prospect search complete',
+    });
+  };
+  const runRecommendedSearch = (filters: SalesRecommendedSearchFilters) => {
+    setProspectMarketFilter(filters.market ?? 'all');
+    setProspectCategoryFilter(filters.category ?? 'all');
+    setProspectMinimumFitScore(String(filters.minimumFitScore ?? 0));
+    setProspectSourceStatusFilter(filters.sourceStatus ?? 'all');
+    const results = filterProspectsForSearch(prospectResearch, filters);
+    onRunProspectSearch(filters);
+    setSearchStatus({
+      detail: results.length
+        ? `Found ${results.length} local prospect(s). Top result: ${results[0].prospectName}.`
+        : 'Recommended search returned no local matches.',
+      generatedAt: new Date().toISOString(),
+      resultCount: results.length,
+      status: results.length ? 'success' : 'error',
+      title: 'Recommended search complete',
+    });
+  };
 
   return (
     <>
@@ -150,6 +205,45 @@ export default function SalesPage({
       </section>
 
       <section className="dashboard-grid">
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Workflow size={18} />
+              <h2>Sales Agent Execution Dashboard</h2>
+            </div>
+            <StatusBadge
+              value={lastSalesExecutionStatus.status}
+              tone={lastSalesExecutionStatus.status === 'error' ? 'warn' : lastSalesExecutionStatus.status === 'success' ? 'good' : 'neutral'}
+            />
+          </div>
+          <p className="panel-description">{lastSalesExecutionStatus.detail}</p>
+          <div className="batch-grid">
+            <Fact label="Active Prospects" value={String(prospectResearch.length)} />
+            <Fact label="Research Status" value={prospectDossiers.length ? `${prospectDossiers.length} dossier(s)` : 'Manual research needed'} />
+            <Fact label="Report Status" value={lastSalesExecutionStatus.title} />
+            <Fact label="Outreach Plans" value={String(prospectResearch.filter((prospect) => prospect.fitScore >= 80).length)} />
+            <Fact label="Follow-Up Plans" value={String(followUpQueue.length)} />
+            <Fact label="Missing Info" value={String(prospectDossiers.reduce((count, dossier) => count + dossier.missingInfo.length, 0) || teamSummary.needsResearch)} />
+          </div>
+          <div className="button-row sales-action-row">
+            <button className="report-button" onClick={onRunSalesResearch} type="button">
+              Run Research
+            </button>
+            <button className="report-button" onClick={onCreateSalesExecutionTasks} type="button">
+              Create Sales Tasks
+            </button>
+            <button className="report-button" onClick={onGenerateSalesEmailDrafts} type="button">
+              Create Email Drafts
+            </button>
+            <button className="report-button" onClick={() => onExport('markdown', 'executive_summary')} type="button">
+              Executive Summary
+            </button>
+          </div>
+          <p className="subtle-note">
+            Next recommended sales action: verify owner/contact/software fields for the highest-fit Louisville-area prospect before any manual outreach.
+          </p>
+        </section>
+
         <section className="panel wide-panel">
           <div className="panel-header">
             <div>
@@ -247,7 +341,7 @@ export default function SalesPage({
             <span>{prospectResearch.length} local prospect slot(s)</span>
           </div>
           <p className="panel-description">
-            Local prospect slots for MMA gyms, CrossFit boxes, and small gyms in Louisville, Cincinnati, Los Angeles, and New York. Public research is planned, not automated.
+            Main local prospect search is first; recommended searches below populate filters and run immediately. Live web research is config-gated, so paste public website/social/contact notes into manual research mode when needed.
           </p>
           <div className="filter-grid compact-filter-grid sales-filter-grid">
             <SalesSelect label="Market" value={prospectMarketFilter} onChange={setProspectMarketFilter}>
@@ -266,6 +360,47 @@ export default function SalesPage({
               <option value="boutique_fitness">Boutique fitness</option>
               <option value="sports_performance">Sports performance</option>
             </SalesSelect>
+            <SalesSelect label="Research Status" value={prospectSourceStatusFilter} onChange={setProspectSourceStatusFilter}>
+              <option value="all">All statuses</option>
+              <option value="public_research_ready">Public research ready</option>
+              <option value="manual_research_needed">Manual research needed</option>
+              <option value="blocked">Blocked</option>
+            </SalesSelect>
+            <label className="sales-field-label">
+              Minimum Fit Score
+              <input min="0" max="100" type="number" value={prospectMinimumFitScore} onChange={(event) => setProspectMinimumFitScore(event.target.value)} />
+            </label>
+          </div>
+          <div className="button-row sales-action-row">
+            <button className="report-button" onClick={runCurrentProspectSearch} type="button">
+              Run Search
+            </button>
+            <button className="clear-button small" onClick={() => {
+              setProspectMarketFilter('all');
+              setProspectCategoryFilter('all');
+              setProspectMinimumFitScore('0');
+              setProspectSourceStatusFilter('all');
+              runRecommendedSearch({ category: 'all', sourceStatus: 'all' });
+            }} type="button">
+              Reset Search
+            </button>
+          </div>
+          <div className="safety-badge-row">
+            <StatusBadge value={searchStatus.title} tone={searchStatus.status === 'error' ? 'warn' : searchStatus.status === 'success' ? 'good' : 'neutral'} />
+            <StatusBadge value={`${searchStatus.resultCount} result(s)`} tone={searchStatus.resultCount ? 'good' : 'neutral'} />
+          </div>
+          <p className="subtle-note">{searchStatus.detail}</p>
+          <div className="recommended-search-grid">
+            {salesRecommendedSearches.map((search) => (
+              <button className="report-button small" key={search.id} onClick={() => runRecommendedSearch(search.filters)} type="button">
+                {search.label}
+              </button>
+            ))}
+          </div>
+          <div className="batch-grid">
+            <Fact label="Manual Research Mode" value="Paste public website/social/contact fields only" />
+            <Fact label="Safe Web Adapter" value="Config-gated; no scraping by default" />
+            <Fact label="Top Search Result" value={searchedProspects[0]?.prospectName ?? 'No matching prospect yet'} />
           </div>
           <ProspectResearchTable prospects={filteredProspects} />
         </section>
@@ -739,15 +874,40 @@ export default function SalesPage({
               <span>Sales Pipeline Markdown</span>
               <small>Readable pipeline summary.</small>
             </button>
+            <button className="report-button" onClick={() => onExport('markdown', 'prospect_research')} type="button">
+              <Download size={16} />
+              <span>Prospect Research Markdown</span>
+              <small>Research status, missing fields, and next actions.</small>
+            </button>
+            <button className="report-button" onClick={() => onExport('markdown', 'company_dossier')} type="button">
+              <Download size={16} />
+              <span>Company Dossier Markdown</span>
+              <small>Fit, pain points, product recommendation, and outreach angle.</small>
+            </button>
+            <button className="report-button" onClick={() => onExport('markdown', 'outreach_prep')} type="button">
+              <Download size={16} />
+              <span>Outreach Prep Markdown</span>
+              <small>Draft-only outreach prep and suggested asks.</small>
+            </button>
             <button className="report-button" onClick={() => onExport('markdown', 'follow_up')} type="button">
               <Download size={16} />
               <span>Follow-Up Report Markdown</span>
               <small>Due and unscheduled follow-ups.</small>
             </button>
+            <button className="report-button" onClick={() => onExport('markdown', 'icp_fit')} type="button">
+              <Download size={16} />
+              <span>ICP Fit Markdown</span>
+              <small>Fit tiers and Louisville-area ICP reasoning.</small>
+            </button>
             <button className="report-button" onClick={() => onExport('markdown', 'proposal')} type="button">
               <Download size={16} />
               <span>Proposal Prep Report Markdown</span>
               <small>Quote prep without Stripe writes.</small>
+            </button>
+            <button className="report-button" onClick={() => onExport('markdown', 'executive_summary')} type="button">
+              <Download size={16} />
+              <span>Executive Sales Summary</span>
+              <small>Current pipeline, research, and next recommended action.</small>
             </button>
             <button className="report-button" onClick={() => onExport('markdown', 'lead_scoring')} type="button">
               <Download size={16} />

@@ -4,6 +4,8 @@ The Sales Agent is the first local business department agent in the Vyra Agents 
 
 It helps Robert track leads, prospects, pipeline stage, follow-ups, proposal prep, and sales activity without contacting anyone or writing to production systems.
 
+Phase 46A adds local Sales execution: the agent can run prospect searches, generate research dossiers, export execution reports, prepare shared local tasks, and create draft-only email records.
+
 ## Current Scope
 
 The Sales Agent MVP includes:
@@ -35,6 +37,10 @@ The Sales Agent MVP includes:
 - Unified Sales Intelligence dashboard with organization profiles, relationship graph, organization timeline, connected records, and migration readiness.
 - Cross-Agent Collaboration section linking Sales opportunities to Engineering blockers, Migration readiness, Executive priorities, requested features, and approval-needed items.
 - Disabled future external action placeholders for email, Stripe, and CRM writes.
+- Sales Agent Execution Dashboard with active prospects, research status, report status, dossiers, outreach plans, follow-up plans, missing info, and next recommended action.
+- Active recommended prospect searches that populate filters, run local search, and show loading/result/error status.
+- Execution report exports for pipeline, prospect research, company dossier, outreach prep, follow-up, ICP fit, proposal prep, executive summary, lead scoring, follow-up queue, and weighted pipeline.
+- CLI execution commands for local Sales status, research, reports, outreach drafts, shared tasks, and validation.
 
 ## Local Storage
 
@@ -48,6 +54,8 @@ Sales records persist in browser localStorage:
 - `vyra-agents:sales-prospect-dossiers`
 
 These are local browser records, not CRM records.
+
+CLI reports are written to `reports/agents/sales`. CLI shared tasks and draft emails are written under `codex-agent-threads/shared`.
 
 ## Pipeline Stages
 
@@ -68,9 +76,11 @@ Supported stages are:
 
 - No AI.
 - No emails sent.
+- No external customer emails are sent automatically.
 - No Stripe invoices created.
 - No CRM production writes.
 - No production business table writes.
+- No private, restricted, login-gated, paywalled, or rate-limit-bypassed scraping.
 - No changes to `Vyra-Part-1`.
 - Proposal and quote prep are local planning records only.
 - Live mode remains read-only.
@@ -135,3 +145,16 @@ The Sales integration adapter reports whether the Sales Agent is in local mock m
 ## Future Integrations
 
 Future CRM, email, Stripe, or external-send workflows must be approval-gated and must preserve the current local preview-first behavior.
+
+## Phase 46A Execution
+
+Use these local commands:
+
+- `npm run sales:status`
+- `npm run sales:research`
+- `npm run sales:reports`
+- `npm run sales:outreach`
+- `npm run sales:tasks`
+- `npm run sales:validate`
+
+See `docs/SALES_AGENT_EXECUTION.md`, `docs/SALES_RESEARCH_WORKFLOW.md`, `docs/SALES_REPORTS.md`, and `docs/SALES_SAFE_WEB_RESEARCH.md`.
