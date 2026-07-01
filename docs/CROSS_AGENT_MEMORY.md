@@ -35,3 +35,9 @@ Facts are source-backed where possible. A fact update creates a replacement fact
 ## Safety
 
 Shared memory is advisory. It does not browse, send email, sync CRM records, submit proposals, approve sources, approve Executive gates, merge records, or hide fact history.
+
+## Phase 53 Task Links
+
+Universal tasks can link shared memory facts, entities, and reports through local IDs. Memory maintenance tasks appear in the Memory Queue and Operator queues when conflicts, stale facts, or missing verification require human review.
+
+Task links do not resolve memory automatically. They preserve auditability and keep conflict resolution manual.

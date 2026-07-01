@@ -236,3 +236,13 @@ Use these local commands:
 - `npm run sales:workflow-validate`
 
 See `docs/SALES_WORKFLOWS.md` and `docs/PROPOSAL_PREP_QUEUE.md`.
+
+## Phase 53 Universal Tasks
+
+Sales now uses the Universal Task Engine for local handoffs and daily work queues.
+
+Sales dashboard sections include Sales Work Queue, Sales Follow-Up Tasks, Sales Proposal Tasks, Sales Blocked Work, and Sales Due Soon. These queues are read-only dashboard views over local shared task records.
+
+Use `npm run tasks:queue -- --queue "Sales Queue"` to inspect Sales tasks locally. See `docs/UNIVERSAL_TASK_ENGINE.md`, `docs/WORK_QUEUES.md`, `docs/TASK_ROUTING.md`, and `docs/TASK_DEPENDENCIES.md`.
+
+The Sales Agent does not browse, send customer email, sync CRM data, submit proposals, approve Executive gates, approve sources, or merge records automatically.

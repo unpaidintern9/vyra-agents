@@ -2379,31 +2379,76 @@ function OperatorPage({
           </div>
         </Panel>
 
-        <Panel title="Shared Work Queue" icon={<ListChecks size={18} />} wide>
+        <Panel title="Universal Work Queue" icon={<ListChecks size={18} />} wide>
           <p className="panel-description">
-            All Vyra agents coordinate local work through one deterministic queue. Actions assign, claim, complete, escalate, and archive task records locally only.
+            All Vyra agents coordinate local work through one deterministic queue. Actions route, block, unblock, complete, and archive task records locally only.
           </p>
           <div className="batch-grid supabase-detail-grid">
-            <Fact label="Active Work Queue" value={String(operator.sharedTasks.openTasks)} />
+            <Fact label="Operator Work Queue" value={String(operator.sharedTasks.operatorQueue.length)} />
+            <Fact label="Verification Tasks" value={String(operator.sharedTasks.operatorQueue.filter((task) => task.taskType === 'verification').length)} />
+            <Fact label="Missing Info Tasks" value={String(operator.sharedTasks.operatorQueue.filter((task) => task.taskType === 'missing information').length)} />
+            <Fact label="Memory Maintenance Tasks" value={String(operator.sharedTasks.memoryQueue.length)} />
             <Fact label="Blocked Work" value={String(operator.sharedTasks.blockedTasks)} />
+            <Fact label="Due Soon" value={String(operator.sharedTasks.dueSoon.length)} />
             <Fact label="Overdue Work" value={String(operator.sharedTasks.overdueTasks)} />
-            <Fact label="Executive Review" value={String(operator.sharedTasks.tasksRequiringExecutiveReview)} />
-            <Fact label="Queue Health" value={operator.sharedTasks.queueHealth} />
-            <Fact label="Newest Assignments" value={String(operator.sharedTasks.newestAssignments.length)} />
+            <Fact label="Completed Today" value={String(operator.sharedTasks.completedToday.length)} />
           </div>
           <DataTable
-            columns={['Task', 'Agent', 'Priority', 'Status', 'Organization']}
+            columns={['Universal Work Queue', 'Owner', 'Priority', 'Next Action']}
             rows={operator.sharedTasks.activeWorkQueue.map((task) => [
               task.title,
               task.assignedAgent,
-              task.priority,
-              task.status,
-              task.organization,
+              `${task.priority} · ${task.status}`,
+              task.recommendedNextAction,
             ])}
             emptyMessage="No local shared tasks recorded in dashboard metadata."
           />
           <DataTable
-            columns={['Agent', 'Open', 'Blocked', 'Completed']}
+            columns={['Operator Work Queue', 'Type', 'Risk', 'Reason']}
+            rows={operator.sharedTasks.operatorQueue.map((task) => [task.title, task.taskType, task.slaRisk, task.queueReasons[0] ?? task.organization])}
+            emptyMessage="No Operator work queue items."
+          />
+          <DataTable
+            columns={['Task Dependencies', 'Dependencies', 'Readiness', 'Downstream Impact']}
+            rows={operator.sharedTasks.dependencySummary.tasks.map((task) => [
+              task.title,
+              task.dependencies.join(', ') || 'None',
+              task.readinessState.replace(/_/g, ' '),
+              task.downstreamImpact.map((item) => item.title).join(', ') || 'None',
+            ])}
+            emptyMessage="No task dependencies recorded."
+          />
+          <DataTable
+            columns={['Blocked Work', 'Blocker', 'Owner', 'Recommended Unblock']}
+            rows={operator.sharedTasks.blockedWork.map((task) => [
+              task.title,
+              task.blockers.join('; ') || task.slaRisk,
+              task.assignedAgent,
+              task.recommendedNextAction,
+            ])}
+            emptyMessage="No blocked local work."
+          />
+          <DataTable
+            columns={['Due Soon', 'Due', 'Urgency', 'Owner']}
+            rows={operator.sharedTasks.dueSoon.map((task) => [task.title, formatDate(task.dueDate), task.urgencyLabel, task.assignedAgent])}
+            emptyMessage="No work is due soon."
+          />
+          <DataTable
+            columns={['Overdue Work', 'Due', 'Owner', 'Action']}
+            rows={operator.sharedTasks.overdueWork.map((task) => [task.title, formatDate(task.dueDate), task.assignedAgent, task.recommendedNextAction])}
+            emptyMessage="No overdue work."
+          />
+          <DataTable
+            columns={['Completed Today', 'Agent', 'Company', 'Next Use']}
+            rows={operator.sharedTasks.completedToday.map((task) => [task.title, task.assignedAgent, task.organization, task.recommendedNextAction])}
+            emptyMessage="No work completed today."
+          />
+          <div className="activity-list">
+            <p>Cross-Agent Workload spans {Object.keys(operator.sharedTasks.workloadByAgent).length} agent queue(s).</p>
+            <p>Task Dependencies include {operator.sharedTasks.dependencySummary.dependencyEdges} local edge(s).</p>
+          </div>
+          <DataTable
+            columns={['Cross-Agent Workload', 'Open', 'Blocked', 'Completed']}
             rows={Object.entries(operator.sharedTasks.workloadByAgent).map(([agent, workload]) => [
               agent,
               String(workload.open),
@@ -4112,11 +4157,17 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('tasks:status')) return 'Print local shared work queue health and knowledge graph links.';
   if (command.endsWith('tasks:list')) return 'List local shared task records with queue summary.';
   if (command.endsWith('tasks:create')) return 'Create a local shared task for any Vyra agent.';
+  if (command.endsWith('tasks:update')) return 'Update local task fields, linked entities, due dates, and dependency metadata.';
   if (command.endsWith('tasks:assign')) return 'Assign, reassign, or escalate a task locally.';
   if (command.endsWith('tasks:claim')) return 'Claim a local shared task for an agent.';
+  if (command.endsWith('tasks:route')) return 'Route a task between supported agents using local handoff rules.';
+  if (command.endsWith('tasks:block')) return 'Mark a local task blocked and record the blocker reason.';
+  if (command.endsWith('tasks:unblock')) return 'Clear a local blocker and return the task to a safe work state.';
   if (command.endsWith('tasks:complete')) return 'Mark a local shared task completed without external action.';
   if (command.endsWith('tasks:archive')) return 'Archive a local shared task record.';
-  if (command.endsWith('tasks:report')) return 'Generate local Work Queue, Executive Task Summary, Agent Workload, and Blocked Work reports.';
+  if (command.endsWith('tasks:dependencies')) return 'Inspect local task dependencies, blockers, and downstream impact.';
+  if (command.endsWith('tasks:queue')) return 'Print one deterministic local work queue such as Sales, Executive, Operator, Blocked, or Due Soon.';
+  if (command.endsWith('tasks:report')) return 'Generate local universal task, queue, workload, blocked, dependency, completion, and bottleneck reports.';
   if (command.endsWith('tasks:validate')) return 'Validate shared task schema, examples, generated tasks, and safety rails.';
   if (command.includes('memory:')) return 'Manage local cross-agent shared memory, facts, relationships, conflicts, reports, and validation.';
   if (command.endsWith('connectors:status')) return 'Print local connector readiness and approval-gate status.';

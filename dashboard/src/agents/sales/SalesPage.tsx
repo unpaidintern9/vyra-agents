@@ -1062,30 +1062,65 @@ export default function SalesPage({
             <div className="panel-header">
               <div>
                 <ListChecks size={18} />
-                <h2>Shared Sales Work Queue</h2>
+              <h2>Sales Work Queue</h2>
               </div>
               <StatusBadge value={`${sharedTaskSummary.queueHealth} · local only`} tone={sharedTaskSummary.blockedTasks ? 'warn' : 'good'} />
             </div>
-            <p className="panel-description">
-              Sales-linked work is coordinated through the shared local task system. Tasks may point to Migration, Engineering, proposals, follow-ups, and onboarding, but they do not perform external actions.
-            </p>
+            <p className="panel-description">Sales work, follow-ups, proposal prep, blockers, and due-soon tasks are coordinated through local shared task records only.</p>
             <div className="batch-grid">
-              <Fact label="Linked Tasks" value={String(sharedTaskSummary.openTasks)} />
-              <Fact label="Migration Tasks" value={String(sharedTaskSummary.migrationTasks)} />
-              <Fact label="Engineering Tasks" value={String(sharedTaskSummary.engineeringTasks)} />
-              <Fact label="Follow-Up Tasks" value={String(sharedTaskSummary.followUpTasks)} />
-              <Fact label="Proposal Tasks" value={String(sharedTaskSummary.proposalTasks)} />
-              <Fact label="Customer Onboarding Tasks" value={String(sharedTaskSummary.activeWorkQueue.filter((task) => task.category === 'Customer').length)} />
+              <Fact label="Sales Queue" value={String(sharedTaskSummary.salesQueue.length)} />
+              <Fact label="Sales Follow-Up Tasks" value={String(sharedTaskSummary.followUpTasks)} />
+              <Fact label="Sales Proposal Tasks" value={String(sharedTaskSummary.proposalQueue.length)} />
+              <Fact label="Sales Blocked Work" value={String(sharedTaskSummary.blockedWork.length)} />
+              <Fact label="Sales Due Soon" value={String(sharedTaskSummary.dueSoon.length)} />
+              <Fact label="Executive Queue" value={String(sharedTaskSummary.executiveQueue.length)} />
             </div>
             <DataTable
-              columns={['Task', 'Agent', 'Priority', 'Status', 'Organization']}
-              rows={sharedTaskSummary.activeWorkQueue.map((task) => [
+              columns={['Sales Work Queue', 'Why It Matters', 'Status', 'Next Action']}
+              rows={sharedTaskSummary.salesQueue.map((task) => [
                 task.title,
-                task.assignedAgent,
-                <StatusBadge key={`${task.id}-priority`} value={task.priority} tone={task.priority === 'Critical' || task.priority === 'High' ? 'warn' : 'neutral'} />,
-                task.status,
-                task.organization,
+                task.queueReasons[0] ?? task.organization,
+                <StatusBadge key={`${task.id}-status`} value={`${task.priority} · ${task.status}`} tone={task.priority === 'Critical' || task.priority === 'High' ? 'warn' : 'neutral'} />,
+                task.recommendedNextAction,
               ])}
+              emptyMessage="No Sales work queue items are ready."
+            />
+            <DataTable
+              columns={['Sales Follow-Up Tasks', 'Due', 'Risk', 'Action']}
+              rows={sharedTaskSummary.salesQueue
+                .filter((task) => task.taskType === 'follow-up')
+                .map((task) => [task.title, formatDate(task.dueDate), task.slaRisk, task.recommendedNextAction])}
+              emptyMessage="No Sales follow-up tasks are due."
+            />
+            <DataTable
+              columns={['Sales Proposal Tasks', 'Company', 'Blockers', 'Action']}
+              rows={sharedTaskSummary.proposalQueue.map((task) => [
+                task.title,
+                task.organization,
+                task.blockers.join('; ') || 'Ready for local prep',
+                task.recommendedNextAction,
+              ])}
+              emptyMessage="No Sales proposal tasks are queued."
+            />
+            <DataTable
+              columns={['Sales Blocked Work', 'Blocker', 'Owner', 'Action']}
+              rows={sharedTaskSummary.blockedWork.map((task) => [
+                task.title,
+                task.blockers.join('; ') || task.slaRisk,
+                task.assignedAgent,
+                task.recommendedNextAction,
+              ])}
+              emptyMessage="No blocked Sales work."
+            />
+            <DataTable
+              columns={['Sales Due Soon', 'Due', 'Urgency', 'Reason']}
+              rows={sharedTaskSummary.dueSoon.map((task) => [
+                task.title,
+                formatDate(task.dueDate),
+                <StatusBadge key={`${task.id}-urgency`} value={task.urgencyLabel} tone={task.urgencyLabel === 'Critical' ? 'warn' : 'neutral'} />,
+                task.queueReasons[1] ?? task.recommendedNextAction,
+              ])}
+              emptyMessage="No Sales tasks are due soon."
             />
           </section>
         ) : null}

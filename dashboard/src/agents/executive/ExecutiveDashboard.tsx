@@ -78,6 +78,7 @@ export default function ExecutiveDashboard({
         {salesOrganizationIntelligenceSummary ? <ExecutiveRelationshipSummaryPanel summary={salesOrganizationIntelligenceSummary} /> : null}
         {salesResearchIntelligenceSummary ? <ExecutiveResearchIntelligencePanel summary={salesResearchIntelligenceSummary} /> : null}
         {salesWorkflowSummary ? <ExecutiveSalesWorkflowPanel summary={salesWorkflowSummary} /> : null}
+        {sharedTaskSummary ? <ExecutiveWorkQueuePanel sharedTaskSummary={sharedTaskSummary} /> : null}
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
         {summary.executiveEmailBriefing ? <ExecutiveEmailBriefingPanel briefing={summary.executiveEmailBriefing} /> : null}
         <ExecutiveTimeline timeline={summary.timeline} />
@@ -91,6 +92,49 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveWorkQueuePanel({ sharedTaskSummary }: { sharedTaskSummary: NonNullable<ExecutiveDashboardProps['sharedTaskSummary']> }) {
+  return (
+    <section className="panel wide-panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Executive Work Queue</h2>
+        </div>
+        <span>{sharedTaskSummary.queueHealth}</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact"><span>Approval Tasks</span><strong>{sharedTaskSummary.executiveQueue.length}</strong></div>
+        <div className="fact"><span>Strategic Tasks</span><strong>{sharedTaskSummary.activeWorkQueue.filter((task) => task.priority === 'Critical').length}</strong></div>
+        <div className="fact"><span>Blocked Decisions</span><strong>{sharedTaskSummary.blockedWork.length}</strong></div>
+        <div className="fact"><span>Overdue Executive Items</span><strong>{sharedTaskSummary.overdueWork.filter((task) => task.assignedAgent === 'Executive').length}</strong></div>
+      </div>
+      <DataTable
+        columns={['Executive Work Queue', 'Company', 'Priority', 'Next Action']}
+        rows={sharedTaskSummary.executiveQueue.map((task) => [task.title, task.organization, `${task.priority} · ${task.status}`, task.recommendedNextAction])}
+        emptyMessage="No Executive work queue items."
+      />
+      <DataTable
+        columns={['Approval Tasks', 'Reason', 'SLA Risk']}
+        rows={sharedTaskSummary.executiveQueue.map((task) => [task.title, task.queueReasons[0] ?? 'Manual Executive review required.', task.slaRisk])}
+        emptyMessage="No approval tasks."
+      />
+      <DataTable
+        columns={['Blocked Decisions', 'Blocker', 'Owner']}
+        rows={sharedTaskSummary.blockedWork.map((task) => [task.title, task.blockers.join('; ') || task.slaRisk, task.assignedAgent])}
+        emptyMessage="No blocked decisions."
+      />
+      <DataTable
+        columns={['Overdue Executive Items', 'Due', 'Action']}
+        rows={sharedTaskSummary.overdueWork
+          .filter((task) => task.assignedAgent === 'Executive')
+          .map((task) => [task.title, task.dueDate.slice(0, 10), task.recommendedNextAction])}
+        emptyMessage="No overdue Executive items."
+      />
+      <p className="subtle-note">Executive task queues are read-only and local. They do not approve, browse, email, sync CRM records, or submit proposals.</p>
+    </section>
   );
 }
 

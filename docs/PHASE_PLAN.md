@@ -92,6 +92,33 @@ Boundaries:
 - No CRM, Stripe, or Supabase production writes.
 - No secrets committed.
 
+## Phase 53
+
+Universal Task & Work Queue Engine.
+
+Includes:
+
+- Local universal task records for Sales, Operator, Executive, Proposal Prep, Contract Intelligence, Memory, and future agents.
+- Compatibility adapter for existing shared task records.
+- Universal statuses, task types, priority scoring, aging buckets, SLA risk, blockers, dependency paths, downstream impact, and recommended next actions.
+- Local state transition audit trails with invalid transition blocking.
+- Local task routing for approved cross-agent handoff patterns.
+- Work queues for Universal Work Queue, My Work, Executive Queue, Operator Queue, Sales Queue, Proposal Queue, Contract Queue, Memory Queue, Blocked Work, Due Soon, Overdue, Completed Today, and Archived.
+- Sales, Executive, Operator, and shared dashboard queue views.
+- Root npm scripts for `tasks:update`, `tasks:route`, `tasks:block`, `tasks:unblock`, `tasks:dependencies`, and `tasks:queue` in addition to existing task commands.
+- Universal Task Inventory, Work Queue Summary, Overdue Task, Blocked Work, Dependency, Cross-Agent Workload, Executive Task, Operator Task, Sales Task, Completion, and Bottleneck reports.
+
+Boundaries:
+
+- Local execution only.
+- No autonomous browsing.
+- No autonomous email sending.
+- No CRM synchronization.
+- No proposal submission.
+- No automatic Executive approval.
+- No automatic source approval.
+- No automatic external action.
+
 ## Phase 0
 
 Local repo setup, GitHub connection, folder structure, docs.

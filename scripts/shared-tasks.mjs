@@ -7,8 +7,14 @@ import {
   completeSharedTask,
   createSharedTask,
   escalateSharedTask,
+  blockSharedTask,
+  getTaskDependencies,
+  getTaskQueue,
   getSharedTaskReport,
   listSharedTasks,
+  routeSharedTask,
+  unblockSharedTask,
+  updateSharedTask,
   validateSharedTaskLayer,
 } from './shared-task-runtime.mjs';
 
@@ -46,6 +52,41 @@ switch (command) {
           }),
     );
     break;
+  case 'update':
+    outputJson(updateSharedTask({ id: args.id ?? args.task ?? '', operator: args.operator ?? 'local operator', ...args }));
+    break;
+  case 'route':
+    outputJson(
+      routeSharedTask({
+        id: args.id ?? args.task ?? '',
+        sourceAgent: args.sourceAgent ?? args.source,
+        targetAgent: args.targetAgent ?? args.target ?? args.agent,
+        operator: args.operator ?? 'local operator',
+        notes: args.notes,
+        reason: args.reason,
+      }),
+    );
+    break;
+  case 'block':
+    outputJson(
+      blockSharedTask({
+        id: args.id ?? args.task ?? '',
+        operator: args.operator ?? 'local operator',
+        notes: args.notes,
+        blockedReason: args.blockedReason ?? args.reason,
+      }),
+    );
+    break;
+  case 'unblock':
+    outputJson(
+      unblockSharedTask({
+        id: args.id ?? args.task ?? '',
+        operator: args.operator ?? 'local operator',
+        notes: args.notes,
+        nextStatus: args.nextStatus ?? args.status,
+      }),
+    );
+    break;
   case 'claim':
     outputJson(
       claimSharedTask({
@@ -61,6 +102,12 @@ switch (command) {
     break;
   case 'archive':
     outputJson(archiveSharedTask({ id: args.id ?? args.task ?? '', operator: args.operator ?? 'local operator', notes: args.notes }));
+    break;
+  case 'dependencies':
+    outputJson(getTaskDependencies(args.id ?? args.task));
+    break;
+  case 'queue':
+    outputJson(getTaskQueue(args.name ?? args.queue ?? 'Universal Work Queue'));
     break;
   case 'report':
     outputJson(getSharedTaskReport());

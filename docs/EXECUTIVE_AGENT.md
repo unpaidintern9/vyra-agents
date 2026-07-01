@@ -82,3 +82,11 @@ This summary helps identify where major opportunities need relationship work bef
 The Executive dashboard includes a Cross-Agent Knowledge Summary with strategic entities, relationships, risky facts, memory conflicts, duplicate entity queue, and decision-history facts.
 
 This view is read-only and advisory. It does not approve decisions, sync CRM data, browse, email, submit proposals, or merge entities.
+
+## Phase 53 Universal Work Queue
+
+The Executive dashboard includes an Executive Work Queue with Approval Tasks, Strategic Tasks, Blocked Decisions, and Overdue Executive Items.
+
+Executive queue records are local task records from the Universal Task Engine. They can represent manual approval needs, strategic decisions, external-action gates, and blocked cross-agent work, but the dashboard does not approve or execute those actions.
+
+Use `npm run tasks:queue -- --queue "Executive Queue"` and `npm run tasks:dependencies` for local inspection.

@@ -24,3 +24,9 @@ Operator can use this queue to decide what local records need attention. It does
 The Operator dashboard includes a Memory Maintenance Queue for shared memory conflicts, missing verification, duplicate entity review, and stale fact review.
 
 All memory maintenance is local and review-only. Operator can inspect what needs work, but the dashboard does not auto-resolve conflicts, merge entities, overwrite facts, or perform external actions.
+
+## Phase 53 Universal Work Queue
+
+The Operator dashboard includes Operator Work Queue, Verification Tasks, Missing Info Tasks, Memory Maintenance Tasks, Blocked Work, Due Soon, Universal Work Queue, Cross-Agent Workload, Task Dependencies, Overdue Work, and Completed Today.
+
+Operator can use these queues to decide what local records need attention. CLI commands can route, block, unblock, complete, and archive local task records with audit history. No dashboard view executes external work.
