@@ -1,4 +1,4 @@
-import { Brain, CalendarClock, Download, FileClock, FileText, Flame, ListChecks, Network, Search, ShieldCheck, Target, Upload, Users, Workflow } from 'lucide-react';
+import { Activity, AlertTriangle, Brain, CalendarClock, Download, FileClock, FileText, Flame, ListChecks, Network, Search, ShieldCheck, Target, Upload, Users, Workflow } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { RiskBadge } from '../../components/RiskBadge';
@@ -69,6 +69,9 @@ export default function SalesPage({
   researchIntake,
   researchIntelligenceSummary,
   researchSources,
+  salesProposalPrepQueue,
+  salesWorkflowSummary,
+  salesWorkflows,
   scores,
   salesIntelligenceGraph,
   salesIntelligenceSummary,
@@ -150,6 +153,10 @@ export default function SalesPage({
     })),
   );
   const recentResearch = [...researchIntake].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+  const activeWorkflows = salesWorkflows.filter((workflow) => !['completed', 'archived', 'rejected'].includes(workflow.status));
+  const blockedWorkflows = salesWorkflows.filter((workflow) => workflow.status === 'blocked');
+  const executiveApprovalWorkflows = salesWorkflows.filter((workflow) => workflow.targetAgent === 'Executive' || workflow.approvalRequirement);
+  const recentWorkflowActivity = salesWorkflows.flatMap((workflow) => workflow.auditTrail.map((audit) => ({ ...audit, company: workflow.company, workflowId: workflow.id }))).slice(0, 6);
   const selectedDossierIntake = selectedDossier ? prospectIntakes.find((intake) => intake.id === selectedDossier.intakeId) ?? null : null;
   const selectedOrganization =
     salesIntelligenceGraph.organizationProfiles.find((profile) => profile.id === selectedOrganizationId) ??
@@ -227,6 +234,10 @@ export default function SalesPage({
         <SalesMetric icon={<FileClock size={20} />} label="Research Reviews" value={String(researchIntelligenceSummary.pendingReviews)} tone={researchIntelligenceSummary.pendingReviews ? 'warn' : 'good'} />
         <SalesMetric icon={<Search size={20} />} label="Verification Queue" value={String(researchIntelligenceSummary.verificationQueue)} tone={researchIntelligenceSummary.verificationQueue ? 'warn' : 'good'} />
         <SalesMetric icon={<Network size={20} />} label="Duplicate Alerts" value={String(researchIntelligenceSummary.duplicateAlerts)} tone={researchIntelligenceSummary.duplicateAlerts ? 'warn' : 'good'} />
+        <SalesMetric icon={<Workflow size={20} />} label="Active Handoffs" value={String(salesWorkflowSummary.activeHandoffs)} tone={salesWorkflowSummary.activeHandoffs ? 'warn' : 'good'} />
+        <SalesMetric icon={<ShieldCheck size={20} />} label="Approval Queue" value={String(salesWorkflowSummary.approvalQueue)} tone={salesWorkflowSummary.approvalQueue ? 'warn' : 'good'} />
+        <SalesMetric icon={<FileText size={20} />} label="Proposal Prep Queue" value={String(salesWorkflowSummary.proposalPrepItems)} />
+        <SalesMetric icon={<AlertTriangle size={20} />} label="Blocked Workflows" value={String(salesWorkflowSummary.blockedWorkflows)} tone={salesWorkflowSummary.blockedWorkflows ? 'warn' : 'good'} />
         <SalesMetric icon={<Workflow size={20} />} label="Cross-Agent Signals" value={String(crossAgentSummary.activeSignals)} tone={crossAgentSummary.activeSignals ? 'warn' : 'good'} />
         {connectorReadiness ? (
           <SalesMetric icon={<Network size={20} />} label="Connector Writes Blocked" value={String(connectorReadiness.blockedWriteActionCount)} tone="warn" />
@@ -240,6 +251,122 @@ export default function SalesPage({
       </section>
 
       <section className="dashboard-grid">
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Workflow size={18} />
+              <h2>Workflow Overview</h2>
+            </div>
+            <StatusBadge value={`${salesWorkflowSummary.workflowHealth}% health`} tone={salesWorkflowSummary.blockedWorkflows ? 'warn' : 'good'} />
+          </div>
+          <p className="panel-description">
+            Local orchestration layer for Sales handoffs into Operator, Executive, and Proposal Prep. External actions stay gated and manual.
+          </p>
+          <div className="batch-grid">
+            <Fact label="Total Workflows" value={String(salesWorkflowSummary.totalWorkflows)} />
+            <Fact label="Active Handoffs" value={String(salesWorkflowSummary.activeHandoffs)} />
+            <Fact label="Operator Handoffs" value={String(salesWorkflowSummary.assignedToOperator)} />
+            <Fact label="Executive Approvals" value={String(salesWorkflowSummary.assignedToExecutive)} />
+            <Fact label="Proposal Prep" value={String(salesWorkflowSummary.assignedToProposalPrep)} />
+            <Fact label="External Gates" value={String(salesWorkflowSummary.externalActionGates)} />
+          </div>
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <ListChecks size={18} />
+              <h2>Active Handoffs</h2>
+            </div>
+          </div>
+          <DataTable
+            columns={['Company', 'Type', 'Target', 'Status', 'Priority', 'Next Action']}
+            rows={activeWorkflows.map((workflow) => [
+              workflow.company,
+              workflow.type.replace(/_/g, ' '),
+              workflow.targetAgent,
+              workflow.status.replace(/_/g, ' '),
+              workflow.priority,
+              workflow.requestedAction,
+            ])}
+            emptyMessage="No active handoffs."
+          />
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <FileText size={18} />
+              <h2>Proposal Prep Queue</h2>
+            </div>
+          </div>
+          <DataTable
+            columns={['Company', 'Readiness', 'Missing Info', 'Source Confidence', 'Verification', 'Executive Approval', 'Next Action']}
+            rows={salesProposalPrepQueue.map((item) => [
+              item.company,
+              `${item.readinessPercent}%`,
+              item.missingInfo.join(', '),
+              `${item.sourceConfidence}%`,
+              item.verificationStatus.replace(/_/g, ' '),
+              item.executiveApprovalStatus.replace(/_/g, ' '),
+              item.nextAction,
+            ])}
+            emptyMessage="No proposal prep queue items."
+          />
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <ShieldCheck size={18} />
+              <h2>Executive Approval Queue</h2>
+            </div>
+          </div>
+          <DataTable
+            columns={['Company', 'Type', 'Approval', 'Reason']}
+            rows={executiveApprovalWorkflows.map((workflow) => [
+              workflow.company,
+              workflow.type.replace(/_/g, ' '),
+              workflow.approvalStatus.replace(/_/g, ' '),
+              workflow.reason,
+            ])}
+            emptyMessage="No Executive approvals queued."
+          />
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <AlertTriangle size={18} />
+              <h2>Blocked Workflows</h2>
+            </div>
+          </div>
+          <DataTable
+            columns={['Company', 'Type', 'Owner', 'Next Action']}
+            rows={blockedWorkflows.map((workflow) => [workflow.company, workflow.type.replace(/_/g, ' '), workflow.owner, workflow.requestedAction])}
+            emptyMessage="No blocked workflows."
+          />
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <Activity size={18} />
+              <h2>Recent Workflow Activity</h2>
+            </div>
+          </div>
+          <DataTable
+            columns={['Company', 'Transition', 'Operator', 'Next Action']}
+            rows={recentWorkflowActivity.map((activity) => [
+              activity.company,
+              `${activity.previousStatus} -> ${activity.newStatus}`,
+              activity.operator,
+              activity.nextAction,
+            ])}
+            emptyMessage="No workflow activity yet."
+          />
+        </section>
+
         <section className="panel wide-panel">
           <div className="panel-header">
             <div>

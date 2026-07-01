@@ -10,6 +10,8 @@ Phase 47 adds a complete local CRM and opportunity management engine. It is inde
 
 Phase 48 adds a local Research Source Manager and Research Intake Pipeline. It remains independent of `vyraapp.fit` and stores all source, intake, verification, duplicate, enrichment, and review records under the local Sales opportunity folder.
 
+Phase 49 adds local multi-agent workflow orchestration across Sales, Operator, Executive, and Proposal Prep. It creates handoff workflows, status transitions, approval gates, proposal prep queue records, and audit history without any external CRM dependency.
+
 ## Current Scope
 
 The Sales Agent MVP includes:
@@ -48,6 +50,7 @@ The Sales Agent MVP includes:
 - Local CRM opportunity management with pipeline overview, Kanban, table, detail view, immutable timelines, deterministic scoring, follow-up planning, proposal readiness, archive/restore/merge CLI actions, and Executive/Operator read-only summaries.
 - Research Source Manager with source categories, trust/confidence scoring, approval workflow, and source utilization reports.
 - Research Intake Pipeline with verification records, duplicate candidates, enrichment history, review history, confidence trends, and Executive/Operator/Sales read-only dashboards.
+- Multi-agent Sales workflow orchestration with Sales-to-Operator handoffs, Sales-to-Executive approval gates, Sales-to-Proposal Prep queue items, blocked workflow visibility, and transition audit trails.
 
 ## Local Storage
 
@@ -62,6 +65,7 @@ Sales records persist in browser localStorage:
 - `vyra-agents:sales-research-sources`
 - `vyra-agents:sales-research-intake`
 - `vyra-agents:sales-research-enrichment-history`
+- `vyra-agents:sales-workflows`
 
 These are local browser records, not CRM records.
 
@@ -187,3 +191,22 @@ Use these local commands:
 - `npm run sales:sources-report`
 
 See `docs/RESEARCH_SOURCES.md` and `docs/RESEARCH_INTAKE.md`.
+
+## Phase 49 Workflow Orchestration
+
+Use these local commands:
+
+- `npm run sales:workflows`
+- `npm run sales:create-handoff`
+- `npm run sales:update-workflow`
+- `npm run sales:assign-workflow`
+- `npm run sales:approve-handoff`
+- `npm run sales:reject-handoff`
+- `npm run sales:block-handoff`
+- `npm run sales:complete-handoff`
+- `npm run sales:archive-workflow`
+- `npm run sales:proposal-queue`
+- `npm run sales:workflow-report`
+- `npm run sales:workflow-validate`
+
+See `docs/SALES_WORKFLOWS.md` and `docs/PROPOSAL_PREP_QUEUE.md`.

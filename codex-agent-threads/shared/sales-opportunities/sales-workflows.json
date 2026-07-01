@@ -1,0 +1,1044 @@
+{
+  "generatedAt": "2026-07-01T15:45:08.238Z",
+  "localOnly": true,
+  "workflows": [
+    {
+      "id": "wf-research-area-502",
+      "type": "research_request",
+      "sourceAgent": "Sales",
+      "targetAgent": "Operator",
+      "opportunityId": "opp-area-502-mma",
+      "company": "Area 502 MMA",
+      "priority": "High",
+      "status": "completed",
+      "owner": "Operator",
+      "requestedAction": "Verify website, owner/contact path, and current software.",
+      "reason": "Verify website, owner/contact path, and current software.",
+      "requiredInputs": [
+        "verified contact path",
+        "approved source",
+        "current software",
+        "requirements notes"
+      ],
+      "missingInformation": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "relatedSourceIds": [
+        "src-manual-notes"
+      ],
+      "relatedIntakeIds": [
+        "intake-opp-area-502-mma"
+      ],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedDraftIds": [
+        "draft-opp-area-502-mma"
+      ],
+      "approvalRequirement": false,
+      "approvalStatus": "not_required",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:46:32.158Z",
+      "dueAt": "2026-07-03T15:45:08.238Z",
+      "completedAt": "2026-07-01T15:46:32.158Z",
+      "auditTrail": [
+        {
+          "id": "audit-wf-research-area-502-20260701T154632Z",
+          "workflowId": "wf-research-area-502",
+          "timestamp": "2026-07-01T15:46:32.158Z",
+          "previousStatus": "assigned",
+          "newStatus": "completed",
+          "operator": "Sales Agent CLI",
+          "reason": "Local workflow status transition.",
+          "affectedArtifacts": [
+            "opp-area-502-mma",
+            "src-manual-notes",
+            "intake-opp-area-502-mma",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-area-502-mma"
+          ],
+          "confidenceImpact": 86,
+          "nextAction": "Verify website, owner/contact path, and current software."
+        },
+        {
+          "id": "audit-wf-research-area-502-20260701T154631Z",
+          "workflowId": "wf-research-area-502",
+          "timestamp": "2026-07-01T15:46:31.425Z",
+          "previousStatus": "queued",
+          "newStatus": "assigned",
+          "operator": "Sales Agent CLI",
+          "reason": "Local workflow status transition.",
+          "affectedArtifacts": [
+            "opp-area-502-mma",
+            "src-manual-notes",
+            "intake-opp-area-502-mma",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-area-502-mma"
+          ],
+          "confidenceImpact": 86,
+          "nextAction": "Verify website, owner/contact path, and current software."
+        },
+        {
+          "id": "audit-wf-research-area-502-20260701T154508Z",
+          "workflowId": "wf-research-area-502",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "previousStatus": "draft",
+          "newStatus": "queued",
+          "operator": "Sales Agent CLI",
+          "reason": "Initial Phase 49 local orchestration seed.",
+          "affectedArtifacts": [
+            "opp-area-502-mma",
+            "src-manual-notes",
+            "intake-opp-area-502-mma",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-area-502-mma"
+          ],
+          "confidenceImpact": 86,
+          "nextAction": "Verify website, owner/contact path, and current software."
+        }
+      ]
+    },
+    {
+      "id": "wf-verify-louisville-combat",
+      "type": "verification_request",
+      "sourceAgent": "Sales",
+      "targetAgent": "Operator",
+      "opportunityId": "opp-louisville-combat-academy",
+      "company": "Louisville Combat Academy",
+      "priority": "High",
+      "status": "assigned",
+      "owner": "Operator",
+      "requestedAction": "Verify contact path and source confidence before outreach prep.",
+      "reason": "Verify contact path and source confidence before outreach prep.",
+      "requiredInputs": [
+        "verified contact path",
+        "approved source",
+        "current software",
+        "requirements notes"
+      ],
+      "missingInformation": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "relatedSourceIds": [
+        "src-public-website"
+      ],
+      "relatedIntakeIds": [
+        "intake-opp-louisville-combat-academy"
+      ],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedDraftIds": [
+        "draft-opp-louisville-combat-academy"
+      ],
+      "approvalRequirement": false,
+      "approvalStatus": "not_required",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z",
+      "dueAt": "2026-07-03T15:45:08.238Z",
+      "completedAt": null,
+      "auditTrail": [
+        {
+          "id": "audit-wf-verify-louisville-combat-20260701T154508Z",
+          "workflowId": "wf-verify-louisville-combat",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "previousStatus": "draft",
+          "newStatus": "assigned",
+          "operator": "Sales Agent CLI",
+          "reason": "Initial Phase 49 local orchestration seed.",
+          "affectedArtifacts": [
+            "opp-louisville-combat-academy",
+            "src-public-website",
+            "intake-opp-louisville-combat-academy",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-louisville-combat-academy"
+          ],
+          "confidenceImpact": 86,
+          "nextAction": "Verify contact path and source confidence before outreach prep."
+        }
+      ]
+    },
+    {
+      "id": "wf-duplicate-louisville-combat",
+      "type": "duplicate_review",
+      "sourceAgent": "Sales",
+      "targetAgent": "Operator",
+      "opportunityId": "opp-louisville-combat-academy",
+      "company": "Louisville Combat Academy",
+      "priority": "High",
+      "status": "in_review",
+      "owner": "Operator",
+      "requestedAction": "Review possible duplicate opportunity; do not merge automatically.",
+      "reason": "Review possible duplicate opportunity; do not merge automatically.",
+      "requiredInputs": [
+        "verified contact path",
+        "approved source",
+        "current software",
+        "requirements notes"
+      ],
+      "missingInformation": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "relatedSourceIds": [
+        "src-public-website"
+      ],
+      "relatedIntakeIds": [
+        "intake-opp-louisville-combat-academy"
+      ],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedDraftIds": [
+        "draft-opp-louisville-combat-academy"
+      ],
+      "approvalRequirement": false,
+      "approvalStatus": "not_required",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z",
+      "dueAt": "2026-07-03T15:45:08.238Z",
+      "completedAt": null,
+      "auditTrail": [
+        {
+          "id": "audit-wf-duplicate-louisville-combat-20260701T154508Z",
+          "workflowId": "wf-duplicate-louisville-combat",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "previousStatus": "draft",
+          "newStatus": "in_review",
+          "operator": "Sales Agent CLI",
+          "reason": "Initial Phase 49 local orchestration seed.",
+          "affectedArtifacts": [
+            "opp-louisville-combat-academy",
+            "src-public-website",
+            "intake-opp-louisville-combat-academy",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-louisville-combat-academy"
+          ],
+          "confidenceImpact": 86,
+          "nextAction": "Review possible duplicate opportunity; do not merge automatically."
+        }
+      ]
+    },
+    {
+      "id": "wf-proposal-core-combat",
+      "type": "proposal_prep_handoff",
+      "sourceAgent": "Sales",
+      "targetAgent": "Proposal Prep",
+      "opportunityId": "opp-core-combat-sports",
+      "company": "Core Combat Sports",
+      "priority": "High",
+      "status": "queued",
+      "owner": "Proposal Prep",
+      "requestedAction": "Prepare proposal package after missing requirements are resolved.",
+      "reason": "Prepare proposal package after missing requirements are resolved.",
+      "requiredInputs": [
+        "verified contact path",
+        "approved source",
+        "current software",
+        "requirements notes"
+      ],
+      "missingInformation": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "relatedSourceIds": [
+        "src-manual-notes"
+      ],
+      "relatedIntakeIds": [
+        "intake-opp-core-combat-sports"
+      ],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedDraftIds": [
+        "draft-opp-core-combat-sports"
+      ],
+      "approvalRequirement": true,
+      "approvalStatus": "pending",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z",
+      "dueAt": "2026-07-03T15:45:08.238Z",
+      "completedAt": null,
+      "auditTrail": [
+        {
+          "id": "audit-wf-proposal-core-combat-20260701T154508Z",
+          "workflowId": "wf-proposal-core-combat",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "previousStatus": "draft",
+          "newStatus": "queued",
+          "operator": "Sales Agent CLI",
+          "reason": "Initial Phase 49 local orchestration seed.",
+          "affectedArtifacts": [
+            "opp-core-combat-sports",
+            "src-manual-notes",
+            "intake-opp-core-combat-sports",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-core-combat-sports"
+          ],
+          "confidenceImpact": 86,
+          "nextAction": "Prepare proposal package after missing requirements are resolved."
+        }
+      ]
+    },
+    {
+      "id": "wf-exec-apex",
+      "type": "executive_approval",
+      "sourceAgent": "Sales",
+      "targetAgent": "Executive",
+      "opportunityId": "opp-apex-martial-arts-academy",
+      "company": "Apex Martial Arts Academy",
+      "priority": "High",
+      "status": "in_review",
+      "owner": "Executive",
+      "requestedAction": "High-fit prospect requires Executive approval before proposal readiness.",
+      "reason": "High-fit prospect requires Executive approval before proposal readiness.",
+      "requiredInputs": [
+        "verified contact path",
+        "approved source",
+        "current software",
+        "requirements notes"
+      ],
+      "missingInformation": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "relatedSourceIds": [
+        "src-public-website"
+      ],
+      "relatedIntakeIds": [
+        "intake-opp-apex-martial-arts-academy"
+      ],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedDraftIds": [
+        "draft-opp-apex-martial-arts-academy"
+      ],
+      "approvalRequirement": true,
+      "approvalStatus": "pending",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z",
+      "dueAt": "2026-07-03T15:45:08.238Z",
+      "completedAt": null,
+      "auditTrail": [
+        {
+          "id": "audit-wf-exec-apex-20260701T154508Z",
+          "workflowId": "wf-exec-apex",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "previousStatus": "draft",
+          "newStatus": "in_review",
+          "operator": "Sales Agent CLI",
+          "reason": "Initial Phase 49 local orchestration seed.",
+          "affectedArtifacts": [
+            "opp-apex-martial-arts-academy",
+            "src-public-website",
+            "intake-opp-apex-martial-arts-academy",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-apex-martial-arts-academy"
+          ],
+          "confidenceImpact": 86,
+          "nextAction": "High-fit prospect requires Executive approval before proposal readiness."
+        }
+      ]
+    },
+    {
+      "id": "wf-risky-linkedin-source",
+      "type": "risky_source_review",
+      "sourceAgent": "Sales",
+      "targetAgent": "Executive",
+      "opportunityId": "opp-area-502-mma",
+      "company": "Area 502 MMA",
+      "priority": "Medium",
+      "status": "blocked",
+      "owner": "Executive",
+      "requestedAction": "LinkedIn manual reference remains pending and cannot enrich opportunities yet.",
+      "reason": "LinkedIn manual reference remains pending and cannot enrich opportunities yet.",
+      "requiredInputs": [
+        "verified contact path",
+        "approved source",
+        "current software",
+        "requirements notes"
+      ],
+      "missingInformation": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "relatedSourceIds": [
+        "src-linkedin-manual"
+      ],
+      "relatedIntakeIds": [
+        "intake-opp-area-502-mma"
+      ],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedDraftIds": [
+        "draft-opp-area-502-mma"
+      ],
+      "approvalRequirement": true,
+      "approvalStatus": "blocked",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z",
+      "dueAt": "2026-07-03T15:45:08.238Z",
+      "completedAt": null,
+      "auditTrail": [
+        {
+          "id": "audit-wf-risky-linkedin-source-20260701T154508Z",
+          "workflowId": "wf-risky-linkedin-source",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "previousStatus": "draft",
+          "newStatus": "blocked",
+          "operator": "Sales Agent CLI",
+          "reason": "Initial Phase 49 local orchestration seed.",
+          "affectedArtifacts": [
+            "opp-area-502-mma",
+            "src-linkedin-manual",
+            "intake-opp-area-502-mma",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-area-502-mma"
+          ],
+          "confidenceImpact": 70,
+          "nextAction": "LinkedIn manual reference remains pending and cannot enrich opportunities yet."
+        }
+      ]
+    },
+    {
+      "id": "wf-external-action-gate",
+      "type": "external_action_gate",
+      "sourceAgent": "Sales",
+      "targetAgent": "Executive",
+      "opportunityId": "opp-area-502-mma",
+      "company": "Area 502 MMA",
+      "priority": "Critical",
+      "status": "draft",
+      "owner": "Executive",
+      "requestedAction": "Any external email, CRM sync, browsing job, or proposal submission requires manual approval.",
+      "reason": "Any external email, CRM sync, browsing job, or proposal submission requires manual approval.",
+      "requiredInputs": [
+        "verified contact path",
+        "approved source",
+        "current software",
+        "requirements notes"
+      ],
+      "missingInformation": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "relatedSourceIds": [
+        "src-manual-notes"
+      ],
+      "relatedIntakeIds": [
+        "intake-opp-area-502-mma"
+      ],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedDraftIds": [
+        "draft-opp-area-502-mma"
+      ],
+      "approvalRequirement": true,
+      "approvalStatus": "pending",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z",
+      "dueAt": "2026-07-03T15:45:08.238Z",
+      "completedAt": null,
+      "auditTrail": [
+        {
+          "id": "audit-wf-external-action-gate-20260701T154508Z",
+          "workflowId": "wf-external-action-gate",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "previousStatus": "draft",
+          "newStatus": "draft",
+          "operator": "Sales Agent CLI",
+          "reason": "Initial Phase 49 local orchestration seed.",
+          "affectedArtifacts": [
+            "opp-area-502-mma",
+            "src-manual-notes",
+            "intake-opp-area-502-mma",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-area-502-mma"
+          ],
+          "confidenceImpact": 95,
+          "nextAction": "Any external email, CRM sync, browsing job, or proposal submission requires manual approval."
+        }
+      ]
+    },
+    {
+      "id": "wf-follow-up-butchertown",
+      "type": "follow_up_preparation",
+      "sourceAgent": "Sales",
+      "targetAgent": "Operator",
+      "opportunityId": "opp-butchertown-crossfit",
+      "company": "Butchertown CrossFit",
+      "priority": "Medium",
+      "status": "assigned",
+      "owner": "Operator",
+      "requestedAction": "Prepare follow-up plan after verification queue clears.",
+      "reason": "Prepare follow-up plan after verification queue clears.",
+      "requiredInputs": [
+        "verified contact path",
+        "approved source",
+        "current software",
+        "requirements notes"
+      ],
+      "missingInformation": [
+        "pricing",
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "relatedSourceIds": [
+        "src-manual-notes"
+      ],
+      "relatedIntakeIds": [
+        "intake-opp-butchertown-crossfit"
+      ],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedDraftIds": [
+        "draft-opp-butchertown-crossfit"
+      ],
+      "approvalRequirement": false,
+      "approvalStatus": "not_required",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z",
+      "dueAt": "2026-07-03T15:45:08.238Z",
+      "completedAt": null,
+      "auditTrail": [
+        {
+          "id": "audit-wf-follow-up-butchertown-20260701T154508Z",
+          "workflowId": "wf-follow-up-butchertown",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "previousStatus": "draft",
+          "newStatus": "assigned",
+          "operator": "Sales Agent CLI",
+          "reason": "Initial Phase 49 local orchestration seed.",
+          "affectedArtifacts": [
+            "opp-butchertown-crossfit",
+            "src-manual-notes",
+            "intake-opp-butchertown-crossfit",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-butchertown-crossfit"
+          ],
+          "confidenceImpact": 70,
+          "nextAction": "Prepare follow-up plan after verification queue clears."
+        }
+      ]
+    },
+    {
+      "id": "wf-stalled-full-moon",
+      "type": "stalled_opportunity_review",
+      "sourceAgent": "Sales",
+      "targetAgent": "Executive",
+      "opportunityId": "opp-full-moon-martial-arts",
+      "company": "Full Moon Martial Arts",
+      "priority": "Medium",
+      "status": "queued",
+      "owner": "Executive",
+      "requestedAction": "Review stalled opportunity before changing status or archiving.",
+      "reason": "Review stalled opportunity before changing status or archiving.",
+      "requiredInputs": [
+        "verified contact path",
+        "approved source",
+        "current software",
+        "requirements notes"
+      ],
+      "missingInformation": [
+        "pricing",
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "relatedSourceIds": [
+        "src-public-website"
+      ],
+      "relatedIntakeIds": [
+        "intake-opp-full-moon-martial-arts"
+      ],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedDraftIds": [
+        "draft-opp-full-moon-martial-arts"
+      ],
+      "approvalRequirement": true,
+      "approvalStatus": "pending",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z",
+      "dueAt": "2026-07-03T15:45:08.238Z",
+      "completedAt": null,
+      "auditTrail": [
+        {
+          "id": "audit-wf-stalled-full-moon-20260701T154508Z",
+          "workflowId": "wf-stalled-full-moon",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "previousStatus": "draft",
+          "newStatus": "queued",
+          "operator": "Sales Agent CLI",
+          "reason": "Initial Phase 49 local orchestration seed.",
+          "affectedArtifacts": [
+            "opp-full-moon-martial-arts",
+            "src-public-website",
+            "intake-opp-full-moon-martial-arts",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-full-moon-martial-arts"
+          ],
+          "confidenceImpact": 70,
+          "nextAction": "Review stalled opportunity before changing status or archiving."
+        }
+      ]
+    },
+    {
+      "id": "wf-missing-covalence",
+      "type": "missing_info_request",
+      "sourceAgent": "Sales",
+      "targetAgent": "Operator",
+      "opportunityId": "opp-crossfit-covalence",
+      "company": "CrossFit Covalence",
+      "priority": "Medium",
+      "status": "queued",
+      "owner": "Operator",
+      "requestedAction": "Collect missing pricing, requirements, and decision-maker fields.",
+      "reason": "Collect missing pricing, requirements, and decision-maker fields.",
+      "requiredInputs": [
+        "verified contact path",
+        "approved source",
+        "current software",
+        "requirements notes"
+      ],
+      "missingInformation": [
+        "pricing",
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "relatedSourceIds": [],
+      "relatedIntakeIds": [],
+      "relatedReportIds": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "relatedDraftIds": [
+        "draft-opp-crossfit-covalence"
+      ],
+      "approvalRequirement": false,
+      "approvalStatus": "not_required",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z",
+      "dueAt": "2026-07-03T15:45:08.238Z",
+      "completedAt": null,
+      "auditTrail": [
+        {
+          "id": "audit-wf-missing-covalence-20260701T154508Z",
+          "workflowId": "wf-missing-covalence",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "previousStatus": "draft",
+          "newStatus": "queued",
+          "operator": "Sales Agent CLI",
+          "reason": "Initial Phase 49 local orchestration seed.",
+          "affectedArtifacts": [
+            "opp-crossfit-covalence",
+            "Company Research Dossier",
+            "Outreach Prep Report",
+            "draft-opp-crossfit-covalence"
+          ],
+          "confidenceImpact": 70,
+          "nextAction": "Collect missing pricing, requirements, and decision-maker fields."
+        }
+      ]
+    }
+  ],
+  "handoffRecords": [
+    {
+      "id": "handoff-wf-research-area-502",
+      "workflowId": "wf-research-area-502",
+      "sourceAgent": "Sales",
+      "targetAgent": "Operator",
+      "status": "completed",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:46:32.158Z"
+    },
+    {
+      "id": "handoff-wf-verify-louisville-combat",
+      "workflowId": "wf-verify-louisville-combat",
+      "sourceAgent": "Sales",
+      "targetAgent": "Operator",
+      "status": "assigned",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z"
+    },
+    {
+      "id": "handoff-wf-duplicate-louisville-combat",
+      "workflowId": "wf-duplicate-louisville-combat",
+      "sourceAgent": "Sales",
+      "targetAgent": "Operator",
+      "status": "in_review",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z"
+    },
+    {
+      "id": "handoff-wf-proposal-core-combat",
+      "workflowId": "wf-proposal-core-combat",
+      "sourceAgent": "Sales",
+      "targetAgent": "Proposal Prep",
+      "status": "queued",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z"
+    },
+    {
+      "id": "handoff-wf-exec-apex",
+      "workflowId": "wf-exec-apex",
+      "sourceAgent": "Sales",
+      "targetAgent": "Executive",
+      "status": "in_review",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z"
+    },
+    {
+      "id": "handoff-wf-risky-linkedin-source",
+      "workflowId": "wf-risky-linkedin-source",
+      "sourceAgent": "Sales",
+      "targetAgent": "Executive",
+      "status": "blocked",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z"
+    },
+    {
+      "id": "handoff-wf-external-action-gate",
+      "workflowId": "wf-external-action-gate",
+      "sourceAgent": "Sales",
+      "targetAgent": "Executive",
+      "status": "draft",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z"
+    },
+    {
+      "id": "handoff-wf-follow-up-butchertown",
+      "workflowId": "wf-follow-up-butchertown",
+      "sourceAgent": "Sales",
+      "targetAgent": "Operator",
+      "status": "assigned",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z"
+    },
+    {
+      "id": "handoff-wf-stalled-full-moon",
+      "workflowId": "wf-stalled-full-moon",
+      "sourceAgent": "Sales",
+      "targetAgent": "Executive",
+      "status": "queued",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z"
+    },
+    {
+      "id": "handoff-wf-missing-covalence",
+      "workflowId": "wf-missing-covalence",
+      "sourceAgent": "Sales",
+      "targetAgent": "Operator",
+      "status": "queued",
+      "createdAt": "2026-07-01T15:45:08.238Z",
+      "updatedAt": "2026-07-01T15:45:08.238Z"
+    }
+  ],
+  "approvalDecisions": [],
+  "proposalPrepQueue": [
+    {
+      "workflowId": "wf-proposal-core-combat",
+      "opportunityId": "opp-core-combat-sports",
+      "company": "Core Combat Sports",
+      "readinessPercent": 44,
+      "missingInfo": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "sourceConfidence": 80,
+      "verificationStatus": "partially_verified",
+      "executiveApprovalStatus": "pending",
+      "proposalStatus": "not_ready",
+      "nextAction": "Prepare proposal package after missing requirements are resolved."
+    }
+  ],
+  "workflowAuditHistory": [
+    {
+      "id": "audit-wf-research-area-502-20260701T154632Z",
+      "workflowId": "wf-research-area-502",
+      "timestamp": "2026-07-01T15:46:32.158Z",
+      "previousStatus": "assigned",
+      "newStatus": "completed",
+      "operator": "Sales Agent CLI",
+      "reason": "Local workflow status transition.",
+      "affectedArtifacts": [
+        "opp-area-502-mma",
+        "src-manual-notes",
+        "intake-opp-area-502-mma",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-area-502-mma"
+      ],
+      "confidenceImpact": 86,
+      "nextAction": "Verify website, owner/contact path, and current software."
+    },
+    {
+      "id": "audit-wf-research-area-502-20260701T154631Z",
+      "workflowId": "wf-research-area-502",
+      "timestamp": "2026-07-01T15:46:31.425Z",
+      "previousStatus": "queued",
+      "newStatus": "assigned",
+      "operator": "Sales Agent CLI",
+      "reason": "Local workflow status transition.",
+      "affectedArtifacts": [
+        "opp-area-502-mma",
+        "src-manual-notes",
+        "intake-opp-area-502-mma",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-area-502-mma"
+      ],
+      "confidenceImpact": 86,
+      "nextAction": "Verify website, owner/contact path, and current software."
+    },
+    {
+      "id": "audit-wf-research-area-502-20260701T154508Z",
+      "workflowId": "wf-research-area-502",
+      "timestamp": "2026-07-01T15:45:08.238Z",
+      "previousStatus": "draft",
+      "newStatus": "queued",
+      "operator": "Sales Agent CLI",
+      "reason": "Initial Phase 49 local orchestration seed.",
+      "affectedArtifacts": [
+        "opp-area-502-mma",
+        "src-manual-notes",
+        "intake-opp-area-502-mma",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-area-502-mma"
+      ],
+      "confidenceImpact": 86,
+      "nextAction": "Verify website, owner/contact path, and current software."
+    },
+    {
+      "id": "audit-wf-verify-louisville-combat-20260701T154508Z",
+      "workflowId": "wf-verify-louisville-combat",
+      "timestamp": "2026-07-01T15:45:08.238Z",
+      "previousStatus": "draft",
+      "newStatus": "assigned",
+      "operator": "Sales Agent CLI",
+      "reason": "Initial Phase 49 local orchestration seed.",
+      "affectedArtifacts": [
+        "opp-louisville-combat-academy",
+        "src-public-website",
+        "intake-opp-louisville-combat-academy",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-louisville-combat-academy"
+      ],
+      "confidenceImpact": 86,
+      "nextAction": "Verify contact path and source confidence before outreach prep."
+    },
+    {
+      "id": "audit-wf-duplicate-louisville-combat-20260701T154508Z",
+      "workflowId": "wf-duplicate-louisville-combat",
+      "timestamp": "2026-07-01T15:45:08.238Z",
+      "previousStatus": "draft",
+      "newStatus": "in_review",
+      "operator": "Sales Agent CLI",
+      "reason": "Initial Phase 49 local orchestration seed.",
+      "affectedArtifacts": [
+        "opp-louisville-combat-academy",
+        "src-public-website",
+        "intake-opp-louisville-combat-academy",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-louisville-combat-academy"
+      ],
+      "confidenceImpact": 86,
+      "nextAction": "Review possible duplicate opportunity; do not merge automatically."
+    },
+    {
+      "id": "audit-wf-proposal-core-combat-20260701T154508Z",
+      "workflowId": "wf-proposal-core-combat",
+      "timestamp": "2026-07-01T15:45:08.238Z",
+      "previousStatus": "draft",
+      "newStatus": "queued",
+      "operator": "Sales Agent CLI",
+      "reason": "Initial Phase 49 local orchestration seed.",
+      "affectedArtifacts": [
+        "opp-core-combat-sports",
+        "src-manual-notes",
+        "intake-opp-core-combat-sports",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-core-combat-sports"
+      ],
+      "confidenceImpact": 86,
+      "nextAction": "Prepare proposal package after missing requirements are resolved."
+    },
+    {
+      "id": "audit-wf-exec-apex-20260701T154508Z",
+      "workflowId": "wf-exec-apex",
+      "timestamp": "2026-07-01T15:45:08.238Z",
+      "previousStatus": "draft",
+      "newStatus": "in_review",
+      "operator": "Sales Agent CLI",
+      "reason": "Initial Phase 49 local orchestration seed.",
+      "affectedArtifacts": [
+        "opp-apex-martial-arts-academy",
+        "src-public-website",
+        "intake-opp-apex-martial-arts-academy",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-apex-martial-arts-academy"
+      ],
+      "confidenceImpact": 86,
+      "nextAction": "High-fit prospect requires Executive approval before proposal readiness."
+    },
+    {
+      "id": "audit-wf-risky-linkedin-source-20260701T154508Z",
+      "workflowId": "wf-risky-linkedin-source",
+      "timestamp": "2026-07-01T15:45:08.238Z",
+      "previousStatus": "draft",
+      "newStatus": "blocked",
+      "operator": "Sales Agent CLI",
+      "reason": "Initial Phase 49 local orchestration seed.",
+      "affectedArtifacts": [
+        "opp-area-502-mma",
+        "src-linkedin-manual",
+        "intake-opp-area-502-mma",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-area-502-mma"
+      ],
+      "confidenceImpact": 70,
+      "nextAction": "LinkedIn manual reference remains pending and cannot enrich opportunities yet."
+    },
+    {
+      "id": "audit-wf-external-action-gate-20260701T154508Z",
+      "workflowId": "wf-external-action-gate",
+      "timestamp": "2026-07-01T15:45:08.238Z",
+      "previousStatus": "draft",
+      "newStatus": "draft",
+      "operator": "Sales Agent CLI",
+      "reason": "Initial Phase 49 local orchestration seed.",
+      "affectedArtifacts": [
+        "opp-area-502-mma",
+        "src-manual-notes",
+        "intake-opp-area-502-mma",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-area-502-mma"
+      ],
+      "confidenceImpact": 95,
+      "nextAction": "Any external email, CRM sync, browsing job, or proposal submission requires manual approval."
+    },
+    {
+      "id": "audit-wf-follow-up-butchertown-20260701T154508Z",
+      "workflowId": "wf-follow-up-butchertown",
+      "timestamp": "2026-07-01T15:45:08.238Z",
+      "previousStatus": "draft",
+      "newStatus": "assigned",
+      "operator": "Sales Agent CLI",
+      "reason": "Initial Phase 49 local orchestration seed.",
+      "affectedArtifacts": [
+        "opp-butchertown-crossfit",
+        "src-manual-notes",
+        "intake-opp-butchertown-crossfit",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-butchertown-crossfit"
+      ],
+      "confidenceImpact": 70,
+      "nextAction": "Prepare follow-up plan after verification queue clears."
+    },
+    {
+      "id": "audit-wf-stalled-full-moon-20260701T154508Z",
+      "workflowId": "wf-stalled-full-moon",
+      "timestamp": "2026-07-01T15:45:08.238Z",
+      "previousStatus": "draft",
+      "newStatus": "queued",
+      "operator": "Sales Agent CLI",
+      "reason": "Initial Phase 49 local orchestration seed.",
+      "affectedArtifacts": [
+        "opp-full-moon-martial-arts",
+        "src-public-website",
+        "intake-opp-full-moon-martial-arts",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-full-moon-martial-arts"
+      ],
+      "confidenceImpact": 70,
+      "nextAction": "Review stalled opportunity before changing status or archiving."
+    },
+    {
+      "id": "audit-wf-missing-covalence-20260701T154508Z",
+      "workflowId": "wf-missing-covalence",
+      "timestamp": "2026-07-01T15:45:08.238Z",
+      "previousStatus": "draft",
+      "newStatus": "queued",
+      "operator": "Sales Agent CLI",
+      "reason": "Initial Phase 49 local orchestration seed.",
+      "affectedArtifacts": [
+        "opp-crossfit-covalence",
+        "Company Research Dossier",
+        "Outreach Prep Report",
+        "draft-opp-crossfit-covalence"
+      ],
+      "confidenceImpact": 70,
+      "nextAction": "Collect missing pricing, requirements, and decision-maker fields."
+    }
+  ],
+  "safety": {
+    "mode": "local/mock/read-only",
+    "blockedActions": [
+      "external customer email auto-send",
+      "private or login-gated scraping",
+      "robots/rate-limit bypass",
+      "CRM writes",
+      "Stripe writes",
+      "Supabase production writes",
+      "secret output"
+    ],
+    "productionWritesOccurred": false
+  }
+}

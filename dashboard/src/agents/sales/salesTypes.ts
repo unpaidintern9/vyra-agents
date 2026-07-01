@@ -115,6 +115,22 @@ export type SalesResearchScope = 'Local' | 'External';
 export type SalesResearchReviewStatus = 'pending_review' | 'reviewed' | 'approved' | 'rejected';
 export type SalesResearchEvidenceLevel = 'low' | 'medium' | 'high';
 export type SalesResearchRiskRating = 'low' | 'medium' | 'high';
+export type SalesWorkflowType =
+  | 'research_request'
+  | 'verification_request'
+  | 'duplicate_review'
+  | 'missing_info_request'
+  | 'follow_up_preparation'
+  | 'proposal_prep_handoff'
+  | 'executive_approval'
+  | 'risky_source_review'
+  | 'external_action_gate'
+  | 'proposal_readiness_review'
+  | 'stalled_opportunity_review'
+  | 'lost_opportunity_review';
+export type SalesWorkflowStatus = 'draft' | 'queued' | 'assigned' | 'in_review' | 'approved' | 'rejected' | 'blocked' | 'completed' | 'archived';
+export type SalesWorkflowAgent = 'Sales' | 'Operator' | 'Executive' | 'Proposal Prep';
+export type SalesWorkflowApprovalStatus = 'not_required' | 'required' | 'pending' | 'approved' | 'rejected' | 'blocked';
 export type SalesIntelligenceNodeType =
   | 'prospect'
   | 'organization'
@@ -334,6 +350,72 @@ export interface SalesResearchIntelligenceSummary {
   rejectedSources: number;
   researchBacklog: number;
   verificationQueue: number;
+}
+
+export interface SalesWorkflowAuditItem {
+  affectedArtifacts: string[];
+  confidenceImpact: number;
+  id: string;
+  newStatus: SalesWorkflowStatus;
+  nextAction: string;
+  operator: string;
+  previousStatus: SalesWorkflowStatus;
+  reason: string;
+  timestamp: string;
+}
+
+export interface SalesWorkflowRecord {
+  approvalRequirement: boolean;
+  approvalStatus: SalesWorkflowApprovalStatus;
+  auditTrail: SalesWorkflowAuditItem[];
+  company: string;
+  completedAt: string | null;
+  createdAt: string;
+  dueAt: string;
+  id: string;
+  missingInformation: string[];
+  opportunityId: string;
+  owner: string;
+  priority: SalesOpportunityPriority;
+  reason: string;
+  relatedDraftIds: string[];
+  relatedIntakeIds: string[];
+  relatedReportIds: string[];
+  relatedSourceIds: string[];
+  requestedAction: string;
+  requiredInputs: string[];
+  sourceAgent: SalesWorkflowAgent;
+  status: SalesWorkflowStatus;
+  targetAgent: SalesWorkflowAgent;
+  type: SalesWorkflowType;
+  updatedAt: string;
+}
+
+export interface SalesProposalPrepQueueItem {
+  company: string;
+  executiveApprovalStatus: SalesWorkflowApprovalStatus;
+  missingInfo: string[];
+  nextAction: string;
+  opportunityId: string;
+  proposalStatus: SalesOpportunityProposalStatus['status'];
+  readinessPercent: number;
+  sourceConfidence: number;
+  verificationStatus: SalesResearchIntakeItem['verificationStatus'];
+  workflowId: string;
+}
+
+export interface SalesWorkflowSummary {
+  activeHandoffs: number;
+  approvalQueue: number;
+  assignedToExecutive: number;
+  assignedToOperator: number;
+  assignedToProposalPrep: number;
+  blockedWorkflows: number;
+  completedWorkflows: number;
+  externalActionGates: number;
+  proposalPrepItems: number;
+  totalWorkflows: number;
+  workflowHealth: number;
 }
 
 export interface SalesGym {
@@ -696,6 +778,9 @@ export interface SalesPageProps {
   researchIntake: SalesResearchIntakeItem[];
   researchIntelligenceSummary: SalesResearchIntelligenceSummary;
   researchSources: SalesResearchSource[];
+  salesProposalPrepQueue: SalesProposalPrepQueueItem[];
+  salesWorkflowSummary: SalesWorkflowSummary;
+  salesWorkflows: SalesWorkflowRecord[];
   scores: LeadScore[];
   salesIntelligenceGraph: SalesIntelligenceGraph;
   salesIntelligenceSummary: SalesIntelligenceSummary;

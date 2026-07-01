@@ -22,6 +22,8 @@ Approved and reviewed research can prepare local opportunity enrichment. Every e
 
 The enrichment command records an audit trail in local storage. It does not write to `vyraapp.fit`, external CRM, Supabase production, Stripe, or email systems.
 
+Phase 49 may create verification, duplicate review, risky source review, and missing info workflows from intake records. These are local handoffs only and do not approve sources or merge duplicates automatically.
+
 ## Commands
 
 - `npm run sales:intake`

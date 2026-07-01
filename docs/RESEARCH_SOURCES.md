@@ -25,3 +25,5 @@ Supported categories include Manual Research, Public Website, Government, Busine
 Source approval is never automatic.
 
 No source command browses websites, creates accounts, bypasses access controls, writes to CRM, or synchronizes with cloud services.
+
+Phase 49 adds risky source review workflows for sources that need Executive attention. A workflow can request review, but it cannot approve a source automatically.

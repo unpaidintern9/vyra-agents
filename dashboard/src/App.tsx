@@ -55,6 +55,11 @@ import {
   summarizeSalesResearchIntelligence,
 } from './agents/sales/salesResearchIntelligence';
 import {
+  buildSalesProposalPrepQueue,
+  createInitialSalesWorkflows,
+  summarizeSalesWorkflows,
+} from './agents/sales/salesWorkflowOrchestration';
+import {
   buildOrganizationIntelligenceReport,
   buildOrganizationTimelineReport,
   buildSalesIntelligenceGraph,
@@ -96,6 +101,7 @@ import type {
   SalesResearchIntakeItem,
   SalesResearchDossier,
   SalesResearchSource,
+  SalesWorkflowRecord,
 } from './agents/sales/salesTypes';
 import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
 import { EmptyState } from './components/EmptyState';
@@ -270,6 +276,9 @@ function App() {
   const [salesResearchEnrichmentHistory] = useState(() =>
     loadLocalState<SalesEnrichmentHistoryItem[]>(localStorageKeys.salesResearchEnrichmentHistory, () => createInitialSalesEnrichmentHistory(salesOpportunities)),
   );
+  const [salesWorkflows] = useState(() =>
+    loadLocalState<SalesWorkflowRecord[]>(localStorageKeys.salesWorkflows, () => createInitialSalesWorkflows(salesOpportunities, salesResearchIntake, salesResearchSources)),
+  );
   const [lastSalesExecutionStatus, setLastSalesExecutionStatus] = useState<SalesExecutionStatus>({
     detail: 'No local Sales execution run recorded in this dashboard session.',
     generatedAt: null,
@@ -372,6 +381,14 @@ function App() {
     () => summarizeSalesResearchIntelligence(salesResearchSources, salesResearchIntake, salesResearchEnrichmentHistory),
     [salesResearchEnrichmentHistory, salesResearchIntake, salesResearchSources],
   );
+  const salesProposalPrepQueue = useMemo(
+    () => buildSalesProposalPrepQueue(salesWorkflows, salesOpportunities, salesResearchIntake),
+    [salesOpportunities, salesResearchIntake, salesWorkflows],
+  );
+  const salesWorkflowSummary = useMemo(
+    () => summarizeSalesWorkflows(salesWorkflows, salesProposalPrepQueue),
+    [salesProposalPrepQueue, salesWorkflows],
+  );
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
   const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
   const syncStatus = useMemo(
@@ -444,6 +461,7 @@ function App() {
   useEffect(() => saveLocalState(localStorageKeys.salesResearchSources, salesResearchSources), [salesResearchSources]);
   useEffect(() => saveLocalState(localStorageKeys.salesResearchIntake, salesResearchIntake), [salesResearchIntake]);
   useEffect(() => saveLocalState(localStorageKeys.salesResearchEnrichmentHistory, salesResearchEnrichmentHistory), [salesResearchEnrichmentHistory]);
+  useEffect(() => saveLocalState(localStorageKeys.salesWorkflows, salesWorkflows), [salesWorkflows]);
   useEffect(() => saveLocalState(localStorageKeys.workflowResults, workflowRuns), [workflowRuns]);
   useEffect(() => saveLocalState(localStorageKeys.migrationDryRuns, migrationDryRuns), [migrationDryRuns]);
   useEffect(() => saveLocalState(localStorageKeys.approvalHistory, approvalHistory), [approvalHistory]);
@@ -1468,6 +1486,7 @@ function App() {
     salesIntelligenceSummary,
     salesOpportunitySummary,
     salesResearchIntelligenceSummary,
+    salesWorkflowSummary,
     salesScoringSummary,
     salesSummary,
     sharedTasks: sharedTaskSummary,
@@ -1507,6 +1526,7 @@ function App() {
     repositoryIntelligence,
     salesLocalCrm: salesOpportunitySummary,
     salesResearchIntelligence: salesResearchIntelligenceSummary,
+    salesWorkflowSummary,
     sharedTasks: sharedTaskSummary,
   });
   const recordOperatorRun = () => setOperatorDashboard((current) => ({ ...current, lastRun: new Date().toISOString() }));
@@ -1719,6 +1739,9 @@ function App() {
             researchIntake={salesResearchIntake}
             researchIntelligenceSummary={salesResearchIntelligenceSummary}
             researchSources={salesResearchSources}
+            salesProposalPrepQueue={salesProposalPrepQueue}
+            salesWorkflowSummary={salesWorkflowSummary}
+            salesWorkflows={salesWorkflows}
             scores={salesScores}
             salesIntelligenceGraph={salesIntelligenceGraph}
             salesIntelligenceSummary={salesIntelligenceSummary}
@@ -1803,6 +1826,7 @@ function App() {
             salesIntelligenceSummary={salesIntelligenceSummary}
             salesProspectDossierSummary={salesProspectDossierSummary}
             salesResearchIntelligenceSummary={salesResearchIntelligenceSummary}
+            salesWorkflowSummary={salesWorkflowSummary}
             salesProposalSummary={salesProposalSummary}
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
@@ -2034,6 +2058,8 @@ function OperatorPage({
         <Metric icon={<Search size={20} />} label="Research Backlog" value={String(operator.salesResearchIntelligence.researchBacklog)} />
         <Metric icon={<ShieldCheck size={20} />} label="Approved Sources" value={String(operator.salesResearchIntelligence.approvedSources)} />
         <Metric icon={<AlertTriangle size={20} />} label="Duplicate Review" value={String(operator.salesResearchIntelligence.duplicateAlerts)} />
+        <Metric icon={<Workflow size={20} />} label="Assigned Sales Tasks" value={String(operator.salesWorkflowSummary.assignedToOperator)} />
+        <Metric icon={<AlertTriangle size={20} />} label="Blocked Workflows" value={String(operator.salesWorkflowSummary.blockedWorkflows)} />
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -2102,6 +2128,20 @@ function OperatorPage({
             <Fact label="Rejected Research Sources" value={String(operator.salesResearchIntelligence.rejectedSources)} />
             <Fact label="Approved Sources" value={String(operator.salesResearchIntelligence.approvedSources)} />
             <Fact label="Confidence Trend" value={`${operator.salesResearchIntelligence.confidenceTrend}%`} />
+          </div>
+        </Panel>
+
+        <Panel title="Assigned Sales Tasks" icon={<Workflow size={18} />} wide>
+          <p className="panel-description">
+            Read-only Operator queue for Sales handoffs. Status changes are handled by local CLI workflow commands with audit trails.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Assigned Sales Tasks" value={String(operator.salesWorkflowSummary.assignedToOperator)} />
+            <Fact label="Verification Queue" value={String(operator.salesResearchIntelligence.verificationQueue)} />
+            <Fact label="Duplicate Review Queue" value={String(operator.salesResearchIntelligence.duplicateAlerts)} />
+            <Fact label="Missing Info Queue" value={String(operator.salesResearchIntelligence.researchBacklog)} />
+            <Fact label="Proposal Prep Support Queue" value={String(operator.salesWorkflowSummary.assignedToProposalPrep)} />
+            <Fact label="Blocked Items" value={String(operator.salesWorkflowSummary.blockedWorkflows)} />
           </div>
         </Panel>
 

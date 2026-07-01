@@ -24,6 +24,7 @@ import type {
   SalesResearchIntelligenceSummary,
   SalesScoringSummary,
   SalesSummary,
+  SalesWorkflowSummary,
 } from '../sales/salesTypes';
 
 export type ExecutivePriorityLevel = RiskLevel;
@@ -108,6 +109,7 @@ export interface ExecutiveSummary {
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesResearchIntelligenceSummary?: SalesResearchIntelligenceSummary;
   salesScoringSummary?: SalesScoringSummary;
+  salesWorkflowSummary?: SalesWorkflowSummary;
   connectorReadiness?: ConnectorReadinessSummary;
   email?: GmailEmailDashboardSummary;
   engineeringTasks?: EngineeringTaskGeneratorSummary;
@@ -135,6 +137,7 @@ export interface ExecutiveDashboardProps {
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesResearchIntelligenceSummary?: SalesResearchIntelligenceSummary;
   salesScoringSummary?: SalesScoringSummary;
+  salesWorkflowSummary?: SalesWorkflowSummary;
   salesSummary?: SalesSummary;
   connectorReadiness?: ConnectorReadinessSummary;
   email?: GmailEmailDashboardSummary;

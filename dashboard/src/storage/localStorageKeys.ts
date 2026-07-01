@@ -16,6 +16,7 @@ export const localStorageKeys = {
   salesResearchEnrichmentHistory: 'vyra-agents:sales-research-enrichment-history',
   salesResearchIntake: 'vyra-agents:sales-research-intake',
   salesResearchSources: 'vyra-agents:sales-research-sources',
+  salesWorkflows: 'vyra-agents:sales-workflows',
   salesProspectDossiers: 'vyra-agents:sales-prospect-dossiers',
   salesProspectIntakes: 'vyra-agents:sales-prospect-intakes',
   salesProspectResearch: 'vyra-agents:sales-prospect-research',

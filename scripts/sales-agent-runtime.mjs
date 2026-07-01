@@ -10,6 +10,7 @@ const reportRoot = path.join(repoRoot, 'reports/agents/sales');
 const crmRoot = path.join(repoRoot, 'codex-agent-threads/shared/sales-opportunities');
 const crmPath = path.join(crmRoot, 'opportunities.json');
 const researchPath = path.join(crmRoot, 'research-intelligence.json');
+const workflowPath = path.join(crmRoot, 'sales-workflows.json');
 
 const blockedActions = [
   'external customer email auto-send',
@@ -318,6 +319,108 @@ export function buildSalesSourcesReport() {
   return { title: 'Sales Sources Report Generated', generatedAt: new Date().toISOString(), written, summary: summarizeResearchStore(store), safety: safetySummary() };
 }
 
+export function listSalesWorkflows() {
+  const store = readWorkflowStore();
+  return { title: 'Sales Workflow Orchestration', generatedAt: new Date().toISOString(), workflows: store.workflows, summary: summarizeWorkflowStore(store), safety: safetySummary() };
+}
+
+export function createSalesHandoff() {
+  const store = readWorkflowStore();
+  const opportunities = readOpportunities();
+  const now = new Date().toISOString();
+  const opportunity = opportunities.find((item) => item.id === process.env.SALES_OPPORTUNITY_ID) ?? opportunities[0];
+  const type = process.env.SALES_WORKFLOW_TYPE ?? 'research_request';
+  const targetAgent = process.env.SALES_TARGET_AGENT ?? defaultTargetAgent(type);
+  const approvalRequirement = process.env.SALES_APPROVAL_REQUIRED === 'true' || targetAgent === 'Executive' || type.includes('approval') || type === 'external_action_gate';
+  const workflow = workflowRecord({
+    id: `wf-${slugify(type)}-${slugify(opportunity.company)}-${compactStamp(now)}`,
+    type,
+    sourceAgent: process.env.SALES_SOURCE_AGENT ?? 'Sales',
+    targetAgent,
+    opportunity,
+    priority: process.env.SALES_WORKFLOW_PRIORITY ?? opportunity.priority,
+    status: 'queued',
+    requestedAction: process.env.SALES_REQUESTED_ACTION ?? 'Review local Sales handoff and record next action.',
+    reason: process.env.SALES_WORKFLOW_REASON ?? 'Created by local Sales workflow CLI.',
+    approvalRequirement,
+    now,
+    researchStore: readResearchStore(),
+  });
+  store.workflows.unshift(workflow);
+  syncWorkflowDerivedCollections(store);
+  writeWorkflowStore(store);
+  return { title: 'Sales Handoff Created', generatedAt: now, workflow, summary: summarizeWorkflowStore(store), safety: safetySummary() };
+}
+
+export function updateSalesWorkflow() {
+  const store = readWorkflowStore();
+  const id = process.env.SALES_WORKFLOW_ID ?? store.workflows[0]?.id;
+  const now = new Date().toISOString();
+  store.workflows = store.workflows.map((workflow) =>
+    workflow.id === id
+      ? {
+          ...workflow,
+          owner: process.env.SALES_WORKFLOW_OWNER ?? workflow.owner,
+          requestedAction: process.env.SALES_REQUESTED_ACTION ?? workflow.requestedAction,
+          reason: process.env.SALES_WORKFLOW_REASON ?? workflow.reason,
+          updatedAt: now,
+        }
+      : workflow,
+  );
+  store.workflowAuditHistory.unshift(auditFor(store.workflows.find((workflow) => workflow.id === id), store.workflows.find((workflow) => workflow.id === id)?.status ?? 'draft', store.workflows.find((workflow) => workflow.id === id)?.status ?? 'draft', 'workflow updated', now));
+  writeWorkflowStore(store);
+  return { title: 'Sales Workflow Updated', generatedAt: now, workflow: store.workflows.find((workflow) => workflow.id === id), safety: safetySummary() };
+}
+
+export function assignSalesWorkflow() {
+  return transitionSalesWorkflow('assigned');
+}
+
+export function approveSalesHandoff() {
+  return transitionSalesWorkflow('approved');
+}
+
+export function rejectSalesHandoff() {
+  return transitionSalesWorkflow('rejected');
+}
+
+export function blockSalesHandoff() {
+  return transitionSalesWorkflow('blocked');
+}
+
+export function completeSalesHandoff() {
+  return transitionSalesWorkflow('completed');
+}
+
+export function archiveSalesWorkflow() {
+  return transitionSalesWorkflow('archived');
+}
+
+export function listSalesProposalQueue() {
+  const store = readWorkflowStore();
+  return { title: 'Sales Proposal Prep Queue', generatedAt: new Date().toISOString(), proposalPrepQueue: store.proposalPrepQueue, summary: summarizeWorkflowStore(store), safety: safetySummary() };
+}
+
+export function buildSalesWorkflowReport() {
+  const store = readWorkflowStore();
+  const reports = buildWorkflowReports(store);
+  const written = Object.entries(reports).map(([slug, payload]) => writeSalesReport(slug, payload));
+  return { title: 'Sales Workflow Reports Generated', generatedAt: new Date().toISOString(), written, summary: summarizeWorkflowStore(store), safety: safetySummary() };
+}
+
+export function validateSalesWorkflows() {
+  const store = readWorkflowStore();
+  const errors = validateWorkflowStore(store);
+  return {
+    title: 'Sales Workflow Validation',
+    generatedAt: new Date().toISOString(),
+    status: errors.length ? 'fail' : 'pass',
+    errors,
+    summary: summarizeWorkflowStore(store),
+    safety: safetySummary(),
+  };
+}
+
 export function runSalesResearch() {
   const dossiers = salesProspects.map((prospect) => ({
     prospect: prospect.name,
@@ -367,6 +470,7 @@ export function runSalesReports() {
   const written = Object.entries(reports).map(([name, payload]) => writeSalesReport(name, payload));
   Object.entries(buildOpportunityReports(readOpportunities())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   Object.entries(buildResearchReports(readResearchStore())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
+  Object.entries(buildWorkflowReports(readWorkflowStore())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   const csv = writeCsv('prospect-research', salesProspects);
   return { title: 'Sales Reports Generated', generatedAt: new Date().toISOString(), written, csv, safety: safetySummary() };
 }
@@ -453,6 +557,8 @@ export function validateSalesExecution() {
     { name: 'Local CRM reports available', passed: Object.keys(buildOpportunityReports(readOpportunities())).length >= 9 },
     { name: 'Research intelligence storage valid', passed: validateResearchStore(readResearchStore()).length === 0 },
     { name: 'Only approved sources usable for enrichment', passed: readResearchStore().sources.some((source) => source.approvalStatus === 'Approved' && source.enabled) },
+    { name: 'Sales workflow orchestration valid', passed: validateWorkflowStore(readWorkflowStore()).length === 0 },
+    { name: 'External actions are workflow-gated', passed: readWorkflowStore().workflows.some((workflow) => workflow.type === 'external_action_gate' && workflow.approvalRequirement) },
   ];
   return {
     title: 'Sales Agent Execution Validation',
@@ -467,7 +573,7 @@ export function validateSalesExecution() {
 
 export function validateSalesReports() {
   const opportunities = readOpportunities();
-  const reports = { ...buildOpportunityReports(opportunities), ...buildResearchReports(readResearchStore()) };
+  const reports = { ...buildOpportunityReports(opportunities), ...buildResearchReports(readResearchStore()), ...buildWorkflowReports(readWorkflowStore()) };
   const checks = Object.entries(reports).map(([name, payload]) => ({ name, passed: Boolean(payload.title && (payload.rows?.length || payload.summary)) }));
   return { title: 'Sales Reports Validation', generatedAt: new Date().toISOString(), status: checks.every((check) => check.passed) ? 'pass' : 'fail', checks, safety: safetySummary() };
 }
@@ -517,6 +623,171 @@ function readResearchStore() {
 function writeResearchStore(store) {
   ensureCrmRoot();
   writeFileSync(researchPath, `${JSON.stringify(store, null, 2)}\n`);
+}
+
+function readWorkflowStore() {
+  ensureCrmRoot();
+  if (!existsSync(workflowPath)) {
+    const seeded = seedWorkflowStore(readOpportunities(), readResearchStore());
+    writeWorkflowStore(seeded);
+    return seeded;
+  }
+  return JSON.parse(readFileSync(workflowPath, 'utf8'));
+}
+
+function writeWorkflowStore(store) {
+  ensureCrmRoot();
+  syncWorkflowDerivedCollections(store);
+  writeFileSync(workflowPath, `${JSON.stringify(store, null, 2)}\n`);
+}
+
+function seedWorkflowStore(opportunities, researchStore) {
+  const now = new Date().toISOString();
+  const seed = [
+    ['wf-research-area-502', 'research_request', 'Sales', 'Operator', opportunities[0], 'High', 'queued', 'Verify website, owner/contact path, and current software.', false],
+    ['wf-verify-louisville-combat', 'verification_request', 'Sales', 'Operator', opportunities[1], 'High', 'assigned', 'Verify contact path and source confidence before outreach prep.', false],
+    ['wf-duplicate-louisville-combat', 'duplicate_review', 'Sales', 'Operator', opportunities[1], 'High', 'in_review', 'Review possible duplicate opportunity; do not merge automatically.', false],
+    ['wf-proposal-core-combat', 'proposal_prep_handoff', 'Sales', 'Proposal Prep', opportunities[2], 'High', 'queued', 'Prepare proposal package after missing requirements are resolved.', true],
+    ['wf-exec-apex', 'executive_approval', 'Sales', 'Executive', opportunities[3], 'High', 'in_review', 'High-fit prospect requires Executive approval before proposal readiness.', true],
+    ['wf-risky-linkedin-source', 'risky_source_review', 'Sales', 'Executive', opportunities[0], 'Medium', 'blocked', 'LinkedIn manual reference remains pending and cannot enrich opportunities yet.', true],
+    ['wf-external-action-gate', 'external_action_gate', 'Sales', 'Executive', opportunities[0], 'Critical', 'draft', 'Any external email, CRM sync, browsing job, or proposal submission requires manual approval.', true],
+    ['wf-follow-up-butchertown', 'follow_up_preparation', 'Sales', 'Operator', opportunities[4], 'Medium', 'assigned', 'Prepare follow-up plan after verification queue clears.', false],
+    ['wf-stalled-full-moon', 'stalled_opportunity_review', 'Sales', 'Executive', opportunities[5], 'Medium', 'queued', 'Review stalled opportunity before changing status or archiving.', true],
+    ['wf-missing-covalence', 'missing_info_request', 'Sales', 'Operator', opportunities[6], 'Medium', 'queued', 'Collect missing pricing, requirements, and decision-maker fields.', false],
+  ];
+  const workflows = seed
+    .filter((item) => item[4])
+    .map(([id, type, sourceAgent, targetAgent, opportunity, priority, status, requestedAction, approvalRequirement]) =>
+      workflowRecord({ id, type, sourceAgent, targetAgent, opportunity, priority, status, requestedAction, reason: requestedAction, approvalRequirement, now, researchStore }),
+    );
+  const store = {
+    generatedAt: now,
+    localOnly: true,
+    workflows,
+    handoffRecords: workflows.map((workflow) => ({ id: `handoff-${workflow.id}`, workflowId: workflow.id, sourceAgent: workflow.sourceAgent, targetAgent: workflow.targetAgent, status: workflow.status, createdAt: workflow.createdAt })),
+    approvalDecisions: [],
+    proposalPrepQueue: [],
+    workflowAuditHistory: workflows.flatMap((workflow) => workflow.auditTrail),
+    safety: safetySummary(),
+  };
+  syncWorkflowDerivedCollections(store);
+  return store;
+}
+
+function workflowRecord({ id, type, sourceAgent, targetAgent, opportunity, priority, status, requestedAction, reason, approvalRequirement, now, researchStore }) {
+  const intake = researchStore.intakeQueue.find((item) => item.opportunityId === opportunity.id);
+  const relatedSourceIds = type === 'risky_source_review' ? ['src-linkedin-manual'] : intake ? [intake.sourceId] : [];
+  const approvalStatus = approvalRequirement ? (status === 'approved' ? 'approved' : status === 'rejected' ? 'rejected' : status === 'blocked' ? 'blocked' : 'pending') : 'not_required';
+  const workflow = {
+    id,
+    type,
+    sourceAgent,
+    targetAgent,
+    opportunityId: opportunity.id,
+    company: opportunity.company,
+    priority,
+    status,
+    owner: targetAgent,
+    requestedAction,
+    reason,
+    requiredInputs: ['verified contact path', 'approved source', 'current software', 'requirements notes'],
+    missingInformation: opportunity.proposalPreparationStatus.missing,
+    relatedSourceIds,
+    relatedIntakeIds: intake ? [intake.id] : [],
+    relatedReportIds: opportunity.generatedReports,
+    relatedDraftIds: opportunity.draftOutreach.length ? [`draft-${opportunity.id}`] : [],
+    approvalRequirement,
+    approvalStatus,
+    createdAt: now,
+    updatedAt: now,
+    dueAt: new Date(Date.parse(now) + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    completedAt: status === 'completed' ? now : null,
+    auditTrail: [],
+  };
+  workflow.auditTrail.push(auditFor(workflow, 'draft', status, 'Initial Phase 49 local orchestration seed.', now));
+  return workflow;
+}
+
+function transitionSalesWorkflow(newStatus) {
+  const store = readWorkflowStore();
+  const id = process.env.SALES_WORKFLOW_ID ?? store.workflows[0]?.id;
+  const now = new Date().toISOString();
+  const workflow = store.workflows.find((item) => item.id === id);
+  if (!workflow) return { title: 'Sales Workflow Transition Blocked', generatedAt: now, status: 'fail', reason: 'Workflow not found.', safety: safetySummary() };
+  if (!validTransition(workflow.status, newStatus)) {
+    return { title: 'Sales Workflow Transition Blocked', generatedAt: now, status: 'fail', reason: `Invalid transition ${workflow.status} -> ${newStatus}`, workflow, safety: safetySummary() };
+  }
+  const previousStatus = workflow.status;
+  workflow.status = newStatus;
+  workflow.updatedAt = now;
+  workflow.completedAt = newStatus === 'completed' ? now : workflow.completedAt;
+  if (newStatus === 'approved') workflow.approvalStatus = 'approved';
+  if (newStatus === 'rejected') workflow.approvalStatus = 'rejected';
+  if (newStatus === 'blocked') workflow.approvalStatus = workflow.approvalRequirement ? 'blocked' : workflow.approvalStatus;
+  const audit = auditFor(workflow, previousStatus, newStatus, process.env.SALES_WORKFLOW_REASON ?? 'Local workflow status transition.', now);
+  workflow.auditTrail.unshift(audit);
+  store.workflowAuditHistory.unshift(audit);
+  if (workflow.approvalRequirement && ['approved', 'rejected', 'blocked'].includes(newStatus)) {
+    store.approvalDecisions.unshift({ id: `decision-${workflow.id}-${compactStamp(now)}`, workflowId: workflow.id, decision: newStatus, operator: audit.operator, reason: audit.reason, timestamp: now });
+  }
+  syncWorkflowDerivedCollections(store);
+  writeWorkflowStore(store);
+  return { title: 'Sales Workflow Transition Recorded', generatedAt: now, workflow, summary: summarizeWorkflowStore(store), safety: safetySummary() };
+}
+
+function validTransition(from, to) {
+  const transitions = {
+    draft: ['queued', 'assigned', 'blocked', 'archived'],
+    queued: ['assigned', 'in_review', 'blocked', 'archived'],
+    assigned: ['in_review', 'approved', 'blocked', 'completed', 'archived'],
+    in_review: ['approved', 'rejected', 'blocked', 'completed', 'archived'],
+    approved: ['completed', 'archived'],
+    rejected: ['archived'],
+    blocked: ['assigned', 'in_review', 'archived'],
+    completed: ['archived'],
+    archived: [],
+  };
+  return transitions[from]?.includes(to) ?? false;
+}
+
+function auditFor(workflow, previousStatus, newStatus, reason, timestamp) {
+  return {
+    id: `audit-${workflow?.id ?? 'unknown'}-${compactStamp(timestamp)}`,
+    workflowId: workflow?.id ?? 'unknown',
+    timestamp,
+    previousStatus,
+    newStatus,
+    operator: process.env.SALES_OPERATOR ?? 'Sales Agent CLI',
+    reason,
+    affectedArtifacts: [workflow?.opportunityId, ...(workflow?.relatedSourceIds ?? []), ...(workflow?.relatedIntakeIds ?? []), ...(workflow?.relatedReportIds ?? []), ...(workflow?.relatedDraftIds ?? [])].filter(Boolean),
+    confidenceImpact: workflow?.priority === 'Critical' ? 95 : workflow?.priority === 'High' ? 86 : 70,
+    nextAction: process.env.SALES_NEXT_ACTION ?? workflow?.requestedAction ?? 'Review next local workflow action.',
+  };
+}
+
+function syncWorkflowDerivedCollections(store) {
+  const opportunities = readOpportunities();
+  const researchStore = readResearchStore();
+  store.handoffRecords = store.workflows.map((workflow) => ({ id: `handoff-${workflow.id}`, workflowId: workflow.id, sourceAgent: workflow.sourceAgent, targetAgent: workflow.targetAgent, status: workflow.status, createdAt: workflow.createdAt, updatedAt: workflow.updatedAt }));
+  store.proposalPrepQueue = store.workflows
+    .filter((workflow) => workflow.type === 'proposal_prep_handoff' || workflow.type === 'proposal_readiness_review' || workflow.targetAgent === 'Proposal Prep')
+    .map((workflow) => {
+      const opportunity = opportunities.find((item) => item.id === workflow.opportunityId);
+      const intake = researchStore.intakeQueue.find((item) => workflow.relatedIntakeIds.includes(item.id));
+      return {
+        workflowId: workflow.id,
+        opportunityId: workflow.opportunityId,
+        company: workflow.company,
+        readinessPercent: opportunity?.proposalPreparationStatus?.readinessPercent ?? 0,
+        missingInfo: opportunity?.proposalPreparationStatus?.missing ?? workflow.missingInformation,
+        sourceConfidence: intake?.confidence ?? 0,
+        verificationStatus: intake?.verificationStatus ?? 'unverified',
+        executiveApprovalStatus: workflow.approvalStatus,
+        proposalStatus: opportunity?.proposalPreparationStatus?.status ?? 'not_ready',
+        nextAction: workflow.requestedAction,
+      };
+    });
+  return store;
 }
 
 function seedResearchStore(opportunities) {
@@ -813,6 +1084,43 @@ function buildResearchReports(store) {
   };
 }
 
+function buildWorkflowReports(store) {
+  const summary = summarizeWorkflowStore(store);
+  return {
+    'workflow-summary': workflowReport('Workflow Summary', store.workflows, summary),
+    'handoff-activity-report': workflowReport('Handoff Activity Report', store.handoffRecords, summary),
+    'approval-queue-report': workflowReport('Approval Queue Report', store.workflows.filter((workflow) => workflow.approvalRequirement), summary),
+    'blocked-workflow-report': workflowReport('Blocked Workflow Report', store.workflows.filter((workflow) => workflow.status === 'blocked'), summary),
+    'proposal-prep-queue-report': workflowReport('Proposal Prep Queue Report', store.proposalPrepQueue, summary),
+    'operator-task-report': workflowReport('Operator Task Report', store.workflows.filter((workflow) => workflow.targetAgent === 'Operator'), summary),
+    'executive-approval-report': workflowReport('Executive Approval Report', store.workflows.filter((workflow) => workflow.targetAgent === 'Executive'), summary),
+    'workflow-audit-report': workflowReport('Workflow Audit Report', store.workflowAuditHistory, summary),
+  };
+}
+
+function workflowReport(title, rows, summary) {
+  return { title, generatedAt: new Date().toISOString(), summary, rows, localOnly: true, safety: safetySummary() };
+}
+
+function summarizeWorkflowStore(store) {
+  const open = store.workflows.filter((workflow) => !['completed', 'archived', 'rejected'].includes(workflow.status));
+  const blocked = store.workflows.filter((workflow) => workflow.status === 'blocked').length;
+  const approvals = store.workflows.filter((workflow) => workflow.approvalRequirement && ['pending', 'required', 'blocked'].includes(workflow.approvalStatus)).length;
+  return {
+    totalWorkflows: store.workflows.length,
+    activeHandoffs: open.length,
+    assignedToOperator: open.filter((workflow) => workflow.targetAgent === 'Operator').length,
+    assignedToExecutive: open.filter((workflow) => workflow.targetAgent === 'Executive').length,
+    assignedToProposalPrep: open.filter((workflow) => workflow.targetAgent === 'Proposal Prep').length,
+    approvalQueue: approvals,
+    blockedWorkflows: blocked,
+    completedWorkflows: store.workflows.filter((workflow) => workflow.status === 'completed').length,
+    proposalPrepItems: store.proposalPrepQueue.length,
+    externalActionGates: store.workflows.filter((workflow) => workflow.type === 'external_action_gate').length,
+    workflowHealth: Math.max(0, Math.round(100 - blocked * 10 - approvals * 4)),
+  };
+}
+
 function researchReport(title, rows, summary) {
   return {
     title,
@@ -873,6 +1181,44 @@ function validateResearchStore(store) {
     });
   }
   return errors;
+}
+
+function validateWorkflowStore(store) {
+  const errors = [];
+  if (!Array.isArray(store.workflows)) errors.push('workflows missing');
+  if (!Array.isArray(store.handoffRecords)) errors.push('handoff records missing');
+  if (!Array.isArray(store.approvalDecisions)) errors.push('approval decisions missing');
+  if (!Array.isArray(store.proposalPrepQueue)) errors.push('proposal prep queue missing');
+  if (!Array.isArray(store.workflowAuditHistory)) errors.push('workflow audit history missing');
+  for (const workflow of store.workflows ?? []) {
+    [
+      'id',
+      'type',
+      'sourceAgent',
+      'targetAgent',
+      'opportunityId',
+      'company',
+      'priority',
+      'status',
+      'owner',
+      'requestedAction',
+      'reason',
+      'createdAt',
+      'updatedAt',
+      'dueAt',
+    ].forEach((field) => {
+      if (workflow[field] === undefined || workflow[field] === '') errors.push(`${workflow.id ?? 'workflow'} missing ${field}`);
+    });
+    if (!Array.isArray(workflow.auditTrail) || !workflow.auditTrail.length) errors.push(`${workflow.id}: missing audit trail`);
+    if (workflow.type === 'external_action_gate' && !workflow.approvalRequirement) errors.push(`${workflow.id}: external action gate must require approval`);
+  }
+  return errors;
+}
+
+function defaultTargetAgent(type) {
+  if (['executive_approval', 'risky_source_review', 'external_action_gate', 'proposal_readiness_review', 'stalled_opportunity_review', 'lost_opportunity_review'].includes(type)) return 'Executive';
+  if (type === 'proposal_prep_handoff') return 'Proposal Prep';
+  return 'Operator';
 }
 
 function setArchiveState(archived) {

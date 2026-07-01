@@ -1,5 +1,5 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
-import type { SalesOpportunityPipelineSummary, SalesResearchIntelligenceSummary } from '../agents/sales/salesTypes';
+import type { SalesOpportunityPipelineSummary, SalesResearchIntelligenceSummary, SalesWorkflowSummary } from '../agents/sales/salesTypes';
 import { buildDashboardConnectorReadiness, type ConnectorReadinessSummary } from './connectorReadiness';
 import { defaultEngineeringTaskSummary, type EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
 import { buildDashboardExecutiveAutomationSummary, type ExecutiveAutomationSummary } from './executiveAutomation';
@@ -50,6 +50,7 @@ export interface AiOperatorDashboardSnapshot {
   releaseShipPlans: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence: RepositoryIntelligenceDashboardSummary;
   salesResearchIntelligence: SalesResearchIntelligenceSummary;
+  salesWorkflowSummary: SalesWorkflowSummary;
   salesLocalCrm: SalesOpportunityPipelineSummary;
   safetyMode: string;
   sharedTasks: SharedTaskDashboardSummary;
@@ -185,6 +186,18 @@ export const aiOperatorCommands = [
   'npm run sales:enrich',
   'npm run sales:research-report',
   'npm run sales:sources-report',
+  'npm run sales:workflows',
+  'npm run sales:create-handoff',
+  'npm run sales:update-workflow',
+  'npm run sales:assign-workflow',
+  'npm run sales:approve-handoff',
+  'npm run sales:reject-handoff',
+  'npm run sales:block-handoff',
+  'npm run sales:complete-handoff',
+  'npm run sales:archive-workflow',
+  'npm run sales:proposal-queue',
+  'npm run sales:workflow-report',
+  'npm run sales:workflow-validate',
   'npm run reports:validate',
   'npm run sales:validate',
   'npm run tasks:status',
@@ -328,6 +341,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   salesLocalCrm?: SalesOpportunityPipelineSummary;
   salesResearchIntelligence?: SalesResearchIntelligenceSummary;
+  salesWorkflowSummary?: SalesWorkflowSummary;
   sharedTasks?: SharedTaskDashboardSummary;
 }): AiOperatorDashboardSnapshot {
   const metadata = buildAiOperatorMetadata(input.integrationMode);
@@ -363,6 +377,19 @@ export function buildAiOperatorDashboardSnapshot(input: {
     rejectedSources: 0,
     researchBacklog: 0,
     verificationQueue: 0,
+  };
+  const salesWorkflowSummary = input.salesWorkflowSummary ?? {
+    activeHandoffs: 0,
+    approvalQueue: 0,
+    assignedToExecutive: 0,
+    assignedToOperator: 0,
+    assignedToProposalPrep: 0,
+    blockedWorkflows: 0,
+    completedWorkflows: 0,
+    externalActionGates: 0,
+    proposalPrepItems: 0,
+    totalWorkflows: 0,
+    workflowHealth: 0,
   };
   const releaseReadiness =
     input.releaseReadiness ??
@@ -476,6 +503,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
     releaseShipPlans,
     repositoryIntelligence,
     salesResearchIntelligence,
+    salesWorkflowSummary,
     salesLocalCrm,
     safetyMode,
     sharedTasks,

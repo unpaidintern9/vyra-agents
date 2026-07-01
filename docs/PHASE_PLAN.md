@@ -1074,6 +1074,37 @@ Boundaries:
 - No Supabase production writes.
 - No secrets committed.
 
+## Phase 49
+
+Multi-Agent Sales Workflow Orchestration.
+
+Includes:
+
+- Local workflow records connecting Sales, Operator, Executive, and Proposal Prep.
+- Workflow types for research request, verification request, duplicate review, missing info request, follow-up preparation, proposal prep handoff, executive approval, risky source review, external action gate, proposal readiness review, stalled opportunity review, and lost opportunity review.
+- State machine for draft, queued, assigned, in_review, approved, rejected, blocked, completed, and archived.
+- Audit trail on every transition with timestamp, previous/new status, operator, reason, affected artifacts, confidence impact, and next action.
+- Sales dashboard workflow overview, active handoffs, proposal prep queue, Executive approval queue, blocked workflows, and recent activity.
+- Operator dashboard assigned Sales tasks, verification queue, duplicate review queue, missing info queue, proposal prep support queue, and blocked items.
+- Executive dashboard Sales approval queue, high-fit opportunities, risky source reviews, proposal readiness reviews, external action gates, and workflow health.
+- Root npm scripts for `sales:workflows`, `sales:create-handoff`, `sales:update-workflow`, `sales:assign-workflow`, `sales:approve-handoff`, `sales:reject-handoff`, `sales:block-handoff`, `sales:complete-handoff`, `sales:archive-workflow`, `sales:proposal-queue`, `sales:workflow-report`, and `sales:workflow-validate`.
+- Workflow Summary, Handoff Activity, Approval Queue, Blocked Workflow, Proposal Prep Queue, Operator Task, Executive Approval, and Workflow Audit reports.
+
+Boundaries:
+
+- Local execution only.
+- No dependency on `vyraapp.fit` Sales CRM.
+- No autonomous browsing.
+- No autonomous emailing.
+- No autonomous CRM synchronization.
+- No autonomous proposal submission.
+- No automatic source approval.
+- No automatic Executive approval.
+- No automatic external action.
+- No Stripe writes.
+- No Supabase production writes.
+- No secrets committed.
+
 ## Phase 41
 
 Executive Automation Engine.

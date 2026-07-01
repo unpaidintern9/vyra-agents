@@ -19,3 +19,11 @@ Phase 48 extends the local Sales storage with `research-intelligence.json`.
 It contains research sources, intake queue, verification records, enrichment history, duplicate candidates, and review history.
 
 This file stays under `codex-agent-threads/shared/sales-opportunities` and is not synchronized with `vyraapp.fit`, cloud CRM, Supabase production, or Stripe.
+
+## Workflow Storage
+
+Phase 49 adds `sales-workflows.json` under the same local Sales opportunity folder.
+
+It contains workflow records, handoff records, approval decisions, proposal prep queue rows, workflow audit history, and workflow report outputs.
+
+No external database is used.

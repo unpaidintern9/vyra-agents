@@ -17,6 +17,7 @@ import type {
   SalesResearchIntelligenceSummary,
   SalesScoringSummary,
   SalesSummary,
+  SalesWorkflowSummary,
 } from '../agents/sales/salesTypes';
 
 export interface ExecutiveOperationsKpis {
@@ -112,6 +113,7 @@ export function buildDashboardExecutiveOperationsSummary(input: {
   salesResearchIntelligenceSummary?: SalesResearchIntelligenceSummary;
   salesScoringSummary?: SalesScoringSummary;
   salesSummary?: SalesSummary;
+  salesWorkflowSummary?: SalesWorkflowSummary;
   sharedTasks: SharedTaskDashboardSummary;
 }): ExecutiveOperationsDashboardSummary {
   const generatedAt = new Date().toISOString();
@@ -175,6 +177,8 @@ function buildBriefing(
       `${input.salesOpportunitySummary?.proposalReady ?? 0} local CRM proposal-ready opportunity(s)`,
       `${input.salesResearchIntelligenceSummary?.pendingReviews ?? 0} sales research review item(s) pending.`,
       `${input.salesResearchIntelligenceSummary?.duplicateAlerts ?? 0} sales duplicate alert(s) need manual review.`,
+      `${input.salesWorkflowSummary?.approvalQueue ?? 0} sales workflow approval(s) require Executive review.`,
+      `${input.salesWorkflowSummary?.blockedWorkflows ?? 0} sales workflow(s) are blocked.`,
       `${input.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0} organization(s) need Executive sales review.`,
     ],
     date: generatedAt.slice(0, 10),
@@ -218,6 +222,7 @@ function buildBriefing(
       input.salesResearchIntelligenceSummary?.verificationQueue
         ? `Review ${input.salesResearchIntelligenceSummary.verificationQueue} sales research verification item(s).`
         : null,
+      input.salesWorkflowSummary?.externalActionGates ? 'Review Sales external action gates before allowing any external action.' : null,
       input.salesIntegration?.crmReadinessStatus !== 'ready' ? 'Keep Sales external actions disabled until CRM/email/Stripe gates exist.' : null,
     ]).slice(0, 10),
   };

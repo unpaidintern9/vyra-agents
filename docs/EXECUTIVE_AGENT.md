@@ -45,6 +45,8 @@ Phase 47 adds read-only Local CRM visibility. Executive summaries include Sales 
 
 Phase 48 adds read-only Research Intelligence visibility. Executive summaries include pending source/intake reviews, approved/rejected source counts, backlog, verification queue, duplicate alerts, confidence trend, and enrichment progress.
 
+Phase 49 adds read-only Sales Approval Queue visibility for high-fit opportunities, risky source reviews, proposal readiness reviews, external action gates, blocked workflows, and workflow health. Executive approvals remain manual and local.
+
 ## Navigation
 
 Department health rows and priority actions deep-link into existing dashboard pages:

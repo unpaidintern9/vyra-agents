@@ -33,6 +33,7 @@ export default function ExecutiveDashboard({
   salesProspectDossierSummary,
   salesResearchIntelligenceSummary,
   salesScoringSummary,
+  salesWorkflowSummary,
   salesSummary,
   sharedTaskSummary,
 }: ExecutiveDashboardProps) {
@@ -69,6 +70,7 @@ export default function ExecutiveDashboard({
       <section className="dashboard-grid executive-dashboard-grid">
         <ExecutivePriorities onNavigate={onNavigate} priorities={summary.priorities} />
         {salesResearchIntelligenceSummary ? <ExecutiveResearchIntelligencePanel summary={salesResearchIntelligenceSummary} /> : null}
+        {salesWorkflowSummary ? <ExecutiveSalesWorkflowPanel summary={salesWorkflowSummary} /> : null}
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
         {summary.executiveEmailBriefing ? <ExecutiveEmailBriefingPanel briefing={summary.executiveEmailBriefing} /> : null}
         <ExecutiveTimeline timeline={summary.timeline} />
@@ -82,6 +84,29 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveSalesWorkflowPanel({ summary }: { summary: NonNullable<ExecutiveDashboardProps['salesWorkflowSummary']> }) {
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Sales Approval Queue</h2>
+        </div>
+        <span>{summary.workflowHealth}/100</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact"><span>High-Fit Opportunities</span><strong>{summary.assignedToExecutive}</strong></div>
+        <div className="fact"><span>Risky Source Reviews</span><strong>{summary.approvalQueue}</strong></div>
+        <div className="fact"><span>Proposal Readiness Reviews</span><strong>{summary.proposalPrepItems}</strong></div>
+        <div className="fact"><span>External Action Gates</span><strong>{summary.externalActionGates}</strong></div>
+        <div className="fact"><span>Blocked Workflows</span><strong>{summary.blockedWorkflows}</strong></div>
+        <div className="fact"><span>Workflow Health</span><strong>{summary.workflowHealth}%</strong></div>
+      </div>
+      <p className="subtle-note">Executive review is manual only. This panel does not approve handoffs, send emails, browse, sync CRM, or submit proposals.</p>
+    </section>
   );
 }
 
