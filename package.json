@@ -111,6 +111,11 @@
     "executive:operations": "node scripts/executive-operations.mjs operations",
     "executive:health": "node scripts/executive-operations.mjs health",
     "executive:report": "node scripts/executive-operations.mjs report",
-    "executive:validate": "node scripts/executive-operations.mjs validate"
+    "executive:validate": "node scripts/executive-operations.mjs validate",
+    "executive:email-briefing": "node scripts/executive-email-briefing.mjs briefing",
+    "executive:email-preview": "node scripts/executive-email-briefing.mjs preview",
+    "executive:email-send": "node scripts/executive-email-briefing.mjs send",
+    "executive:email-status": "node scripts/executive-email-briefing.mjs status",
+    "executive:email-validate": "node scripts/executive-email-briefing.mjs validate"
   }
 }

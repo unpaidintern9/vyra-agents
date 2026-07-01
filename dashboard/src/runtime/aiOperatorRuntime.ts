@@ -2,6 +2,7 @@ import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import { buildDashboardConnectorReadiness, type ConnectorReadinessSummary } from './connectorReadiness';
 import { defaultEngineeringTaskSummary, type EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
 import { buildDashboardExecutiveAutomationSummary, type ExecutiveAutomationSummary } from './executiveAutomation';
+import { buildDashboardExecutiveEmailBriefingSummary, type ExecutiveEmailBriefingSummary } from './executiveEmailBriefing';
 import { buildDashboardExecutiveOperationsSummary, type ExecutiveOperationsDashboardSummary } from './executiveOperations';
 import { buildDashboardGmailEmailSummary, type GmailEmailDashboardSummary } from './gmailEmail';
 import { buildDashboardGitHubPlanningSummary, type GitHubPlanningDashboardSummary } from './githubPlanning';
@@ -39,6 +40,7 @@ export interface AiOperatorDashboardSnapshot {
   email: GmailEmailDashboardSummary;
   engineeringTasks: EngineeringTaskGeneratorSummary;
   executiveAutomation: ExecutiveAutomationSummary;
+  executiveEmailBriefing: ExecutiveEmailBriefingSummary;
   executiveOperations: ExecutiveOperationsDashboardSummary;
   githubPlanning: GitHubPlanningDashboardSummary;
   githubReadOnly: GitHubReadOnlyDashboardSummary;
@@ -225,6 +227,11 @@ export const aiOperatorCommands = [
   'npm run executive:health',
   'npm run executive:report',
   'npm run executive:validate',
+  'npm run executive:email-briefing',
+  'npm run executive:email-preview',
+  'npm run executive:email-send',
+  'npm run executive:email-status',
+  'npm run executive:email-validate',
 ];
 
 export const aiOperatorBlockedActions = [
@@ -282,6 +289,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   email?: GmailEmailDashboardSummary;
   engineeringTasks?: EngineeringTaskGeneratorSummary;
   executiveAutomation?: ExecutiveAutomationSummary;
+  executiveEmailBriefing?: ExecutiveEmailBriefingSummary;
   executiveOperations?: ExecutiveOperationsDashboardSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
@@ -348,6 +356,12 @@ export function buildAiOperatorDashboardSnapshot(input: {
       runtime: input.runtime,
       sharedTasks,
     });
+  const executiveEmailBriefing =
+    input.executiveEmailBriefing ??
+    buildDashboardExecutiveEmailBriefingSummary({
+      email,
+      executiveOperations,
+    });
 
   return {
     activeOperator: `${metadata.operatorName} / ${metadata.operatorTool}`,
@@ -399,6 +413,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
     email,
     engineeringTasks,
     executiveAutomation,
+    executiveEmailBriefing,
     executiveOperations,
     githubPlanning,
     githubReadOnly,

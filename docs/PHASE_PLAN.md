@@ -1152,3 +1152,29 @@ Boundaries:
 - No Stripe writes.
 - No production writes.
 - No secrets committed.
+
+## Phase 46
+
+Daily Executive Email Briefing.
+
+Includes:
+
+- Daily briefing email model for recipient, sender, subject, briefing date, Executive score, priorities, blocked work, Engineering health, Sales health, release readiness, pending approvals, recommended actions, audit id, and send status.
+- Root npm scripts for `executive:email-briefing`, `executive:email-preview`, `executive:email-send`, `executive:email-status`, and `executive:email-validate`.
+- Integration with Executive daily briefing, Gmail connector automation, Gmail audit trail, manual scheduled thread runner templates, Operator Dashboard, and Executive Dashboard.
+- Daily briefing schedule template with Robert enabled by default and Matthew skipped until configured.
+- Executive Dashboard daily briefing email status.
+- Operator Dashboard email briefing preview, automation status, audit status, and recipient readiness.
+- Daily Briefing Email Preview, Daily Briefing Email JSON, and Daily Briefing Send Audit reports.
+
+Boundaries:
+
+- Internal recipients only.
+- No marketing emails.
+- No bulk sending.
+- No external customer emails.
+- No CRM writes.
+- No Stripe writes.
+- No Supabase production writes.
+- No GitHub writes.
+- No secrets committed.

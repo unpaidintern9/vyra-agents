@@ -209,6 +209,20 @@ Phase 40A adds Gmail commands for internal agent report email:
 
 Gmail sending is auto-enabled once configured with safe environment variable names and `VYRA_GMAIL_SEND_ENABLED` is not `false`. Allowed senders are `admin@vyraapp.fit` and `robert.sorenson@vyraapp.fit`. Robert defaults to `robert.sorenson@vyraapp.fit`; Matthew is skipped until `VYRA_EMAIL_MATTHEW` is configured. All sends, skips, and failures are audited.
 
+## Daily Executive Email Briefing
+
+Phase 46 adds Executive email briefing commands:
+
+```bash
+npm run executive:email-briefing
+npm run executive:email-preview
+npm run executive:email-send
+npm run executive:email-status
+npm run executive:email-validate
+```
+
+The preview command renders the Executive Operations daily briefing as an internal email report. Robert is enabled by default; Matthew is skipped until his email is configured. The send command delegates to Gmail safety checks and audit logging. No marketing, bulk, customer, CRM, Stripe, Supabase production, GitHub, deployment, or secret-output behavior is added.
+
 ## Executive Automation
 
 Phase 41 adds Executive automation commands:

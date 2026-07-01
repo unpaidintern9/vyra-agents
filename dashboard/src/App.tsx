@@ -35,6 +35,12 @@ import { buildSalesFollowUpQueue } from './agents/sales/salesFollowUpEngine';
 import { parseSalesLeadJson, emptySalesImportResult } from './agents/sales/salesImport';
 import { buildSalesIntegrationSummary } from './agents/sales/salesIntegrationAdapter';
 import {
+  buildProspectIntakeDraftFromResearch,
+  buildSalesExecutionReports,
+  createSalesStatus,
+  filterProspectsForSearch,
+} from './agents/sales/salesExecution';
+import {
   buildOrganizationIntelligenceReport,
   buildOrganizationTimelineReport,
   buildSalesIntelligenceGraph,
@@ -69,6 +75,8 @@ import type {
   SalesProposalDraft,
   SalesProposalTemplateType,
   SalesProspectResearchRecord,
+  SalesReportKind,
+  SalesExecutionStatus,
   SalesResearchDossier,
 } from './agents/sales/salesTypes';
 import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
@@ -89,6 +97,7 @@ import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } fr
 import { buildDashboardConnectorReadiness } from './runtime/connectorReadiness';
 import { buildDashboardEngineeringTaskSummary } from './runtime/engineeringTaskGenerator';
 import { buildDashboardExecutiveAutomationSummary } from './runtime/executiveAutomation';
+import { buildDashboardExecutiveEmailBriefingSummary } from './runtime/executiveEmailBriefing';
 import { buildDashboardExecutiveOperationsSummary } from './runtime/executiveOperations';
 import { buildDashboardGmailEmailSummary } from './runtime/gmailEmail';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
@@ -231,6 +240,13 @@ function App() {
   const [salesResearchDossiers, setSalesResearchDossiers] = useState(() =>
     loadLocalState<SalesResearchDossier[]>(localStorageKeys.salesProspectDossiers, () => []),
   );
+  const [lastSalesExecutionStatus, setLastSalesExecutionStatus] = useState<SalesExecutionStatus>({
+    detail: 'No local Sales execution run recorded in this dashboard session.',
+    generatedAt: null,
+    resultCount: 0,
+    status: 'idle',
+    title: 'Sales execution idle',
+  });
   const [salesImportResult, setSalesImportResult] = useState(emptySalesImportResult);
   const [workflowRuns, setWorkflowRuns] = useState(() =>
     loadLocalState<WorkflowDryCheckRecord[]>(localStorageKeys.workflowResults, () => []),
@@ -928,6 +944,110 @@ function App() {
     });
   };
 
+  const runProspectSearch = (filters: Parameters<typeof filterProspectsForSearch>[1]) => {
+    setLastSalesExecutionStatus(createSalesStatus('Prospect search running', 'Filtering local prospect research slots.', 0, 'loading'));
+    const results = filterProspectsForSearch(salesProspectResearch, filters);
+    const status = createSalesStatus(
+      'Prospect search complete',
+      results.length
+        ? `Found ${results.length} local prospect(s). Top match: ${results[0].prospectName}.`
+        : 'No local prospects matched. Broaden the market, category, source status, or fit score filters.',
+      results.length,
+      results.length ? 'success' : 'error',
+    );
+    setLastSalesExecutionStatus(status);
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: 'prospect-search-run',
+      detail: `${status.detail} Search stayed local; no browsing, scraping, CRM write, or email occurred.`,
+    });
+  };
+
+  const runSalesResearch = () => {
+    setLastSalesExecutionStatus(createSalesStatus('Sales research running', 'Generating local dossiers from available prospect fields.', 0, 'loading'));
+    const created = salesProspectResearch
+      .filter((prospect) => prospect.fitScore >= 78)
+      .map((prospect) => {
+        const draft = buildProspectIntakeDraftFromResearch(prospect);
+        const existing = salesProspectIntakes.find((intake) => intake.gymName === draft.gymName && intake.websiteUrl === draft.websiteUrl);
+        if (existing) return null;
+        const intake = createSalesProspectIntake(draft, localId('sales_prospect'));
+        return { intake, dossier: generateResearchDossier(intake) };
+      })
+      .filter((item): item is { intake: SalesProspectIntake; dossier: SalesResearchDossier } => Boolean(item));
+    if (created.length) {
+      setSalesProspectIntakes((current) => [...created.map((item) => item.intake), ...current]);
+      setSalesResearchDossiers((current) => [...created.map((item) => item.dossier), ...current]);
+    }
+    const status = createSalesStatus(
+      'Sales research complete',
+      created.length
+        ? `Generated ${created.length} local dossier(s). Missing info is listed in each dossier before outreach.`
+        : 'No new dossiers were needed; matching local prospect dossiers already exist.',
+      created.length,
+    );
+    setLastSalesExecutionStatus(status);
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: 'sales-research-generated',
+      detail: `${status.detail} No live web research, email, CRM, Stripe, or production write occurred.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Agent',
+      action: 'sales research generated',
+      target: 'local prospect dossiers',
+      result: status.detail,
+      riskLevel: 'low',
+    });
+  };
+
+  const createSalesExecutionTasks = () => {
+    const highFitCount = salesProspectResearch.filter((prospect) => prospect.fitScore >= 80).length;
+    const status = createSalesStatus(
+      'Sales task plan created',
+      `Prepared local shared-task categories for ${highFitCount} high-fit prospect(s): contact info, company research, outreach draft, proposal, follow-up, executive review.`,
+      highFitCount,
+    );
+    setLastSalesExecutionStatus(status);
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: 'sales-task-plan-created',
+      detail: `${status.detail} Use npm run sales:tasks to write shared task files locally.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Agent',
+      action: 'sales task plan created',
+      target: 'shared local tasks',
+      result: 'dashboard task plan recorded; filesystem task writes are CLI-only',
+      riskLevel: 'low',
+    });
+  };
+
+  const generateSalesEmailDrafts = () => {
+    const draftTargets = salesProspectResearch.filter((prospect) => prospect.fitScore >= 80).slice(0, 4);
+    const status = createSalesStatus(
+      'Sales email drafts prepared',
+      `Prepared draft-only outreach, internal summary, follow-up reminder, and proposal-ready notification paths for ${draftTargets.length} prospect(s). No customer email was sent.`,
+      draftTargets.length,
+    );
+    setLastSalesExecutionStatus(status);
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: 'sales-email-drafts-prepared',
+      detail: `${status.detail} Use npm run sales:outreach to create local draft records.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Agent',
+      action: 'sales email drafts prepared',
+      target: 'local draft-only outreach',
+      result: 'dashboard draft plan recorded; no send occurred',
+      riskLevel: 'low',
+    });
+  };
+
   const generateProposalDraft = (leadId: string, templateType: SalesProposalTemplateType) => {
     const lead = salesLeads.find((item) => item.id === leadId);
     if (!lead) return;
@@ -1044,7 +1164,7 @@ function App() {
 
   const exportSalesReport = (
     format: ReportFormat | 'csv',
-    report: 'pipeline' | 'follow_up' | 'proposal' | 'lead_scoring' | 'follow_up_queue' | 'weighted_pipeline',
+    report: SalesReportKind,
   ) => {
     if (format === 'csv') {
       downloadSalesPipelineCsv(salesLeads);
@@ -1063,6 +1183,16 @@ function App() {
       });
       return;
     }
+    const executionReports = buildSalesExecutionReports({
+      activities: salesActivities,
+      dossiers: salesResearchDossiers,
+      followUpQueue: salesFollowUpQueue,
+      intakes: salesProspectIntakes,
+      leads: salesLeads,
+      proposals: salesProposals,
+      prospects: salesProspectResearch,
+      scores: salesScores,
+    });
     const localReport =
       report === 'follow_up_queue'
         ? buildFollowUpQueueReport(salesFollowUpQueue)
@@ -1070,12 +1200,15 @@ function App() {
           ? buildLeadScoringReport(salesLeads, salesScores)
           : report === 'weighted_pipeline'
             ? buildWeightedPipelineReport(salesLeads, salesScores)
-            : report === 'follow_up'
-        ? buildFollowUpReport(salesLeads)
-        : report === 'proposal'
-          ? buildProposalReport(salesLeads, salesProposals)
-          : buildSalesPipelineReport(salesLeads, salesActivities, salesProposals);
+            : report === 'pipeline'
+              ? buildSalesPipelineReport(salesLeads, salesActivities, salesProposals)
+              : report === 'follow_up'
+                ? buildFollowUpReport(salesLeads)
+                : report === 'proposal'
+                  ? buildProposalReport(salesLeads, salesProposals)
+                  : executionReports[report];
     downloadReport(localReport, format);
+    setLastSalesExecutionStatus(createSalesStatus(`${localReport.title} exported`, `Downloaded ${localReport.title} as ${format}.`, localReport.rows?.length ?? 0));
     appendAgentEvent({
       agent: 'Sales Agent',
       event:
@@ -1277,6 +1410,10 @@ function App() {
     salesSummary,
     sharedTasks: sharedTaskSummary,
   });
+  const executiveEmailBriefing = buildDashboardExecutiveEmailBriefingSummary({
+    email: emailSummary,
+    executiveOperations,
+  });
   const operatorSnapshot = buildAiOperatorDashboardSnapshot({
     communicationDraftCounts: operatorDashboard.communicationDraftCounts,
     communicationDraftsByType: operatorDashboard.communicationDraftsByType,
@@ -1298,6 +1435,7 @@ function App() {
     email: emailSummary,
     engineeringTasks,
     executiveAutomation,
+    executiveEmailBriefing,
     executiveOperations,
     githubPlanning,
     githubReadOnly,
@@ -1488,15 +1626,20 @@ function App() {
             followUpQueue={salesFollowUpQueue}
             importResult={salesImportResult}
             integration={salesIntegration}
+            lastSalesExecutionStatus={lastSalesExecutionStatus}
             leads={salesLeads}
             onAction={recordSalesAction}
+            onCreateSalesExecutionTasks={createSalesExecutionTasks}
             onExport={exportSalesReport}
             onExportCrossAgent={exportCrossAgentCollaboration}
             onExportResearchDossier={exportResearchDossier}
             onExportSalesIntelligence={exportSalesIntelligence}
             onExportProposalDraft={exportProposalDraft}
             onGenerateProposalDraft={generateProposalDraft}
+            onGenerateSalesEmailDrafts={generateSalesEmailDrafts}
             onImportJson={importSalesLeads}
+            onRunProspectSearch={runProspectSearch}
+            onRunSalesResearch={runSalesResearch}
             onSaveProspectIntake={saveProspectIntake}
             proposalDrafts={salesProposalDrafts}
             proposalSummary={salesProposalSummary}
@@ -1595,6 +1738,7 @@ function App() {
             email={emailSummary}
             engineeringTasks={engineeringTasks}
             executiveAutomation={executiveAutomation}
+            executiveEmailBriefing={executiveEmailBriefing}
             executiveOperations={executiveOperations}
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
@@ -1794,6 +1938,7 @@ function OperatorPage({
         <Metric icon={<ShieldCheck size={20} />} label="Human-Marked Sent" value={String(operator.communicationDrafts.manuallyMarkedSentDrafts)} />
         <Metric icon={<Network size={20} />} label="Provider Readiness" value={operator.communicationProviders.sendingDisabled ? 'Send Disabled' : 'Review'} />
         <Metric icon={<FileClock size={20} />} label="Gmail Automation" value={operator.email.automationStatus} />
+        <Metric icon={<FileClock size={20} />} label="Exec Email Briefing" value={operator.executiveEmailBriefing.automationStatus} />
         <Metric icon={<Workflow size={20} />} label="Exec Ops Score" value={`${operator.executiveOperations.overallExecutiveScore}/100`} />
         <Metric icon={<ShieldCheck size={20} />} label="Platform Health" value={operator.executiveOperations.dailyOperatingStatus} />
         <Metric icon={<Workflow size={20} />} label="Executive Automation" value={operator.executiveAutomation.automationEnabled ? 'Enabled' : 'Disabled'} />
@@ -1932,6 +2077,44 @@ function OperatorPage({
           </div>
           <div className="safety-badge-row">
             {['No external marketing emails', 'No bulk sending', 'No CRM/Stripe/Supabase writes', 'No GitHub writes', 'Gmail safety checks required'].map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="Daily Executive Email Briefing" icon={<FileClock size={18} />} wide>
+          <p className="panel-description">
+            The Executive Operations Center can render a daily internal email briefing for Robert and Matthew. Robert is enabled by default; Matthew is skipped until an internal email is configured. Sending delegates to Gmail safety checks and audit logging.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Email Briefing Preview" value={operator.executiveEmailBriefing.previewSubject} />
+            <Fact label="Automation Status" value={operator.executiveEmailBriefing.automationStatus} />
+            <Fact label="Audit Trail" value={operator.executiveEmailBriefing.lastBriefingSentOrSkipped} />
+            <Fact label="Next Scheduled Briefing" value={operator.executiveEmailBriefing.nextScheduledBriefing} />
+            <Fact label="Recipient Readiness" value={String(operator.executiveEmailBriefing.recipientReadiness.length)} />
+            <Fact label="Failed / Skipped Attempts" value={String(operator.executiveEmailBriefing.failedOrSkippedAttempts.length)} />
+            <Fact label="Safety Status" value={operator.executiveEmailBriefing.safetyStatus} />
+            <Fact label="Schedule Template" value={operator.executiveEmailBriefing.scheduleTemplate} />
+          </div>
+          <DataTable
+            columns={['Recipient', 'Status', 'Send Status', 'Reason']}
+            rows={operator.executiveEmailBriefing.recipientReadiness.map((recipient) => [
+              recipient.recipientName,
+              recipient.recipientStatus.replace(/_/g, ' '),
+              recipient.sendStatus.replace(/_/g, ' '),
+              recipient.skipReason ?? 'ready',
+            ])}
+          />
+          <DataTable
+            columns={['Email Briefing Preview']}
+            rows={operator.executiveEmailBriefing.previewBody.split('\n').map((line) => [line])}
+          />
+          <DataTable
+            columns={['Command', 'Purpose']}
+            rows={operator.executiveEmailBriefing.commands.map((command) => [command, operatorCommandPurpose(command)])}
+          />
+          <div className="safety-badge-row">
+            {['Internal recipients only', 'No marketing emails', 'No bulk sending', 'Gmail audit required', 'Matthew skipped until configured'].map((label) => (
               <StatusBadge key={label} value={label} tone="good" />
             ))}
           </div>
@@ -3734,6 +3917,11 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('executive:health')) return 'Print Executive Operations health, alerts, score, and next actions.';
   if (command.endsWith('executive:report')) return 'Generate Executive Daily Briefing, KPI, Operations Markdown, and Operations JSON reports.';
   if (command.endsWith('executive:validate')) return 'Validate Executive Operations Center model, reports, commands, and local-only safety.';
+  if (command.endsWith('executive:email-briefing')) return 'Print the daily Executive email briefing model without sending email.';
+  if (command.endsWith('executive:email-preview')) return 'Export the daily Executive email briefing preview Markdown and JSON.';
+  if (command.endsWith('executive:email-send')) return 'Create Gmail-audited internal briefing drafts and attempt sends only when Gmail safety gates pass.';
+  if (command.endsWith('executive:email-status')) return 'Show daily Executive email briefing recipients, schedule, and audit status.';
+  if (command.endsWith('executive:email-validate')) return 'Validate Executive email briefing model, recipients, reports, and safety gates.';
   return 'Shared local operator command.';
 }
 

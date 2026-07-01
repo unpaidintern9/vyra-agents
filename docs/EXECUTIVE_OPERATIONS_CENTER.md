@@ -24,6 +24,11 @@ npm run executive:operations
 npm run executive:health
 npm run executive:report
 npm run executive:validate
+npm run executive:email-briefing
+npm run executive:email-preview
+npm run executive:email-send
+npm run executive:email-status
+npm run executive:email-validate
 ```
 
 ## Model
@@ -36,13 +41,20 @@ The Executive Dashboard shows a dedicated Operations Center section with the dai
 
 The Operator Dashboard shows latest briefing, next scheduled briefing, latest KPI snapshot, overall platform health, and operational alerts.
 
+Phase 46 adds the Daily Executive Email Briefing panel. It shows preview subject/body, recipient readiness, last sent/skipped audit state, next scheduled briefing, and Gmail safety status.
+
 ## Reports
 
 - Executive Daily Briefing Markdown
 - Executive KPI Report Markdown
 - Executive Operations Report Markdown
 - Executive Operations JSON
+- Daily Briefing Email Preview Markdown
+- Daily Briefing Email JSON
+- Daily Briefing Send Audit Markdown
 
 ## Safety
 
 The Operations Center is local analysis and reporting only. It does not deploy, write GitHub records, write CRM records, create Stripe objects, write production data, or output secrets.
+
+The daily email send command is the only Phase 46 command that may attempt an internal Gmail send. It uses the existing Gmail connector safety gates and audit trail, supports Robert by default, and skips Matthew until his internal email is configured.

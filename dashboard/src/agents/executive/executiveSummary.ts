@@ -3,6 +3,7 @@ import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { EngineeringTaskGeneratorSummary } from '../../runtime/engineeringTaskGenerator';
 import type { ExecutiveAutomationSummary } from '../../runtime/executiveAutomation';
+import type { ExecutiveEmailBriefingSummary } from '../../runtime/executiveEmailBriefing';
 import type { ExecutiveOperationsDashboardSummary } from '../../runtime/executiveOperations';
 import type { GmailEmailDashboardSummary } from '../../runtime/gmailEmail';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
@@ -47,6 +48,7 @@ export function buildExecutiveSummary(
   email?: GmailEmailDashboardSummary,
   engineeringTasks?: EngineeringTaskGeneratorSummary,
   executiveAutomation?: ExecutiveAutomationSummary,
+  executiveEmailBriefing?: ExecutiveEmailBriefingSummary,
   executiveOperations?: ExecutiveOperationsDashboardSummary,
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
@@ -115,6 +117,7 @@ export function buildExecutiveSummary(
     salesIntegration,
     engineeringTasks,
     executiveAutomation,
+    executiveEmailBriefing,
     executiveOperations,
     salesAgentTeamSummary,
     salesIntelligenceSummary,
@@ -231,6 +234,9 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     executiveAutomationGeneratedEmails: summary.executiveAutomation?.generatedEmails ?? 0,
     executiveAutomationSkippedActions: summary.executiveAutomation?.skippedOrBlockedActions ?? 0,
     executiveAutomationHealth: summary.executiveAutomation?.automationHealth ?? 'Not configured',
+    executiveEmailBriefingStatus: summary.executiveEmailBriefing?.automationStatus ?? 'Not configured',
+    executiveEmailBriefingRecipients: summary.executiveEmailBriefing?.recipientReadiness.length ?? 0,
+    executiveEmailBriefingSkipped: summary.executiveEmailBriefing?.failedOrSkippedAttempts.length ?? 0,
     executiveOperationsScore: summary.executiveOperations?.overallExecutiveScore ?? 0,
     executiveDailyOperatingStatus: summary.executiveOperations?.dailyOperatingStatus ?? 'Not configured',
     executiveOperationalAlerts: summary.executiveOperations?.operationalAlerts.length ?? 0,

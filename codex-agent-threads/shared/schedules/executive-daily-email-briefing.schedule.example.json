@@ -1,0 +1,21 @@
+{
+  "schemaType": "scheduled_thread_run",
+  "id": "schedule:executive-daily-email-briefing:daily",
+  "name": "Executive Daily Email Briefing",
+  "sourceThread": {
+    "name": "Executive Daily Email Briefing",
+    "slug": "executive-daily-email-briefing"
+  },
+  "cadence": "daily",
+  "timezone": "America/New_York",
+  "nextRunAt": "2026-07-02T12:00:00.000Z",
+  "targetAgents": ["executive"],
+  "runMode": "manual",
+  "enabled": true,
+  "summaryPrompt": "Render the local Executive Operations Center daily briefing email preview for configured internal recipients. Robert is enabled by default; Matthew is skipped until his internal email is configured.",
+  "safety": {
+    "externalActions": "none",
+    "productionWrites": false,
+    "secretsIncluded": false
+  }
+}

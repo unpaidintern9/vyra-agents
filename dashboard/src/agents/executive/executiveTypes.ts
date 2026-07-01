@@ -3,6 +3,7 @@ import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { EngineeringTaskGeneratorSummary } from '../../runtime/engineeringTaskGenerator';
 import type { ExecutiveAutomationSummary } from '../../runtime/executiveAutomation';
+import type { ExecutiveEmailBriefingSummary } from '../../runtime/executiveEmailBriefing';
 import type { ExecutiveOperationsDashboardSummary } from '../../runtime/executiveOperations';
 import type { GmailEmailDashboardSummary } from '../../runtime/gmailEmail';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
@@ -109,6 +110,7 @@ export interface ExecutiveSummary {
   email?: GmailEmailDashboardSummary;
   engineeringTasks?: EngineeringTaskGeneratorSummary;
   executiveAutomation?: ExecutiveAutomationSummary;
+  executiveEmailBriefing?: ExecutiveEmailBriefingSummary;
   executiveOperations?: ExecutiveOperationsDashboardSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
@@ -135,6 +137,7 @@ export interface ExecutiveDashboardProps {
   email?: GmailEmailDashboardSummary;
   engineeringTasks?: EngineeringTaskGeneratorSummary;
   executiveAutomation?: ExecutiveAutomationSummary;
+  executiveEmailBriefing?: ExecutiveEmailBriefingSummary;
   executiveOperations?: ExecutiveOperationsDashboardSummary;
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;

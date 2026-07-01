@@ -15,6 +15,7 @@ export default function ExecutiveDashboard({
   email,
   engineeringTasks,
   executiveAutomation,
+  executiveEmailBriefing,
   executiveOperations,
   githubPlanning,
   githubReadOnly,
@@ -49,6 +50,7 @@ export default function ExecutiveDashboard({
     email,
     engineeringTasks,
     executiveAutomation,
+    executiveEmailBriefing,
     executiveOperations,
     githubPlanning,
     githubReadOnly,
@@ -66,6 +68,7 @@ export default function ExecutiveDashboard({
       <section className="dashboard-grid executive-dashboard-grid">
         <ExecutivePriorities onNavigate={onNavigate} priorities={summary.priorities} />
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
+        {summary.executiveEmailBriefing ? <ExecutiveEmailBriefingPanel briefing={summary.executiveEmailBriefing} /> : null}
         <ExecutiveTimeline timeline={summary.timeline} />
         <ExecutiveRuntime runtime={summary.runtime} />
         {summary.executiveAutomation ? <ExecutiveAutomationPanel automation={summary.executiveAutomation} /> : null}
@@ -77,6 +80,46 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveEmailBriefingPanel({ briefing }: { briefing: NonNullable<ExecutiveDashboardProps['executiveEmailBriefing']> }) {
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Daily Briefing Email</h2>
+        </div>
+        <span>{briefing.automationStatus}</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact">
+          <span>Last Sent / Skipped</span>
+          <strong>{briefing.lastBriefingSentOrSkipped}</strong>
+        </div>
+        <div className="fact">
+          <span>Recipients</span>
+          <strong>{briefing.recipientReadiness.length}</strong>
+        </div>
+        <div className="fact">
+          <span>Failed / Skipped</span>
+          <strong>{briefing.failedOrSkippedAttempts.length}</strong>
+        </div>
+        <div className="fact">
+          <span>Safety</span>
+          <strong>{briefing.safetyStatus}</strong>
+        </div>
+      </div>
+      <div className="activity-list">
+        {briefing.recipientReadiness.map((recipient) => (
+          <p key={recipient.recipientName}>
+            <strong>{recipient.recipientName}</strong>: {recipient.sendStatus.replace(/_/g, ' ')} · {recipient.recipientStatus.replace(/_/g, ' ')}
+          </p>
+        ))}
+      </div>
+      <p className="subtle-note">{briefing.nextScheduledBriefing}</p>
+    </section>
   );
 }
 
