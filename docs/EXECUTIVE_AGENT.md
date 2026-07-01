@@ -70,3 +70,9 @@ Department health rows and priority actions deep-link into existing dashboard pa
 The Executive dashboard includes an Executive Sales Intelligence Summary with total opportunities, Hot/Warm/Cold counts, Not Ready count, estimated pipeline value, proposal-ready count, Executive-review count, blocked count, and average confidence.
 
 This view is read-only. It does not approve handoffs, browse, email, sync CRM data, approve sources, merge duplicates, or submit proposals.
+
+## Phase 51 Organization Relationship Visibility
+
+The Executive dashboard includes a read-only Executive Relationship Summary with high-value organizations, decision maker coverage, relationship health, buying committee completeness, executive relationship risks, and largest opportunity value.
+
+This summary helps identify where major opportunities need relationship work before proposal or external-action gates. It does not approve proposals, approve Executive gates, browse, send email, sync CRM records, or merge duplicate organizations or contacts.

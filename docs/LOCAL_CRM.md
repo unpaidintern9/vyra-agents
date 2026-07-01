@@ -32,3 +32,11 @@ No external database is used.
 Local CRM opportunities now feed deterministic Sales intelligence scoring and priority queues.
 
 Stored opportunity data remains local. Phase 50 does not add external databases, CRM synchronization, automatic duplicate merging, automatic Executive approval, autonomous browsing, autonomous email sending, or proposal submission.
+
+## Organization & Contact Intelligence Storage
+
+Phase 51 adds `organization-contact-intelligence.json` under `codex-agent-threads/shared/sales-opportunities`.
+
+It contains organization records, contact records, buying committee records, relationship graph edges, organization timelines, contact timelines, deterministic relationship health evaluations, decision maker coverage, buying committee completeness, proposal relationship readiness, and duplicate organization/contact candidates.
+
+The file is local-only. It is not synchronized with `vyraapp.fit`, Supabase production, Stripe, Gmail, or any external CRM. Duplicate candidates are review packets only; no organization, contact, email, phone, domain, or opportunity is merged automatically.

@@ -29,6 +29,7 @@ export default function ExecutiveDashboard({
   salesAgentTeamSummary,
   salesIntelligenceSummary,
   salesPipelineAnalytics,
+  salesOrganizationIntelligenceSummary,
   salesIntegration,
   salesProposalSummary,
   salesProspectDossierSummary,
@@ -71,6 +72,7 @@ export default function ExecutiveDashboard({
       <section className="dashboard-grid executive-dashboard-grid">
         <ExecutivePriorities onNavigate={onNavigate} priorities={summary.priorities} />
         {salesPipelineAnalytics ? <ExecutiveSalesIntelligencePanel analytics={salesPipelineAnalytics} /> : null}
+        {salesOrganizationIntelligenceSummary ? <ExecutiveRelationshipSummaryPanel summary={salesOrganizationIntelligenceSummary} /> : null}
         {salesResearchIntelligenceSummary ? <ExecutiveResearchIntelligencePanel summary={salesResearchIntelligenceSummary} /> : null}
         {salesWorkflowSummary ? <ExecutiveSalesWorkflowPanel summary={salesWorkflowSummary} /> : null}
         {summary.executiveOperations ? <ExecutiveOperationsCenterPanel operations={summary.executiveOperations} /> : null}
@@ -86,6 +88,29 @@ export default function ExecutiveDashboard({
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveRelationshipSummaryPanel({ summary }: { summary: NonNullable<ExecutiveDashboardProps['salesOrganizationIntelligenceSummary']> }) {
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Executive Relationship Summary</h2>
+        </div>
+        <span>read only</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact"><span>High Value Organizations</span><strong>{summary.highValueOrganizations}</strong></div>
+        <div className="fact"><span>Decision Maker Coverage</span><strong>{summary.decisionMakerCoverage}%</strong></div>
+        <div className="fact"><span>Relationship Health</span><strong>{summary.averageRelationshipHealth}%</strong></div>
+        <div className="fact"><span>Committee Completeness</span><strong>{summary.averageBuyingCommitteeCompleteness}%</strong></div>
+        <div className="fact"><span>Relationship Risks</span><strong>{summary.executiveRelationshipRisks}</strong></div>
+        <div className="fact"><span>Largest Opportunity</span><strong>${summary.largestOpportunityValue.toLocaleString()}</strong></div>
+      </div>
+      <p className="subtle-note">Relationship intelligence is local and advisory. It does not browse, sync CRM records, send messages, approve relationships, or merge contacts.</p>
+    </section>
   );
 }
 

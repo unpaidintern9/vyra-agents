@@ -11,6 +11,7 @@ const crmRoot = path.join(repoRoot, 'codex-agent-threads/shared/sales-opportunit
 const crmPath = path.join(crmRoot, 'opportunities.json');
 const researchPath = path.join(crmRoot, 'research-intelligence.json');
 const workflowPath = path.join(crmRoot, 'sales-workflows.json');
+const organizationContactPath = path.join(crmRoot, 'organization-contact-intelligence.json');
 
 const blockedActions = [
   'external customer email auto-send',
@@ -438,6 +439,98 @@ export function buildSalesPipelineForecastReport() {
   return { title: 'Sales Pipeline Forecast Report Generated', generatedAt: new Date().toISOString(), written, analytics: snapshot.analytics, safety: safetySummary() };
 }
 
+export function listSalesOrganizations() {
+  const store = readOrganizationContactStore();
+  return { title: 'Sales Organizations', generatedAt: new Date().toISOString(), organizations: store.organizations, summary: store.summary, safety: safetySummary() };
+}
+
+export function buildSalesOrganizationReport() {
+  const store = readOrganizationContactStore();
+  const written = writeSalesReport('organization-report', orgReport('Organization Report', store.organizations, store));
+  return { title: 'Sales Organization Report Generated', generatedAt: new Date().toISOString(), written, summary: store.summary, safety: safetySummary() };
+}
+
+export function listSalesContacts() {
+  const store = readOrganizationContactStore();
+  return { title: 'Sales Contacts', generatedAt: new Date().toISOString(), contacts: store.contacts, summary: store.summary, safety: safetySummary() };
+}
+
+export function addSalesContact() {
+  const store = readOrganizationContactStore();
+  const organization = store.organizations.find((item) => item.organizationId === process.env.SALES_ORGANIZATION_ID) ?? store.organizations[0];
+  const now = new Date().toISOString();
+  const contact = contactRecord(organization, {
+    name: process.env.SALES_CONTACT_NAME ?? 'Manual Contact',
+    role: process.env.SALES_CONTACT_TITLE ?? 'Influencer',
+    email: process.env.SALES_CONTACT_EMAIL ?? '',
+    phone: process.env.SALES_CONTACT_PHONE ?? '',
+  }, store.contacts.length, now);
+  store.contacts.unshift(contact);
+  organization.contacts.unshift(contact);
+  organization.timeline.unshift(orgEvent(organization.organizationId, 'contact_added', 'Contact added', contact.preferredName, now));
+  writeOrganizationContactStore(rebuildOrganizationContactStore(store));
+  return { title: 'Sales Contact Added', generatedAt: now, contact, safety: safetySummary() };
+}
+
+export function updateSalesContact() {
+  const store = readOrganizationContactStore();
+  const id = process.env.SALES_CONTACT_ID ?? store.contacts[0]?.contactId;
+  const now = new Date().toISOString();
+  store.contacts = store.contacts.map((contact) =>
+    contact.contactId === id
+      ? {
+          ...contact,
+          email: process.env.SALES_CONTACT_EMAIL ?? contact.email,
+          phone: process.env.SALES_CONTACT_PHONE ?? contact.phone,
+          notes: [process.env.SALES_CONTACT_NOTE ?? 'Local contact update recorded.', ...contact.notes],
+          timeline: [{ contactId: contact.contactId, detail: 'Previous and new values recorded in local contact notes.', id: `contact-updated:${contact.contactId}:${compactStamp(now)}`, timestamp: now, title: 'Contact updated', type: 'updated' }, ...contact.timeline],
+        }
+      : contact,
+  );
+  writeOrganizationContactStore(rebuildOrganizationContactStore(store));
+  return { title: 'Sales Contact Updated', generatedAt: now, contact: store.contacts.find((contact) => contact.contactId === id), safety: safetySummary() };
+}
+
+export function listSalesBuyingCommittees() {
+  const store = readOrganizationContactStore();
+  return { title: 'Sales Buying Committees', generatedAt: new Date().toISOString(), buyingCommittees: store.buyingCommittees, summary: store.summary, safety: safetySummary() };
+}
+
+export function listSalesRelationshipHealth() {
+  const store = readOrganizationContactStore();
+  return { title: 'Sales Relationship Health', generatedAt: new Date().toISOString(), rows: store.organizations.map((org) => ({ organization: org.legalName, ...org.evaluations.relationshipHealth })), summary: store.summary, safety: safetySummary() };
+}
+
+export function listSalesRelationshipMap() {
+  const store = readOrganizationContactStore();
+  return { title: 'Sales Relationship Map', generatedAt: new Date().toISOString(), relationshipEdges: store.relationshipEdges, safety: safetySummary() };
+}
+
+export function listSalesDecisionMakers() {
+  const store = readOrganizationContactStore();
+  return { title: 'Sales Decision Makers', generatedAt: new Date().toISOString(), contacts: store.contacts.filter((contact) => contact.decisionAuthority === 'high'), missingDecisionMakers: store.summary.missingDecisionMakers, safety: safetySummary() };
+}
+
+export function listSalesOrganizationTimeline() {
+  const store = readOrganizationContactStore();
+  return { title: 'Sales Organization Timeline', generatedAt: new Date().toISOString(), timeline: store.organizations.flatMap((organization) => organization.timeline.map((item) => ({ organization: organization.legalName, ...item }))), safety: safetySummary() };
+}
+
+export function listSalesContactTimeline() {
+  const store = readOrganizationContactStore();
+  return { title: 'Sales Contact Timeline', generatedAt: new Date().toISOString(), timeline: store.contacts.flatMap((contact) => contact.timeline.map((item) => ({ contact: contact.preferredName, ...item }))), safety: safetySummary() };
+}
+
+export function listDuplicateOrganizations() {
+  const store = readOrganizationContactStore();
+  return { title: 'Duplicate Organization Candidates', generatedAt: new Date().toISOString(), duplicateCandidates: store.organizationDuplicateCandidates, policy: 'Review only. No automatic merges.', safety: safetySummary() };
+}
+
+export function listDuplicateContacts() {
+  const store = readOrganizationContactStore();
+  return { title: 'Duplicate Contact Candidates', generatedAt: new Date().toISOString(), duplicateCandidates: store.contactDuplicateCandidates, policy: 'Review only. No automatic merges.', safety: safetySummary() };
+}
+
 export function validateSalesWorkflows() {
   const store = readWorkflowStore();
   const errors = validateWorkflowStore(store);
@@ -502,6 +595,7 @@ export function runSalesReports() {
   Object.entries(buildResearchReports(readResearchStore())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   Object.entries(buildWorkflowReports(readWorkflowStore())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   Object.entries(buildIntelligenceReports(buildSalesIntelligenceSnapshot())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
+  Object.entries(buildOrganizationContactReports(readOrganizationContactStore())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   const csv = writeCsv('prospect-research', salesProspects);
   return { title: 'Sales Reports Generated', generatedAt: new Date().toISOString(), written, csv, safety: safetySummary() };
 }
@@ -575,6 +669,7 @@ export function runSalesTasks() {
 
 export function validateSalesExecution() {
   const intelligence = buildSalesIntelligenceSnapshot();
+  const organizationContact = readOrganizationContactStore();
   const taskValidation = validateSharedTaskLayer();
   const draftValidation = validateCommunicationDraftLayer();
   const checks = [
@@ -594,6 +689,10 @@ export function validateSalesExecution() {
     { name: 'Sales intelligence scores explainable', passed: intelligence.scores.every((score) => score.topReasons.length && score.recommendedNextAction) },
     { name: 'Priority queues available', passed: intelligence.priorityQueues.length === 6 },
     { name: 'Duplicate detection is review-only', passed: intelligence.duplicateCandidates.every((candidate) => candidate.reviewAction === 'Review Duplicate') },
+    { name: 'Organization intelligence available', passed: organizationContact.organizations.length > 0 },
+    { name: 'Contact intelligence available', passed: organizationContact.contacts.length > 0 },
+    { name: 'Buying committees explainable', passed: organizationContact.buyingCommittees.every((committee) => typeof committee.completenessScore === 'number') },
+    { name: 'Organization/contact duplicate review only', passed: [...organizationContact.organizationDuplicateCandidates, ...organizationContact.contactDuplicateCandidates].every((candidate) => candidate.reviewAction === 'Review Duplicate') },
   ];
   return {
     title: 'Sales Agent Execution Validation',
@@ -608,7 +707,7 @@ export function validateSalesExecution() {
 
 export function validateSalesReports() {
   const opportunities = readOpportunities();
-  const reports = { ...buildOpportunityReports(opportunities), ...buildResearchReports(readResearchStore()), ...buildWorkflowReports(readWorkflowStore()), ...buildIntelligenceReports(buildSalesIntelligenceSnapshot()) };
+  const reports = { ...buildOpportunityReports(opportunities), ...buildResearchReports(readResearchStore()), ...buildWorkflowReports(readWorkflowStore()), ...buildIntelligenceReports(buildSalesIntelligenceSnapshot()), ...buildOrganizationContactReports(readOrganizationContactStore()) };
   const checks = Object.entries(reports).map(([name, payload]) => ({ name, passed: Boolean(payload.title && (payload.rows?.length || payload.summary)) }));
   return { title: 'Sales Reports Validation', generatedAt: new Date().toISOString(), status: checks.every((check) => check.passed) ? 'pass' : 'fail', checks, safety: safetySummary() };
 }
@@ -668,6 +767,108 @@ function readWorkflowStore() {
     return seeded;
   }
   return JSON.parse(readFileSync(workflowPath, 'utf8'));
+}
+
+function readOrganizationContactStore() {
+  ensureCrmRoot();
+  if (!existsSync(organizationContactPath)) {
+    const seeded = buildOrganizationContactStore(readOpportunities(), readResearchStore(), readWorkflowStore());
+    writeOrganizationContactStore(seeded);
+    return seeded;
+  }
+  return rebuildOrganizationContactStore(JSON.parse(readFileSync(organizationContactPath, 'utf8')));
+}
+
+function writeOrganizationContactStore(store) {
+  ensureCrmRoot();
+  writeFileSync(organizationContactPath, `${JSON.stringify(store, null, 2)}\n`);
+}
+
+function rebuildOrganizationContactStore(store) {
+  const organizations = store.organizations.map((organization) => ({ ...organization, contacts: store.contacts.filter((contact) => contact.organizationId === organization.organizationId) }));
+  const buyingCommittees = organizations.map((organization) => committeeRecord(organization, store.contacts));
+  const relationshipEdges = [
+    ...store.relationshipEdges,
+    ...store.contacts.map((contact) => orgEdge(contact.organizationId, contact.contactId, 'has_contact', 'Contact is linked to organization.')),
+  ].filter((edgeItem, index, edges) => edges.findIndex((candidate) => candidate.id === edgeItem.id) === index);
+  const summary = summarizeOrgContact(organizations, store.contacts, buyingCommittees, store.organizationDuplicateCandidates ?? [], store.contactDuplicateCandidates ?? []);
+  return { ...store, buyingCommittees, generatedAt: new Date().toISOString(), localOnly: true, organizations, relationshipEdges, summary };
+}
+
+function buildOrganizationContactStore(opportunities, researchStore, workflowStore) {
+  const now = new Date().toISOString();
+  const contacts = opportunities.flatMap((opportunity) => opportunity.contacts.map((contact, index) => contactRecord({ organizationId: `org:${opportunity.id}` }, contact, index, opportunity.createdAt)));
+  const organizations = opportunities.map((opportunity) => {
+    const organizationId = `org:${opportunity.id}`;
+    const orgContacts = contacts.filter((contact) => contact.organizationId === organizationId);
+    const intake = researchStore.intakeQueue.filter((item) => item.opportunityId === opportunity.id);
+    const workflows = workflowStore.workflows.filter((workflow) => workflow.opportunityId === opportunity.id);
+    const relationshipHealth = orgContacts.length ? average(orgContacts.map((contact) => contact.relationshipStrength)) : 25;
+    const decisionMakerCoverage = orgContacts.some((contact) => contact.decisionAuthority === 'high') ? 85 : 20;
+    const proposalReadiness = opportunity.proposalPreparationStatus.readinessPercent;
+    const confidence = clamp((opportunity.score.confidence + average(intake.map((item) => item.confidence)) + (orgContacts.length ? 75 : 30)) / (intake.length ? 3 : 2));
+    const riskRating = workflows.some((workflow) => workflow.status === 'blocked') || !orgContacts.length ? 'high' : confidence < 70 ? 'medium' : 'low';
+    return {
+      additionalLocations: [],
+      buyingReadiness: clamp((opportunity.icpScore + opportunity.score.overallScore + proposalReadiness) / 3),
+      businessType: opportunity.companySizeEstimate,
+      confidence,
+      contacts: orgContacts,
+      currentSalesStage: opportunity.stage,
+      dbaNames: [],
+      description: opportunity.notes[0] ?? 'Local organization record.',
+      duplicateCandidateIds: [],
+      estimatedEmployeeRange: opportunity.companySizeEstimate,
+      estimatedRevenueRange: `$${opportunity.score.overallScore * 1000} - $${opportunity.score.overallScore * 1750}`,
+      evaluations: {
+        buyingCommitteeCompleteness: orgEvaluation(orgContacts.length ? 50 : 15, confidence, 'Committee inferred from local contacts.', orgContacts.length ? '' : 'No verified contacts.'),
+        decisionMakerCoverage: orgEvaluation(decisionMakerCoverage, confidence, 'Decision maker coverage inferred from contact roles.', decisionMakerCoverage < 70 ? 'Decision maker not verified.' : ''),
+        organizationHealth: orgEvaluation(clamp((opportunity.icpScore + relationshipHealth + confidence) / 3), confidence, 'Organization health combines ICP, relationship, and confidence.', riskRating === 'high' ? 'High relationship or workflow risk.' : ''),
+        proposalReadiness: orgEvaluation(proposalReadiness, confidence, 'Proposal readiness comes from local opportunity requirements.', proposalReadiness < 70 ? 'Proposal inputs incomplete.' : ''),
+        relationshipHealth: orgEvaluation(relationshipHealth, confidence, 'Relationship health is based on verified contact paths.', relationshipHealth < 50 ? 'Relationship is thin.' : ''),
+        salesReadiness: orgEvaluation(clamp((opportunity.score.overallScore + proposalReadiness + decisionMakerCoverage) / 3), confidence, 'Sales readiness combines score, proposal readiness, and decision maker coverage.', workflows.some((workflow) => workflow.status === 'blocked') ? 'Blocked workflow exists.' : ''),
+      },
+      foundedYear: null,
+      headquarters: opportunity.location,
+      icpScore: opportunity.icpScore,
+      industry: opportunity.industry,
+      internalNotes: opportunity.notes,
+      legalName: opportunity.company,
+      naics: opportunity.naics,
+      opportunityIds: [opportunity.id],
+      opportunityScore: opportunity.score.overallScore,
+      organizationId,
+      ownershipType: 'Manual verification required',
+      primaryDomain: domain(opportunity.website),
+      priority: opportunity.priority,
+      relationshipGraphNodeIds: [`organization:${organizationId}`, ...orgContacts.map((contact) => `contact:${contact.contactId}`), ...workflows.map((workflow) => `workflow:${workflow.id}`)],
+      relationshipHealth,
+      reports: opportunity.generatedReports,
+      riskRating,
+      serviceAreas: [opportunity.city, opportunity.state],
+      sic: '',
+      subIndustry: opportunity.industry,
+      technologyProfile: { crm: 'manual', marketingPlatform: 'manual', schedulingPlatform: 'manual', websitePlatform: domain(opportunity.website) ? 'public website present' : 'manual', paymentPlatform: 'manual', fitnessSoftware: 'manual', analytics: 'manual', otherTechnologies: 'manual' },
+      timeline: [
+        orgEvent(organizationId, 'created', 'Organization created', 'Derived from local opportunity.', opportunity.createdAt),
+        orgEvent(organizationId, 'opportunity_created', 'Opportunity linked', opportunity.stage, opportunity.createdAt),
+        ...orgContacts.map((contact) => orgEvent(organizationId, 'contact_added', 'Contact added', contact.preferredName, opportunity.createdAt)),
+        ...intake.map((item) => orgEvent(organizationId, 'research_imported', 'Research imported', item.summary, item.date)),
+        ...workflows.map((workflow) => orgEvent(organizationId, 'workflow_update', workflow.type, workflow.requestedAction, workflow.updatedAt)),
+      ].sort((a, b) => b.timestamp.localeCompare(a.timestamp)),
+      website: opportunity.website,
+    };
+  });
+  const buyingCommittees = organizations.map((organization) => committeeRecord(organization, contacts));
+  const relationshipEdges = [
+    ...contacts.map((contact) => orgEdge(contact.organizationId, contact.contactId, 'has_contact', 'Contact belongs to organization.')),
+    ...organizations.flatMap((organization) => organization.opportunityIds.map((id) => orgEdge(organization.organizationId, id, 'has_opportunity', 'Organization owns local opportunity.'))),
+    ...researchStore.intakeQueue.map((item) => orgEdge(`org:${item.opportunityId}`, item.id, 'has_research', item.summary)),
+    ...workflowStore.workflows.map((workflow) => orgEdge(`org:${workflow.opportunityId}`, workflow.id, 'has_workflow', workflow.requestedAction)),
+  ];
+  const organizationDuplicateCandidates = orgDuplicates(organizations);
+  const contactDuplicateCandidates = contactDuplicates(contacts);
+  return { buyingCommittees, contactDuplicateCandidates, contacts, generatedAt: now, localOnly: true, organizationDuplicateCandidates, organizations, relationshipEdges, summary: summarizeOrgContact(organizations, contacts, buyingCommittees, organizationDuplicateCandidates, contactDuplicateCandidates), safety: safetySummary() };
 }
 
 function writeWorkflowStore(store) {
@@ -1310,6 +1511,129 @@ function buildPipelineAnalytics(opportunities, scores, workflows) {
 
 function intelligenceReport(title, rows, snapshot) {
   return { title, generatedAt: new Date().toISOString(), summary: snapshot.analytics, rows, safety: snapshot.safety, localOnly: true };
+}
+
+function buildOrganizationContactReports(store) {
+  return {
+    'organization-report': orgReport('Organization Report', store.organizations, store),
+    'contact-intelligence-report': orgReport('Contact Intelligence Report', store.contacts, store),
+    'buying-committee-report': orgReport('Buying Committee Report', store.buyingCommittees, store),
+    'relationship-health-report': orgReport('Relationship Health Report', store.organizations.map((org) => ({ organization: org.legalName, ...org.evaluations.relationshipHealth })), store),
+    'decision-maker-coverage-report': orgReport('Decision Maker Coverage Report', store.organizations.map((org) => ({ organization: org.legalName, ...org.evaluations.decisionMakerCoverage })), store),
+    'organization-timeline-report': orgReport('Organization Timeline Report', store.organizations.flatMap((org) => org.timeline.map((item) => ({ organization: org.legalName, ...item }))), store),
+    'executive-relationship-summary': orgReport('Executive Relationship Summary', [store.summary], store),
+    'proposal-relationship-readiness': orgReport('Proposal Relationship Readiness', store.organizations.map((org) => ({ organization: org.legalName, proposal: org.evaluations.proposalReadiness, relationship: org.evaluations.relationshipHealth })), store),
+  };
+}
+
+function orgReport(title, rows, store) {
+  return { title, generatedAt: new Date().toISOString(), summary: store.summary, rows, localOnly: true, safety: safetySummary() };
+}
+
+function contactRecord(organization, contact, index, timestamp = new Date().toISOString()) {
+  const parts = contact.name && contact.name !== 'Owner/operator TBD' ? contact.name.split(/\s+/) : ['Unknown', 'Contact'];
+  const confidence = contact.email || contact.phone ? 76 : 35;
+  const decisionAuthority = /owner|ceo|president|decision/i.test(contact.role) ? 'high' : contact.role ? 'medium' : 'unknown';
+  const contactId = `contact:${organization.organizationId}:${index}`;
+  return {
+    buyingInfluence: decisionAuthority === 'high' ? 85 : 55,
+    championScore: contact.email || contact.phone ? 62 : 25,
+    confidence,
+    contactId,
+    decisionAuthority,
+    department: /coach|gym|manager/i.test(contact.role) ? 'Operations' : 'Executive',
+    email: contact.email,
+    firstName: parts[0] ?? 'Unknown',
+    lastInteraction: null,
+    lastName: parts.slice(1).join(' '),
+    linkedin: '',
+    nextFollowUp: 'Within 2 business days',
+    notes: ['Manual contact verification required before outreach.'],
+    organizationId: organization.organizationId,
+    phone: contact.phone,
+    preferredCommunication: contact.email ? 'email' : contact.phone ? 'phone' : 'unknown',
+    preferredName: contact.name,
+    relationshipStrength: contact.email || contact.phone ? 58 : 20,
+    riskScore: contact.email || contact.phone ? 30 : 78,
+    timeline: [{ contactId, detail: 'Contact created from local opportunity/contact record.', id: `contact-created:${contactId}`, timestamp, title: 'Contact created', type: 'created' }],
+    title: contact.role,
+  };
+}
+
+function committeeRecord(organization, contacts) {
+  const orgContacts = contacts.filter((contact) => contact.organizationId === organization.organizationId);
+  const roles = orgContacts.flatMap((contact) => contactRoles(contact).map((role) => ({ contactId: contact.contactId, confidence: contact.confidence, evidence: contact.title || 'Derived from local contact role.', role })));
+  const required = ['Owner', 'Decision Maker', 'Operations', 'Finance'];
+  const filled = new Set(roles.map((role) => role.role));
+  const missingRoles = required.filter((role) => !filled.has(role));
+  return { completenessScore: clamp(((required.length - missingRoles.length) / required.length) * 100), missingRoles, organizationId: organization.organizationId, roles };
+}
+
+function contactRoles(contact) {
+  const roles = [];
+  if (/owner/i.test(contact.title) || contact.decisionAuthority === 'high') roles.push('Owner', 'Decision Maker');
+  if (/manager|operations/i.test(contact.title)) roles.push('Operations', 'Gym Manager');
+  if (!roles.length) roles.push('Influencer');
+  if (contact.championScore >= 60) roles.push('Champion');
+  return Array.from(new Set(roles));
+}
+
+function orgEvaluation(score, confidence, reason, risk) {
+  return { confidence, nextActions: ['Review manually before any external action.'], recommendations: ['Add verified contacts, decision roles, and next interaction notes.'], reasons: [reason], risks: risk ? [risk] : [], score: clamp(score) };
+}
+
+function orgEvent(organizationId, type, title, detail, timestamp) {
+  return { detail, id: `${type}:${organizationId}:${compactStamp(timestamp)}`, organizationId, timestamp, title, type };
+}
+
+function orgEdge(from, to, relationship, explanation) {
+  return { explanation, from, id: `${relationship}:${from}->${to}`, relationship, to };
+}
+
+function orgDuplicates(organizations) {
+  const candidates = [];
+  for (let i = 0; i < organizations.length; i += 1) {
+    for (let j = i + 1; j < organizations.length; j += 1) {
+      const fields = [normalize(organizations[i].legalName) === normalize(organizations[j].legalName) ? 'company name' : null, organizations[i].primaryDomain && organizations[i].primaryDomain === organizations[j].primaryDomain ? 'domain' : null].filter(Boolean);
+      if (fields.length) candidates.push(orgDuplicate('organization', organizations[i].organizationId, organizations[i].legalName, organizations[j].organizationId, organizations[j].legalName, fields));
+    }
+  }
+  return candidates;
+}
+
+function contactDuplicates(contacts) {
+  const candidates = [];
+  for (let i = 0; i < contacts.length; i += 1) {
+    for (let j = i + 1; j < contacts.length; j += 1) {
+      const fields = [contacts[i].email && contacts[i].email === contacts[j].email ? 'email' : null, contacts[i].phone && contacts[i].phone === contacts[j].phone ? 'phone' : null, normalize(`${contacts[i].firstName}${contacts[i].lastName}`) === normalize(`${contacts[j].firstName}${contacts[j].lastName}`) ? 'name' : null].filter(Boolean);
+      if (fields.length) candidates.push(orgDuplicate('contact', contacts[i].contactId, contacts[i].preferredName, contacts[j].contactId, contacts[j].preferredName, fields));
+    }
+  }
+  return candidates;
+}
+
+function orgDuplicate(type, leftId, leftLabel, rightId, rightLabel, fields) {
+  return { confidence: Math.min(95, 55 + fields.length * 20), fields, id: `duplicate:${type}:${leftId}:${rightId}`, leftId, leftLabel, reason: `Shared ${fields.join(', ')} requires manual review.`, reviewAction: 'Review Duplicate', rightId, rightLabel, type };
+}
+
+function summarizeOrgContact(organizations, contacts, committees, orgDupes, contactDupes) {
+  return {
+    averageBuyingCommitteeCompleteness: average(committees.map((committee) => committee.completenessScore)),
+    averageRelationshipHealth: average(organizations.map((organization) => organization.relationshipHealth)),
+    contactMaintenanceQueue: contacts.filter((contact) => contact.confidence < 60 || !contact.email || !contact.phone).length,
+    decisionMakerCoverage: average(organizations.map((organization) => organization.evaluations.decisionMakerCoverage.score)),
+    duplicateContactCandidates: contactDupes.length,
+    duplicateOrganizationCandidates: orgDupes.length,
+    executiveRelationshipRisks: organizations.filter((organization) => organization.riskRating === 'high').length,
+    highValueOrganizations: organizations.filter((organization) => organization.opportunityScore >= 85 || organization.icpScore >= 85).length,
+    incompleteBuyingCommittees: committees.filter((committee) => committee.completenessScore < 75).length,
+    largestOpportunityValue: Math.max(0, ...organizations.map((organization) => organization.opportunityScore * 125)),
+    missingDecisionMakers: organizations.filter((organization) => organization.evaluations.decisionMakerCoverage.score < 70).length,
+    organizationsMissingContacts: organizations.filter((organization) => !organization.contacts.length || organization.contacts.every((contact) => !contact.email && !contact.phone)).length,
+    organizationsTracked: organizations.length,
+    relationshipFollowUps: contacts.filter((contact) => contact.nextFollowUp).length,
+    totalContacts: contacts.length,
+  };
 }
 
 function intelligenceNextAction(label, risks, fallback) {

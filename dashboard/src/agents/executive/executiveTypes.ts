@@ -20,6 +20,7 @@ import type {
   SalesIntegrationSummary,
   SalesIntelligenceSummary,
   SalesPipelineAnalytics,
+  SalesOrganizationIntelligenceSummary,
   SalesProposalSummary,
   SalesProspectDossierSummary,
   SalesResearchIntelligenceSummary,
@@ -107,6 +108,7 @@ export interface ExecutiveSummary {
   salesIntegration?: SalesIntegrationSummary;
   salesIntelligenceSummary?: SalesIntelligenceSummary;
   salesPipelineAnalytics?: SalesPipelineAnalytics;
+  salesOrganizationIntelligenceSummary?: SalesOrganizationIntelligenceSummary;
   salesProposalSummary?: SalesProposalSummary;
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesResearchIntelligenceSummary?: SalesResearchIntelligenceSummary;
@@ -136,6 +138,7 @@ export interface ExecutiveDashboardProps {
   salesIntegration?: SalesIntegrationSummary;
   salesIntelligenceSummary?: SalesIntelligenceSummary;
   salesPipelineAnalytics?: SalesPipelineAnalytics;
+  salesOrganizationIntelligenceSummary?: SalesOrganizationIntelligenceSummary;
   salesProposalSummary?: SalesProposalSummary;
   salesProspectDossierSummary?: SalesProspectDossierSummary;
   salesResearchIntelligenceSummary?: SalesResearchIntelligenceSummary;

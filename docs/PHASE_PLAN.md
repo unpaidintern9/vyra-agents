@@ -1,5 +1,28 @@
 # Phase Plan
 
+## Phase 51
+
+Organization & Contact Intelligence Engine.
+
+Status: In progress in this repo.
+
+Includes:
+
+- Local organization intelligence records independent of `vyraapp.fit`.
+- Unlimited local contact records linked to organizations and opportunities.
+- Buying committee roles, completeness scoring, decision maker coverage, and proposal relationship readiness.
+- Relationship graph links across organizations, contacts, opportunities, research, reports, workflows, proposal prep, and Executive reviews.
+- Organization and contact timelines.
+- Sales dashboard Organization & Contact Intelligence workspace.
+- Executive relationship summary and Operator contact maintenance queue.
+- Duplicate organization and contact review packets with no automatic merging.
+- CLI commands for organizations, contacts, buying committees, relationship health, relationship maps, decision makers, timelines, duplicate review, and validation.
+
+Boundaries:
+
+- No autonomous browsing, messaging, CRM sync, proposal submission, Executive approval, source approval, duplicate merge, or external write.
+- All generated organization/contact intelligence remains local and auditable.
+
 ## Phase 47
 
 Sales Agent Opportunity Management & Local CRM.

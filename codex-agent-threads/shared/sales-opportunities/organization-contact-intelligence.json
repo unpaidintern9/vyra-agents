@@ -1,0 +1,2915 @@
+{
+  "buyingCommittees": [
+    {
+      "completenessScore": 50,
+      "missingRoles": [
+        "Operations",
+        "Finance"
+      ],
+      "organizationId": "org:opp-area-502-mma",
+      "roles": [
+        {
+          "contactId": "contact:org:opp-area-502-mma:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Owner"
+        },
+        {
+          "contactId": "contact:org:opp-area-502-mma:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Decision Maker"
+        }
+      ]
+    },
+    {
+      "completenessScore": 50,
+      "missingRoles": [
+        "Operations",
+        "Finance"
+      ],
+      "organizationId": "org:opp-louisville-combat-academy",
+      "roles": [
+        {
+          "contactId": "contact:org:opp-louisville-combat-academy:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Owner"
+        },
+        {
+          "contactId": "contact:org:opp-louisville-combat-academy:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Decision Maker"
+        }
+      ]
+    },
+    {
+      "completenessScore": 50,
+      "missingRoles": [
+        "Operations",
+        "Finance"
+      ],
+      "organizationId": "org:opp-core-combat-sports",
+      "roles": [
+        {
+          "contactId": "contact:org:opp-core-combat-sports:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Owner"
+        },
+        {
+          "contactId": "contact:org:opp-core-combat-sports:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Decision Maker"
+        }
+      ]
+    },
+    {
+      "completenessScore": 50,
+      "missingRoles": [
+        "Operations",
+        "Finance"
+      ],
+      "organizationId": "org:opp-apex-martial-arts-academy",
+      "roles": [
+        {
+          "contactId": "contact:org:opp-apex-martial-arts-academy:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Owner"
+        },
+        {
+          "contactId": "contact:org:opp-apex-martial-arts-academy:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Decision Maker"
+        }
+      ]
+    },
+    {
+      "completenessScore": 50,
+      "missingRoles": [
+        "Operations",
+        "Finance"
+      ],
+      "organizationId": "org:opp-butchertown-crossfit",
+      "roles": [
+        {
+          "contactId": "contact:org:opp-butchertown-crossfit:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Owner"
+        },
+        {
+          "contactId": "contact:org:opp-butchertown-crossfit:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Decision Maker"
+        }
+      ]
+    },
+    {
+      "completenessScore": 50,
+      "missingRoles": [
+        "Operations",
+        "Finance"
+      ],
+      "organizationId": "org:opp-full-moon-martial-arts",
+      "roles": [
+        {
+          "contactId": "contact:org:opp-full-moon-martial-arts:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Owner"
+        },
+        {
+          "contactId": "contact:org:opp-full-moon-martial-arts:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Decision Maker"
+        }
+      ]
+    },
+    {
+      "completenessScore": 50,
+      "missingRoles": [
+        "Operations",
+        "Finance"
+      ],
+      "organizationId": "org:opp-crossfit-covalence",
+      "roles": [
+        {
+          "contactId": "contact:org:opp-crossfit-covalence:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Owner"
+        },
+        {
+          "contactId": "contact:org:opp-crossfit-covalence:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Decision Maker"
+        }
+      ]
+    },
+    {
+      "completenessScore": 50,
+      "missingRoles": [
+        "Operations",
+        "Finance"
+      ],
+      "organizationId": "org:opp-derby-city-mixed-martial-arts",
+      "roles": [
+        {
+          "contactId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Owner"
+        },
+        {
+          "contactId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+          "confidence": 35,
+          "evidence": "Decision maker",
+          "role": "Decision Maker"
+        }
+      ]
+    }
+  ],
+  "contactDuplicateCandidates": [
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-area-502-mma:0:contact:org:opp-louisville-combat-academy:0",
+      "leftId": "contact:org:opp-area-502-mma:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-louisville-combat-academy:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-area-502-mma:0:contact:org:opp-core-combat-sports:0",
+      "leftId": "contact:org:opp-area-502-mma:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-core-combat-sports:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-area-502-mma:0:contact:org:opp-apex-martial-arts-academy:0",
+      "leftId": "contact:org:opp-area-502-mma:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-apex-martial-arts-academy:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-area-502-mma:0:contact:org:opp-butchertown-crossfit:0",
+      "leftId": "contact:org:opp-area-502-mma:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-butchertown-crossfit:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-area-502-mma:0:contact:org:opp-full-moon-martial-arts:0",
+      "leftId": "contact:org:opp-area-502-mma:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-full-moon-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-area-502-mma:0:contact:org:opp-crossfit-covalence:0",
+      "leftId": "contact:org:opp-area-502-mma:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-crossfit-covalence:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-area-502-mma:0:contact:org:opp-derby-city-mixed-martial-arts:0",
+      "leftId": "contact:org:opp-area-502-mma:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-louisville-combat-academy:0:contact:org:opp-core-combat-sports:0",
+      "leftId": "contact:org:opp-louisville-combat-academy:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-core-combat-sports:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-louisville-combat-academy:0:contact:org:opp-apex-martial-arts-academy:0",
+      "leftId": "contact:org:opp-louisville-combat-academy:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-apex-martial-arts-academy:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-louisville-combat-academy:0:contact:org:opp-butchertown-crossfit:0",
+      "leftId": "contact:org:opp-louisville-combat-academy:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-butchertown-crossfit:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-louisville-combat-academy:0:contact:org:opp-full-moon-martial-arts:0",
+      "leftId": "contact:org:opp-louisville-combat-academy:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-full-moon-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-louisville-combat-academy:0:contact:org:opp-crossfit-covalence:0",
+      "leftId": "contact:org:opp-louisville-combat-academy:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-crossfit-covalence:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-louisville-combat-academy:0:contact:org:opp-derby-city-mixed-martial-arts:0",
+      "leftId": "contact:org:opp-louisville-combat-academy:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-core-combat-sports:0:contact:org:opp-apex-martial-arts-academy:0",
+      "leftId": "contact:org:opp-core-combat-sports:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-apex-martial-arts-academy:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-core-combat-sports:0:contact:org:opp-butchertown-crossfit:0",
+      "leftId": "contact:org:opp-core-combat-sports:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-butchertown-crossfit:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-core-combat-sports:0:contact:org:opp-full-moon-martial-arts:0",
+      "leftId": "contact:org:opp-core-combat-sports:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-full-moon-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-core-combat-sports:0:contact:org:opp-crossfit-covalence:0",
+      "leftId": "contact:org:opp-core-combat-sports:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-crossfit-covalence:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-core-combat-sports:0:contact:org:opp-derby-city-mixed-martial-arts:0",
+      "leftId": "contact:org:opp-core-combat-sports:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-apex-martial-arts-academy:0:contact:org:opp-butchertown-crossfit:0",
+      "leftId": "contact:org:opp-apex-martial-arts-academy:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-butchertown-crossfit:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-apex-martial-arts-academy:0:contact:org:opp-full-moon-martial-arts:0",
+      "leftId": "contact:org:opp-apex-martial-arts-academy:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-full-moon-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-apex-martial-arts-academy:0:contact:org:opp-crossfit-covalence:0",
+      "leftId": "contact:org:opp-apex-martial-arts-academy:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-crossfit-covalence:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-apex-martial-arts-academy:0:contact:org:opp-derby-city-mixed-martial-arts:0",
+      "leftId": "contact:org:opp-apex-martial-arts-academy:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-butchertown-crossfit:0:contact:org:opp-full-moon-martial-arts:0",
+      "leftId": "contact:org:opp-butchertown-crossfit:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-full-moon-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-butchertown-crossfit:0:contact:org:opp-crossfit-covalence:0",
+      "leftId": "contact:org:opp-butchertown-crossfit:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-crossfit-covalence:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-butchertown-crossfit:0:contact:org:opp-derby-city-mixed-martial-arts:0",
+      "leftId": "contact:org:opp-butchertown-crossfit:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-full-moon-martial-arts:0:contact:org:opp-crossfit-covalence:0",
+      "leftId": "contact:org:opp-full-moon-martial-arts:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-crossfit-covalence:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-full-moon-martial-arts:0:contact:org:opp-derby-city-mixed-martial-arts:0",
+      "leftId": "contact:org:opp-full-moon-martial-arts:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    },
+    {
+      "confidence": 75,
+      "fields": [
+        "name"
+      ],
+      "id": "duplicate:contact:contact:org:opp-crossfit-covalence:0:contact:org:opp-derby-city-mixed-martial-arts:0",
+      "leftId": "contact:org:opp-crossfit-covalence:0",
+      "leftLabel": "Owner/operator TBD",
+      "reason": "Shared name requires manual review.",
+      "reviewAction": "Review Duplicate",
+      "rightId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+      "rightLabel": "Owner/operator TBD",
+      "type": "contact"
+    }
+  ],
+  "contacts": [
+    {
+      "buyingInfluence": 85,
+      "championScore": 25,
+      "confidence": 35,
+      "contactId": "contact:org:opp-area-502-mma:0",
+      "decisionAuthority": "high",
+      "department": "Executive",
+      "email": "",
+      "firstName": "Unknown",
+      "lastInteraction": null,
+      "lastName": "Contact",
+      "linkedin": "",
+      "nextFollowUp": "Within 2 business days",
+      "notes": [
+        "Manual contact verification required before outreach."
+      ],
+      "organizationId": "org:opp-area-502-mma",
+      "phone": "",
+      "preferredCommunication": "unknown",
+      "preferredName": "Owner/operator TBD",
+      "relationshipStrength": 20,
+      "riskScore": 78,
+      "timeline": [
+        {
+          "contactId": "contact:org:opp-area-502-mma:0",
+          "detail": "Contact created from local opportunity/contact record.",
+          "id": "contact-created:contact:org:opp-area-502-mma:0",
+          "timestamp": "2026-07-01T14:24:26.017Z",
+          "title": "Contact created",
+          "type": "created"
+        }
+      ],
+      "title": "Decision maker"
+    },
+    {
+      "buyingInfluence": 85,
+      "championScore": 25,
+      "confidence": 35,
+      "contactId": "contact:org:opp-louisville-combat-academy:0",
+      "decisionAuthority": "high",
+      "department": "Executive",
+      "email": "",
+      "firstName": "Unknown",
+      "lastInteraction": null,
+      "lastName": "Contact",
+      "linkedin": "",
+      "nextFollowUp": "Within 2 business days",
+      "notes": [
+        "Manual contact verification required before outreach."
+      ],
+      "organizationId": "org:opp-louisville-combat-academy",
+      "phone": "",
+      "preferredCommunication": "unknown",
+      "preferredName": "Owner/operator TBD",
+      "relationshipStrength": 20,
+      "riskScore": 78,
+      "timeline": [
+        {
+          "contactId": "contact:org:opp-louisville-combat-academy:0",
+          "detail": "Contact created from local opportunity/contact record.",
+          "id": "contact-created:contact:org:opp-louisville-combat-academy:0",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact created",
+          "type": "created"
+        }
+      ],
+      "title": "Decision maker"
+    },
+    {
+      "buyingInfluence": 85,
+      "championScore": 25,
+      "confidence": 35,
+      "contactId": "contact:org:opp-core-combat-sports:0",
+      "decisionAuthority": "high",
+      "department": "Executive",
+      "email": "",
+      "firstName": "Unknown",
+      "lastInteraction": null,
+      "lastName": "Contact",
+      "linkedin": "",
+      "nextFollowUp": "Within 2 business days",
+      "notes": [
+        "Manual contact verification required before outreach."
+      ],
+      "organizationId": "org:opp-core-combat-sports",
+      "phone": "",
+      "preferredCommunication": "unknown",
+      "preferredName": "Owner/operator TBD",
+      "relationshipStrength": 20,
+      "riskScore": 78,
+      "timeline": [
+        {
+          "contactId": "contact:org:opp-core-combat-sports:0",
+          "detail": "Contact created from local opportunity/contact record.",
+          "id": "contact-created:contact:org:opp-core-combat-sports:0",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact created",
+          "type": "created"
+        }
+      ],
+      "title": "Decision maker"
+    },
+    {
+      "buyingInfluence": 85,
+      "championScore": 25,
+      "confidence": 35,
+      "contactId": "contact:org:opp-apex-martial-arts-academy:0",
+      "decisionAuthority": "high",
+      "department": "Executive",
+      "email": "",
+      "firstName": "Unknown",
+      "lastInteraction": null,
+      "lastName": "Contact",
+      "linkedin": "",
+      "nextFollowUp": "Within 2 business days",
+      "notes": [
+        "Manual contact verification required before outreach."
+      ],
+      "organizationId": "org:opp-apex-martial-arts-academy",
+      "phone": "",
+      "preferredCommunication": "unknown",
+      "preferredName": "Owner/operator TBD",
+      "relationshipStrength": 20,
+      "riskScore": 78,
+      "timeline": [
+        {
+          "contactId": "contact:org:opp-apex-martial-arts-academy:0",
+          "detail": "Contact created from local opportunity/contact record.",
+          "id": "contact-created:contact:org:opp-apex-martial-arts-academy:0",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact created",
+          "type": "created"
+        }
+      ],
+      "title": "Decision maker"
+    },
+    {
+      "buyingInfluence": 85,
+      "championScore": 25,
+      "confidence": 35,
+      "contactId": "contact:org:opp-butchertown-crossfit:0",
+      "decisionAuthority": "high",
+      "department": "Executive",
+      "email": "",
+      "firstName": "Unknown",
+      "lastInteraction": null,
+      "lastName": "Contact",
+      "linkedin": "",
+      "nextFollowUp": "Within 2 business days",
+      "notes": [
+        "Manual contact verification required before outreach."
+      ],
+      "organizationId": "org:opp-butchertown-crossfit",
+      "phone": "",
+      "preferredCommunication": "unknown",
+      "preferredName": "Owner/operator TBD",
+      "relationshipStrength": 20,
+      "riskScore": 78,
+      "timeline": [
+        {
+          "contactId": "contact:org:opp-butchertown-crossfit:0",
+          "detail": "Contact created from local opportunity/contact record.",
+          "id": "contact-created:contact:org:opp-butchertown-crossfit:0",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact created",
+          "type": "created"
+        }
+      ],
+      "title": "Decision maker"
+    },
+    {
+      "buyingInfluence": 85,
+      "championScore": 25,
+      "confidence": 35,
+      "contactId": "contact:org:opp-full-moon-martial-arts:0",
+      "decisionAuthority": "high",
+      "department": "Executive",
+      "email": "",
+      "firstName": "Unknown",
+      "lastInteraction": null,
+      "lastName": "Contact",
+      "linkedin": "",
+      "nextFollowUp": "Within 2 business days",
+      "notes": [
+        "Manual contact verification required before outreach."
+      ],
+      "organizationId": "org:opp-full-moon-martial-arts",
+      "phone": "",
+      "preferredCommunication": "unknown",
+      "preferredName": "Owner/operator TBD",
+      "relationshipStrength": 20,
+      "riskScore": 78,
+      "timeline": [
+        {
+          "contactId": "contact:org:opp-full-moon-martial-arts:0",
+          "detail": "Contact created from local opportunity/contact record.",
+          "id": "contact-created:contact:org:opp-full-moon-martial-arts:0",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact created",
+          "type": "created"
+        }
+      ],
+      "title": "Decision maker"
+    },
+    {
+      "buyingInfluence": 85,
+      "championScore": 25,
+      "confidence": 35,
+      "contactId": "contact:org:opp-crossfit-covalence:0",
+      "decisionAuthority": "high",
+      "department": "Executive",
+      "email": "",
+      "firstName": "Unknown",
+      "lastInteraction": null,
+      "lastName": "Contact",
+      "linkedin": "",
+      "nextFollowUp": "Within 2 business days",
+      "notes": [
+        "Manual contact verification required before outreach."
+      ],
+      "organizationId": "org:opp-crossfit-covalence",
+      "phone": "",
+      "preferredCommunication": "unknown",
+      "preferredName": "Owner/operator TBD",
+      "relationshipStrength": 20,
+      "riskScore": 78,
+      "timeline": [
+        {
+          "contactId": "contact:org:opp-crossfit-covalence:0",
+          "detail": "Contact created from local opportunity/contact record.",
+          "id": "contact-created:contact:org:opp-crossfit-covalence:0",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact created",
+          "type": "created"
+        }
+      ],
+      "title": "Decision maker"
+    },
+    {
+      "buyingInfluence": 85,
+      "championScore": 25,
+      "confidence": 35,
+      "contactId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+      "decisionAuthority": "high",
+      "department": "Executive",
+      "email": "",
+      "firstName": "Unknown",
+      "lastInteraction": null,
+      "lastName": "Contact",
+      "linkedin": "",
+      "nextFollowUp": "Within 2 business days",
+      "notes": [
+        "Manual contact verification required before outreach."
+      ],
+      "organizationId": "org:opp-derby-city-mixed-martial-arts",
+      "phone": "",
+      "preferredCommunication": "unknown",
+      "preferredName": "Owner/operator TBD",
+      "relationshipStrength": 20,
+      "riskScore": 78,
+      "timeline": [
+        {
+          "contactId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+          "detail": "Contact created from local opportunity/contact record.",
+          "id": "contact-created:contact:org:opp-derby-city-mixed-martial-arts:0",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact created",
+          "type": "created"
+        }
+      ],
+      "title": "Decision maker"
+    }
+  ],
+  "generatedAt": "2026-07-01T16:33:36.147Z",
+  "localOnly": true,
+  "organizationDuplicateCandidates": [],
+  "organizations": [
+    {
+      "additionalLocations": [],
+      "buyingReadiness": 76,
+      "businessType": "Small independent gym",
+      "confidence": 78,
+      "contacts": [
+        {
+          "buyingInfluence": 85,
+          "championScore": 25,
+          "confidence": 35,
+          "contactId": "contact:org:opp-area-502-mma:0",
+          "decisionAuthority": "high",
+          "department": "Executive",
+          "email": "",
+          "firstName": "Unknown",
+          "lastInteraction": null,
+          "lastName": "Contact",
+          "linkedin": "",
+          "nextFollowUp": "Within 2 business days",
+          "notes": [
+            "Manual contact verification required before outreach."
+          ],
+          "organizationId": "org:opp-area-502-mma",
+          "phone": "",
+          "preferredCommunication": "unknown",
+          "preferredName": "Owner/operator TBD",
+          "relationshipStrength": 20,
+          "riskScore": 78,
+          "timeline": [
+            {
+              "contactId": "contact:org:opp-area-502-mma:0",
+              "detail": "Contact created from local opportunity/contact record.",
+              "id": "contact-created:contact:org:opp-area-502-mma:0",
+              "timestamp": "2026-07-01T14:24:26.017Z",
+              "title": "Contact created",
+              "type": "created"
+            }
+          ],
+          "title": "Decision maker"
+        }
+      ],
+      "currentSalesStage": "proposal_preparation",
+      "dbaNames": [],
+      "description": "Local CRM only. Verify contacts and requirements before outreach.",
+      "duplicateCandidateIds": [],
+      "estimatedEmployeeRange": "Small independent gym",
+      "estimatedRevenueRange": "$93000 - $162750",
+      "evaluations": {
+        "buyingCommitteeCompleteness": {
+          "confidence": 78,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Committee inferred from local contacts."
+          ],
+          "risks": [],
+          "score": 50
+        },
+        "decisionMakerCoverage": {
+          "confidence": 78,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Decision maker coverage inferred from contact roles."
+          ],
+          "risks": [],
+          "score": 85
+        },
+        "organizationHealth": {
+          "confidence": 78,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Organization health combines ICP, relationship, and confidence."
+          ],
+          "risks": [
+            "High relationship or workflow risk."
+          ],
+          "score": 63
+        },
+        "proposalReadiness": {
+          "confidence": 78,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Proposal readiness comes from local opportunity requirements."
+          ],
+          "risks": [
+            "Proposal inputs incomplete."
+          ],
+          "score": 44
+        },
+        "relationshipHealth": {
+          "confidence": 78,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Relationship health is based on verified contact paths."
+          ],
+          "risks": [
+            "Relationship is thin."
+          ],
+          "score": 20
+        },
+        "salesReadiness": {
+          "confidence": 78,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Sales readiness combines score, proposal readiness, and decision maker coverage."
+          ],
+          "risks": [
+            "Blocked workflow exists."
+          ],
+          "score": 74
+        }
+      },
+      "foundedYear": null,
+      "headquarters": "Louisville, KY",
+      "icpScore": 91,
+      "industry": "MMA / BJJ / martial arts",
+      "internalNotes": [
+        "Local CRM only. Verify contacts and requirements before outreach."
+      ],
+      "legalName": "Area 502 MMA",
+      "naics": "611620",
+      "opportunityIds": [
+        "opp-area-502-mma"
+      ],
+      "opportunityScore": 93,
+      "organizationId": "org:opp-area-502-mma",
+      "ownershipType": "Manual verification required",
+      "primaryDomain": "area502mma.com",
+      "priority": "High",
+      "relationshipGraphNodeIds": [
+        "organization:org:opp-area-502-mma",
+        "contact:contact:org:opp-area-502-mma:0",
+        "workflow:wf-research-area-502",
+        "workflow:wf-risky-linkedin-source",
+        "workflow:wf-external-action-gate"
+      ],
+      "relationshipHealth": 20,
+      "reports": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "riskRating": "high",
+      "serviceAreas": [
+        "Louisville",
+        "KY"
+      ],
+      "sic": "",
+      "subIndustry": "MMA / BJJ / martial arts",
+      "technologyProfile": {
+        "crm": "manual",
+        "marketingPlatform": "manual",
+        "schedulingPlatform": "manual",
+        "websitePlatform": "public website present",
+        "paymentPlatform": "manual",
+        "fitnessSoftware": "manual",
+        "analytics": "manual",
+        "otherTechnologies": "manual"
+      },
+      "timeline": [
+        {
+          "detail": "Verify website, owner/contact path, and current software.",
+          "id": "workflow_update:org:opp-area-502-mma:20260701T154632Z",
+          "organizationId": "org:opp-area-502-mma",
+          "timestamp": "2026-07-01T15:46:32.158Z",
+          "title": "research_request",
+          "type": "workflow_update"
+        },
+        {
+          "detail": "LinkedIn manual reference remains pending and cannot enrich opportunities yet.",
+          "id": "workflow_update:org:opp-area-502-mma:20260701T154508Z",
+          "organizationId": "org:opp-area-502-mma",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "title": "risky_source_review",
+          "type": "workflow_update"
+        },
+        {
+          "detail": "Any external email, CRM sync, browsing job, or proposal submission requires manual approval.",
+          "id": "workflow_update:org:opp-area-502-mma:20260701T154508Z",
+          "organizationId": "org:opp-area-502-mma",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "title": "external_action_gate",
+          "type": "workflow_update"
+        },
+        {
+          "detail": "Area 502 MMA research intake prepared from approved local/manual source.",
+          "id": "research_imported:org:opp-area-502-mma:20260701T143742Z",
+          "organizationId": "org:opp-area-502-mma",
+          "timestamp": "2026-07-01T14:37:42.847Z",
+          "title": "Research imported",
+          "type": "research_imported"
+        },
+        {
+          "detail": "Derived from local opportunity.",
+          "id": "created:org:opp-area-502-mma:20260701T142426Z",
+          "organizationId": "org:opp-area-502-mma",
+          "timestamp": "2026-07-01T14:24:26.017Z",
+          "title": "Organization created",
+          "type": "created"
+        },
+        {
+          "detail": "proposal_preparation",
+          "id": "opportunity_created:org:opp-area-502-mma:20260701T142426Z",
+          "organizationId": "org:opp-area-502-mma",
+          "timestamp": "2026-07-01T14:24:26.017Z",
+          "title": "Opportunity linked",
+          "type": "opportunity_created"
+        },
+        {
+          "detail": "Owner/operator TBD",
+          "id": "contact_added:org:opp-area-502-mma:20260701T142426Z",
+          "organizationId": "org:opp-area-502-mma",
+          "timestamp": "2026-07-01T14:24:26.017Z",
+          "title": "Contact added",
+          "type": "contact_added"
+        }
+      ],
+      "website": "https://area502mma.com/"
+    },
+    {
+      "additionalLocations": [],
+      "buyingReadiness": 76,
+      "businessType": "Small independent gym",
+      "confidence": 79,
+      "contacts": [
+        {
+          "buyingInfluence": 85,
+          "championScore": 25,
+          "confidence": 35,
+          "contactId": "contact:org:opp-louisville-combat-academy:0",
+          "decisionAuthority": "high",
+          "department": "Executive",
+          "email": "",
+          "firstName": "Unknown",
+          "lastInteraction": null,
+          "lastName": "Contact",
+          "linkedin": "",
+          "nextFollowUp": "Within 2 business days",
+          "notes": [
+            "Manual contact verification required before outreach."
+          ],
+          "organizationId": "org:opp-louisville-combat-academy",
+          "phone": "",
+          "preferredCommunication": "unknown",
+          "preferredName": "Owner/operator TBD",
+          "relationshipStrength": 20,
+          "riskScore": 78,
+          "timeline": [
+            {
+              "contactId": "contact:org:opp-louisville-combat-academy:0",
+              "detail": "Contact created from local opportunity/contact record.",
+              "id": "contact-created:contact:org:opp-louisville-combat-academy:0",
+              "timestamp": "2026-07-01T14:24:26.019Z",
+              "title": "Contact created",
+              "type": "created"
+            }
+          ],
+          "title": "Decision maker"
+        }
+      ],
+      "currentSalesStage": "proposal_preparation",
+      "dbaNames": [],
+      "description": "Local CRM only. Verify contacts and requirements before outreach.",
+      "duplicateCandidateIds": [],
+      "estimatedEmployeeRange": "Small independent gym",
+      "estimatedRevenueRange": "$93000 - $162750",
+      "evaluations": {
+        "buyingCommitteeCompleteness": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Committee inferred from local contacts."
+          ],
+          "risks": [],
+          "score": 50
+        },
+        "decisionMakerCoverage": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Decision maker coverage inferred from contact roles."
+          ],
+          "risks": [],
+          "score": 85
+        },
+        "organizationHealth": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Organization health combines ICP, relationship, and confidence."
+          ],
+          "risks": [],
+          "score": 63
+        },
+        "proposalReadiness": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Proposal readiness comes from local opportunity requirements."
+          ],
+          "risks": [
+            "Proposal inputs incomplete."
+          ],
+          "score": 44
+        },
+        "relationshipHealth": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Relationship health is based on verified contact paths."
+          ],
+          "risks": [
+            "Relationship is thin."
+          ],
+          "score": 20
+        },
+        "salesReadiness": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Sales readiness combines score, proposal readiness, and decision maker coverage."
+          ],
+          "risks": [],
+          "score": 74
+        }
+      },
+      "foundedYear": null,
+      "headquarters": "Louisville, KY",
+      "icpScore": 90,
+      "industry": "MMA / BJJ / martial arts",
+      "internalNotes": [
+        "Local CRM only. Verify contacts and requirements before outreach."
+      ],
+      "legalName": "Louisville Combat Academy",
+      "naics": "611620",
+      "opportunityIds": [
+        "opp-louisville-combat-academy"
+      ],
+      "opportunityScore": 93,
+      "organizationId": "org:opp-louisville-combat-academy",
+      "ownershipType": "Manual verification required",
+      "primaryDomain": "louisvillecombatacademy.com",
+      "priority": "High",
+      "relationshipGraphNodeIds": [
+        "organization:org:opp-louisville-combat-academy",
+        "contact:contact:org:opp-louisville-combat-academy:0",
+        "workflow:wf-verify-louisville-combat",
+        "workflow:wf-duplicate-louisville-combat"
+      ],
+      "relationshipHealth": 20,
+      "reports": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "riskRating": "low",
+      "serviceAreas": [
+        "Louisville",
+        "KY"
+      ],
+      "sic": "",
+      "subIndustry": "MMA / BJJ / martial arts",
+      "technologyProfile": {
+        "crm": "manual",
+        "marketingPlatform": "manual",
+        "schedulingPlatform": "manual",
+        "websitePlatform": "public website present",
+        "paymentPlatform": "manual",
+        "fitnessSoftware": "manual",
+        "analytics": "manual",
+        "otherTechnologies": "manual"
+      },
+      "timeline": [
+        {
+          "detail": "Verify contact path and source confidence before outreach prep.",
+          "id": "workflow_update:org:opp-louisville-combat-academy:20260701T154508Z",
+          "organizationId": "org:opp-louisville-combat-academy",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "title": "verification_request",
+          "type": "workflow_update"
+        },
+        {
+          "detail": "Review possible duplicate opportunity; do not merge automatically.",
+          "id": "workflow_update:org:opp-louisville-combat-academy:20260701T154508Z",
+          "organizationId": "org:opp-louisville-combat-academy",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "title": "duplicate_review",
+          "type": "workflow_update"
+        },
+        {
+          "detail": "Louisville Combat Academy research intake prepared from approved local/manual source.",
+          "id": "research_imported:org:opp-louisville-combat-academy:20260701T143742Z",
+          "organizationId": "org:opp-louisville-combat-academy",
+          "timestamp": "2026-07-01T14:37:42.847Z",
+          "title": "Research imported",
+          "type": "research_imported"
+        },
+        {
+          "detail": "Derived from local opportunity.",
+          "id": "created:org:opp-louisville-combat-academy:20260701T142426Z",
+          "organizationId": "org:opp-louisville-combat-academy",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Organization created",
+          "type": "created"
+        },
+        {
+          "detail": "proposal_preparation",
+          "id": "opportunity_created:org:opp-louisville-combat-academy:20260701T142426Z",
+          "organizationId": "org:opp-louisville-combat-academy",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Opportunity linked",
+          "type": "opportunity_created"
+        },
+        {
+          "detail": "Owner/operator TBD",
+          "id": "contact_added:org:opp-louisville-combat-academy:20260701T142426Z",
+          "organizationId": "org:opp-louisville-combat-academy",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact added",
+          "type": "contact_added"
+        }
+      ],
+      "website": "https://louisvillecombatacademy.com/"
+    },
+    {
+      "additionalLocations": [],
+      "buyingReadiness": 74,
+      "businessType": "Small independent gym",
+      "confidence": 79,
+      "contacts": [
+        {
+          "buyingInfluence": 85,
+          "championScore": 25,
+          "confidence": 35,
+          "contactId": "contact:org:opp-core-combat-sports:0",
+          "decisionAuthority": "high",
+          "department": "Executive",
+          "email": "",
+          "firstName": "Unknown",
+          "lastInteraction": null,
+          "lastName": "Contact",
+          "linkedin": "",
+          "nextFollowUp": "Within 2 business days",
+          "notes": [
+            "Manual contact verification required before outreach."
+          ],
+          "organizationId": "org:opp-core-combat-sports",
+          "phone": "",
+          "preferredCommunication": "unknown",
+          "preferredName": "Owner/operator TBD",
+          "relationshipStrength": 20,
+          "riskScore": 78,
+          "timeline": [
+            {
+              "contactId": "contact:org:opp-core-combat-sports:0",
+              "detail": "Contact created from local opportunity/contact record.",
+              "id": "contact-created:contact:org:opp-core-combat-sports:0",
+              "timestamp": "2026-07-01T14:24:26.019Z",
+              "title": "Contact created",
+              "type": "created"
+            }
+          ],
+          "title": "Decision maker"
+        }
+      ],
+      "currentSalesStage": "proposal_preparation",
+      "dbaNames": [],
+      "description": "Local CRM only. Verify contacts and requirements before outreach.",
+      "duplicateCandidateIds": [],
+      "estimatedEmployeeRange": "Small independent gym",
+      "estimatedRevenueRange": "$91000 - $159250",
+      "evaluations": {
+        "buyingCommitteeCompleteness": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Committee inferred from local contacts."
+          ],
+          "risks": [],
+          "score": 50
+        },
+        "decisionMakerCoverage": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Decision maker coverage inferred from contact roles."
+          ],
+          "risks": [],
+          "score": 85
+        },
+        "organizationHealth": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Organization health combines ICP, relationship, and confidence."
+          ],
+          "risks": [],
+          "score": 62
+        },
+        "proposalReadiness": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Proposal readiness comes from local opportunity requirements."
+          ],
+          "risks": [
+            "Proposal inputs incomplete."
+          ],
+          "score": 44
+        },
+        "relationshipHealth": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Relationship health is based on verified contact paths."
+          ],
+          "risks": [
+            "Relationship is thin."
+          ],
+          "score": 20
+        },
+        "salesReadiness": {
+          "confidence": 79,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Sales readiness combines score, proposal readiness, and decision maker coverage."
+          ],
+          "risks": [],
+          "score": 73
+        }
+      },
+      "foundedYear": null,
+      "headquarters": "Louisville, KY",
+      "icpScore": 88,
+      "industry": "MMA / BJJ / martial arts",
+      "internalNotes": [
+        "Local CRM only. Verify contacts and requirements before outreach."
+      ],
+      "legalName": "Core Combat Sports",
+      "naics": "611620",
+      "opportunityIds": [
+        "opp-core-combat-sports"
+      ],
+      "opportunityScore": 91,
+      "organizationId": "org:opp-core-combat-sports",
+      "ownershipType": "Manual verification required",
+      "primaryDomain": "corelouisville.com",
+      "priority": "High",
+      "relationshipGraphNodeIds": [
+        "organization:org:opp-core-combat-sports",
+        "contact:contact:org:opp-core-combat-sports:0",
+        "workflow:wf-proposal-core-combat"
+      ],
+      "relationshipHealth": 20,
+      "reports": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "riskRating": "low",
+      "serviceAreas": [
+        "Louisville",
+        "KY"
+      ],
+      "sic": "",
+      "subIndustry": "MMA / BJJ / martial arts",
+      "technologyProfile": {
+        "crm": "manual",
+        "marketingPlatform": "manual",
+        "schedulingPlatform": "manual",
+        "websitePlatform": "public website present",
+        "paymentPlatform": "manual",
+        "fitnessSoftware": "manual",
+        "analytics": "manual",
+        "otherTechnologies": "manual"
+      },
+      "timeline": [
+        {
+          "detail": "Prepare proposal package after missing requirements are resolved.",
+          "id": "workflow_update:org:opp-core-combat-sports:20260701T154508Z",
+          "organizationId": "org:opp-core-combat-sports",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "title": "proposal_prep_handoff",
+          "type": "workflow_update"
+        },
+        {
+          "detail": "Core Combat Sports research intake prepared from approved local/manual source.",
+          "id": "research_imported:org:opp-core-combat-sports:20260701T143742Z",
+          "organizationId": "org:opp-core-combat-sports",
+          "timestamp": "2026-07-01T14:37:42.847Z",
+          "title": "Research imported",
+          "type": "research_imported"
+        },
+        {
+          "detail": "Derived from local opportunity.",
+          "id": "created:org:opp-core-combat-sports:20260701T142426Z",
+          "organizationId": "org:opp-core-combat-sports",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Organization created",
+          "type": "created"
+        },
+        {
+          "detail": "proposal_preparation",
+          "id": "opportunity_created:org:opp-core-combat-sports:20260701T142426Z",
+          "organizationId": "org:opp-core-combat-sports",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Opportunity linked",
+          "type": "opportunity_created"
+        },
+        {
+          "detail": "Owner/operator TBD",
+          "id": "contact_added:org:opp-core-combat-sports:20260701T142426Z",
+          "organizationId": "org:opp-core-combat-sports",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact added",
+          "type": "contact_added"
+        }
+      ],
+      "website": "https://corelouisville.com/"
+    },
+    {
+      "additionalLocations": [],
+      "buyingReadiness": 73,
+      "businessType": "Small independent gym",
+      "confidence": 80,
+      "contacts": [
+        {
+          "buyingInfluence": 85,
+          "championScore": 25,
+          "confidence": 35,
+          "contactId": "contact:org:opp-apex-martial-arts-academy:0",
+          "decisionAuthority": "high",
+          "department": "Executive",
+          "email": "",
+          "firstName": "Unknown",
+          "lastInteraction": null,
+          "lastName": "Contact",
+          "linkedin": "",
+          "nextFollowUp": "Within 2 business days",
+          "notes": [
+            "Manual contact verification required before outreach."
+          ],
+          "organizationId": "org:opp-apex-martial-arts-academy",
+          "phone": "",
+          "preferredCommunication": "unknown",
+          "preferredName": "Owner/operator TBD",
+          "relationshipStrength": 20,
+          "riskScore": 78,
+          "timeline": [
+            {
+              "contactId": "contact:org:opp-apex-martial-arts-academy:0",
+              "detail": "Contact created from local opportunity/contact record.",
+              "id": "contact-created:contact:org:opp-apex-martial-arts-academy:0",
+              "timestamp": "2026-07-01T14:24:26.019Z",
+              "title": "Contact created",
+              "type": "created"
+            }
+          ],
+          "title": "Decision maker"
+        }
+      ],
+      "currentSalesStage": "proposal_preparation",
+      "dbaNames": [],
+      "description": "Local CRM only. Verify contacts and requirements before outreach.",
+      "duplicateCandidateIds": [],
+      "estimatedEmployeeRange": "Small independent gym",
+      "estimatedRevenueRange": "$90000 - $157500",
+      "evaluations": {
+        "buyingCommitteeCompleteness": {
+          "confidence": 80,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Committee inferred from local contacts."
+          ],
+          "risks": [],
+          "score": 50
+        },
+        "decisionMakerCoverage": {
+          "confidence": 80,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Decision maker coverage inferred from contact roles."
+          ],
+          "risks": [],
+          "score": 85
+        },
+        "organizationHealth": {
+          "confidence": 80,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Organization health combines ICP, relationship, and confidence."
+          ],
+          "risks": [],
+          "score": 62
+        },
+        "proposalReadiness": {
+          "confidence": 80,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Proposal readiness comes from local opportunity requirements."
+          ],
+          "risks": [
+            "Proposal inputs incomplete."
+          ],
+          "score": 44
+        },
+        "relationshipHealth": {
+          "confidence": 80,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Relationship health is based on verified contact paths."
+          ],
+          "risks": [
+            "Relationship is thin."
+          ],
+          "score": 20
+        },
+        "salesReadiness": {
+          "confidence": 80,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Sales readiness combines score, proposal readiness, and decision maker coverage."
+          ],
+          "risks": [],
+          "score": 73
+        }
+      },
+      "foundedYear": null,
+      "headquarters": "Louisville / Mount Washington, KY",
+      "icpScore": 86,
+      "industry": "MMA / BJJ / martial arts",
+      "internalNotes": [
+        "Local CRM only. Verify contacts and requirements before outreach."
+      ],
+      "legalName": "Apex Martial Arts Academy",
+      "naics": "611620",
+      "opportunityIds": [
+        "opp-apex-martial-arts-academy"
+      ],
+      "opportunityScore": 90,
+      "organizationId": "org:opp-apex-martial-arts-academy",
+      "ownershipType": "Manual verification required",
+      "primaryDomain": "theapexmaa.com",
+      "priority": "High",
+      "relationshipGraphNodeIds": [
+        "organization:org:opp-apex-martial-arts-academy",
+        "contact:contact:org:opp-apex-martial-arts-academy:0",
+        "workflow:wf-exec-apex"
+      ],
+      "relationshipHealth": 20,
+      "reports": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "riskRating": "low",
+      "serviceAreas": [
+        "Louisville / Mount Washington",
+        "KY"
+      ],
+      "sic": "",
+      "subIndustry": "MMA / BJJ / martial arts",
+      "technologyProfile": {
+        "crm": "manual",
+        "marketingPlatform": "manual",
+        "schedulingPlatform": "manual",
+        "websitePlatform": "public website present",
+        "paymentPlatform": "manual",
+        "fitnessSoftware": "manual",
+        "analytics": "manual",
+        "otherTechnologies": "manual"
+      },
+      "timeline": [
+        {
+          "detail": "High-fit prospect requires Executive approval before proposal readiness.",
+          "id": "workflow_update:org:opp-apex-martial-arts-academy:20260701T154508Z",
+          "organizationId": "org:opp-apex-martial-arts-academy",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "title": "executive_approval",
+          "type": "workflow_update"
+        },
+        {
+          "detail": "Apex Martial Arts Academy research intake prepared from approved local/manual source.",
+          "id": "research_imported:org:opp-apex-martial-arts-academy:20260701T143742Z",
+          "organizationId": "org:opp-apex-martial-arts-academy",
+          "timestamp": "2026-07-01T14:37:42.847Z",
+          "title": "Research imported",
+          "type": "research_imported"
+        },
+        {
+          "detail": "Derived from local opportunity.",
+          "id": "created:org:opp-apex-martial-arts-academy:20260701T142426Z",
+          "organizationId": "org:opp-apex-martial-arts-academy",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Organization created",
+          "type": "created"
+        },
+        {
+          "detail": "proposal_preparation",
+          "id": "opportunity_created:org:opp-apex-martial-arts-academy:20260701T142426Z",
+          "organizationId": "org:opp-apex-martial-arts-academy",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Opportunity linked",
+          "type": "opportunity_created"
+        },
+        {
+          "detail": "Owner/operator TBD",
+          "id": "contact_added:org:opp-apex-martial-arts-academy:20260701T142426Z",
+          "organizationId": "org:opp-apex-martial-arts-academy",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact added",
+          "type": "contact_added"
+        }
+      ],
+      "website": "https://theapexmaa.com/"
+    },
+    {
+      "additionalLocations": [],
+      "buyingReadiness": 68,
+      "businessType": "Small independent gym",
+      "confidence": 81,
+      "contacts": [
+        {
+          "buyingInfluence": 85,
+          "championScore": 25,
+          "confidence": 35,
+          "contactId": "contact:org:opp-butchertown-crossfit:0",
+          "decisionAuthority": "high",
+          "department": "Executive",
+          "email": "",
+          "firstName": "Unknown",
+          "lastInteraction": null,
+          "lastName": "Contact",
+          "linkedin": "",
+          "nextFollowUp": "Within 2 business days",
+          "notes": [
+            "Manual contact verification required before outreach."
+          ],
+          "organizationId": "org:opp-butchertown-crossfit",
+          "phone": "",
+          "preferredCommunication": "unknown",
+          "preferredName": "Owner/operator TBD",
+          "relationshipStrength": 20,
+          "riskScore": 78,
+          "timeline": [
+            {
+              "contactId": "contact:org:opp-butchertown-crossfit:0",
+              "detail": "Contact created from local opportunity/contact record.",
+              "id": "contact-created:contact:org:opp-butchertown-crossfit:0",
+              "timestamp": "2026-07-01T14:24:26.019Z",
+              "title": "Contact created",
+              "type": "created"
+            }
+          ],
+          "title": "Decision maker"
+        }
+      ],
+      "currentSalesStage": "contact_ready",
+      "dbaNames": [],
+      "description": "Local CRM only. Verify contacts and requirements before outreach.",
+      "duplicateCandidateIds": [],
+      "estimatedEmployeeRange": "Small independent gym",
+      "estimatedRevenueRange": "$89000 - $155750",
+      "evaluations": {
+        "buyingCommitteeCompleteness": {
+          "confidence": 81,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Committee inferred from local contacts."
+          ],
+          "risks": [],
+          "score": 50
+        },
+        "decisionMakerCoverage": {
+          "confidence": 81,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Decision maker coverage inferred from contact roles."
+          ],
+          "risks": [],
+          "score": 85
+        },
+        "organizationHealth": {
+          "confidence": 81,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Organization health combines ICP, relationship, and confidence."
+          ],
+          "risks": [],
+          "score": 62
+        },
+        "proposalReadiness": {
+          "confidence": 81,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Proposal readiness comes from local opportunity requirements."
+          ],
+          "risks": [
+            "Proposal inputs incomplete."
+          ],
+          "score": 30
+        },
+        "relationshipHealth": {
+          "confidence": 81,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Relationship health is based on verified contact paths."
+          ],
+          "risks": [
+            "Relationship is thin."
+          ],
+          "score": 20
+        },
+        "salesReadiness": {
+          "confidence": 81,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Sales readiness combines score, proposal readiness, and decision maker coverage."
+          ],
+          "risks": [],
+          "score": 68
+        }
+      },
+      "foundedYear": null,
+      "headquarters": "Louisville, KY",
+      "icpScore": 85,
+      "industry": "CrossFit / functional fitness",
+      "internalNotes": [
+        "Local CRM only. Verify contacts and requirements before outreach."
+      ],
+      "legalName": "Butchertown CrossFit",
+      "naics": "713940",
+      "opportunityIds": [
+        "opp-butchertown-crossfit"
+      ],
+      "opportunityScore": 89,
+      "organizationId": "org:opp-butchertown-crossfit",
+      "ownershipType": "Manual verification required",
+      "primaryDomain": "butchertowncrossfit.com",
+      "priority": "High",
+      "relationshipGraphNodeIds": [
+        "organization:org:opp-butchertown-crossfit",
+        "contact:contact:org:opp-butchertown-crossfit:0",
+        "workflow:wf-follow-up-butchertown"
+      ],
+      "relationshipHealth": 20,
+      "reports": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "riskRating": "low",
+      "serviceAreas": [
+        "Louisville",
+        "KY"
+      ],
+      "sic": "",
+      "subIndustry": "CrossFit / functional fitness",
+      "technologyProfile": {
+        "crm": "manual",
+        "marketingPlatform": "manual",
+        "schedulingPlatform": "manual",
+        "websitePlatform": "public website present",
+        "paymentPlatform": "manual",
+        "fitnessSoftware": "manual",
+        "analytics": "manual",
+        "otherTechnologies": "manual"
+      },
+      "timeline": [
+        {
+          "detail": "Prepare follow-up plan after verification queue clears.",
+          "id": "workflow_update:org:opp-butchertown-crossfit:20260701T154508Z",
+          "organizationId": "org:opp-butchertown-crossfit",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "title": "follow_up_preparation",
+          "type": "workflow_update"
+        },
+        {
+          "detail": "Butchertown CrossFit research intake prepared from approved local/manual source.",
+          "id": "research_imported:org:opp-butchertown-crossfit:20260701T143742Z",
+          "organizationId": "org:opp-butchertown-crossfit",
+          "timestamp": "2026-07-01T14:37:42.847Z",
+          "title": "Research imported",
+          "type": "research_imported"
+        },
+        {
+          "detail": "Derived from local opportunity.",
+          "id": "created:org:opp-butchertown-crossfit:20260701T142426Z",
+          "organizationId": "org:opp-butchertown-crossfit",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Organization created",
+          "type": "created"
+        },
+        {
+          "detail": "contact_ready",
+          "id": "opportunity_created:org:opp-butchertown-crossfit:20260701T142426Z",
+          "organizationId": "org:opp-butchertown-crossfit",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Opportunity linked",
+          "type": "opportunity_created"
+        },
+        {
+          "detail": "Owner/operator TBD",
+          "id": "contact_added:org:opp-butchertown-crossfit:20260701T142426Z",
+          "organizationId": "org:opp-butchertown-crossfit",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact added",
+          "type": "contact_added"
+        }
+      ],
+      "website": "https://www.butchertowncrossfit.com/"
+    },
+    {
+      "additionalLocations": [],
+      "buyingReadiness": 66,
+      "businessType": "Small independent gym",
+      "confidence": 82,
+      "contacts": [
+        {
+          "buyingInfluence": 85,
+          "championScore": 25,
+          "confidence": 35,
+          "contactId": "contact:org:opp-full-moon-martial-arts:0",
+          "decisionAuthority": "high",
+          "department": "Executive",
+          "email": "",
+          "firstName": "Unknown",
+          "lastInteraction": null,
+          "lastName": "Contact",
+          "linkedin": "",
+          "nextFollowUp": "Within 2 business days",
+          "notes": [
+            "Manual contact verification required before outreach."
+          ],
+          "organizationId": "org:opp-full-moon-martial-arts",
+          "phone": "",
+          "preferredCommunication": "unknown",
+          "preferredName": "Owner/operator TBD",
+          "relationshipStrength": 20,
+          "riskScore": 78,
+          "timeline": [
+            {
+              "contactId": "contact:org:opp-full-moon-martial-arts:0",
+              "detail": "Contact created from local opportunity/contact record.",
+              "id": "contact-created:contact:org:opp-full-moon-martial-arts:0",
+              "timestamp": "2026-07-01T14:24:26.019Z",
+              "title": "Contact created",
+              "type": "created"
+            }
+          ],
+          "title": "Decision maker"
+        }
+      ],
+      "currentSalesStage": "contact_ready",
+      "dbaNames": [],
+      "description": "Local CRM only. Verify contacts and requirements before outreach.",
+      "duplicateCandidateIds": [],
+      "estimatedEmployeeRange": "Small independent gym",
+      "estimatedRevenueRange": "$85000 - $148750",
+      "evaluations": {
+        "buyingCommitteeCompleteness": {
+          "confidence": 82,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Committee inferred from local contacts."
+          ],
+          "risks": [],
+          "score": 50
+        },
+        "decisionMakerCoverage": {
+          "confidence": 82,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Decision maker coverage inferred from contact roles."
+          ],
+          "risks": [],
+          "score": 85
+        },
+        "organizationHealth": {
+          "confidence": 82,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Organization health combines ICP, relationship, and confidence."
+          ],
+          "risks": [],
+          "score": 62
+        },
+        "proposalReadiness": {
+          "confidence": 82,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Proposal readiness comes from local opportunity requirements."
+          ],
+          "risks": [
+            "Proposal inputs incomplete."
+          ],
+          "score": 30
+        },
+        "relationshipHealth": {
+          "confidence": 82,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Relationship health is based on verified contact paths."
+          ],
+          "risks": [
+            "Relationship is thin."
+          ],
+          "score": 20
+        },
+        "salesReadiness": {
+          "confidence": 82,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Sales readiness combines score, proposal readiness, and decision maker coverage."
+          ],
+          "risks": [],
+          "score": 67
+        }
+      },
+      "foundedYear": null,
+      "headquarters": "Clarksville / Jeffersonville / New Albany, IN",
+      "icpScore": 83,
+      "industry": "MMA / BJJ / martial arts",
+      "internalNotes": [
+        "Local CRM only. Verify contacts and requirements before outreach."
+      ],
+      "legalName": "Full Moon Martial Arts",
+      "naics": "611620",
+      "opportunityIds": [
+        "opp-full-moon-martial-arts"
+      ],
+      "opportunityScore": 85,
+      "organizationId": "org:opp-full-moon-martial-arts",
+      "ownershipType": "Manual verification required",
+      "primaryDomain": "fullmoonmartialarts.com",
+      "priority": "Medium",
+      "relationshipGraphNodeIds": [
+        "organization:org:opp-full-moon-martial-arts",
+        "contact:contact:org:opp-full-moon-martial-arts:0",
+        "workflow:wf-stalled-full-moon"
+      ],
+      "relationshipHealth": 20,
+      "reports": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "riskRating": "low",
+      "serviceAreas": [
+        "Clarksville / Jeffersonville / New Albany",
+        "IN"
+      ],
+      "sic": "",
+      "subIndustry": "MMA / BJJ / martial arts",
+      "technologyProfile": {
+        "crm": "manual",
+        "marketingPlatform": "manual",
+        "schedulingPlatform": "manual",
+        "websitePlatform": "public website present",
+        "paymentPlatform": "manual",
+        "fitnessSoftware": "manual",
+        "analytics": "manual",
+        "otherTechnologies": "manual"
+      },
+      "timeline": [
+        {
+          "detail": "Review stalled opportunity before changing status or archiving.",
+          "id": "workflow_update:org:opp-full-moon-martial-arts:20260701T154508Z",
+          "organizationId": "org:opp-full-moon-martial-arts",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "title": "stalled_opportunity_review",
+          "type": "workflow_update"
+        },
+        {
+          "detail": "Full Moon Martial Arts research intake prepared from approved local/manual source.",
+          "id": "research_imported:org:opp-full-moon-martial-arts:20260701T143742Z",
+          "organizationId": "org:opp-full-moon-martial-arts",
+          "timestamp": "2026-07-01T14:37:42.847Z",
+          "title": "Research imported",
+          "type": "research_imported"
+        },
+        {
+          "detail": "Derived from local opportunity.",
+          "id": "created:org:opp-full-moon-martial-arts:20260701T142426Z",
+          "organizationId": "org:opp-full-moon-martial-arts",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Organization created",
+          "type": "created"
+        },
+        {
+          "detail": "contact_ready",
+          "id": "opportunity_created:org:opp-full-moon-martial-arts:20260701T142426Z",
+          "organizationId": "org:opp-full-moon-martial-arts",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Opportunity linked",
+          "type": "opportunity_created"
+        },
+        {
+          "detail": "Owner/operator TBD",
+          "id": "contact_added:org:opp-full-moon-martial-arts:20260701T142426Z",
+          "organizationId": "org:opp-full-moon-martial-arts",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact added",
+          "type": "contact_added"
+        }
+      ],
+      "website": "https://www.fullmoonmartialarts.com/"
+    },
+    {
+      "additionalLocations": [],
+      "buyingReadiness": 65,
+      "businessType": "Small independent gym",
+      "confidence": 76,
+      "contacts": [
+        {
+          "buyingInfluence": 85,
+          "championScore": 25,
+          "confidence": 35,
+          "contactId": "contact:org:opp-crossfit-covalence:0",
+          "decisionAuthority": "high",
+          "department": "Executive",
+          "email": "",
+          "firstName": "Unknown",
+          "lastInteraction": null,
+          "lastName": "Contact",
+          "linkedin": "",
+          "nextFollowUp": "Within 2 business days",
+          "notes": [
+            "Manual contact verification required before outreach."
+          ],
+          "organizationId": "org:opp-crossfit-covalence",
+          "phone": "",
+          "preferredCommunication": "unknown",
+          "preferredName": "Owner/operator TBD",
+          "relationshipStrength": 20,
+          "riskScore": 78,
+          "timeline": [
+            {
+              "contactId": "contact:org:opp-crossfit-covalence:0",
+              "detail": "Contact created from local opportunity/contact record.",
+              "id": "contact-created:contact:org:opp-crossfit-covalence:0",
+              "timestamp": "2026-07-01T14:24:26.019Z",
+              "title": "Contact created",
+              "type": "created"
+            }
+          ],
+          "title": "Decision maker"
+        }
+      ],
+      "currentSalesStage": "follow_up",
+      "dbaNames": [],
+      "description": "Local CRM only. Verify contacts and requirements before outreach.",
+      "duplicateCandidateIds": [],
+      "estimatedEmployeeRange": "Small independent gym",
+      "estimatedRevenueRange": "$84000 - $147000",
+      "evaluations": {
+        "buyingCommitteeCompleteness": {
+          "confidence": 76,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Committee inferred from local contacts."
+          ],
+          "risks": [],
+          "score": 50
+        },
+        "decisionMakerCoverage": {
+          "confidence": 76,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Decision maker coverage inferred from contact roles."
+          ],
+          "risks": [],
+          "score": 85
+        },
+        "organizationHealth": {
+          "confidence": 76,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Organization health combines ICP, relationship, and confidence."
+          ],
+          "risks": [],
+          "score": 59
+        },
+        "proposalReadiness": {
+          "confidence": 76,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Proposal readiness comes from local opportunity requirements."
+          ],
+          "risks": [
+            "Proposal inputs incomplete."
+          ],
+          "score": 30
+        },
+        "relationshipHealth": {
+          "confidence": 76,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Relationship health is based on verified contact paths."
+          ],
+          "risks": [
+            "Relationship is thin."
+          ],
+          "score": 20
+        },
+        "salesReadiness": {
+          "confidence": 76,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Sales readiness combines score, proposal readiness, and decision maker coverage."
+          ],
+          "risks": [],
+          "score": 66
+        }
+      },
+      "foundedYear": null,
+      "headquarters": "Louisville, KY",
+      "icpScore": 81,
+      "industry": "CrossFit / functional fitness",
+      "internalNotes": [
+        "Local CRM only. Verify contacts and requirements before outreach."
+      ],
+      "legalName": "CrossFit Covalence",
+      "naics": "713940",
+      "opportunityIds": [
+        "opp-crossfit-covalence"
+      ],
+      "opportunityScore": 84,
+      "organizationId": "org:opp-crossfit-covalence",
+      "ownershipType": "Manual verification required",
+      "primaryDomain": "crossfitcovalence.com",
+      "priority": "Medium",
+      "relationshipGraphNodeIds": [
+        "organization:org:opp-crossfit-covalence",
+        "contact:contact:org:opp-crossfit-covalence:0",
+        "workflow:wf-missing-covalence"
+      ],
+      "relationshipHealth": 20,
+      "reports": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "riskRating": "low",
+      "serviceAreas": [
+        "Louisville",
+        "KY"
+      ],
+      "sic": "",
+      "subIndustry": "CrossFit / functional fitness",
+      "technologyProfile": {
+        "crm": "manual",
+        "marketingPlatform": "manual",
+        "schedulingPlatform": "manual",
+        "websitePlatform": "public website present",
+        "paymentPlatform": "manual",
+        "fitnessSoftware": "manual",
+        "analytics": "manual",
+        "otherTechnologies": "manual"
+      },
+      "timeline": [
+        {
+          "detail": "Collect missing pricing, requirements, and decision-maker fields.",
+          "id": "workflow_update:org:opp-crossfit-covalence:20260701T154508Z",
+          "organizationId": "org:opp-crossfit-covalence",
+          "timestamp": "2026-07-01T15:45:08.238Z",
+          "title": "missing_info_request",
+          "type": "workflow_update"
+        },
+        {
+          "detail": "Derived from local opportunity.",
+          "id": "created:org:opp-crossfit-covalence:20260701T142426Z",
+          "organizationId": "org:opp-crossfit-covalence",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Organization created",
+          "type": "created"
+        },
+        {
+          "detail": "follow_up",
+          "id": "opportunity_created:org:opp-crossfit-covalence:20260701T142426Z",
+          "organizationId": "org:opp-crossfit-covalence",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Opportunity linked",
+          "type": "opportunity_created"
+        },
+        {
+          "detail": "Owner/operator TBD",
+          "id": "contact_added:org:opp-crossfit-covalence:20260701T142426Z",
+          "organizationId": "org:opp-crossfit-covalence",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact added",
+          "type": "contact_added"
+        }
+      ],
+      "website": "https://crossfitcovalence.com/"
+    },
+    {
+      "additionalLocations": [],
+      "buyingReadiness": 64,
+      "businessType": "Small independent gym",
+      "confidence": 75,
+      "contacts": [
+        {
+          "buyingInfluence": 85,
+          "championScore": 25,
+          "confidence": 35,
+          "contactId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+          "decisionAuthority": "high",
+          "department": "Executive",
+          "email": "",
+          "firstName": "Unknown",
+          "lastInteraction": null,
+          "lastName": "Contact",
+          "linkedin": "",
+          "nextFollowUp": "Within 2 business days",
+          "notes": [
+            "Manual contact verification required before outreach."
+          ],
+          "organizationId": "org:opp-derby-city-mixed-martial-arts",
+          "phone": "",
+          "preferredCommunication": "unknown",
+          "preferredName": "Owner/operator TBD",
+          "relationshipStrength": 20,
+          "riskScore": 78,
+          "timeline": [
+            {
+              "contactId": "contact:org:opp-derby-city-mixed-martial-arts:0",
+              "detail": "Contact created from local opportunity/contact record.",
+              "id": "contact-created:contact:org:opp-derby-city-mixed-martial-arts:0",
+              "timestamp": "2026-07-01T14:24:26.019Z",
+              "title": "Contact created",
+              "type": "created"
+            }
+          ],
+          "title": "Decision maker"
+        }
+      ],
+      "currentSalesStage": "follow_up",
+      "dbaNames": [],
+      "description": "Local CRM only. Verify contacts and requirements before outreach.",
+      "duplicateCandidateIds": [],
+      "estimatedEmployeeRange": "Small independent gym",
+      "estimatedRevenueRange": "$83000 - $145250",
+      "evaluations": {
+        "buyingCommitteeCompleteness": {
+          "confidence": 75,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Committee inferred from local contacts."
+          ],
+          "risks": [],
+          "score": 50
+        },
+        "decisionMakerCoverage": {
+          "confidence": 75,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Decision maker coverage inferred from contact roles."
+          ],
+          "risks": [],
+          "score": 85
+        },
+        "organizationHealth": {
+          "confidence": 75,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Organization health combines ICP, relationship, and confidence."
+          ],
+          "risks": [],
+          "score": 58
+        },
+        "proposalReadiness": {
+          "confidence": 75,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Proposal readiness comes from local opportunity requirements."
+          ],
+          "risks": [
+            "Proposal inputs incomplete."
+          ],
+          "score": 30
+        },
+        "relationshipHealth": {
+          "confidence": 75,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Relationship health is based on verified contact paths."
+          ],
+          "risks": [
+            "Relationship is thin."
+          ],
+          "score": 20
+        },
+        "salesReadiness": {
+          "confidence": 75,
+          "nextActions": [
+            "Review manually before any external action."
+          ],
+          "recommendations": [
+            "Add verified contacts, decision roles, and next interaction notes."
+          ],
+          "reasons": [
+            "Sales readiness combines score, proposal readiness, and decision maker coverage."
+          ],
+          "risks": [],
+          "score": 66
+        }
+      },
+      "foundedYear": null,
+      "headquarters": "Louisville, KY",
+      "icpScore": 80,
+      "industry": "MMA / BJJ / martial arts",
+      "internalNotes": [
+        "Local CRM only. Verify contacts and requirements before outreach."
+      ],
+      "legalName": "Derby City Mixed Martial Arts",
+      "naics": "611620",
+      "opportunityIds": [
+        "opp-derby-city-mixed-martial-arts"
+      ],
+      "opportunityScore": 83,
+      "organizationId": "org:opp-derby-city-mixed-martial-arts",
+      "ownershipType": "Manual verification required",
+      "primaryDomain": "derbycitymartialarts.com",
+      "priority": "Medium",
+      "relationshipGraphNodeIds": [
+        "organization:org:opp-derby-city-mixed-martial-arts",
+        "contact:contact:org:opp-derby-city-mixed-martial-arts:0"
+      ],
+      "relationshipHealth": 20,
+      "reports": [
+        "Company Research Dossier",
+        "Outreach Prep Report"
+      ],
+      "riskRating": "low",
+      "serviceAreas": [
+        "Louisville",
+        "KY"
+      ],
+      "sic": "",
+      "subIndustry": "MMA / BJJ / martial arts",
+      "technologyProfile": {
+        "crm": "manual",
+        "marketingPlatform": "manual",
+        "schedulingPlatform": "manual",
+        "websitePlatform": "public website present",
+        "paymentPlatform": "manual",
+        "fitnessSoftware": "manual",
+        "analytics": "manual",
+        "otherTechnologies": "manual"
+      },
+      "timeline": [
+        {
+          "detail": "Derived from local opportunity.",
+          "id": "created:org:opp-derby-city-mixed-martial-arts:20260701T142426Z",
+          "organizationId": "org:opp-derby-city-mixed-martial-arts",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Organization created",
+          "type": "created"
+        },
+        {
+          "detail": "follow_up",
+          "id": "opportunity_created:org:opp-derby-city-mixed-martial-arts:20260701T142426Z",
+          "organizationId": "org:opp-derby-city-mixed-martial-arts",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Opportunity linked",
+          "type": "opportunity_created"
+        },
+        {
+          "detail": "Owner/operator TBD",
+          "id": "contact_added:org:opp-derby-city-mixed-martial-arts:20260701T142426Z",
+          "organizationId": "org:opp-derby-city-mixed-martial-arts",
+          "timestamp": "2026-07-01T14:24:26.019Z",
+          "title": "Contact added",
+          "type": "contact_added"
+        }
+      ],
+      "website": "https://derbycitymartialarts.com/"
+    }
+  ],
+  "relationshipEdges": [
+    {
+      "explanation": "Contact belongs to organization.",
+      "from": "org:opp-area-502-mma",
+      "id": "has_contact:org:opp-area-502-mma->contact:org:opp-area-502-mma:0",
+      "relationship": "has_contact",
+      "to": "contact:org:opp-area-502-mma:0"
+    },
+    {
+      "explanation": "Contact belongs to organization.",
+      "from": "org:opp-louisville-combat-academy",
+      "id": "has_contact:org:opp-louisville-combat-academy->contact:org:opp-louisville-combat-academy:0",
+      "relationship": "has_contact",
+      "to": "contact:org:opp-louisville-combat-academy:0"
+    },
+    {
+      "explanation": "Contact belongs to organization.",
+      "from": "org:opp-core-combat-sports",
+      "id": "has_contact:org:opp-core-combat-sports->contact:org:opp-core-combat-sports:0",
+      "relationship": "has_contact",
+      "to": "contact:org:opp-core-combat-sports:0"
+    },
+    {
+      "explanation": "Contact belongs to organization.",
+      "from": "org:opp-apex-martial-arts-academy",
+      "id": "has_contact:org:opp-apex-martial-arts-academy->contact:org:opp-apex-martial-arts-academy:0",
+      "relationship": "has_contact",
+      "to": "contact:org:opp-apex-martial-arts-academy:0"
+    },
+    {
+      "explanation": "Contact belongs to organization.",
+      "from": "org:opp-butchertown-crossfit",
+      "id": "has_contact:org:opp-butchertown-crossfit->contact:org:opp-butchertown-crossfit:0",
+      "relationship": "has_contact",
+      "to": "contact:org:opp-butchertown-crossfit:0"
+    },
+    {
+      "explanation": "Contact belongs to organization.",
+      "from": "org:opp-full-moon-martial-arts",
+      "id": "has_contact:org:opp-full-moon-martial-arts->contact:org:opp-full-moon-martial-arts:0",
+      "relationship": "has_contact",
+      "to": "contact:org:opp-full-moon-martial-arts:0"
+    },
+    {
+      "explanation": "Contact belongs to organization.",
+      "from": "org:opp-crossfit-covalence",
+      "id": "has_contact:org:opp-crossfit-covalence->contact:org:opp-crossfit-covalence:0",
+      "relationship": "has_contact",
+      "to": "contact:org:opp-crossfit-covalence:0"
+    },
+    {
+      "explanation": "Contact belongs to organization.",
+      "from": "org:opp-derby-city-mixed-martial-arts",
+      "id": "has_contact:org:opp-derby-city-mixed-martial-arts->contact:org:opp-derby-city-mixed-martial-arts:0",
+      "relationship": "has_contact",
+      "to": "contact:org:opp-derby-city-mixed-martial-arts:0"
+    },
+    {
+      "explanation": "Organization owns local opportunity.",
+      "from": "org:opp-area-502-mma",
+      "id": "has_opportunity:org:opp-area-502-mma->opp-area-502-mma",
+      "relationship": "has_opportunity",
+      "to": "opp-area-502-mma"
+    },
+    {
+      "explanation": "Organization owns local opportunity.",
+      "from": "org:opp-louisville-combat-academy",
+      "id": "has_opportunity:org:opp-louisville-combat-academy->opp-louisville-combat-academy",
+      "relationship": "has_opportunity",
+      "to": "opp-louisville-combat-academy"
+    },
+    {
+      "explanation": "Organization owns local opportunity.",
+      "from": "org:opp-core-combat-sports",
+      "id": "has_opportunity:org:opp-core-combat-sports->opp-core-combat-sports",
+      "relationship": "has_opportunity",
+      "to": "opp-core-combat-sports"
+    },
+    {
+      "explanation": "Organization owns local opportunity.",
+      "from": "org:opp-apex-martial-arts-academy",
+      "id": "has_opportunity:org:opp-apex-martial-arts-academy->opp-apex-martial-arts-academy",
+      "relationship": "has_opportunity",
+      "to": "opp-apex-martial-arts-academy"
+    },
+    {
+      "explanation": "Organization owns local opportunity.",
+      "from": "org:opp-butchertown-crossfit",
+      "id": "has_opportunity:org:opp-butchertown-crossfit->opp-butchertown-crossfit",
+      "relationship": "has_opportunity",
+      "to": "opp-butchertown-crossfit"
+    },
+    {
+      "explanation": "Organization owns local opportunity.",
+      "from": "org:opp-full-moon-martial-arts",
+      "id": "has_opportunity:org:opp-full-moon-martial-arts->opp-full-moon-martial-arts",
+      "relationship": "has_opportunity",
+      "to": "opp-full-moon-martial-arts"
+    },
+    {
+      "explanation": "Organization owns local opportunity.",
+      "from": "org:opp-crossfit-covalence",
+      "id": "has_opportunity:org:opp-crossfit-covalence->opp-crossfit-covalence",
+      "relationship": "has_opportunity",
+      "to": "opp-crossfit-covalence"
+    },
+    {
+      "explanation": "Organization owns local opportunity.",
+      "from": "org:opp-derby-city-mixed-martial-arts",
+      "id": "has_opportunity:org:opp-derby-city-mixed-martial-arts->opp-derby-city-mixed-martial-arts",
+      "relationship": "has_opportunity",
+      "to": "opp-derby-city-mixed-martial-arts"
+    },
+    {
+      "explanation": "Area 502 MMA research intake prepared from approved local/manual source.",
+      "from": "org:opp-area-502-mma",
+      "id": "has_research:org:opp-area-502-mma->intake-opp-area-502-mma",
+      "relationship": "has_research",
+      "to": "intake-opp-area-502-mma"
+    },
+    {
+      "explanation": "Louisville Combat Academy research intake prepared from approved local/manual source.",
+      "from": "org:opp-louisville-combat-academy",
+      "id": "has_research:org:opp-louisville-combat-academy->intake-opp-louisville-combat-academy",
+      "relationship": "has_research",
+      "to": "intake-opp-louisville-combat-academy"
+    },
+    {
+      "explanation": "Core Combat Sports research intake prepared from approved local/manual source.",
+      "from": "org:opp-core-combat-sports",
+      "id": "has_research:org:opp-core-combat-sports->intake-opp-core-combat-sports",
+      "relationship": "has_research",
+      "to": "intake-opp-core-combat-sports"
+    },
+    {
+      "explanation": "Apex Martial Arts Academy research intake prepared from approved local/manual source.",
+      "from": "org:opp-apex-martial-arts-academy",
+      "id": "has_research:org:opp-apex-martial-arts-academy->intake-opp-apex-martial-arts-academy",
+      "relationship": "has_research",
+      "to": "intake-opp-apex-martial-arts-academy"
+    },
+    {
+      "explanation": "Butchertown CrossFit research intake prepared from approved local/manual source.",
+      "from": "org:opp-butchertown-crossfit",
+      "id": "has_research:org:opp-butchertown-crossfit->intake-opp-butchertown-crossfit",
+      "relationship": "has_research",
+      "to": "intake-opp-butchertown-crossfit"
+    },
+    {
+      "explanation": "Full Moon Martial Arts research intake prepared from approved local/manual source.",
+      "from": "org:opp-full-moon-martial-arts",
+      "id": "has_research:org:opp-full-moon-martial-arts->intake-opp-full-moon-martial-arts",
+      "relationship": "has_research",
+      "to": "intake-opp-full-moon-martial-arts"
+    },
+    {
+      "explanation": "Verify website, owner/contact path, and current software.",
+      "from": "org:opp-area-502-mma",
+      "id": "has_workflow:org:opp-area-502-mma->wf-research-area-502",
+      "relationship": "has_workflow",
+      "to": "wf-research-area-502"
+    },
+    {
+      "explanation": "Verify contact path and source confidence before outreach prep.",
+      "from": "org:opp-louisville-combat-academy",
+      "id": "has_workflow:org:opp-louisville-combat-academy->wf-verify-louisville-combat",
+      "relationship": "has_workflow",
+      "to": "wf-verify-louisville-combat"
+    },
+    {
+      "explanation": "Review possible duplicate opportunity; do not merge automatically.",
+      "from": "org:opp-louisville-combat-academy",
+      "id": "has_workflow:org:opp-louisville-combat-academy->wf-duplicate-louisville-combat",
+      "relationship": "has_workflow",
+      "to": "wf-duplicate-louisville-combat"
+    },
+    {
+      "explanation": "Prepare proposal package after missing requirements are resolved.",
+      "from": "org:opp-core-combat-sports",
+      "id": "has_workflow:org:opp-core-combat-sports->wf-proposal-core-combat",
+      "relationship": "has_workflow",
+      "to": "wf-proposal-core-combat"
+    },
+    {
+      "explanation": "High-fit prospect requires Executive approval before proposal readiness.",
+      "from": "org:opp-apex-martial-arts-academy",
+      "id": "has_workflow:org:opp-apex-martial-arts-academy->wf-exec-apex",
+      "relationship": "has_workflow",
+      "to": "wf-exec-apex"
+    },
+    {
+      "explanation": "LinkedIn manual reference remains pending and cannot enrich opportunities yet.",
+      "from": "org:opp-area-502-mma",
+      "id": "has_workflow:org:opp-area-502-mma->wf-risky-linkedin-source",
+      "relationship": "has_workflow",
+      "to": "wf-risky-linkedin-source"
+    },
+    {
+      "explanation": "Any external email, CRM sync, browsing job, or proposal submission requires manual approval.",
+      "from": "org:opp-area-502-mma",
+      "id": "has_workflow:org:opp-area-502-mma->wf-external-action-gate",
+      "relationship": "has_workflow",
+      "to": "wf-external-action-gate"
+    },
+    {
+      "explanation": "Prepare follow-up plan after verification queue clears.",
+      "from": "org:opp-butchertown-crossfit",
+      "id": "has_workflow:org:opp-butchertown-crossfit->wf-follow-up-butchertown",
+      "relationship": "has_workflow",
+      "to": "wf-follow-up-butchertown"
+    },
+    {
+      "explanation": "Review stalled opportunity before changing status or archiving.",
+      "from": "org:opp-full-moon-martial-arts",
+      "id": "has_workflow:org:opp-full-moon-martial-arts->wf-stalled-full-moon",
+      "relationship": "has_workflow",
+      "to": "wf-stalled-full-moon"
+    },
+    {
+      "explanation": "Collect missing pricing, requirements, and decision-maker fields.",
+      "from": "org:opp-crossfit-covalence",
+      "id": "has_workflow:org:opp-crossfit-covalence->wf-missing-covalence",
+      "relationship": "has_workflow",
+      "to": "wf-missing-covalence"
+    }
+  ],
+  "summary": {
+    "averageBuyingCommitteeCompleteness": 50,
+    "averageRelationshipHealth": 20,
+    "contactMaintenanceQueue": 8,
+    "decisionMakerCoverage": 85,
+    "duplicateContactCandidates": 28,
+    "duplicateOrganizationCandidates": 0,
+    "executiveRelationshipRisks": 1,
+    "highValueOrganizations": 6,
+    "incompleteBuyingCommittees": 8,
+    "largestOpportunityValue": 11625,
+    "missingDecisionMakers": 0,
+    "organizationsMissingContacts": 8,
+    "organizationsTracked": 8,
+    "relationshipFollowUps": 8,
+    "totalContacts": 8
+  },
+  "safety": {
+    "mode": "local/mock/read-only",
+    "blockedActions": [
+      "external customer email auto-send",
+      "private or login-gated scraping",
+      "robots/rate-limit bypass",
+      "CRM writes",
+      "Stripe writes",
+      "Supabase production writes",
+      "secret output"
+    ],
+    "productionWritesOccurred": false
+  }
+}

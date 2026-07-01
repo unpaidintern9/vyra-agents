@@ -14,6 +14,7 @@ import type {
   SalesIntegrationSummary,
   SalesIntelligenceSummary,
   SalesOpportunityPipelineSummary,
+  SalesOrganizationIntelligenceSummary,
   SalesPipelineAnalytics,
   SalesResearchIntelligenceSummary,
   SalesScoringSummary,
@@ -112,6 +113,7 @@ export function buildDashboardExecutiveOperationsSummary(input: {
   salesIntelligenceSummary?: SalesIntelligenceSummary;
   salesOpportunitySummary?: SalesOpportunityPipelineSummary;
   salesPipelineAnalytics?: SalesPipelineAnalytics;
+  salesOrganizationIntelligenceSummary?: SalesOrganizationIntelligenceSummary;
   salesResearchIntelligenceSummary?: SalesResearchIntelligenceSummary;
   salesScoringSummary?: SalesScoringSummary;
   salesSummary?: SalesSummary;
@@ -179,6 +181,7 @@ function buildBriefing(
       `${input.salesOpportunitySummary?.proposalReady ?? 0} local CRM proposal-ready opportunity(s)`,
       `${input.salesPipelineAnalytics?.hotCount ?? 0} intelligence-hot opportunity(s), ${input.salesPipelineAnalytics?.warmCount ?? 0} warm, ${input.salesPipelineAnalytics?.notReadyCount ?? 0} not ready.`,
       `$${input.salesPipelineAnalytics?.estimatedPipelineValue.toLocaleString() ?? '0'} Phase 50 intelligence forecast value.`,
+      `${input.salesOrganizationIntelligenceSummary?.executiveRelationshipRisks ?? 0} executive relationship risk(s) need review.`,
       `${input.salesResearchIntelligenceSummary?.pendingReviews ?? 0} sales research review item(s) pending.`,
       `${input.salesResearchIntelligenceSummary?.duplicateAlerts ?? 0} sales duplicate alert(s) need manual review.`,
       `${input.salesWorkflowSummary?.approvalQueue ?? 0} sales workflow approval(s) require Executive review.`,
@@ -226,6 +229,7 @@ function buildBriefing(
       input.salesPipelineAnalytics?.hotCount ? `Prioritize ${input.salesPipelineAnalytics.hotCount} hot Sales intelligence opportunity(s).` : null,
       input.salesPipelineAnalytics?.blockedCount ? `Clear ${input.salesPipelineAnalytics.blockedCount} blocked Sales intelligence workflow(s).` : null,
       input.salesPipelineAnalytics?.proposalReadyCount ? `Review ${input.salesPipelineAnalytics.proposalReadyCount} proposal-ready Sales opportunity(s).` : null,
+      input.salesOrganizationIntelligenceSummary?.missingDecisionMakers ? `Fill ${input.salesOrganizationIntelligenceSummary.missingDecisionMakers} missing Sales decision maker record(s).` : null,
       input.salesResearchIntelligenceSummary?.verificationQueue
         ? `Review ${input.salesResearchIntelligenceSummary.verificationQueue} sales research verification item(s).`
         : null,

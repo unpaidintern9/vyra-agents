@@ -154,12 +154,36 @@ export type SalesIntelligenceRelationshipType =
   | 'referred_by'
   | 'competitor_of';
 export type SalesOrganizationTimelineType =
+  | 'created'
+  | 'updated'
+  | 'contact_added'
+  | 'research_imported'
+  | 'opportunity_created'
+  | 'proposal_prepared'
+  | 'workflow_update'
+  | 'archived'
   | 'intake_created'
   | 'research_completed'
   | 'proposal_drafted'
   | 'follow_up_scheduled'
   | 'migration_planned'
   | 'executive_review';
+export type SalesContactTimelineType = 'created' | 'updated' | 'note' | 'interaction' | 'workflow' | 'proposal_involvement' | 'follow_up' | 'executive_review';
+export type SalesBuyingCommitteeRole =
+  | 'Owner'
+  | 'CEO'
+  | 'President'
+  | 'Executive Sponsor'
+  | 'Decision Maker'
+  | 'Operations'
+  | 'Procurement'
+  | 'Finance'
+  | 'Technical Reviewer'
+  | 'Coach Director'
+  | 'Gym Manager'
+  | 'Influencer'
+  | 'Champion'
+  | 'Blocker';
 
 export interface SalesLead {
   businessName: string;
@@ -752,6 +776,158 @@ export interface SalesOrganizationProfile {
   timeline: SalesOrganizationTimelineItem[];
 }
 
+export interface SalesContactTimelineItem {
+  contactId: string;
+  detail: string;
+  id: string;
+  timestamp: string;
+  title: string;
+  type: SalesContactTimelineType;
+}
+
+export interface SalesContactIntelligence {
+  buyingInfluence: number;
+  championScore: number;
+  confidence: number;
+  contactId: string;
+  decisionAuthority: 'high' | 'medium' | 'low' | 'unknown';
+  department: string;
+  email: string;
+  firstName: string;
+  lastInteraction: string | null;
+  lastName: string;
+  linkedin: string;
+  nextFollowUp: string | null;
+  notes: string[];
+  organizationId: string;
+  phone: string;
+  preferredCommunication: 'email' | 'phone' | 'linkedin_manual' | 'unknown';
+  preferredName: string;
+  relationshipStrength: number;
+  riskScore: number;
+  timeline: SalesContactTimelineItem[];
+  title: string;
+}
+
+export interface SalesBuyingCommitteeMember {
+  contactId: string;
+  confidence: number;
+  evidence: string;
+  role: SalesBuyingCommitteeRole;
+}
+
+export interface SalesBuyingCommittee {
+  completenessScore: number;
+  missingRoles: SalesBuyingCommitteeRole[];
+  organizationId: string;
+  roles: SalesBuyingCommitteeMember[];
+}
+
+export interface SalesExplainableEvaluation {
+  confidence: number;
+  nextActions: string[];
+  recommendations: string[];
+  reasons: string[];
+  risks: string[];
+  score: number;
+}
+
+export interface SalesOrganizationIntelligence {
+  additionalLocations: string[];
+  buyingReadiness: number;
+  businessType: string;
+  confidence: number;
+  contacts: SalesContactIntelligence[];
+  currentSalesStage: SalesOpportunityStage;
+  dbaNames: string[];
+  description: string;
+  duplicateCandidateIds: string[];
+  estimatedEmployeeRange: string;
+  estimatedRevenueRange: string;
+  evaluations: {
+    buyingCommitteeCompleteness: SalesExplainableEvaluation;
+    decisionMakerCoverage: SalesExplainableEvaluation;
+    organizationHealth: SalesExplainableEvaluation;
+    proposalReadiness: SalesExplainableEvaluation;
+    relationshipHealth: SalesExplainableEvaluation;
+    salesReadiness: SalesExplainableEvaluation;
+  };
+  foundedYear: number | null;
+  headquarters: string;
+  icpScore: number;
+  industry: string;
+  internalNotes: string[];
+  legalName: string;
+  naics: string;
+  opportunityIds: string[];
+  opportunityScore: number;
+  organizationId: string;
+  ownershipType: string;
+  primaryDomain: string;
+  priority: SalesOpportunityPriority;
+  relationshipGraphNodeIds: string[];
+  relationshipHealth: number;
+  reports: string[];
+  riskRating: 'low' | 'medium' | 'high';
+  serviceAreas: string[];
+  sic: string;
+  subIndustry: string;
+  technologyProfile: Record<string, string>;
+  timeline: SalesOrganizationTimelineItem[];
+  website: string;
+}
+
+export interface SalesRelationshipEdge {
+  explanation: string;
+  from: string;
+  id: string;
+  relationship: string;
+  to: string;
+}
+
+export interface SalesOrganizationDuplicateCandidate {
+  confidence: number;
+  fields: string[];
+  id: string;
+  leftId: string;
+  leftLabel: string;
+  reason: string;
+  reviewAction: 'Review Duplicate';
+  rightId: string;
+  rightLabel: string;
+  type: 'organization' | 'contact';
+}
+
+export interface SalesOrganizationIntelligenceSummary {
+  averageBuyingCommitteeCompleteness: number;
+  averageRelationshipHealth: number;
+  contactMaintenanceQueue: number;
+  decisionMakerCoverage: number;
+  duplicateContactCandidates: number;
+  duplicateOrganizationCandidates: number;
+  executiveRelationshipRisks: number;
+  highValueOrganizations: number;
+  incompleteBuyingCommittees: number;
+  largestOpportunityValue: number;
+  missingDecisionMakers: number;
+  organizationsMissingContacts: number;
+  organizationsTracked: number;
+  relationshipFollowUps: number;
+  totalContacts: number;
+}
+
+export interface SalesOrganizationIntelligenceStore {
+  buyingCommittees: SalesBuyingCommittee[];
+  contactDuplicateCandidates: SalesOrganizationDuplicateCandidate[];
+  contacts: SalesContactIntelligence[];
+  generatedAt: string;
+  localOnly: true;
+  organizationDuplicateCandidates: SalesOrganizationDuplicateCandidate[];
+  organizations: SalesOrganizationIntelligence[];
+  relationshipEdges: SalesRelationshipEdge[];
+  summary: SalesOrganizationIntelligenceSummary;
+}
+
 export interface SalesIntelligenceGraph {
   edges: SalesIntelligenceEdge[];
   generatedAt: string;
@@ -855,6 +1031,7 @@ export interface SalesPageProps {
   scores: LeadScore[];
   salesIntelligenceGraph: SalesIntelligenceGraph;
   salesIntelligenceSummary: SalesIntelligenceSummary;
+  organizationIntelligence: SalesOrganizationIntelligenceStore;
   connectorReadiness?: ConnectorReadinessSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
   teamAgents: SalesTeamAgentDefinition[];

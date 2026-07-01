@@ -27,6 +27,8 @@ import type {
   SalesRecommendedSearchFilters,
   SalesOpportunity,
   SalesOpportunityStage,
+  SalesOrganizationIntelligence,
+  SalesOrganizationIntelligenceStore,
   SalesProposalDraft,
   SalesProposalTemplateType,
   SalesResearchDossier,
@@ -80,6 +82,7 @@ export default function SalesPage({
   salesIntelligenceScores,
   salesIntelligenceGraph,
   salesIntelligenceSummary,
+  organizationIntelligence,
   connectorReadiness,
   sharedTaskSummary,
   teamAgents,
@@ -167,6 +170,10 @@ export default function SalesPage({
   const selectedOrganization =
     salesIntelligenceGraph.organizationProfiles.find((profile) => profile.id === selectedOrganizationId) ??
     salesIntelligenceGraph.organizationProfiles[0] ??
+    null;
+  const selectedRichOrganization =
+    organizationIntelligence.organizations.find((organization) => organization.organizationId === (selectedOrganizationId ?? '').replace(/^organization:/, '')) ??
+    organizationIntelligence.organizations[0] ??
     null;
   const selectedProposalPrep = selectedProposalLead ? proposalForLead(proposals, selectedProposalLead.id) : undefined;
   const savedProposalDraft = proposalDrafts.find((draft) => draft.leadId === selectedProposalLead?.id && draft.templateType === selectedProposalType);
@@ -261,6 +268,30 @@ export default function SalesPage({
       </section>
 
       <section className="dashboard-grid">
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Users size={18} />
+              <h2>Organization & Contact Intelligence</h2>
+            </div>
+            <StatusBadge value="Local relationship engine" tone="good" />
+          </div>
+          <p className="panel-description">
+            Structured local account records, contacts, buying committees, relationship health, timelines, and review-only duplicate candidates. No browsing, outreach, CRM sync, proposal submission, or automatic merge.
+          </p>
+          <div className="batch-grid">
+            <Fact label="Organizations" value={String(organizationIntelligence.summary.organizationsTracked)} />
+            <Fact label="Contacts" value={String(organizationIntelligence.summary.totalContacts)} />
+            <Fact label="Decision Maker Coverage" value={`${organizationIntelligence.summary.decisionMakerCoverage}%`} />
+            <Fact label="Relationship Health" value={`${organizationIntelligence.summary.averageRelationshipHealth}%`} />
+            <Fact label="Committee Completeness" value={`${organizationIntelligence.summary.averageBuyingCommitteeCompleteness}%`} />
+            <Fact label="Missing Decision Makers" value={String(organizationIntelligence.summary.missingDecisionMakers)} />
+            <Fact label="Contact Maintenance" value={String(organizationIntelligence.summary.contactMaintenanceQueue)} />
+            <Fact label="Duplicate Reviews" value={String(organizationIntelligence.summary.duplicateOrganizationCandidates + organizationIntelligence.summary.duplicateContactCandidates)} />
+          </div>
+          <OrganizationIntelligenceWorkspace store={organizationIntelligence} selectedOrganization={selectedRichOrganization} onSelectOrganization={(id) => setSelectedOrganizationId(id)} />
+        </section>
+
         <section className="panel wide-panel">
           <div className="panel-header">
             <div>
@@ -455,7 +486,7 @@ export default function SalesPage({
           />
         </section>
 
-        <section className="panel">
+        <section className="panel compact-sales-panel">
           <div className="panel-header">
             <div>
               <Activity size={18} />
@@ -525,7 +556,7 @@ export default function SalesPage({
           />
         </section>
 
-        <section className="panel">
+        <section className="panel compact-sales-panel">
           <div className="panel-header">
             <div>
               <ListChecks size={18} />
@@ -533,19 +564,18 @@ export default function SalesPage({
             </div>
           </div>
           <DataTable
-            columns={['Company', 'Evidence', 'Completeness', 'Risk', 'Missing Info']}
+            compact
+            columns={['Company', 'Evidence', 'Status']}
             rows={researchIntake.map((item) => [
               item.company,
-              item.evidenceLevel,
-              `${item.completeness}%`,
-              item.riskRating,
-              item.missingInformation.join(', '),
+              <StatusBadge key={`${item.id}-evidence`} value={item.evidenceLevel} tone={item.evidenceLevel === 'high' ? 'good' : item.evidenceLevel === 'medium' ? 'neutral' : 'warn'} />,
+              `${item.completeness}% · ${item.riskRating}${item.missingInformation.length ? ` · ${item.missingInformation.length} missing` : ''}`,
             ])}
             emptyMessage="Verification queue is empty."
           />
         </section>
 
-        <section className="panel">
+        <section className="panel compact-sales-panel">
           <div className="panel-header">
             <div>
               <Network size={18} />
@@ -553,19 +583,20 @@ export default function SalesPage({
             </div>
           </div>
           <DataTable
-            columns={['Company', 'Type', 'Fields', 'Confidence', 'Merge Action']}
+            compact
+            columns={['Company', 'Signals', 'Action']}
             rows={duplicateCandidates.map((candidate) => [
               candidate.company,
-              candidate.targetType,
-              candidate.fields.join(', '),
-              `${candidate.confidence}%`,
-              candidate.suggestedMergeAction,
+              `${candidate.targetType} · ${candidate.confidence}% · ${candidate.fields.join(', ')}`,
+              <button className="clear-button small" disabled key={`${candidate.intakeId}-${candidate.company}`} type="button">
+                Review
+              </button>,
             ])}
             emptyMessage="No duplicate candidates. The agent never merges automatically."
           />
         </section>
 
-        <section className="panel">
+        <section className="panel compact-sales-panel">
           <div className="panel-header">
             <div>
               <Workflow size={18} />
@@ -574,19 +605,18 @@ export default function SalesPage({
             <StatusBadge value={`${researchIntelligenceSummary.enrichmentProgress}%`} tone="good" />
           </div>
           <DataTable
-            columns={['Opportunity', 'Field', 'Previous', 'New', 'Confidence']}
+            compact
+            columns={['Opportunity', 'Update', 'Confidence']}
             rows={researchEnrichmentHistory.map((item) => [
               opportunities.find((opportunity) => opportunity.id === item.opportunityId)?.company ?? item.opportunityId,
-              item.field,
-              item.previousValue,
-              item.newValue,
+              `${item.field}: ${item.previousValue || 'blank'} -> ${item.newValue}`,
               `${item.confidence}%`,
             ])}
             emptyMessage="No enrichment changes have been recorded."
           />
         </section>
 
-        <section className="panel">
+        <section className="panel compact-sales-panel wide-panel">
           <div className="panel-header">
             <div>
               <FileText size={18} />
@@ -1974,6 +2004,153 @@ function SalesIntelligenceDashboard({
   );
 }
 
+function OrganizationIntelligenceWorkspace({
+  onSelectOrganization,
+  selectedOrganization,
+  store,
+}: {
+  onSelectOrganization(_organizationId: string): void;
+  selectedOrganization: SalesOrganizationIntelligence | null;
+  store: SalesOrganizationIntelligenceStore;
+}) {
+  const committee = selectedOrganization ? store.buyingCommittees.find((item) => item.organizationId === selectedOrganization.organizationId) : null;
+  const relationships = selectedOrganization ? store.relationshipEdges.filter((edge) => edge.from === selectedOrganization.organizationId || edge.to === selectedOrganization.organizationId) : [];
+  const duplicates = selectedOrganization
+    ? store.organizationDuplicateCandidates.filter((candidate) => candidate.leftId === selectedOrganization.organizationId || candidate.rightId === selectedOrganization.organizationId)
+    : [];
+
+  return (
+    <div className="organization-intelligence-layout">
+      <div className="organization-list-panel">
+        {store.organizations.map((organization) => (
+          <button
+            className={`dossier-list-item ${selectedOrganization?.organizationId === organization.organizationId ? 'selected' : ''}`}
+            key={organization.organizationId}
+            onClick={() => onSelectOrganization(organization.organizationId)}
+            type="button"
+          >
+            <strong>{organization.legalName}</strong>
+            <span>{organization.headquarters} · {organization.industry}</span>
+            <small>{organization.evaluations.organizationHealth.score}/100 health · {organization.contacts.length} contact(s)</small>
+          </button>
+        ))}
+      </div>
+      {selectedOrganization ? (
+        <div className="organization-detail-grid">
+          <article className="proposal-preview-card org-overview-card">
+            <h3>Organization Overview</h3>
+            <div className="fact-list compact-facts">
+              <Fact label="Company" value={selectedOrganization.legalName} />
+              <Fact label="Domain" value={selectedOrganization.primaryDomain || 'Manual'} />
+              <Fact label="Headquarters" value={selectedOrganization.headquarters} />
+              <Fact label="Stage" value={selectedOrganization.currentSalesStage.replace(/_/g, ' ')} />
+              <Fact label="Priority" value={selectedOrganization.priority} />
+              <Fact label="Risk" value={selectedOrganization.riskRating} />
+            </div>
+            <p className="subtle-note">{selectedOrganization.description}</p>
+          </article>
+
+          <article className="proposal-preview-card">
+            <h3>Relationship Health</h3>
+            <div className="score-factor-grid">
+              <ScorePill label="Org Health" evaluation={selectedOrganization.evaluations.organizationHealth} />
+              <ScorePill label="Relationship" evaluation={selectedOrganization.evaluations.relationshipHealth} />
+              <ScorePill label="Decision Maker" evaluation={selectedOrganization.evaluations.decisionMakerCoverage} />
+              <ScorePill label="Sales Ready" evaluation={selectedOrganization.evaluations.salesReadiness} />
+            </div>
+          </article>
+
+          <article className="proposal-preview-card">
+            <h3>Contacts</h3>
+            <div className="relationship-list">
+              {selectedOrganization.contacts.map((contact) => (
+                <article className="relationship-item" key={contact.contactId}>
+                  <strong>{contact.preferredName || `${contact.firstName} ${contact.lastName}`}</strong>
+                  <span>{contact.title || 'Role needed'} · {contact.decisionAuthority}</span>
+                  <small>{contact.email || 'email needed'} · {contact.phone || 'phone needed'} · relationship {contact.relationshipStrength}%</small>
+                </article>
+              ))}
+            </div>
+          </article>
+
+          <article className="proposal-preview-card">
+            <h3>Buying Committee</h3>
+            <div className="fact-list compact-facts">
+              <Fact label="Completeness" value={`${committee?.completenessScore ?? 0}%`} />
+              <Fact label="Missing Roles" value={committee?.missingRoles.join(', ') || 'None'} />
+            </div>
+            <div className="relationship-list">
+              {(committee?.roles ?? []).map((role) => (
+                <article className="relationship-item" key={`${role.contactId}-${role.role}`}>
+                  <strong>{role.role}</strong>
+                  <span>{selectedOrganization.contacts.find((contact) => contact.contactId === role.contactId)?.preferredName ?? role.contactId}</span>
+                  <small>{role.confidence}% confidence · {role.evidence}</small>
+                </article>
+              ))}
+            </div>
+          </article>
+
+          <article className="proposal-preview-card">
+            <h3>Relationship Map</h3>
+            <div className="relationship-list">
+              {relationships.slice(0, 8).map((edge) => (
+                <article className="relationship-item" key={edge.id}>
+                  <strong>{edge.relationship.replace(/_/g, ' ')}</strong>
+                  <span>{edge.from} → {edge.to}</span>
+                  <small>{edge.explanation}</small>
+                </article>
+              ))}
+            </div>
+          </article>
+
+          <article className="proposal-preview-card">
+            <h3>Open Opportunities & Research</h3>
+            <div className="fact-list compact-facts">
+              <Fact label="Opportunities" value={String(selectedOrganization.opportunityIds.length)} />
+              <Fact label="Reports" value={String(selectedOrganization.reports.length)} />
+              <Fact label="Readiness" value={`${selectedOrganization.evaluations.proposalReadiness.score}%`} />
+              <Fact label="Duplicate Reviews" value={String(duplicates.length)} />
+            </div>
+            <p className="subtle-note">{selectedOrganization.evaluations.salesReadiness.recommendations[0]}</p>
+          </article>
+
+          <article className="proposal-preview-card">
+            <h3>Organization Timeline</h3>
+            <TimelineList timeline={selectedOrganization.timeline} />
+          </article>
+
+          <article className="proposal-preview-card">
+            <h3>Contact Timeline</h3>
+            <div className="relationship-list">
+              {selectedOrganization.contacts.flatMap((contact) => contact.timeline).map((item) => (
+                <article className="relationship-item" key={item.id}>
+                  <strong>{item.title}</strong>
+                  <span>{formatDate(item.timestamp)}</span>
+                  <small>{item.detail}</small>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+      ) : (
+        <p className="empty-note">No organization records available yet.</p>
+      )}
+    </div>
+  );
+}
+
+function ScorePill({ evaluation, label }: { evaluation: SalesOrganizationIntelligence['evaluations']['organizationHealth']; label: string }) {
+  return (
+    <article className="score-factor">
+      <div>
+        <strong>{label}</strong>
+        <span>{evaluation.confidence}% confidence</span>
+      </div>
+      <b>{evaluation.score}</b>
+    </article>
+  );
+}
+
 function RelationshipList({ graph, relationships }: { graph: SalesIntelligenceGraph; relationships: SalesIntelligenceGraph['edges'] }) {
   return (
     <div className="proposal-preview-card">
@@ -2279,16 +2456,18 @@ function Fact({ label, value }: { label: string; value: string }) {
 
 function DataTable({
   columns,
+  compact = false,
   emptyMessage = 'No records available.',
   rows,
 }: {
   columns: string[];
+  compact?: boolean;
   emptyMessage?: string;
   rows: ReactNode[][];
 }) {
   if (rows.length === 0) return <p className="empty-table-message">{emptyMessage}</p>;
   return (
-    <div className="table-shell">
+    <div className={compact ? 'table-shell compact-table-shell' : 'table-shell'}>
       <table>
         <thead>
           <tr>

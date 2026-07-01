@@ -56,3 +56,16 @@ Reports are written locally under `reports/agents/sales`.
 ## Safety
 
 Scoring is advisory. It never performs browsing, customer email sending, CRM synchronization, proposal submission, automatic Executive approval, automatic source approval, or automatic duplicate merging.
+
+## Phase 51 Relationship Intelligence
+
+Organization and contact intelligence add deterministic evaluations for:
+
+- Organization Health
+- Relationship Health
+- Decision Maker Coverage
+- Buying Committee Completeness
+- Proposal Readiness
+- Sales Readiness
+
+Each evaluation returns a score, label, confidence, reasons, risks, recommended next action, and missing information. These scores help queue work and explain risk, but they do not modify CRM data or approve any external action.

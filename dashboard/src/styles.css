@@ -115,7 +115,9 @@ button {
 }
 
 .main-content {
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: calc(100% - 260px);
   padding: 30px clamp(22px, 3vw, 40px) 40px;
 }
 
@@ -353,7 +355,7 @@ h1 {
 }
 
 .panel {
-  grid-column: span 4;
+  grid-column: span 6;
   min-height: 240px;
   border: 1px solid var(--surface-border);
   border-radius: 8px;
@@ -364,6 +366,10 @@ h1 {
 
 .wide-panel {
   grid-column: span 12;
+}
+
+.sales-summary {
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
 }
 
 .panel-header {
@@ -1093,11 +1099,47 @@ h2 {
   white-space: nowrap;
 }
 
-.table-wrap {
+.table-wrap,
+.table-shell {
   overflow-x: auto;
+  max-width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 8px;
   background: rgba(5, 9, 13, 0.22);
+  scrollbar-width: thin;
+}
+
+.table-shell table {
+  min-width: min(760px, 100%);
+  table-layout: fixed;
+}
+
+.compact-sales-panel {
+  min-width: 0;
+}
+
+.compact-table-shell table {
+  min-width: 100%;
+}
+
+.compact-table-shell th,
+.compact-table-shell td {
+  padding: 11px 10px;
+}
+
+.compact-table-shell th {
+  font-size: 0.68rem;
+}
+
+.compact-table-shell td {
+  font-size: 0.8rem;
+  max-width: 220px;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.panel:not(.wide-panel) .table-shell table {
+  min-width: 100%;
 }
 
 table {
@@ -1595,6 +1637,45 @@ td:nth-child(6) {
   padding: 10px;
 }
 
+.organization-intelligence-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.34fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.organization-list-panel {
+  display: grid;
+  gap: 10px;
+  max-height: 720px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.organization-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 14px;
+  min-width: 0;
+}
+
+.organization-detail-grid .proposal-preview-card {
+  min-width: 0;
+}
+
+.organization-detail-grid .relationship-item strong,
+.organization-detail-grid .relationship-item span,
+.organization-detail-grid .relationship-item small {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.score-factor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
 .relationship-item strong {
   color: #f3f8ff;
   font-size: 0.86rem;
@@ -1938,6 +2019,10 @@ td:nth-child(6) {
     position: static;
     width: 100%;
     height: auto;
+  }
+
+  .main-content {
+    width: 100%;
   }
 
   .nav-list {

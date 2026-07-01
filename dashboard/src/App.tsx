@@ -16,6 +16,7 @@ import {
   Settings,
   ShieldCheck,
   Trash2,
+  Users,
   Workflow,
 } from 'lucide-react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
@@ -54,6 +55,7 @@ import {
   detectRelatedSalesOpportunities,
   scoreSalesOpportunitiesIntelligently,
 } from './agents/sales/salesIntelligenceScoring';
+import { buildSalesOrganizationIntelligence } from './agents/sales/salesOrganizationIntelligence';
 import {
   createInitialSalesEnrichmentHistory,
   createInitialSalesResearchIntake,
@@ -108,6 +110,7 @@ import type {
   SalesResearchDossier,
   SalesResearchSource,
   SalesWorkflowRecord,
+  SalesOrganizationIntelligenceSummary,
 } from './agents/sales/salesTypes';
 import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
 import { EmptyState } from './components/EmptyState';
@@ -407,6 +410,10 @@ function App() {
   const salesPipelineAnalytics = useMemo(
     () => buildSalesPipelineAnalytics(salesOpportunities, salesIntelligenceScores, salesWorkflows),
     [salesIntelligenceScores, salesOpportunities, salesWorkflows],
+  );
+  const salesOrganizationIntelligence = useMemo(
+    () => buildSalesOrganizationIntelligence({ opportunities: salesOpportunities, researchIntake: salesResearchIntake, workflows: salesWorkflows }),
+    [salesOpportunities, salesResearchIntake, salesWorkflows],
   );
   const persistenceStatus = useMemo(() => getLocalPersistenceStatus(), []);
   const syncWriteMode = useMemo(() => getSyncWriteMode(), []);
@@ -1505,6 +1512,7 @@ function App() {
     salesIntelligenceSummary,
     salesOpportunitySummary,
     salesPipelineAnalytics,
+    salesOrganizationIntelligenceSummary: salesOrganizationIntelligence.summary,
     salesResearchIntelligenceSummary,
     salesWorkflowSummary,
     salesScoringSummary,
@@ -1765,6 +1773,7 @@ function App() {
             scores={salesScores}
             salesIntelligenceGraph={salesIntelligenceGraph}
             salesIntelligenceSummary={salesIntelligenceSummary}
+            organizationIntelligence={salesOrganizationIntelligence}
             salesIntelligenceScores={salesIntelligenceScores}
             salesPipelineAnalytics={salesPipelineAnalytics}
             salesPriorityQueues={salesPriorityQueues}
@@ -1835,6 +1844,7 @@ function App() {
             onRecordThreadIngest={recordThreadIngest}
             onRecordValidation={recordOperatorValidation}
             operator={operatorSnapshot}
+            organizationIntelligenceSummary={salesOrganizationIntelligence.summary}
             runtime={runtime}
           />
         ) : activePage === 'Runtime' ? (
@@ -1852,6 +1862,7 @@ function App() {
             salesResearchIntelligenceSummary={salesResearchIntelligenceSummary}
             salesWorkflowSummary={salesWorkflowSummary}
             salesPipelineAnalytics={salesPipelineAnalytics}
+            salesOrganizationIntelligenceSummary={salesOrganizationIntelligence.summary}
             salesProposalSummary={salesProposalSummary}
             salesScoringSummary={salesScoringSummary}
             salesSummary={salesSummary}
@@ -2028,6 +2039,7 @@ function OperatorPage({
   onRecordThreadIngest,
   onRecordValidation,
   operator,
+  organizationIntelligenceSummary,
   runtime,
 }: {
   onRecordCommunicationArchive(): void;
@@ -2042,6 +2054,7 @@ function OperatorPage({
   onRecordThreadIngest(): void;
   onRecordValidation(): void;
   operator: AiOperatorDashboardSnapshot;
+  organizationIntelligenceSummary: SalesOrganizationIntelligenceSummary;
   runtime: AgentRuntimeSnapshot;
 }) {
   return (
@@ -2085,6 +2098,8 @@ function OperatorPage({
         <Metric icon={<AlertTriangle size={20} />} label="Duplicate Review" value={String(operator.salesResearchIntelligence.duplicateAlerts)} />
         <Metric icon={<Workflow size={20} />} label="Assigned Sales Tasks" value={String(operator.salesWorkflowSummary.assignedToOperator)} />
         <Metric icon={<AlertTriangle size={20} />} label="Blocked Workflows" value={String(operator.salesWorkflowSummary.blockedWorkflows)} />
+        <Metric icon={<Users size={20} />} label="Organizations Missing Contacts" value={String(organizationIntelligenceSummary.organizationsMissingContacts)} />
+        <Metric icon={<AlertTriangle size={20} />} label="Missing Decision Makers" value={String(organizationIntelligenceSummary.missingDecisionMakers)} />
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -2167,6 +2182,20 @@ function OperatorPage({
             <Fact label="Missing Info Queue" value={String(operator.salesResearchIntelligence.researchBacklog)} />
             <Fact label="Proposal Prep Support Queue" value={String(operator.salesWorkflowSummary.assignedToProposalPrep)} />
             <Fact label="Blocked Items" value={String(operator.salesWorkflowSummary.blockedWorkflows)} />
+          </div>
+        </Panel>
+
+        <Panel title="Operator Contact Queue" icon={<Users size={18} />} wide>
+          <p className="panel-description">
+            Local maintenance queue for organization and contact intelligence. Review only; no autonomous outreach, CRM sync, or relationship changes.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Organizations Missing Contacts" value={String(organizationIntelligenceSummary.organizationsMissingContacts)} />
+            <Fact label="Missing Decision Makers" value={String(organizationIntelligenceSummary.missingDecisionMakers)} />
+            <Fact label="Incomplete Buying Committees" value={String(organizationIntelligenceSummary.incompleteBuyingCommittees)} />
+            <Fact label="Relationship Follow-ups" value={String(organizationIntelligenceSummary.relationshipFollowUps)} />
+            <Fact label="Contact Maintenance Queue" value={String(organizationIntelligenceSummary.contactMaintenanceQueue)} />
+            <Fact label="Duplicate Contact Review" value={String(organizationIntelligenceSummary.duplicateContactCandidates)} />
           </div>
         </Panel>
 

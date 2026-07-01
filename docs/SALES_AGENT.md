@@ -14,6 +14,8 @@ Phase 49 adds local multi-agent workflow orchestration across Sales, Operator, E
 
 Phase 50 adds local Sales intelligence scoring, priority queues, duplicate/related opportunity review, pipeline analytics, and UI polish for Sales, Executive, and Operator dashboards.
 
+Phase 51 adds local organization and contact intelligence. It models organizations, unlimited contacts, buying committees, relationship health, decision maker coverage, relationship maps, timelines, and duplicate organization/contact candidates without browsing, syncing, sending, or auto-merging anything.
+
 ## Current Scope
 
 The Sales Agent MVP includes:
@@ -54,6 +56,7 @@ The Sales Agent MVP includes:
 - Research Intake Pipeline with verification records, duplicate candidates, enrichment history, review history, confidence trends, and Executive/Operator/Sales read-only dashboards.
 - Multi-agent Sales workflow orchestration with Sales-to-Operator handoffs, Sales-to-Executive approval gates, Sales-to-Proposal Prep queue items, blocked workflow visibility, and transition audit trails.
 - Sales Intelligence Command Center with Hot/Warm/Cold/Not Ready opportunity scoring, priority queues, duplicate review, pipeline forecast, average confidence, and next-action breakdown.
+- Organization & Contact Intelligence workspace with organization profiles, contact intelligence, buying committee coverage, relationship health, relationship graph, recent contact activity, and manual duplicate review queues.
 
 ## Local Storage
 
@@ -69,10 +72,13 @@ Sales records persist in browser localStorage:
 - `vyra-agents:sales-research-intake`
 - `vyra-agents:sales-research-enrichment-history`
 - `vyra-agents:sales-workflows`
+- `vyra-agents:sales-organization-intelligence`
 
 These are local browser records, not CRM records.
 
-CLI reports are written to `reports/agents/sales`. CLI shared tasks, draft emails, local CRM records, and research intelligence records are written under `codex-agent-threads/shared`.
+CLI reports are written to `reports/agents/sales`. CLI shared tasks, draft emails, local CRM records, research intelligence records, and Phase 51 organization/contact intelligence records are written under `codex-agent-threads/shared`.
+
+Phase 51 CLI organization/contact intelligence is stored at `codex-agent-threads/shared/sales-opportunities/organization-contact-intelligence.json`.
 
 ## Pipeline Stages
 
@@ -120,6 +126,12 @@ See `docs/SALES_LEAD_SCORING.md`.
 Opportunity intelligence scoring is deterministic and local-only. It considers fit, size, geography, buying signals, relationships, confidence, workflow urgency, and proposal readiness.
 
 See `docs/SALES_INTELLIGENCE_SCORING.md`.
+
+## Organization & Contact Intelligence
+
+Organization and contact intelligence is deterministic, explainable, and local-only. It links organizations, contacts, opportunities, research intake, workflow handoffs, proposal prep, Executive reviews, relationship graph edges, and timelines.
+
+See `docs/ORGANIZATION_INTELLIGENCE.md`, `docs/CONTACT_INTELLIGENCE.md`, `docs/BUYING_COMMITTEE.md`, and `docs/RELATIONSHIP_GRAPH.md`.
 
 ## Follow-Up Engine
 
