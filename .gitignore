@@ -43,6 +43,8 @@ codex-agent-threads/shared/github-plans/**/*.json
 codex-agent-threads/shared/github-plans/**/*.md
 codex-agent-threads/shared/projects/**/*.json
 codex-agent-threads/shared/projects/**/*.md
+codex-agent-threads/shared/release-ship-plans/**/*.json
+codex-agent-threads/shared/release-ship-plans/**/*.md
 codex-agent-threads/shared/providers/**/*.json
 !codex-agent-threads/shared/**/.gitkeep
 !codex-agent-threads/shared/examples/**/*.json

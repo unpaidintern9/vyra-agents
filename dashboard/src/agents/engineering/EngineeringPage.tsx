@@ -1,4 +1,4 @@
-import { CheckCircle2, Copy, Database, Download, GitBranch, ListChecks, Network, Search, Workflow, X } from 'lucide-react';
+import { CheckCircle2, Copy, Database, Download, GitBranch, ListChecks, Network, Search, ShieldCheck, Workflow, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { EmptyState } from '../../components/EmptyState';
@@ -7,6 +7,7 @@ import { buildDashboardEngineeringTaskSummary } from '../../runtime/engineeringT
 import { buildDashboardGitHubPlanningSummary } from '../../runtime/githubPlanning';
 import { buildDashboardProjectRegistrySummary } from '../../runtime/projectRegistry';
 import { buildDashboardReleaseReadinessSummary } from '../../runtime/releaseReadiness';
+import { buildDashboardReleaseShipPlanSummary } from '../../runtime/releaseShipPlans';
 import { summarizeRepositoryIntelligence } from '../../runtime/repositoryIntelligence';
 import { buildDashboardSharedTaskSummary } from '../../runtime/sharedTaskQueue';
 import { loadEngineeringGraph } from './engineeringGraph';
@@ -151,10 +152,24 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
         githubPlanning: buildDashboardGitHubPlanningSummary(),
         projectRegistry,
         releaseReadiness,
+        releaseShipPlans: buildDashboardReleaseShipPlanSummary({
+          githubPlanning: buildDashboardGitHubPlanningSummary(),
+          releaseReadiness,
+          sharedTasks: buildDashboardSharedTaskSummary(),
+        }),
         repositoryIntelligence,
         sharedTasks: buildDashboardSharedTaskSummary(),
       }),
     [projectRegistry, releaseReadiness, repositoryIntelligence],
+  );
+  const releaseShipPlans = useMemo(
+    () =>
+      buildDashboardReleaseShipPlanSummary({
+        githubPlanning: buildDashboardGitHubPlanningSummary(),
+        releaseReadiness,
+        sharedTasks: buildDashboardSharedTaskSummary(),
+      }),
+    [releaseReadiness],
   );
   const selectedNode = selectedNodeId ? graph.nodes.find((node) => node.id === selectedNodeId) ?? null : null;
   const searchResults = useMemo(() => searchEngineeringNodes(graph, query), [graph, query]);
@@ -663,6 +678,50 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               .map((candidate) => [candidate.title, candidate.recommendedPriority, candidate.reason])}
           />
           <p className="subtle-note">{releaseReadiness.safetyState}</p>
+        </Panel>
+
+        <Panel title="Release Ship Plan Workflow" icon={<ShieldCheck size={18} />} wide>
+          <p className="panel-description">
+            Local ship plans turn readiness into Engineering preparation checklists, blocker tasks, GitHub plan links, QA notes, and rollback notes without release execution.
+          </p>
+          <div className="summary-grid compact-summary">
+            {[
+              ['Ship Plans', releaseShipPlans.totalShipPlans],
+              ['Needs Review', releaseShipPlans.shipPlansNeedingReview],
+              ['Approved Prep', releaseShipPlans.approvedPreparationPlans],
+              ['Blocked Plans', releaseShipPlans.blockedShipPlans],
+              ['Ship Plan Tasks', engineeringTaskSummary.releaseShipPlanEngineeringTasks],
+              ['Safety', releaseShipPlans.localApprovalStatus],
+            ].map(([label, value]) => (
+              <article className="metric-card" key={label}>
+                <ShieldCheck size={18} />
+                <span>{label}</span>
+                <strong>{String(value).replace(/_/g, ' ')}</strong>
+              </article>
+            ))}
+          </div>
+          <DataTable
+            columns={['Project', 'Checklist', 'Status', 'Decision', 'Score', 'Risk']}
+            rows={releaseShipPlans.shipPlanQueue.map((plan) => [
+              plan.projectName,
+              plan.releaseChecklist.map((item) => `${item.label}: ${item.status}`).join(', '),
+              plan.status.replace(/_/g, ' '),
+              plan.recommendedShipDecision.replace(/_/g, ' '),
+              `${plan.readinessScore}/100`,
+              plan.riskLevel,
+            ])}
+          />
+          <DataTable
+            columns={['Project', 'Blockers Tied To Tasks', 'GitHub Plans', 'QA Notes', 'Rollback Notes']}
+            rows={releaseShipPlans.shipPlanQueue.map((plan) => [
+              plan.projectName,
+              plan.linkedTasks.join(', ') || plan.blockers.map((blocker) => blocker.id).join(', ') || 'None',
+              plan.linkedGitHubPlans.join(', ') || 'None',
+              plan.qaNotes.join(' '),
+              plan.rollbackNotes.join(' '),
+            ])}
+          />
+          <p className="subtle-note">{releaseShipPlans.releaseSafetyStatus}</p>
         </Panel>
 
         <Panel title="Engineering Task Generator" icon={<ListChecks size={18} />} wide>

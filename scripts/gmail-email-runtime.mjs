@@ -18,6 +18,7 @@ export const reportTypes = [
   'executive_daily_summary',
   'sales_summary',
   'engineering_summary',
+  'release_ship_plan_summary',
   'task_queue_summary',
   'connector_readiness_summary',
   'cross_agent_review_summary',
@@ -494,6 +495,7 @@ function defaultSchedules() {
   return [
     { reportType: 'executive_daily_summary', cadence: 'daily', recipient: 'Robert', autoSendCapable: true },
     { reportType: 'engineering_summary', cadence: 'event_triggered', recipient: 'Robert', autoSendCapable: true },
+    { reportType: 'release_ship_plan_summary', cadence: 'event_triggered', recipient: 'Robert', autoSendCapable: true },
     { reportType: 'task_queue_summary', cadence: 'daily', recipient: 'Robert', autoSendCapable: true },
     { reportType: 'cross_agent_review_summary', cadence: 'daily', recipient: 'Matthew', autoSendCapable: true, status: resolveRecipient('Matthew').status },
   ];

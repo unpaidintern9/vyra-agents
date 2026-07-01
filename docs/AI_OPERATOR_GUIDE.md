@@ -223,3 +223,19 @@ npm run executive:automation-safety-check
 ```
 
 The automation engine evaluates deterministic local signals and generates safe local tasks, GitHub plans, Gmail drafts, Executive review items, and reports. Configured internal email sends remain gated by the existing Gmail safety checks and audit logging. No GitHub, CRM, Stripe, Supabase production, external marketing, bulk send, or secret-output action is available.
+
+## Release Ship Plans
+
+Phase 44 adds local release approval and ship-plan commands:
+
+```bash
+npm run release:ship-plans
+npm run release:create-ship-plan
+npm run release:review-ship-plan
+npm run release:approve-ship-plan
+npm run release:reject-ship-plan
+npm run release:ship-plan-report
+npm run release:ship-plan-validate
+```
+
+Ship plans are created from release readiness data and remain local-only. `approved_to_prepare` is a preparation status, not a deployment approval. These commands do not deploy, tag releases, create GitHub releases, push commits, modify project files, write production data, or output secrets.

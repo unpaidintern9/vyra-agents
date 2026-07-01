@@ -21,6 +21,7 @@ export default function ExecutiveDashboard({
   onNavigate,
   projectRegistry,
   releaseReadiness,
+  releaseShipPlans,
   repositoryIntelligence,
   runtime,
   salesAgentTeamSummary,
@@ -51,6 +52,7 @@ export default function ExecutiveDashboard({
     githubReadOnly,
     projectRegistry,
     releaseReadiness,
+    releaseShipPlans,
     repositoryIntelligence,
     sharedTaskSummary,
   );
@@ -66,11 +68,52 @@ export default function ExecutiveDashboard({
         {summary.executiveAutomation ? <ExecutiveAutomationPanel automation={summary.executiveAutomation} /> : null}
         {summary.projectRegistry ? <ExecutiveProjectRegistryPanel projectRegistry={summary.projectRegistry} /> : null}
         {summary.releaseReadiness ? <ExecutiveReleaseReadinessPanel releaseReadiness={summary.releaseReadiness} /> : null}
+        {summary.releaseShipPlans ? <ExecutiveShipPlanPanel releaseShipPlans={summary.releaseShipPlans} /> : null}
         <ExecutiveHealth healthRows={healthRows} onNavigate={onNavigate} />
         <ExecutiveApprovals approvals={runtime.approvals} />
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveShipPlanPanel({ releaseShipPlans }: { releaseShipPlans: NonNullable<ExecutiveDashboardProps['releaseShipPlans']> }) {
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Ship Plan Decisions</h2>
+        </div>
+        <span>{releaseShipPlans.localApprovalStatus.replace(/_/g, ' ')}</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact">
+          <span>Needs Review</span>
+          <strong>{releaseShipPlans.shipPlansNeedingReview}</strong>
+        </div>
+        <div className="fact">
+          <span>Approved Prep</span>
+          <strong>{releaseShipPlans.approvedPreparationPlans}</strong>
+        </div>
+        <div className="fact">
+          <span>Blocked Ship Plans</span>
+          <strong>{releaseShipPlans.blockedShipPlans}</strong>
+        </div>
+        <div className="fact">
+          <span>Total Plans</span>
+          <strong>{releaseShipPlans.totalShipPlans}</strong>
+        </div>
+      </div>
+      <div className="activity-list">
+        {releaseShipPlans.highestRiskPlannedReleases.slice(0, 5).map((plan) => (
+          <p key={plan.shipPlanId}>
+            <strong>{plan.projectName}</strong>: {plan.riskLevel} · {plan.recommendedShipDecision}
+          </p>
+        ))}
+      </div>
+      <p className="subtle-note">{releaseShipPlans.recommendedExecutiveDecision}</p>
+    </section>
   );
 }
 

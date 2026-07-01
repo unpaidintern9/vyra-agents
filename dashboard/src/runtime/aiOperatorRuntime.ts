@@ -7,6 +7,7 @@ import { buildDashboardGitHubPlanningSummary, type GitHubPlanningDashboardSummar
 import { buildDashboardGitHubReadOnlySummary, type GitHubReadOnlyDashboardSummary } from './githubReadOnly';
 import { buildDashboardProjectRegistrySummary, type ProjectRegistryDashboardSummary } from './projectRegistry';
 import { buildDashboardReleaseReadinessSummary, type ReleaseReadinessDashboardSummary } from './releaseReadiness';
+import { buildDashboardReleaseShipPlanSummary, type ReleaseShipPlanDashboardSummary } from './releaseShipPlans';
 import { defaultRepositoryIntelligenceSummary, type RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import { buildDashboardSharedTaskSummary, type SharedTaskDashboardSummary } from './sharedTaskQueue';
 
@@ -41,6 +42,7 @@ export interface AiOperatorDashboardSnapshot {
   githubReadOnly: GitHubReadOnlyDashboardSummary;
   projectRegistry: ProjectRegistryDashboardSummary;
   releaseReadiness: ReleaseReadinessDashboardSummary;
+  releaseShipPlans: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence: RepositoryIntelligenceDashboardSummary;
   safetyMode: string;
   sharedTasks: SharedTaskDashboardSummary;
@@ -198,6 +200,13 @@ export const aiOperatorCommands = [
   'npm run release:blockers',
   'npm run release:report',
   'npm run release:validate',
+  'npm run release:ship-plans',
+  'npm run release:create-ship-plan',
+  'npm run release:review-ship-plan',
+  'npm run release:approve-ship-plan',
+  'npm run release:reject-ship-plan',
+  'npm run release:ship-plan-report',
+  'npm run release:ship-plan-validate',
   'npm run engineering:tasks',
   'npm run engineering:generate-tasks',
   'npm run engineering:task-report',
@@ -269,6 +278,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
   releaseReadiness?: ReleaseReadinessDashboardSummary;
+  releaseShipPlans?: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   sharedTasks?: SharedTaskDashboardSummary;
 }): AiOperatorDashboardSnapshot {
@@ -292,6 +302,13 @@ export function buildAiOperatorDashboardSnapshot(input: {
       repositoryIntelligence,
       sharedTasks,
     });
+  const releaseShipPlans =
+    input.releaseShipPlans ??
+    buildDashboardReleaseShipPlanSummary({
+      githubPlanning,
+      releaseReadiness,
+      sharedTasks,
+    });
   const executiveAutomation =
     input.executiveAutomation ??
     buildDashboardExecutiveAutomationSummary({
@@ -302,6 +319,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
       githubReadOnly,
       projectRegistry,
       releaseReadiness,
+      releaseShipPlans,
       repositoryIntelligence,
       runtime: input.runtime,
       sharedTasks,
@@ -361,6 +379,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
     githubReadOnly,
     projectRegistry,
     releaseReadiness,
+    releaseShipPlans,
     repositoryIntelligence,
     safetyMode,
     sharedTasks,

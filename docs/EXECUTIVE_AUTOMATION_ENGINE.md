@@ -27,6 +27,7 @@ The engine integrates these existing layers:
 - Repository Intelligence.
 - Project Registry and release readiness.
 - Release Readiness Command Center.
+- Release Ship Plan Workflow.
 - GitHub Planning Queue.
 - Connector Readiness.
 - Cross-Agent Collaboration graph.
@@ -60,3 +61,7 @@ Phase 42 adds multi-project readiness to Executive automation. Blocked projects 
 ## Release Command Center Link
 
 Phase 43 adds blocked releases and critical release risks to Executive automation context. Release health can trigger Engineering health warnings and cross-agent review needs, but automation still cannot deploy, tag, create releases, push commits, or write production data.
+
+## Release Ship Plan Link
+
+Phase 44 adds ship-plan review signals. Blocked ship plans can trigger Engineering health warnings, and ship plans needing review can trigger cross-agent review needs. Automation may create local tasks, local GitHub plans, Gmail drafts, and reports, but it cannot approve real release execution, deploy, tag, push, create GitHub releases, or modify project files.

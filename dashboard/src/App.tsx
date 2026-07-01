@@ -94,6 +94,7 @@ import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
 import { buildDashboardProjectRegistrySummary } from './runtime/projectRegistry';
 import { buildDashboardReleaseReadinessSummary } from './runtime/releaseReadiness';
+import { buildDashboardReleaseShipPlanSummary } from './runtime/releaseShipPlans';
 import { defaultRepositoryIntelligenceSummary, summarizeRepositoryIntelligence } from './runtime/repositoryIntelligence';
 import { buildDashboardSharedTaskSummary } from './runtime/sharedTaskQueue';
 import {
@@ -1240,7 +1241,8 @@ function App() {
     repositoryIntelligence,
     sharedTasks: sharedTaskSummary,
   });
-  const engineeringTasks = buildDashboardEngineeringTaskSummary({ githubPlanning, projectRegistry, releaseReadiness, repositoryIntelligence, sharedTasks: sharedTaskSummary });
+  const releaseShipPlans = buildDashboardReleaseShipPlanSummary({ githubPlanning, releaseReadiness, sharedTasks: sharedTaskSummary });
+  const engineeringTasks = buildDashboardEngineeringTaskSummary({ githubPlanning, projectRegistry, releaseReadiness, releaseShipPlans, repositoryIntelligence, sharedTasks: sharedTaskSummary });
   const emailSummary = buildDashboardGmailEmailSummary();
   const executiveAutomation = buildDashboardExecutiveAutomationSummary({
     connectorReadiness,
@@ -1251,6 +1253,7 @@ function App() {
     githubReadOnly,
     projectRegistry,
     releaseReadiness,
+    releaseShipPlans,
     repositoryIntelligence,
     runtime,
     sharedTasks: sharedTaskSummary,
@@ -1280,6 +1283,7 @@ function App() {
     githubReadOnly,
     projectRegistry,
     releaseReadiness,
+    releaseShipPlans,
     repositoryIntelligence,
     sharedTasks: sharedTaskSummary,
   });
@@ -1575,6 +1579,7 @@ function App() {
             githubReadOnly={githubReadOnly}
             projectRegistry={projectRegistry}
             releaseReadiness={releaseReadiness}
+            releaseShipPlans={releaseShipPlans}
             repositoryIntelligence={repositoryIntelligence}
             sharedTaskSummary={sharedTaskSummary}
           />
@@ -2177,6 +2182,47 @@ function OperatorPage({
             columns={['Command', 'Purpose']}
             rows={operator.releaseReadiness.commands.map((command) => [command, operatorCommandPurpose(command)])}
           />
+        </Panel>
+
+        <Panel title="Release Ship Plan Workflow" icon={<ShieldCheck size={18} />} wide>
+          <p className="panel-description">
+            Converts local release readiness into ship/no-ship plans, approval records, QA notes, rollback notes, and linked release tasks. Approval is local preparation only.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Ship Plan Queue" value={String(operator.releaseShipPlans.totalShipPlans)} />
+            <Fact label="Needs Review" value={String(operator.releaseShipPlans.shipPlansNeedingReview)} />
+            <Fact label="Approved Prep" value={String(operator.releaseShipPlans.approvedPreparationPlans)} />
+            <Fact label="Blocked Ship Plans" value={String(operator.releaseShipPlans.blockedShipPlans)} />
+            <Fact label="Local Approval Status" value={operator.releaseShipPlans.localApprovalStatus.replace(/_/g, ' ')} />
+            <Fact label="Latest Ship Plan Report" value={formatOptionalDate(operator.releaseShipPlans.latestShipPlanReport)} />
+            <Fact label="Release Safety Status" value={operator.releaseShipPlans.releaseSafetyStatus} />
+            <Fact label="Executive Decision" value={operator.releaseShipPlans.recommendedExecutiveDecision} />
+          </div>
+          <DataTable
+            columns={['Project', 'Status', 'Decision', 'Score', 'Risk', 'Tasks', 'GitHub Plans']}
+            rows={operator.releaseShipPlans.shipPlanQueue.map((plan) => [
+              plan.projectName,
+              plan.status.replace(/_/g, ' '),
+              plan.recommendedShipDecision.replace(/_/g, ' '),
+              `${plan.readinessScore}/100`,
+              plan.riskLevel,
+              plan.linkedTasks.join(', ') || 'None',
+              plan.linkedGitHubPlans.join(', ') || 'None',
+            ])}
+          />
+          <DataTable
+            columns={['Report']}
+            rows={operator.releaseShipPlans.generatedReports.map((report) => [report])}
+          />
+          <DataTable
+            columns={['Command', 'Purpose']}
+            rows={operator.releaseShipPlans.commands.map((command) => [command, operatorCommandPurpose(command)])}
+          />
+          <div className="safety-badge-row">
+            {['Local approval only', 'No deploys', 'No tags', 'No GitHub releases', 'No pushes', 'No production writes'].map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
         </Panel>
 
         <Panel title="Engineering Task Generator" icon={<ListChecks size={18} />} wide>
@@ -3600,6 +3646,13 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('release:blockers')) return 'Print explainable release blockers by project and severity.';
   if (command.endsWith('release:report')) return 'Generate Release Readiness, Release Blockers, and Executive Release Summary reports.';
   if (command.endsWith('release:validate')) return 'Validate release readiness models, commands, reports, and local-only safety gates.';
+  if (command.endsWith('release:ship-plans')) return 'List local release ship plans generated from readiness data.';
+  if (command.endsWith('release:create-ship-plan')) return 'Create a local ship plan record without deploying, tagging, pushing, or creating a GitHub release.';
+  if (command.endsWith('release:review-ship-plan')) return 'Move a local ship plan into needs-review status.';
+  if (command.endsWith('release:approve-ship-plan')) return 'Approve preparation locally only; no release execution occurs.';
+  if (command.endsWith('release:reject-ship-plan')) return 'Reject a local ship plan without external writes.';
+  if (command.endsWith('release:ship-plan-report')) return 'Generate Ship Plan, Executive Ship Decision, and Blocked Ship Plan reports.';
+  if (command.endsWith('release:ship-plan-validate')) return 'Validate ship plan models, local approvals, reports, and release safety gates.';
   if (command.endsWith('engineering:tasks')) return 'List local Engineering task candidates without creating shared tasks.';
   if (command.endsWith('engineering:generate-tasks')) return 'Generate deterministic Engineering task candidate reports from local intelligence signals.';
   if (command.endsWith('engineering:task-report')) return 'Write Engineering Task Candidate and Executive Engineering Task Summary reports.';

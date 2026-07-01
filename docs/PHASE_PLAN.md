@@ -1102,3 +1102,29 @@ Boundaries:
 - No project file modifications.
 - No production writes.
 - No secrets committed.
+
+## Phase 44
+
+Release Approval & Ship Plan Workflow.
+
+Includes:
+
+- Ship plan model for project id/name, branch, target release type, readiness score, blockers, required approvals, checklist, rollback notes, QA notes, risk, ship/no-ship decision, linked tasks, linked GitHub plans, created timestamp, and status.
+- Ship plan statuses: `draft`, `needs_review`, `approved_to_prepare`, `blocked`, `rejected`, and `archived`.
+- Root npm scripts for `release:ship-plans`, `release:create-ship-plan`, `release:review-ship-plan`, `release:approve-ship-plan`, `release:reject-ship-plan`, `release:ship-plan-report`, and `release:ship-plan-validate`.
+- Integration with release readiness, Shared Task Queue, GitHub planning, Executive automation, Engineering task generation, and Gmail internal report types.
+- Executive Dashboard ship-plan decisions section.
+- Engineering Dashboard ship-plan checklist, blocker task links, GitHub plan links, QA notes, and rollback notes.
+- Operator Dashboard ship-plan queue, local approval status, latest report, reports, commands, and release safety status.
+- Ship Plan, Executive Ship Decision Summary, and Blocked Ship Plan reports.
+
+Boundaries:
+
+- Local approval only.
+- No deploys.
+- No release tags.
+- No GitHub releases.
+- No pushed commits.
+- No project file modifications.
+- No production writes.
+- No secrets committed.

@@ -8,6 +8,7 @@ import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
 import type { ProjectRegistryDashboardSummary } from './projectRegistry';
 import type { ReleaseReadinessDashboardSummary } from './releaseReadiness';
+import type { ReleaseShipPlanDashboardSummary } from './releaseShipPlans';
 import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
@@ -21,7 +22,7 @@ import type {
   SalesSummary,
 } from '../agents/sales/salesTypes';
 
-export const executiveRuleCount = 15;
+export const executiveRuleCount = 16;
 
 export function buildExecutivePriorities(
   runtime: AgentRuntimeSnapshot,
@@ -41,6 +42,7 @@ export function buildExecutivePriorities(
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   projectRegistry?: ProjectRegistryDashboardSummary,
   releaseReadiness?: ReleaseReadinessDashboardSummary,
+  releaseShipPlans?: ReleaseShipPlanDashboardSummary,
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutivePriority[] {
@@ -340,6 +342,18 @@ export function buildExecutivePriorities(
       priority: releaseReadiness.criticalReleaseRisks > 0 ? 'high' : 'medium',
       recommendedAction: releaseReadiness.recommendedExecutiveAction,
       source: 'Release Readiness Command Center',
+    });
+  }
+
+  if (releaseShipPlans && (releaseShipPlans.blockedShipPlans > 0 || releaseShipPlans.shipPlansNeedingReview > 0)) {
+    priorities.push({
+      id: 'release-ship-plan-workflow',
+      agent: 'Executive Agent',
+      department: 'Executive',
+      detail: `${releaseShipPlans.shipPlansNeedingReview} ship plan(s) need review, ${releaseShipPlans.approvedPreparationPlans} approved to prepare, and ${releaseShipPlans.blockedShipPlans} blocked.`,
+      priority: releaseShipPlans.blockedShipPlans > 0 ? 'high' : 'medium',
+      recommendedAction: releaseShipPlans.recommendedExecutiveDecision,
+      source: 'Release Approval & Ship Plan Workflow',
     });
   }
 

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { buildGitHubPlanningStatus } from './github-planning-runtime.mjs';
 import { buildProjectRegistry } from './project-registry-runtime.mjs';
 import { buildReleaseReadiness } from './release-readiness-runtime.mjs';
+import { buildShipPlanQueue } from './release-ship-plan-runtime.mjs';
 import { buildRepositoryIntelligence } from './repository-intelligence-runtime.mjs';
 import { buildSharedTaskStatus } from './shared-task-runtime.mjs';
 
@@ -46,6 +47,7 @@ export function buildEngineeringTaskCandidateSet() {
   const githubPlanning = buildGitHubPlanningStatus();
   const projectRegistry = buildProjectRegistry();
   const releaseReadiness = buildReleaseReadiness();
+  const shipPlans = buildShipPlanQueue();
   const sharedTasks = buildSharedTaskStatus();
   const candidates = dedupeCandidates([
     ...repositoryRiskCandidates(repositoryIntelligence),
@@ -58,6 +60,7 @@ export function buildEngineeringTaskCandidateSet() {
     ...blockedOpportunityCandidates(sharedTasks),
     ...projectRegistryCandidates(projectRegistry),
     ...releaseBlockerCandidates(releaseReadiness),
+    ...shipPlanCandidates(shipPlans),
   ]);
   const summary = summarizeCandidates(candidates);
 
@@ -71,6 +74,7 @@ export function buildEngineeringTaskCandidateSet() {
       repositoryIntelligence: repositoryIntelligence.sourceGraph,
       projectRegistry: projectRegistry.configRoot,
       releaseReadiness: 'reports/agents/release',
+      releaseShipPlans: shipPlans.shipPlans.map((plan) => plan.shipPlanId),
       githubPlanning: githubPlanning.planRoot,
       sharedTasks: sharedTasks.taskRoot,
       executivePriorities: 'derived locally from repository, GitHub planning, and shared task signals',
@@ -146,10 +150,33 @@ export function writeEngineeringTaskReports(set = buildEngineeringTaskCandidateS
       migrationBlockingCandidates: set.candidates.filter((candidate) => candidate.category === 'migration support'),
       releaseReadinessCandidates: set.candidates.filter((candidate) => candidate.category === 'release readiness'),
       releaseBlockerCandidates: set.candidates.filter((candidate) => candidate.linkedReleaseBlocker),
+      shipPlanCandidates: set.candidates.filter((candidate) => candidate.linkedShipPlan),
       projectSpecificCandidates: set.candidates.filter((candidate) => candidate.linkedProjectId),
       safety,
     }),
   ].flat();
+}
+
+function shipPlanCandidates(shipPlans) {
+  return (shipPlans.shipPlans ?? [])
+    .filter((plan) => plan.status === 'blocked' || plan.recommendedShipDecision === 'no_ship')
+    .slice(0, 12)
+    .map((plan) =>
+      candidate({
+        id: `engineering-task:ship-plan:${slugify(plan.shipPlanId)}`,
+        title: `Clear ship plan blockers for ${plan.projectName}`,
+        category: 'release readiness',
+        recommendedPriority: plan.riskLevel === 'Critical' ? 'Critical' : 'High',
+        reason: `Ship plan ${plan.shipPlanId} is ${plan.status} with decision ${plan.recommendedShipDecision}. ${plan.blockers[0]?.reason ?? 'Review the release checklist before preparation.'}`,
+        linkedProjectId: plan.projectId,
+        linkedReleaseBlocker: plan.blockers[0]?.id ?? null,
+        linkedShipPlan: plan.shipPlanId,
+        linkedGitHubPlan: plan.linkedGitHubPlans[0] ?? null,
+        linkedSharedTask: plan.linkedTasks[0] ?? null,
+        linkedExecutivePriority: 'release-ship-plan-workflow',
+        signals: [`shipPlanStatus:${plan.status}`, `shipDecision:${plan.recommendedShipDecision}`, `readinessScore:${plan.readinessScore}`],
+      }),
+    );
 }
 
 function releaseBlockerCandidates(releaseReadiness) {
@@ -366,6 +393,7 @@ function candidate(input) {
     linkedGraphNodeIds: input.linkedGraphNodeIds ?? [],
     linkedProjectId: input.linkedProjectId ?? null,
     linkedReleaseBlocker: input.linkedReleaseBlocker ?? null,
+    linkedShipPlan: input.linkedShipPlan ?? null,
     linkedRepoRisk: input.linkedRepoRisk ?? null,
     linkedSalesMigrationBlocker: input.linkedSalesMigrationBlocker ?? null,
     linkedSharedTask: input.linkedSharedTask ?? null,
@@ -389,6 +417,7 @@ function summarizeCandidates(candidates) {
     migrationBlockingEngineeringTasks: candidates.filter((candidate) => candidate.category === 'migration support').length,
     projectSpecificEngineeringTasks: candidates.filter((candidate) => candidate.linkedProjectId).length,
     releaseBlockerEngineeringTasks: candidates.filter((candidate) => candidate.linkedReleaseBlocker).length,
+    releaseShipPlanEngineeringTasks: candidates.filter((candidate) => candidate.linkedShipPlan).length,
     releaseReadinessTasks: candidates.filter((candidate) => candidate.category === 'release readiness').length,
     categoryCounts: countBy(candidates, 'category'),
     priorityCounts: countBy(candidates, 'recommendedPriority'),

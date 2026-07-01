@@ -18,6 +18,13 @@ npm run release:readiness
 npm run release:blockers
 npm run release:report
 npm run release:validate
+npm run release:ship-plans
+npm run release:create-ship-plan
+npm run release:review-ship-plan
+npm run release:approve-ship-plan
+npm run release:reject-ship-plan
+npm run release:ship-plan-report
+npm run release:ship-plan-validate
 ```
 
 ## Model
@@ -56,6 +63,14 @@ Release readiness reads:
 - Release Readiness JSON
 - Release Blockers Markdown
 - Executive Release Summary Markdown
+- Ship Plan Markdown
+- Ship Plan JSON
+- Executive Ship Decision Summary Markdown
+- Blocked Ship Plan Report Markdown
+
+## Ship Plan Link
+
+Phase 44 adds local ship plans on top of readiness. Ship plans reuse readiness scores, blockers, checklists, task links, and GitHub planning links to produce local approval records, QA notes, rollback notes, and deterministic ship/no-ship recommendations.
 
 ## Safety
 

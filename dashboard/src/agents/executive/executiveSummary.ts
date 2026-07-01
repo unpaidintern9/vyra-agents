@@ -8,6 +8,7 @@ import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlannin
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
 import type { ProjectRegistryDashboardSummary } from '../../runtime/projectRegistry';
 import type { ReleaseReadinessDashboardSummary } from '../../runtime/releaseReadiness';
+import type { ReleaseShipPlanDashboardSummary } from '../../runtime/releaseShipPlans';
 import type { RepositoryIntelligenceDashboardSummary } from '../../runtime/repositoryIntelligence';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
@@ -49,6 +50,7 @@ export function buildExecutiveSummary(
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   projectRegistry?: ProjectRegistryDashboardSummary,
   releaseReadiness?: ReleaseReadinessDashboardSummary,
+  releaseShipPlans?: ReleaseShipPlanDashboardSummary,
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutiveSummary {
@@ -94,6 +96,7 @@ export function buildExecutiveSummary(
       githubReadOnly,
       projectRegistry,
       releaseReadiness,
+      releaseShipPlans,
       repositoryIntelligence,
       sharedTaskSummary,
     ),
@@ -121,6 +124,7 @@ export function buildExecutiveSummary(
     githubReadOnly,
     projectRegistry,
     releaseReadiness,
+    releaseShipPlans,
     repositoryIntelligence,
     sharedTaskSummary,
   };
@@ -182,6 +186,10 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     releaseReadyProjects: summary.releaseReadiness?.readyProjects ?? 0,
     blockedReleases: summary.releaseReadiness?.blockedProjects ?? 0,
     criticalReleaseRisks: summary.releaseReadiness?.criticalReleaseRisks ?? 0,
+    shipPlansNeedingReview: summary.releaseShipPlans?.shipPlansNeedingReview ?? 0,
+    approvedPreparationPlans: summary.releaseShipPlans?.approvedPreparationPlans ?? 0,
+    blockedShipPlans: summary.releaseShipPlans?.blockedShipPlans ?? 0,
+    recommendedShipDecision: summary.releaseShipPlans?.recommendedExecutiveDecision ?? 'Not available',
     salesAgentTeamActiveAgents: summary.salesAgentTeamSummary?.activeAgents ?? 0,
     salesAgentTeamTotalAgents: summary.salesAgentTeamSummary?.totalAgents ?? 0,
     salesProspectResearchSlots: summary.salesAgentTeamSummary?.totalProspects ?? 0,

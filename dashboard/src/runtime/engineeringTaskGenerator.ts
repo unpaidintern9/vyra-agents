@@ -1,6 +1,7 @@
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { ProjectRegistryDashboardSummary } from './projectRegistry';
 import type { ReleaseReadinessDashboardSummary } from './releaseReadiness';
+import type { ReleaseShipPlanDashboardSummary } from './releaseShipPlans';
 import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 
@@ -23,6 +24,7 @@ export interface EngineeringTaskCandidate {
   linkedGitHubPlan: string | null;
   linkedRepoRisk: string | null;
   linkedReleaseBlocker: string | null;
+  linkedShipPlan: string | null;
   linkedSalesMigrationBlocker: string | null;
   linkedSharedTask: string | null;
   localOnly: true;
@@ -44,6 +46,7 @@ export interface EngineeringTaskGeneratorSummary {
   migrationBlockingEngineeringTasks: number;
   projectSpecificEngineeringTasks: number;
   releaseBlockerEngineeringTasks: number;
+  releaseShipPlanEngineeringTasks: number;
   releaseReadinessTasks: number;
   safetyLabels: string[];
   salesBlockingEngineeringTasks: number;
@@ -55,6 +58,7 @@ export function buildDashboardEngineeringTaskSummary(input: {
   repositoryIntelligence: RepositoryIntelligenceDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
   releaseReadiness?: ReleaseReadinessDashboardSummary;
+  releaseShipPlans?: ReleaseShipPlanDashboardSummary;
   sharedTasks: SharedTaskDashboardSummary;
 }): EngineeringTaskGeneratorSummary {
   const candidates = dedupeCandidates([
@@ -66,6 +70,7 @@ export function buildDashboardEngineeringTaskSummary(input: {
     ...blockedOpportunityCandidates(input.sharedTasks),
     ...projectRegistryCandidates(input.projectRegistry),
     ...releaseBlockerCandidates(input.releaseReadiness),
+    ...shipPlanCandidates(input.releaseShipPlans),
   ]);
 
   return {
@@ -81,6 +86,7 @@ export function buildDashboardEngineeringTaskSummary(input: {
     migrationBlockingEngineeringTasks: candidates.filter((candidate) => candidate.category === 'migration support').length,
     projectSpecificEngineeringTasks: candidates.filter((candidate) => candidate.id.includes('project-registry')).length,
     releaseBlockerEngineeringTasks: candidates.filter((candidate) => candidate.linkedReleaseBlocker).length,
+    releaseShipPlanEngineeringTasks: candidates.filter((candidate) => candidate.linkedShipPlan).length,
     releaseReadinessTasks: candidates.filter((candidate) => candidate.category === 'release readiness').length,
     safetyLabels: ['Local candidates only', 'No shared task creation', 'No GitHub issues', 'No PRs', 'No code changes', 'No production writes'],
     salesBlockingEngineeringTasks: candidates.filter((candidate) => candidate.category === 'sales blocker').length,
@@ -102,11 +108,33 @@ export function defaultEngineeringTaskSummary(): EngineeringTaskGeneratorSummary
     migrationBlockingEngineeringTasks: 0,
     projectSpecificEngineeringTasks: 0,
     releaseBlockerEngineeringTasks: 0,
+    releaseShipPlanEngineeringTasks: 0,
     releaseReadinessTasks: 0,
     safetyLabels: ['Local candidates only', 'No external actions'],
     salesBlockingEngineeringTasks: 0,
     totalCandidates: 0,
   };
+}
+
+function shipPlanCandidates(releaseShipPlans?: ReleaseShipPlanDashboardSummary): EngineeringTaskCandidate[] {
+  if (!releaseShipPlans) return [];
+  return releaseShipPlans.shipPlanQueue
+    .filter((plan) => plan.status === 'blocked' || plan.recommendedShipDecision === 'no_ship')
+    .slice(0, 8)
+    .map((plan) =>
+      candidate({
+        id: `dashboard-engineering-task-ship-plan-${plan.shipPlanId}`,
+        title: `Clear ship plan blockers for ${plan.projectName}`,
+        category: 'release readiness',
+        recommendedPriority: plan.riskLevel === 'Critical' ? 'Critical' : 'High',
+        reason: `${plan.projectName} ship plan is ${plan.status} with decision ${plan.recommendedShipDecision}.`,
+        linkedExecutivePriority: 'release-ship-plan-workflow',
+        linkedGitHubPlan: plan.linkedGitHubPlans[0] ?? null,
+        linkedReleaseBlocker: plan.blockers[0]?.id ?? null,
+        linkedSharedTask: plan.linkedTasks[0] ?? null,
+        linkedShipPlan: plan.shipPlanId,
+      }),
+    );
 }
 
 function releaseBlockerCandidates(releaseReadiness?: ReleaseReadinessDashboardSummary): EngineeringTaskCandidate[] {
@@ -249,6 +277,7 @@ function candidate(
     linkedGitHubPlan: null,
     linkedRepoRisk: null,
     linkedReleaseBlocker: null,
+    linkedShipPlan: null,
     linkedSalesMigrationBlocker: null,
     linkedSharedTask: null,
     ...input,

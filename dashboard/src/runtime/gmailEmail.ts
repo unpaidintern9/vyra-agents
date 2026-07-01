@@ -61,6 +61,7 @@ export function buildDashboardGmailEmailSummary(): GmailEmailDashboardSummary {
       'Executive daily summary',
       'Sales summary',
       'Engineering summary',
+      'Release ship plan summary',
       'Task queue summary',
       'Connector readiness summary',
       'Cross-agent review summary',

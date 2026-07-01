@@ -8,6 +8,7 @@ import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlannin
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
 import type { ProjectRegistryDashboardSummary } from '../../runtime/projectRegistry';
 import type { ReleaseReadinessDashboardSummary } from '../../runtime/releaseReadiness';
+import type { ReleaseShipPlanDashboardSummary } from '../../runtime/releaseShipPlans';
 import type { RepositoryIntelligenceDashboardSummary } from '../../runtime/repositoryIntelligence';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry, RuntimeApproval } from '../../runtime/runtimeTypes';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
@@ -111,6 +112,7 @@ export interface ExecutiveSummary {
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
   releaseReadiness?: ReleaseReadinessDashboardSummary;
+  releaseShipPlans?: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
 }
@@ -135,6 +137,7 @@ export interface ExecutiveDashboardProps {
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
   releaseReadiness?: ReleaseReadinessDashboardSummary;
+  releaseShipPlans?: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
 }
