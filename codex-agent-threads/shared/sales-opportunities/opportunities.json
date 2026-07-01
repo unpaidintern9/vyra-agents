@@ -1,0 +1,930 @@
+[
+  {
+    "id": "opp-area-502-mma",
+    "company": "Area 502 MMA",
+    "contacts": [
+      {
+        "name": "Owner/operator TBD",
+        "role": "Decision maker",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "industry": "MMA / BJJ / martial arts",
+    "location": "Louisville, KY",
+    "city": "Louisville",
+    "state": "KY",
+    "naics": "611620",
+    "website": "https://area502mma.com/",
+    "phone": "",
+    "email": "",
+    "companySizeEstimate": "Small independent gym",
+    "icpScore": 91,
+    "leadScore": 90,
+    "priority": "High",
+    "status": "active",
+    "stage": "proposal_preparation",
+    "assignedOwner": "Sales Agent",
+    "source": "Louisville ICP local research",
+    "createdAt": "2026-07-01T14:24:26.017Z",
+    "updatedAt": "2026-07-01T14:24:26.017Z",
+    "notes": [
+      "Local CRM only. Verify contacts and requirements before outreach."
+    ],
+    "activityTimeline": [
+      {
+        "id": "created-20260701T142426Z-lgl4nn",
+        "type": "created",
+        "title": "Opportunity created",
+        "reason": "Seeded from local ICP research.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.017Z"
+      },
+      {
+        "id": "research_generated-20260701T142426Z-8oufo6",
+        "type": "research_generated",
+        "title": "Research generated",
+        "reason": "Verify owner/contact path and current software.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.017Z"
+      }
+    ],
+    "attachments": [
+      "reports/agents/sales/opp-area-502-mma.md"
+    ],
+    "generatedReports": [
+      "Company Research Dossier",
+      "Outreach Prep Report"
+    ],
+    "draftOutreach": [
+      "Lead with student/member progression, class communication, and youth/adult program retention."
+    ],
+    "proposalPreparationStatus": {
+      "missing": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "readinessPercent": 44,
+      "status": "not_ready"
+    },
+    "executiveVisibility": true,
+    "archived": false,
+    "tags": [
+      "mma_bjj",
+      "prime_target",
+      "local-crm"
+    ],
+    "favorite": true,
+    "pinned": true,
+    "score": {
+      "confidence": 86,
+      "leadScore": 90,
+      "opportunityRating": "A",
+      "overallScore": 93,
+      "priority": "High",
+      "reasoning": [
+        "Matches Vyra first target segments.",
+        "Louisville-area local motion.",
+        "Decision-maker and budget are estimates until manually verified."
+      ]
+    },
+    "followUpPlan": {
+      "recommendedNextAction": "Verify owner/contact path and current software.",
+      "recommendedTimeframe": "Within 2 business days",
+      "talkingPoints": [
+        "student progression visibility",
+        "youth/adult program retention",
+        "class communication",
+        "member onboarding"
+      ],
+      "unansweredQuestions": [
+        "Who owns software decisions?",
+        "What system do they use now?",
+        "How many active members do they serve?"
+      ],
+      "missingInformation": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "proposalReadiness": 44,
+      "estimatedCloseProbability": 48
+    }
+  },
+  {
+    "id": "opp-louisville-combat-academy",
+    "company": "Louisville Combat Academy",
+    "contacts": [
+      {
+        "name": "Owner/operator TBD",
+        "role": "Decision maker",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "industry": "MMA / BJJ / martial arts",
+    "location": "Louisville, KY",
+    "city": "Louisville",
+    "state": "KY",
+    "naics": "611620",
+    "website": "https://louisvillecombatacademy.com/",
+    "phone": "",
+    "email": "",
+    "companySizeEstimate": "Small independent gym",
+    "icpScore": 90,
+    "leadScore": 90,
+    "priority": "High",
+    "status": "active",
+    "stage": "proposal_preparation",
+    "assignedOwner": "Sales Agent",
+    "source": "Louisville ICP local research",
+    "createdAt": "2026-07-01T14:24:26.019Z",
+    "updatedAt": "2026-07-01T14:24:26.019Z",
+    "notes": [
+      "Local CRM only. Verify contacts and requirements before outreach."
+    ],
+    "activityTimeline": [
+      {
+        "id": "created-20260701T142426Z-liqz4b",
+        "type": "created",
+        "title": "Opportunity created",
+        "reason": "Seeded from local ICP research.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      },
+      {
+        "id": "research_generated-20260701T142426Z-pdxvqv",
+        "type": "research_generated",
+        "title": "Research generated",
+        "reason": "Verify decision maker, class schedule, and member software.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      }
+    ],
+    "attachments": [
+      "reports/agents/sales/opp-louisville-combat-academy.md"
+    ],
+    "generatedReports": [
+      "Company Research Dossier",
+      "Outreach Prep Report"
+    ],
+    "draftOutreach": [
+      "Lead with student/member progression, class communication, and youth/adult program retention."
+    ],
+    "proposalPreparationStatus": {
+      "missing": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "readinessPercent": 44,
+      "status": "not_ready"
+    },
+    "executiveVisibility": true,
+    "archived": false,
+    "tags": [
+      "mma_bjj",
+      "prime_target",
+      "local-crm"
+    ],
+    "favorite": true,
+    "pinned": true,
+    "score": {
+      "confidence": 85,
+      "leadScore": 90,
+      "opportunityRating": "A",
+      "overallScore": 93,
+      "priority": "High",
+      "reasoning": [
+        "Matches Vyra first target segments.",
+        "Louisville-area local motion.",
+        "Decision-maker and budget are estimates until manually verified."
+      ]
+    },
+    "followUpPlan": {
+      "recommendedNextAction": "Verify decision maker, class schedule, and member software.",
+      "recommendedTimeframe": "Within 2 business days",
+      "talkingPoints": [
+        "student progression visibility",
+        "youth/adult program retention",
+        "class communication",
+        "member onboarding"
+      ],
+      "unansweredQuestions": [
+        "Who owns software decisions?",
+        "What system do they use now?",
+        "How many active members do they serve?"
+      ],
+      "missingInformation": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "proposalReadiness": 44,
+      "estimatedCloseProbability": 48
+    }
+  },
+  {
+    "id": "opp-core-combat-sports",
+    "company": "Core Combat Sports",
+    "contacts": [
+      {
+        "name": "Owner/operator TBD",
+        "role": "Decision maker",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "industry": "MMA / BJJ / martial arts",
+    "location": "Louisville, KY",
+    "city": "Louisville",
+    "state": "KY",
+    "naics": "611620",
+    "website": "https://corelouisville.com/",
+    "phone": "",
+    "email": "",
+    "companySizeEstimate": "Small independent gym",
+    "icpScore": 88,
+    "leadScore": 88,
+    "priority": "High",
+    "status": "active",
+    "stage": "proposal_preparation",
+    "assignedOwner": "Sales Agent",
+    "source": "Louisville ICP local research",
+    "createdAt": "2026-07-01T14:24:26.019Z",
+    "updatedAt": "2026-07-01T14:24:26.019Z",
+    "notes": [
+      "Local CRM only. Verify contacts and requirements before outreach."
+    ],
+    "activityTimeline": [
+      {
+        "id": "created-20260701T142426Z-hdoh8o",
+        "type": "created",
+        "title": "Opportunity created",
+        "reason": "Seeded from local ICP research.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      },
+      {
+        "id": "research_generated-20260701T142426Z-79pg53",
+        "type": "research_generated",
+        "title": "Research generated",
+        "reason": "Verify contact path, current tools, and program complexity.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      }
+    ],
+    "attachments": [
+      "reports/agents/sales/opp-core-combat-sports.md"
+    ],
+    "generatedReports": [
+      "Company Research Dossier",
+      "Outreach Prep Report"
+    ],
+    "draftOutreach": [
+      "Lead with student/member progression, class communication, and youth/adult program retention."
+    ],
+    "proposalPreparationStatus": {
+      "missing": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "readinessPercent": 44,
+      "status": "not_ready"
+    },
+    "executiveVisibility": true,
+    "archived": false,
+    "tags": [
+      "mma_bjj",
+      "prime_target",
+      "local-crm"
+    ],
+    "favorite": true,
+    "pinned": true,
+    "score": {
+      "confidence": 83,
+      "leadScore": 88,
+      "opportunityRating": "A",
+      "overallScore": 91,
+      "priority": "High",
+      "reasoning": [
+        "Matches Vyra first target segments.",
+        "Louisville-area local motion.",
+        "Decision-maker and budget are estimates until manually verified."
+      ]
+    },
+    "followUpPlan": {
+      "recommendedNextAction": "Verify contact path, current tools, and program complexity.",
+      "recommendedTimeframe": "Within 2 business days",
+      "talkingPoints": [
+        "student progression visibility",
+        "youth/adult program retention",
+        "class communication",
+        "member onboarding"
+      ],
+      "unansweredQuestions": [
+        "Who owns software decisions?",
+        "What system do they use now?",
+        "How many active members do they serve?"
+      ],
+      "missingInformation": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "proposalReadiness": 44,
+      "estimatedCloseProbability": 48
+    }
+  },
+  {
+    "id": "opp-apex-martial-arts-academy",
+    "company": "Apex Martial Arts Academy",
+    "contacts": [
+      {
+        "name": "Owner/operator TBD",
+        "role": "Decision maker",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "industry": "MMA / BJJ / martial arts",
+    "location": "Louisville / Mount Washington, KY",
+    "city": "Louisville / Mount Washington",
+    "state": "KY",
+    "naics": "611620",
+    "website": "https://theapexmaa.com/",
+    "phone": "",
+    "email": "",
+    "companySizeEstimate": "Small independent gym",
+    "icpScore": 86,
+    "leadScore": 87,
+    "priority": "High",
+    "status": "active",
+    "stage": "proposal_preparation",
+    "assignedOwner": "Sales Agent",
+    "source": "Louisville ICP local research",
+    "createdAt": "2026-07-01T14:24:26.019Z",
+    "updatedAt": "2026-07-01T14:24:26.019Z",
+    "notes": [
+      "Local CRM only. Verify contacts and requirements before outreach."
+    ],
+    "activityTimeline": [
+      {
+        "id": "created-20260701T142426Z-pvfehs",
+        "type": "created",
+        "title": "Opportunity created",
+        "reason": "Seeded from local ICP research.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      },
+      {
+        "id": "research_generated-20260701T142426Z-jcmvwi",
+        "type": "research_generated",
+        "title": "Research generated",
+        "reason": "Verify exact location count and owner/operator.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      }
+    ],
+    "attachments": [
+      "reports/agents/sales/opp-apex-martial-arts-academy.md"
+    ],
+    "generatedReports": [
+      "Company Research Dossier",
+      "Outreach Prep Report"
+    ],
+    "draftOutreach": [
+      "Lead with student/member progression, class communication, and youth/adult program retention."
+    ],
+    "proposalPreparationStatus": {
+      "missing": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "readinessPercent": 44,
+      "status": "not_ready"
+    },
+    "executiveVisibility": true,
+    "archived": false,
+    "tags": [
+      "mma_bjj",
+      "prime_target",
+      "local-crm"
+    ],
+    "favorite": true,
+    "pinned": true,
+    "score": {
+      "confidence": 81,
+      "leadScore": 87,
+      "opportunityRating": "A",
+      "overallScore": 90,
+      "priority": "High",
+      "reasoning": [
+        "Matches Vyra first target segments.",
+        "Louisville-area local motion.",
+        "Decision-maker and budget are estimates until manually verified."
+      ]
+    },
+    "followUpPlan": {
+      "recommendedNextAction": "Verify exact location count and owner/operator.",
+      "recommendedTimeframe": "Within 2 business days",
+      "talkingPoints": [
+        "student progression visibility",
+        "youth/adult program retention",
+        "class communication",
+        "member onboarding"
+      ],
+      "unansweredQuestions": [
+        "Who owns software decisions?",
+        "What system do they use now?",
+        "How many active members do they serve?"
+      ],
+      "missingInformation": [
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "proposalReadiness": 44,
+      "estimatedCloseProbability": 48
+    }
+  },
+  {
+    "id": "opp-butchertown-crossfit",
+    "company": "Butchertown CrossFit",
+    "contacts": [
+      {
+        "name": "Owner/operator TBD",
+        "role": "Decision maker",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "industry": "CrossFit / functional fitness",
+    "location": "Louisville, KY",
+    "city": "Louisville",
+    "state": "KY",
+    "naics": "713940",
+    "website": "https://www.butchertowncrossfit.com/",
+    "phone": "",
+    "email": "",
+    "companySizeEstimate": "Small independent gym",
+    "icpScore": 85,
+    "leadScore": 86,
+    "priority": "High",
+    "status": "active",
+    "stage": "contact_ready",
+    "assignedOwner": "Sales Agent",
+    "source": "Louisville ICP local research",
+    "createdAt": "2026-07-01T14:24:26.019Z",
+    "updatedAt": "2026-07-01T14:24:26.019Z",
+    "notes": [
+      "Local CRM only. Verify contacts and requirements before outreach."
+    ],
+    "activityTimeline": [
+      {
+        "id": "created-20260701T142426Z-5ukk0l",
+        "type": "created",
+        "title": "Opportunity created",
+        "reason": "Seeded from local ICP research.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      },
+      {
+        "id": "research_generated-20260701T142426Z-1p0oiz",
+        "type": "research_generated",
+        "title": "Research generated",
+        "reason": "Verify owner/contact path and trial flow.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      }
+    ],
+    "attachments": [
+      "reports/agents/sales/opp-butchertown-crossfit.md"
+    ],
+    "generatedReports": [
+      "Company Research Dossier",
+      "Outreach Prep Report"
+    ],
+    "draftOutreach": [
+      "Lead with trial onboarding, class operations, retention, and coach-led habit tracking."
+    ],
+    "proposalPreparationStatus": {
+      "missing": [
+        "pricing",
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "readinessPercent": 30,
+      "status": "not_ready"
+    },
+    "executiveVisibility": true,
+    "archived": false,
+    "tags": [
+      "crossfit",
+      "prime_target",
+      "local-crm"
+    ],
+    "favorite": true,
+    "pinned": true,
+    "score": {
+      "confidence": 80,
+      "leadScore": 86,
+      "opportunityRating": "A",
+      "overallScore": 89,
+      "priority": "High",
+      "reasoning": [
+        "Matches Vyra first target segments.",
+        "Louisville-area local motion.",
+        "Decision-maker and budget are estimates until manually verified."
+      ]
+    },
+    "followUpPlan": {
+      "recommendedNextAction": "Verify owner/contact path and trial flow.",
+      "recommendedTimeframe": "Within 2 business days",
+      "talkingPoints": [
+        "trial onboarding",
+        "class scheduling",
+        "member retention",
+        "coach-led habit tracking"
+      ],
+      "unansweredQuestions": [
+        "Who owns software decisions?",
+        "What system do they use now?",
+        "How many active members do they serve?"
+      ],
+      "missingInformation": [
+        "pricing",
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "proposalReadiness": 30,
+      "estimatedCloseProbability": 34
+    }
+  },
+  {
+    "id": "opp-full-moon-martial-arts",
+    "company": "Full Moon Martial Arts",
+    "contacts": [
+      {
+        "name": "Owner/operator TBD",
+        "role": "Decision maker",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "industry": "MMA / BJJ / martial arts",
+    "location": "Clarksville / Jeffersonville / New Albany, IN",
+    "city": "Clarksville / Jeffersonville / New Albany",
+    "state": "IN",
+    "naics": "611620",
+    "website": "https://www.fullmoonmartialarts.com/",
+    "phone": "",
+    "email": "",
+    "companySizeEstimate": "Small independent gym",
+    "icpScore": 83,
+    "leadScore": 82,
+    "priority": "Medium",
+    "status": "active",
+    "stage": "contact_ready",
+    "assignedOwner": "Sales Agent",
+    "source": "Louisville ICP local research",
+    "createdAt": "2026-07-01T14:24:26.019Z",
+    "updatedAt": "2026-07-01T14:24:26.019Z",
+    "notes": [
+      "Local CRM only. Verify contacts and requirements before outreach."
+    ],
+    "activityTimeline": [
+      {
+        "id": "created-20260701T142426Z-grs589",
+        "type": "created",
+        "title": "Opportunity created",
+        "reason": "Seeded from local ICP research.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      },
+      {
+        "id": "research_generated-20260701T142426Z-599gq2",
+        "type": "research_generated",
+        "title": "Research generated",
+        "reason": "Verify Southern Indiana contact path and active programs.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      }
+    ],
+    "attachments": [
+      "reports/agents/sales/opp-full-moon-martial-arts.md"
+    ],
+    "generatedReports": [
+      "Company Research Dossier",
+      "Outreach Prep Report"
+    ],
+    "draftOutreach": [
+      "Lead with student/member progression, class communication, and youth/adult program retention."
+    ],
+    "proposalPreparationStatus": {
+      "missing": [
+        "pricing",
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "readinessPercent": 30,
+      "status": "not_ready"
+    },
+    "executiveVisibility": false,
+    "archived": false,
+    "tags": [
+      "mma_bjj",
+      "good_fit",
+      "local-crm"
+    ],
+    "favorite": false,
+    "pinned": false,
+    "score": {
+      "confidence": 78,
+      "leadScore": 82,
+      "opportunityRating": "B",
+      "overallScore": 85,
+      "priority": "Medium",
+      "reasoning": [
+        "Matches Vyra first target segments.",
+        "Louisville-area local motion.",
+        "Decision-maker and budget are estimates until manually verified."
+      ]
+    },
+    "followUpPlan": {
+      "recommendedNextAction": "Verify Southern Indiana contact path and active programs.",
+      "recommendedTimeframe": "Within 2 business days",
+      "talkingPoints": [
+        "student progression visibility",
+        "youth/adult program retention",
+        "class communication",
+        "member onboarding"
+      ],
+      "unansweredQuestions": [
+        "Who owns software decisions?",
+        "What system do they use now?",
+        "How many active members do they serve?"
+      ],
+      "missingInformation": [
+        "pricing",
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "proposalReadiness": 30,
+      "estimatedCloseProbability": 34
+    }
+  },
+  {
+    "id": "opp-crossfit-covalence",
+    "company": "CrossFit Covalence",
+    "contacts": [
+      {
+        "name": "Owner/operator TBD",
+        "role": "Decision maker",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "industry": "CrossFit / functional fitness",
+    "location": "Louisville, KY",
+    "city": "Louisville",
+    "state": "KY",
+    "naics": "713940",
+    "website": "https://crossfitcovalence.com/",
+    "phone": "",
+    "email": "",
+    "companySizeEstimate": "Small independent gym",
+    "icpScore": 81,
+    "leadScore": 81,
+    "priority": "Medium",
+    "status": "active",
+    "stage": "follow_up",
+    "assignedOwner": "Sales Agent",
+    "source": "Louisville ICP local research",
+    "createdAt": "2026-07-01T14:24:26.019Z",
+    "updatedAt": "2026-07-01T14:24:26.019Z",
+    "notes": [
+      "Local CRM only. Verify contacts and requirements before outreach."
+    ],
+    "activityTimeline": [
+      {
+        "id": "created-20260701T142426Z-62gq13",
+        "type": "created",
+        "title": "Opportunity created",
+        "reason": "Seeded from local ICP research.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      },
+      {
+        "id": "research_generated-20260701T142426Z-cvf8v6",
+        "type": "research_generated",
+        "title": "Research generated",
+        "reason": "Verify owner/operator, current software, and community signals.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      }
+    ],
+    "attachments": [
+      "reports/agents/sales/opp-crossfit-covalence.md"
+    ],
+    "generatedReports": [
+      "Company Research Dossier",
+      "Outreach Prep Report"
+    ],
+    "draftOutreach": [
+      "Lead with trial onboarding, class operations, retention, and coach-led habit tracking."
+    ],
+    "proposalPreparationStatus": {
+      "missing": [
+        "pricing",
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "readinessPercent": 30,
+      "status": "not_ready"
+    },
+    "executiveVisibility": false,
+    "archived": false,
+    "tags": [
+      "crossfit",
+      "good_fit",
+      "local-crm"
+    ],
+    "favorite": false,
+    "pinned": false,
+    "score": {
+      "confidence": 76,
+      "leadScore": 81,
+      "opportunityRating": "B",
+      "overallScore": 84,
+      "priority": "Medium",
+      "reasoning": [
+        "Matches Vyra first target segments.",
+        "Louisville-area local motion.",
+        "Decision-maker and budget are estimates until manually verified."
+      ]
+    },
+    "followUpPlan": {
+      "recommendedNextAction": "Verify owner/operator, current software, and community signals.",
+      "recommendedTimeframe": "Today",
+      "talkingPoints": [
+        "trial onboarding",
+        "class scheduling",
+        "member retention",
+        "coach-led habit tracking"
+      ],
+      "unansweredQuestions": [
+        "Who owns software decisions?",
+        "What system do they use now?",
+        "How many active members do they serve?"
+      ],
+      "missingInformation": [
+        "pricing",
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "proposalReadiness": 30,
+      "estimatedCloseProbability": 22
+    }
+  },
+  {
+    "id": "opp-derby-city-mixed-martial-arts",
+    "company": "Derby City Mixed Martial Arts",
+    "contacts": [
+      {
+        "name": "Owner/operator TBD",
+        "role": "Decision maker",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "industry": "MMA / BJJ / martial arts",
+    "location": "Louisville, KY",
+    "city": "Louisville",
+    "state": "KY",
+    "naics": "611620",
+    "website": "https://derbycitymartialarts.com/",
+    "phone": "",
+    "email": "",
+    "companySizeEstimate": "Small independent gym",
+    "icpScore": 80,
+    "leadScore": 80,
+    "priority": "Medium",
+    "status": "active",
+    "stage": "follow_up",
+    "assignedOwner": "Sales Agent",
+    "source": "Louisville ICP local research",
+    "createdAt": "2026-07-01T14:24:26.019Z",
+    "updatedAt": "2026-07-01T14:24:26.019Z",
+    "notes": [
+      "Local CRM only. Verify contacts and requirements before outreach."
+    ],
+    "activityTimeline": [
+      {
+        "id": "created-20260701T142426Z-yjh9xm",
+        "type": "created",
+        "title": "Opportunity created",
+        "reason": "Seeded from local ICP research.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      },
+      {
+        "id": "research_generated-20260701T142426Z-1i7okn",
+        "type": "research_generated",
+        "title": "Research generated",
+        "reason": "Confirm active programs and direct contact path.",
+        "operator": "Sales Agent",
+        "timestamp": "2026-07-01T14:24:26.019Z"
+      }
+    ],
+    "attachments": [
+      "reports/agents/sales/opp-derby-city-mixed-martial-arts.md"
+    ],
+    "generatedReports": [
+      "Company Research Dossier",
+      "Outreach Prep Report"
+    ],
+    "draftOutreach": [
+      "Lead with student/member progression, class communication, and youth/adult program retention."
+    ],
+    "proposalPreparationStatus": {
+      "missing": [
+        "pricing",
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "readinessPercent": 30,
+      "status": "not_ready"
+    },
+    "executiveVisibility": false,
+    "archived": false,
+    "tags": [
+      "mma_bjj",
+      "good_fit",
+      "local-crm"
+    ],
+    "favorite": false,
+    "pinned": false,
+    "score": {
+      "confidence": 75,
+      "leadScore": 80,
+      "opportunityRating": "B",
+      "overallScore": 83,
+      "priority": "Medium",
+      "reasoning": [
+        "Matches Vyra first target segments.",
+        "Louisville-area local motion.",
+        "Decision-maker and budget are estimates until manually verified."
+      ]
+    },
+    "followUpPlan": {
+      "recommendedNextAction": "Confirm active programs and direct contact path.",
+      "recommendedTimeframe": "Today",
+      "talkingPoints": [
+        "student progression visibility",
+        "youth/adult program retention",
+        "class communication",
+        "member onboarding"
+      ],
+      "unansweredQuestions": [
+        "Who owns software decisions?",
+        "What system do they use now?",
+        "How many active members do they serve?"
+      ],
+      "missingInformation": [
+        "pricing",
+        "contacts",
+        "requirements",
+        "discovery notes",
+        "executive approval"
+      ],
+      "proposalReadiness": 30,
+      "estimatedCloseProbability": 22
+    }
+  }
+]

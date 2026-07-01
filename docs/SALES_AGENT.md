@@ -6,6 +6,8 @@ It helps Robert track leads, prospects, pipeline stage, follow-ups, proposal pre
 
 Phase 46A adds local Sales execution: the agent can run prospect searches, generate research dossiers, export execution reports, prepare shared local tasks, and create draft-only email records.
 
+Phase 47 adds a complete local CRM and opportunity management engine. It is independent of the existing `vyraapp.fit` Sales CRM and should remain useful even if that CRM is removed.
+
 ## Current Scope
 
 The Sales Agent MVP includes:
@@ -41,6 +43,7 @@ The Sales Agent MVP includes:
 - Active recommended prospect searches that populate filters, run local search, and show loading/result/error status.
 - Execution report exports for pipeline, prospect research, company dossier, outreach prep, follow-up, ICP fit, proposal prep, executive summary, lead scoring, follow-up queue, and weighted pipeline.
 - CLI execution commands for local Sales status, research, reports, outreach drafts, shared tasks, and validation.
+- Local CRM opportunity management with pipeline overview, Kanban, table, detail view, immutable timelines, deterministic scoring, follow-up planning, proposal readiness, archive/restore/merge CLI actions, and Executive/Operator read-only summaries.
 
 ## Local Storage
 

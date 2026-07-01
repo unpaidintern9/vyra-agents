@@ -10,6 +10,7 @@ import type { ReleaseShipPlanDashboardSummary } from './releaseShipPlans';
 import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
+import type { SalesOpportunityPipelineSummary } from '../agents/sales/salesTypes';
 
 export type ExecutiveAutomationTriggerType =
   | 'manual'
@@ -95,6 +96,7 @@ export function buildDashboardExecutiveAutomationSummary(input: {
   releaseShipPlans?: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   runtime: AgentRuntimeSnapshot;
+  salesOpportunitySummary?: SalesOpportunityPipelineSummary;
   sharedTasks?: SharedTaskDashboardSummary;
 }): ExecutiveAutomationSummary {
   const triggeredRules = buildRules(input);

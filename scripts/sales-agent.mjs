@@ -1,11 +1,24 @@
 #!/usr/bin/env node
 import {
   getSalesStatus,
+  archiveSalesOpportunity,
+  buildSalesFollowupPlans,
+  buildSalesOpportunityDashboard,
+  createSalesOpportunity,
+  getProposalStatus,
+  getSalesOpportunityTimeline,
+  listSalesOpportunities,
+  mergeSalesOpportunities,
+  moveSalesOpportunityStage,
+  restoreSalesOpportunity,
   runSalesOutreach,
   runSalesReports,
   runSalesResearch,
   runSalesTasks,
+  scoreSalesOpportunities,
+  updateSalesOpportunity,
   validateSalesExecution,
+  validateSalesReports,
 } from './sales-agent-runtime.mjs';
 
 const command = process.argv[2] ?? 'status';
@@ -16,6 +29,19 @@ const commands = {
   reports: runSalesReports,
   outreach: runSalesOutreach,
   tasks: runSalesTasks,
+  opportunities: listSalesOpportunities,
+  'create-opportunity': createSalesOpportunity,
+  'update-opportunity': updateSalesOpportunity,
+  'move-stage': moveSalesOpportunityStage,
+  timeline: getSalesOpportunityTimeline,
+  score: scoreSalesOpportunities,
+  followup: buildSalesFollowupPlans,
+  'proposal-status': getProposalStatus,
+  archive: archiveSalesOpportunity,
+  restore: restoreSalesOpportunity,
+  merge: mergeSalesOpportunities,
+  dashboard: buildSalesOpportunityDashboard,
+  'reports-validate': validateSalesReports,
   validate: validateSalesExecution,
 };
 

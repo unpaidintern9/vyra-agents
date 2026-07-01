@@ -9,6 +9,7 @@ import { generateSalesProposalDraft, inferProposalTemplate, salesProposalTemplat
 import { emptyProspectIntakeDraft, labelBusinessType, missingInfoForIntake } from './salesProspectDossiers';
 import { salesPriorityTone } from './salesScoring';
 import { filterProspectsForSearch, salesRecommendedSearches } from './salesExecution';
+import { salesOpportunityKanbanGroups, salesOpportunityStages } from './salesOpportunityEngine';
 import type {
   FollowUpQueueItem,
   LeadScore,
@@ -23,6 +24,8 @@ import type {
   SalesProspectIntakeDraft,
   SalesProspectResearchRecord,
   SalesRecommendedSearchFilters,
+  SalesOpportunity,
+  SalesOpportunityStage,
   SalesProposalDraft,
   SalesProposalTemplateType,
   SalesResearchDossier,
@@ -41,6 +44,7 @@ export default function SalesPage({
   leads,
   onAction,
   onCreateSalesExecutionTasks,
+  onMoveOpportunityStage,
   onExport,
   onExportCrossAgent,
   onExportResearchDossier,
@@ -55,6 +59,8 @@ export default function SalesPage({
   proposalDrafts,
   proposalSummary,
   proposals,
+  opportunities,
+  opportunitySummary,
   prospectDossierSummary,
   prospectDossiers,
   prospectIntakes,
@@ -79,6 +85,8 @@ export default function SalesPage({
   const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(salesIntelligenceGraph.organizationProfiles[0]?.id ?? null);
   const [intakeDraft, setIntakeDraft] = useState<SalesProspectIntakeDraft>(emptyProspectIntakeDraft);
   const [selectedProposalLeadId, setSelectedProposalLeadId] = useState<string>(leads[0]?.id ?? '');
+  const [selectedOpportunityId, setSelectedOpportunityId] = useState<string>(opportunities[0]?.id ?? '');
+  const [opportunitySort, setOpportunitySort] = useState('score');
   const [selectedProposalType, setSelectedProposalType] = useState<SalesProposalTemplateType>(
     leads[0] ? inferProposalTemplate(leads[0], proposals.find((proposal) => proposal.leadId === leads[0].id)) : 'gym_os',
   );
@@ -118,6 +126,17 @@ export default function SalesPage({
   });
   const searchedProspects = filterProspectsForSearch(prospectResearch, currentProspectSearchFilters);
   const selectedProposalLead = leads.find((lead) => lead.id === selectedProposalLeadId) ?? leads[0] ?? null;
+  const selectedOpportunity = opportunities.find((item) => item.id === selectedOpportunityId) ?? opportunities[0] ?? null;
+  const sortedOpportunities = [...opportunities].sort((a, b) => {
+    if (opportunitySort === 'company') return a.company.localeCompare(b.company);
+    if (opportunitySort === 'city') return a.city.localeCompare(b.city);
+    if (opportunitySort === 'state') return a.state.localeCompare(b.state);
+    if (opportunitySort === 'stage') return a.stage.localeCompare(b.stage);
+    if (opportunitySort === 'priority') return a.priority.localeCompare(b.priority);
+    if (opportunitySort === 'updated') return b.updatedAt.localeCompare(a.updatedAt);
+    if (opportunitySort === 'owner') return a.assignedOwner.localeCompare(b.assignedOwner);
+    return b.score.overallScore - a.score.overallScore;
+  });
   const selectedDossier = prospectDossiers.find((dossier) => dossier.dossierId === selectedDossierId) ?? prospectDossiers[0] ?? null;
   const selectedDossierIntake = selectedDossier ? prospectIntakes.find((intake) => intake.id === selectedDossier.intakeId) ?? null : null;
   const selectedOrganization =
@@ -243,6 +262,99 @@ export default function SalesPage({
             Next recommended sales action: verify owner/contact/software fields for the highest-fit Louisville-area prospect before any manual outreach.
           </p>
         </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <Workflow size={18} />
+              <h2>Local CRM Pipeline Overview</h2>
+            </div>
+            <StatusBadge value="Local only" tone="good" />
+          </div>
+          <p className="panel-description">
+            Complete local opportunity system for prospect discovery through proposal prep. It does not read from or sync to vyraapp.fit Sales CRM.
+          </p>
+          <div className="batch-grid">
+            <Fact label="Total Opportunities" value={String(opportunitySummary.totalOpportunities)} />
+            <Fact label="Active" value={String(opportunitySummary.activeOpportunities)} />
+            <Fact label="Won" value={String(opportunitySummary.won)} />
+            <Fact label="Lost" value={String(opportunitySummary.lost)} />
+            <Fact label="High Priority" value={String(opportunitySummary.highPriority)} />
+            <Fact label="Awaiting Follow-Up" value={String(opportunitySummary.awaitingFollowUp)} />
+            <Fact label="Proposal Ready" value={String(opportunitySummary.proposalReady)} />
+            <Fact label="Proposal Sent" value={String(opportunitySummary.proposalSent)} />
+            <Fact label="Average ICP" value={String(opportunitySummary.averageIcp)} />
+            <Fact label="Average Lead Score" value={String(opportunitySummary.averageLeadScore)} />
+          </div>
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <ListChecks size={18} />
+              <h2>Opportunity Kanban</h2>
+            </div>
+            <span>Validated local transitions</span>
+          </div>
+          <div className="opportunity-kanban">
+            {salesOpportunityKanbanGroups.map((group) => (
+              <article className="opportunity-column" key={group.label}>
+                <strong>{group.label}</strong>
+                {opportunities.filter((opportunity) => group.stages.includes(opportunity.stage)).map((opportunity) => (
+                  <button className="opportunity-card" key={opportunity.id} onClick={() => setSelectedOpportunityId(opportunity.id)} type="button">
+                    <span>{opportunity.company}</span>
+                    <small>{opportunity.city}, {opportunity.state} · {opportunity.score.overallScore}/100 · {opportunity.priority}</small>
+                  </button>
+                ))}
+              </article>
+            ))}
+          </div>
+          {selectedOpportunity ? (
+            <div className="button-row sales-action-row">
+              <SalesSelect label="Move Selected Opportunity" value={selectedOpportunity.stage} onChange={(value) => onMoveOpportunityStage(selectedOpportunity.id, value as SalesOpportunityStage, 'Dashboard local Kanban transition')}>
+                {salesOpportunityStages.map((stage) => (
+                  <option key={stage} value={stage}>
+                    {stage.replace(/_/g, ' ')}
+                  </option>
+                ))}
+              </SalesSelect>
+            </div>
+          ) : null}
+        </section>
+
+        <section className="panel wide-panel">
+          <div className="panel-header">
+            <div>
+              <FileText size={18} />
+              <h2>Opportunity Table</h2>
+            </div>
+            <span>{sortedOpportunities.length} local record(s)</span>
+          </div>
+          <SalesSelect label="Sort By" value={opportunitySort} onChange={setOpportunitySort}>
+            {['score', 'company', 'city', 'state', 'stage', 'priority', 'updated', 'owner'].map((field) => (
+              <option key={field} value={field}>
+                {field}
+              </option>
+            ))}
+          </SalesSelect>
+          <DataTable
+            columns={['Company', 'City', 'State', 'Stage', 'Priority', 'Score', 'Owner', 'Updated']}
+            rows={sortedOpportunities.map((opportunity) => [
+              <button className="clear-button small" key={opportunity.id} onClick={() => setSelectedOpportunityId(opportunity.id)} type="button">
+                {opportunity.company}
+              </button>,
+              opportunity.city,
+              opportunity.state,
+              opportunity.stage.replace(/_/g, ' '),
+              opportunity.priority,
+              String(opportunity.score.overallScore),
+              opportunity.assignedOwner,
+              formatDate(opportunity.updatedAt),
+            ])}
+          />
+        </section>
+
+        {selectedOpportunity ? <OpportunityDetail opportunity={selectedOpportunity} /> : null}
 
         <section className="panel wide-panel">
           <div className="panel-header">
@@ -938,6 +1050,48 @@ function SalesMetric({ icon, label, tone, value }: { icon: ReactNode; label: str
       <span>{label}</span>
       <strong>{value}</strong>
     </article>
+  );
+}
+
+function OpportunityDetail({ opportunity }: { opportunity: SalesOpportunity }) {
+  return (
+    <section className="panel wide-panel">
+      <div className="panel-header">
+        <div>
+          <Target size={18} />
+          <h2>Opportunity Detail</h2>
+        </div>
+        <StatusBadge value={opportunity.stage.replace(/_/g, ' ')} tone={opportunity.priority === 'High' || opportunity.priority === 'Critical' ? 'warn' : 'neutral'} />
+      </div>
+      <div className="batch-grid">
+        <Fact label="Company" value={opportunity.company} />
+        <Fact label="Industry" value={opportunity.industry} />
+        <Fact label="Location" value={opportunity.location} />
+        <Fact label="NAICS" value={opportunity.naics} />
+        <Fact label="Website" value={opportunity.website} />
+        <Fact label="Company Size" value={opportunity.companySizeEstimate} />
+        <Fact label="ICP / Lead Score" value={`${opportunity.icpScore}/${opportunity.leadScore}`} />
+        <Fact label="Executive Visibility" value={opportunity.executiveVisibility ? 'Visible' : 'Standard'} />
+      </div>
+      <DataTable
+        columns={['Contact', 'Role', 'Email', 'Phone']}
+        rows={opportunity.contacts.map((contact) => [contact.name, contact.role, contact.email || 'Missing', contact.phone || 'Missing'])}
+      />
+      <div className="batch-grid">
+        <Fact label="Proposal Readiness" value={`${opportunity.proposalPreparationStatus.readinessPercent}%`} />
+        <Fact label="Proposal Status" value={opportunity.proposalPreparationStatus.status.replace(/_/g, ' ')} />
+        <Fact label="Missing Proposal Info" value={opportunity.proposalPreparationStatus.missing.join(', ') || 'None'} />
+        <Fact label="Close Probability" value={`${opportunity.followUpPlan.estimatedCloseProbability}%`} />
+        <Fact label="Recommended Next Action" value={opportunity.followUpPlan.recommendedNextAction} />
+        <Fact label="Recommended Timeframe" value={opportunity.followUpPlan.recommendedTimeframe} />
+      </div>
+      <DataTable columns={['Timeline', 'Reason', 'Operator']} rows={opportunity.activityTimeline.map((event) => [formatDate(event.timestamp), `${event.title}: ${event.reason}`, event.operator])} />
+      <DataTable columns={['Notes']} rows={opportunity.notes.map((note) => [note])} />
+      <DataTable columns={['Generated Reports']} rows={opportunity.generatedReports.map((report) => [report])} />
+      <DataTable columns={['Draft Outreach']} rows={opportunity.draftOutreach.map((draft) => [draft])} />
+      <DataTable columns={['Follow-Up Talking Point']} rows={opportunity.followUpPlan.talkingPoints.map((point) => [point])} />
+      <p className="subtle-note">Executive summary: {opportunity.company} is a {opportunity.score.opportunityRating}-rated local CRM opportunity with {opportunity.score.confidence}% confidence. No external CRM, email, or proposal send occurred.</p>
+    </section>
   );
 }
 

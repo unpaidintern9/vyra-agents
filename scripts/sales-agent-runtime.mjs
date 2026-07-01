@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createCommunicationDraft, validateCommunicationDraftLayer } from './comms-draft-runtime.mjs';
@@ -7,6 +7,8 @@ import { createSharedTask, validateSharedTaskLayer } from './shared-task-runtime
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const reportRoot = path.join(repoRoot, 'reports/agents/sales');
+const crmRoot = path.join(repoRoot, 'codex-agent-threads/shared/sales-opportunities');
+const crmPath = path.join(crmRoot, 'opportunities.json');
 
 const blockedActions = [
   'external customer email auto-send',
@@ -64,6 +66,101 @@ export function getSalesStatus() {
   };
 }
 
+export function listSalesOpportunities() {
+  const opportunities = readOpportunities();
+  return { title: 'Sales Local CRM Opportunities', generatedAt: new Date().toISOString(), opportunities, summary: summarizeOpportunities(opportunities), safety: safetySummary() };
+}
+
+export function createSalesOpportunity(options = {}) {
+  const opportunities = readOpportunities();
+  const company = options.company ?? process.env.SALES_OPPORTUNITY_COMPANY ?? `Local Opportunity ${opportunities.length + 1}`;
+  const opportunity = opportunityFromProspect({
+    name: company,
+    city: options.city ?? process.env.SALES_OPPORTUNITY_CITY ?? 'Louisville',
+    state: options.state ?? process.env.SALES_OPPORTUNITY_STATE ?? 'KY',
+    category: options.industry ?? process.env.SALES_OPPORTUNITY_INDUSTRY ?? 'small_gym',
+    website: options.website ?? process.env.SALES_OPPORTUNITY_WEBSITE ?? '',
+    score: Number(options.score ?? process.env.SALES_OPPORTUNITY_SCORE ?? 72),
+    nextResearch: 'Verify contact, requirements, pricing fit, and decision maker.',
+    outreachAngle: 'Lead with local member operations, retention, and onboarding workflow cleanup.',
+  });
+  const next = [opportunity, ...opportunities.filter((item) => item.id !== opportunity.id)];
+  writeOpportunities(next);
+  return { title: 'Sales Opportunity Created', generatedAt: new Date().toISOString(), opportunity, summary: summarizeOpportunities(next), safety: safetySummary() };
+}
+
+export function updateSalesOpportunity() {
+  const opportunities = readOpportunities();
+  const id = process.env.SALES_OPPORTUNITY_ID ?? opportunities[0]?.id;
+  const note = process.env.SALES_OPPORTUNITY_NOTE ?? 'Local update recorded by Sales Agent CLI.';
+  const next = opportunities.map((item) => (item.id === id ? addTimeline({ ...item, notes: [note, ...item.notes], updatedAt: new Date().toISOString() }, 'note_added', 'Note added', note) : item));
+  writeOpportunities(next);
+  return { title: 'Sales Opportunity Updated', generatedAt: new Date().toISOString(), opportunity: next.find((item) => item.id === id), safety: safetySummary() };
+}
+
+export function moveSalesOpportunityStage() {
+  const opportunities = readOpportunities();
+  const id = process.env.SALES_OPPORTUNITY_ID ?? opportunities[0]?.id;
+  const stage = process.env.SALES_OPPORTUNITY_STAGE ?? 'follow_up';
+  const reason = process.env.SALES_OPPORTUNITY_REASON ?? 'CLI local stage transition.';
+  const next = opportunities.map((item) => (item.id === id ? moveStage(item, stage, reason) : item));
+  writeOpportunities(next);
+  return { title: 'Sales Opportunity Stage Moved', generatedAt: new Date().toISOString(), opportunity: next.find((item) => item.id === id), safety: safetySummary() };
+}
+
+export function getSalesOpportunityTimeline() {
+  const opportunities = readOpportunities();
+  const id = process.env.SALES_OPPORTUNITY_ID ?? opportunities[0]?.id;
+  const opportunity = opportunities.find((item) => item.id === id);
+  return { title: 'Sales Opportunity Timeline', generatedAt: new Date().toISOString(), opportunity: opportunity?.company, timeline: opportunity?.activityTimeline ?? [], safety: safetySummary() };
+}
+
+export function scoreSalesOpportunities() {
+  const opportunities = readOpportunities();
+  return { title: 'Sales Opportunity Scores', generatedAt: new Date().toISOString(), scores: opportunities.map((item) => ({ id: item.id, company: item.company, ...item.score })), safety: safetySummary() };
+}
+
+export function buildSalesFollowupPlans() {
+  const opportunities = readOpportunities();
+  return writeSalesReport('local-crm-followup-plans', { title: 'Local CRM Follow-up Plans', generatedAt: new Date().toISOString(), rows: opportunities.map((item) => ({ company: item.company, ...item.followUpPlan })), safety: safetySummary() });
+}
+
+export function getProposalStatus() {
+  const opportunities = readOpportunities();
+  return { title: 'Sales Proposal Status', generatedAt: new Date().toISOString(), proposalQueue: opportunities.map((item) => ({ company: item.company, stage: item.stage, ...item.proposalPreparationStatus })), safety: safetySummary() };
+}
+
+export function archiveSalesOpportunity() {
+  return setArchiveState(true);
+}
+
+export function restoreSalesOpportunity() {
+  return setArchiveState(false);
+}
+
+export function mergeSalesOpportunities() {
+  const opportunities = readOpportunities();
+  if (opportunities.length < 2) return { title: 'Sales Opportunity Merge', generatedAt: new Date().toISOString(), status: 'skipped', reason: 'Need at least two local opportunities.', safety: safetySummary() };
+  const [primary, duplicate, ...rest] = opportunities;
+  const merged = addTimeline({
+    ...primary,
+    contacts: [...primary.contacts, ...duplicate.contacts],
+    notes: [`Merged duplicate ${duplicate.company}.`, ...primary.notes, ...duplicate.notes],
+    tags: Array.from(new Set([...primary.tags, ...duplicate.tags, 'merged'])),
+    updatedAt: new Date().toISOString(),
+  }, 'manual_action', 'Opportunities merged', `Merged ${duplicate.company} into ${primary.company}.`);
+  const next = [merged, ...rest];
+  writeOpportunities(next);
+  return { title: 'Sales Opportunity Merge', generatedAt: new Date().toISOString(), merged, summary: summarizeOpportunities(next), safety: safetySummary() };
+}
+
+export function buildSalesOpportunityDashboard() {
+  const opportunities = readOpportunities();
+  const reports = buildOpportunityReports(opportunities);
+  const written = Object.entries(reports).map(([slug, payload]) => writeSalesReport(slug, payload));
+  return { title: 'Sales Local CRM Dashboard', generatedAt: new Date().toISOString(), summary: summarizeOpportunities(opportunities), written, safety: safetySummary() };
+}
+
 export function runSalesResearch() {
   const dossiers = salesProspects.map((prospect) => ({
     prospect: prospect.name,
@@ -111,6 +208,7 @@ export function runSalesReports() {
     },
   };
   const written = Object.entries(reports).map(([name, payload]) => writeSalesReport(name, payload));
+  Object.entries(buildOpportunityReports(readOpportunities())).forEach(([name, payload]) => written.push(writeSalesReport(name, payload)));
   const csv = writeCsv('prospect-research', salesProspects);
   return { title: 'Sales Reports Generated', generatedAt: new Date().toISOString(), written, csv, safety: safetySummary() };
 }
@@ -193,6 +291,8 @@ export function validateSalesExecution() {
     { name: 'Manual research mode documented', passed: true },
     { name: 'Shared task layer valid', passed: taskValidation.status === 'pass' },
     { name: 'Communication draft layer valid', passed: draftValidation.status === 'pass' },
+    { name: 'Local CRM opportunities valid', passed: validateOpportunities(readOpportunities()).length === 0 },
+    { name: 'Local CRM reports available', passed: Object.keys(buildOpportunityReports(readOpportunities())).length >= 9 },
   ];
   return {
     title: 'Sales Agent Execution Validation',
@@ -203,6 +303,13 @@ export function validateSalesExecution() {
     draftValidationStatus: draftValidation.status,
     blockedActions,
   };
+}
+
+export function validateSalesReports() {
+  const opportunities = readOpportunities();
+  const reports = buildOpportunityReports(opportunities);
+  const checks = Object.entries(reports).map(([name, payload]) => ({ name, passed: Boolean(payload.title && (payload.rows?.length || payload.summary)) }));
+  return { title: 'Sales Reports Validation', generatedAt: new Date().toISOString(), status: checks.every((check) => check.passed) ? 'pass' : 'fail', checks, safety: safetySummary() };
 }
 
 function taskFor(prospect, need, assignedAgent, status, priority = 'Medium', approvalRequired = false) {
@@ -220,6 +327,175 @@ function taskFor(prospect, need, assignedAgent, status, priority = 'Medium', app
     relatedGraphNodeIds: [`sales:${slugify(prospect.name)}`],
     notes: ['Created by Sales Agent Phase 46A. Local only; no external action occurred.'],
   };
+}
+
+function readOpportunities() {
+  ensureCrmRoot();
+  if (!existsSync(crmPath)) {
+    const seeded = salesProspects.slice(0, 8).map(opportunityFromProspect);
+    writeOpportunities(seeded);
+    return seeded;
+  }
+  return JSON.parse(readFileSync(crmPath, 'utf8'));
+}
+
+function writeOpportunities(opportunities) {
+  ensureCrmRoot();
+  writeFileSync(crmPath, `${JSON.stringify(opportunities, null, 2)}\n`);
+}
+
+function opportunityFromProspect(prospect) {
+  const score = scoreOpportunity(prospect);
+  const proposalPreparationStatus = proposalStatus(score.overallScore, prospect.score >= 86 ? 'proposal_preparation' : 'researching');
+  const stage = prospect.score >= 86 ? 'proposal_preparation' : prospect.score >= 83 ? 'contact_ready' : prospect.score >= 80 ? 'follow_up' : 'prospect';
+  const id = `opp-${slugify(prospect.name)}`;
+  const now = new Date().toISOString();
+  return {
+    id,
+    company: prospect.name,
+    contacts: [{ name: 'Owner/operator TBD', role: 'Decision maker', email: '', phone: '' }],
+    industry: identifyBusinessType(prospect),
+    location: `${prospect.city}, ${prospect.state}`,
+    city: prospect.city,
+    state: prospect.state,
+    naics: prospect.category === 'crossfit' ? '713940' : '611620',
+    website: prospect.website,
+    phone: '',
+    email: '',
+    companySizeEstimate: 'Small independent gym',
+    icpScore: prospect.score,
+    leadScore: score.leadScore,
+    priority: score.priority,
+    status: 'active',
+    stage,
+    assignedOwner: 'Sales Agent',
+    source: 'Louisville ICP local research',
+    createdAt: now,
+    updatedAt: now,
+    notes: ['Local CRM only. Verify contacts and requirements before outreach.'],
+    activityTimeline: [
+      timeline('created', 'Opportunity created', 'Seeded from local ICP research.', 'Sales Agent', now),
+      timeline('research_generated', 'Research generated', prospect.nextResearch, 'Sales Agent', now),
+    ],
+    attachments: [`reports/agents/sales/${id}.md`],
+    generatedReports: ['Company Research Dossier', 'Outreach Prep Report'],
+    draftOutreach: [prospect.outreachAngle],
+    proposalPreparationStatus,
+    executiveVisibility: prospect.score >= 84,
+    archived: false,
+    tags: [prospect.category, prospect.tier, 'local-crm'],
+    favorite: prospect.score >= 84,
+    pinned: prospect.score >= 84,
+    score,
+    followUpPlan: followupPlan(prospect, proposalPreparationStatus, stage),
+  };
+}
+
+function moveStage(opportunity, stage, reason) {
+  const now = new Date().toISOString();
+  return {
+    ...opportunity,
+    archived: stage === 'archived',
+    status: stage === 'won' ? 'won' : stage === 'lost' ? 'lost' : stage === 'archived' ? 'archived' : 'active',
+    stage,
+    updatedAt: now,
+    activityTimeline: [timeline('stage_changed', 'Stage changed', reason, 'Sales Agent CLI', now, opportunity.stage, stage), ...opportunity.activityTimeline],
+  };
+}
+
+function addTimeline(opportunity, type, title, reason) {
+  const now = new Date().toISOString();
+  return { ...opportunity, updatedAt: now, activityTimeline: [timeline(type, title, reason, 'Sales Agent CLI', now), ...opportunity.activityTimeline] };
+}
+
+function timeline(type, title, reason, operator, timestamp, previousStage, newStage) {
+  return { id: `${type}-${compactStamp(timestamp)}-${Math.random().toString(36).slice(2, 8)}`, type, title, reason, operator, timestamp, previousStage, newStage };
+}
+
+function scoreOpportunity(prospect) {
+  const overallScore = Math.max(0, Math.min(100, Math.round((prospect.score + 12 + 10 + (prospect.score >= 85 ? 12 : 8) + 8 + 7) / 1.5)));
+  return {
+    confidence: Math.max(0, prospect.score - 5),
+    leadScore: Math.max(0, overallScore - 3),
+    opportunityRating: overallScore >= 88 ? 'A' : overallScore >= 78 ? 'B' : overallScore >= 65 ? 'C' : 'D',
+    overallScore,
+    priority: overallScore >= 88 ? 'High' : overallScore >= 78 ? 'Medium' : 'Low',
+    reasoning: ['Matches Vyra first target segments.', 'Louisville-area local motion.', 'Decision-maker and budget are estimates until manually verified.'],
+  };
+}
+
+function proposalStatus(score, stage) {
+  const missing = ['contacts', 'requirements', 'discovery notes', 'executive approval'];
+  if (score < 90) missing.unshift('pricing');
+  if (stage === 'prospect') missing.push('research');
+  const readinessPercent = Math.max(0, Math.min(100, 100 - missing.length * 14));
+  return { missing, readinessPercent, status: stage === 'proposal_sent' ? 'sent' : readinessPercent >= 80 ? 'ready' : readinessPercent >= 55 ? 'needs_review' : 'not_ready' };
+}
+
+function followupPlan(prospect, proposalPreparationStatus, stage) {
+  return {
+    recommendedNextAction: prospect.nextResearch,
+    recommendedTimeframe: stage === 'follow_up' ? 'Today' : 'Within 2 business days',
+    talkingPoints: painPoints(prospect),
+    unansweredQuestions: ['Who owns software decisions?', 'What system do they use now?', 'How many active members do they serve?'],
+    missingInformation: proposalPreparationStatus.missing,
+    proposalReadiness: proposalPreparationStatus.readinessPercent,
+    estimatedCloseProbability: stage === 'proposal_preparation' ? 48 : stage === 'contact_ready' ? 34 : 22,
+  };
+}
+
+function summarizeOpportunities(opportunities) {
+  const active = opportunities.filter((item) => item.status === 'active' && !item.archived);
+  return {
+    totalOpportunities: opportunities.length,
+    activeOpportunities: active.length,
+    won: opportunities.filter((item) => item.status === 'won').length,
+    lost: opportunities.filter((item) => item.status === 'lost').length,
+    highPriority: opportunities.filter((item) => item.priority === 'High' || item.priority === 'Critical').length,
+    awaitingFollowUp: opportunities.filter((item) => ['waiting', 'follow_up'].includes(item.stage)).length,
+    proposalReady: opportunities.filter((item) => item.proposalPreparationStatus.readinessPercent >= 70).length,
+    proposalSent: opportunities.filter((item) => item.stage === 'proposal_sent').length,
+    averageIcp: average(opportunities.map((item) => item.icpScore)),
+    averageLeadScore: average(opportunities.map((item) => item.leadScore)),
+  };
+}
+
+function buildOpportunityReports(opportunities) {
+  return {
+    'opportunity-pipeline-report': opportunityReport('Pipeline Report', opportunities),
+    'opportunity-health-report': opportunityReport('Opportunity Health Report', opportunities),
+    'opportunity-forecast-report': opportunityReport('Forecast Report', opportunities.map((item) => ({ ...item, closeProbability: item.followUpPlan.estimatedCloseProbability }))),
+    'executive-sales-summary': opportunityReport('Executive Sales Summary', opportunities.filter((item) => item.executiveVisibility)),
+    'opportunity-follow-up-report': opportunityReport('Follow-up Report', opportunities.filter((item) => ['waiting', 'follow_up'].includes(item.stage))),
+    'opportunity-proposal-queue': opportunityReport('Proposal Queue', opportunities.filter((item) => item.proposalPreparationStatus.readinessPercent >= 70)),
+    'opportunity-stage-aging-report': opportunityReport('Stage Aging Report', opportunities),
+    'lost-opportunity-analysis': opportunityReport('Lost Opportunity Analysis', opportunities.filter((item) => item.status === 'lost')),
+    'win-summary': opportunityReport('Win Summary', opportunities.filter((item) => item.status === 'won')),
+  };
+}
+
+function opportunityReport(title, opportunities) {
+  return { title, generatedAt: new Date().toISOString(), summary: summarizeOpportunities(readOpportunities()), rows: opportunities.map((item) => ({ company: item.company, stage: item.stage, priority: item.priority, score: item.score?.overallScore, proposalReadiness: item.proposalPreparationStatus?.readinessPercent, nextAction: item.followUpPlan?.recommendedNextAction })), safety: safetySummary() };
+}
+
+function validateOpportunities(opportunities) {
+  return opportunities.flatMap((item) => {
+    const errors = [];
+    ['id', 'company', 'stage', 'status', 'createdAt', 'updatedAt'].forEach((field) => {
+      if (!item[field]) errors.push(`${item.company ?? item.id}: missing ${field}`);
+    });
+    if (!Array.isArray(item.activityTimeline) || !item.activityTimeline.length) errors.push(`${item.company}: missing timeline`);
+    return errors;
+  });
+}
+
+function setArchiveState(archived) {
+  const opportunities = readOpportunities();
+  const id = process.env.SALES_OPPORTUNITY_ID ?? opportunities[0]?.id;
+  const stage = archived ? 'archived' : 'prospect';
+  const next = opportunities.map((item) => (item.id === id ? moveStage(item, stage, archived ? 'Archived locally.' : 'Restored locally.') : item));
+  writeOpportunities(next);
+  return { title: archived ? 'Sales Opportunity Archived' : 'Sales Opportunity Restored', generatedAt: new Date().toISOString(), opportunity: next.find((item) => item.id === id), safety: safetySummary() };
 }
 
 function writeSalesReport(slug, payload) {
@@ -279,12 +555,25 @@ function ensureReportRoot() {
   mkdirSync(reportRoot, { recursive: true });
 }
 
+function ensureCrmRoot() {
+  mkdirSync(crmRoot, { recursive: true });
+}
+
 function slugify(value) {
   return String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
 function csvCell(value) {
   return `"${String(value ?? '').replace(/"/g, '""')}"`;
+}
+
+function average(values) {
+  if (!values.length) return 0;
+  return Math.round(values.reduce((sum, value) => sum + Number(value || 0), 0) / values.length);
+}
+
+function compactStamp(timestamp) {
+  return timestamp.replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
 }
 
 function toMarkdown(payload) {

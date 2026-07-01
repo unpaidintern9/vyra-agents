@@ -13,6 +13,7 @@ import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 import type {
   SalesIntegrationSummary,
   SalesIntelligenceSummary,
+  SalesOpportunityPipelineSummary,
   SalesScoringSummary,
   SalesSummary,
 } from '../agents/sales/salesTypes';
@@ -106,6 +107,7 @@ export function buildDashboardExecutiveOperationsSummary(input: {
   runtime: AgentRuntimeSnapshot;
   salesIntegration?: SalesIntegrationSummary;
   salesIntelligenceSummary?: SalesIntelligenceSummary;
+  salesOpportunitySummary?: SalesOpportunityPipelineSummary;
   salesScoringSummary?: SalesScoringSummary;
   salesSummary?: SalesSummary;
   sharedTasks: SharedTaskDashboardSummary;
@@ -167,6 +169,8 @@ function buildBriefing(
       `${input.salesScoringSummary?.hotLeadCount ?? input.salesSummary?.hotLeads ?? 0} hot scored lead(s)`,
       `${input.salesScoringSummary?.overdueFollowUpCount ?? 0} overdue follow-up(s)`,
       `${input.salesSummary?.proposalNeeded ?? 0} proposal-needed lead(s)`,
+      `${input.salesOpportunitySummary?.activeOpportunities ?? 0} local CRM active opportunity(s)`,
+      `${input.salesOpportunitySummary?.proposalReady ?? 0} local CRM proposal-ready opportunity(s)`,
       `${input.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0} organization(s) need Executive sales review.`,
     ],
     date: generatedAt.slice(0, 10),
@@ -206,6 +210,7 @@ function buildBriefing(
       input.releaseReadiness.recommendedExecutiveAction,
       input.releaseShipPlans.recommendedExecutiveDecision,
       `${kpis.criticalEngineeringTasks} critical Engineering task candidate(s) need triage.`,
+      input.salesOpportunitySummary?.highPriority ? `Review ${input.salesOpportunitySummary.highPriority} high-priority local CRM opportunity(s).` : null,
       input.salesIntegration?.crmReadinessStatus !== 'ready' ? 'Keep Sales external actions disabled until CRM/email/Stripe gates exist.' : null,
     ]).slice(0, 10),
   };
@@ -246,7 +251,7 @@ function buildScores(input: Parameters<typeof buildDashboardExecutiveOperationsS
 }
 
 function salesHealth(input: Parameters<typeof buildDashboardExecutiveOperationsSummary>[0]) {
-  return clamp(85 - (input.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0) * 3 - (input.salesScoringSummary?.atRiskLeadCount ?? 0) * 8 + Math.min(10, input.salesScoringSummary?.hotLeadCount ?? 0));
+  return clamp(85 - (input.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0) * 3 - (input.salesScoringSummary?.atRiskLeadCount ?? 0) * 8 + Math.min(10, input.salesScoringSummary?.hotLeadCount ?? 0) + Math.min(8, input.salesOpportunitySummary?.proposalReady ?? 0));
 }
 
 function healthLabel(score: number) {

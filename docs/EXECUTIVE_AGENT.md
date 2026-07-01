@@ -41,6 +41,8 @@ It uses:
 
 The Executive Agent does not duplicate Engineering or Migration logic. Those agents remain the source for their own workflows and pages.
 
+Phase 47 adds read-only Local CRM visibility. Executive summaries include Sales pipeline health, local CRM opportunity health, high-priority opportunities, stalled/follow-up opportunities, executive approvals, and proposal queue signals without writing to `vyraapp.fit` or any external CRM.
+
 ## Navigation
 
 Department health rows and priority actions deep-link into existing dashboard pages:

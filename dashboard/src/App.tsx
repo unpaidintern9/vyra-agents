@@ -7,6 +7,7 @@ import {
   Database,
   Download,
   FileClock,
+  FileText,
   GitBranch,
   ListChecks,
   Network,
@@ -41,6 +42,12 @@ import {
   filterProspectsForSearch,
 } from './agents/sales/salesExecution';
 import {
+  buildSalesOpportunityReports,
+  createInitialSalesOpportunities,
+  moveSalesOpportunityStage,
+  summarizeSalesOpportunities,
+} from './agents/sales/salesOpportunityEngine';
+import {
   buildOrganizationIntelligenceReport,
   buildOrganizationTimelineReport,
   buildSalesIntelligenceGraph,
@@ -59,7 +66,6 @@ import {
   buildFollowUpReport,
   buildLeadScoringReport,
   buildProposalReport,
-  buildSalesPipelineReport,
   buildWeightedPipelineReport,
   downloadSalesPipelineCsv,
 } from './agents/sales/salesReports';
@@ -77,6 +83,8 @@ import type {
   SalesProspectResearchRecord,
   SalesReportKind,
   SalesExecutionStatus,
+  SalesOpportunity,
+  SalesOpportunityStage,
   SalesResearchDossier,
 } from './agents/sales/salesTypes';
 import { summarizeSalesPipeline } from './agents/sales/salesPipeline';
@@ -222,6 +230,9 @@ function App() {
   const [auditLogs, setAuditLogs] = useState(() => loadLocalState(localStorageKeys.auditLogs, createInitialAuditLogs));
   const [approvalItems, setApprovalItems] = useState(() => loadLocalState(localStorageKeys.approvals, createInitialApprovals));
   const [salesLeads, setSalesLeads] = useState(() => loadLocalState<SalesLead[]>(localStorageKeys.salesLeads, createInitialSalesLeads));
+  const [salesOpportunities, setSalesOpportunities] = useState(() =>
+    loadLocalState<SalesOpportunity[]>(localStorageKeys.salesOpportunities, createInitialSalesOpportunities),
+  );
   const [salesActivities, setSalesActivities] = useState(() =>
     loadLocalState<SalesActivity[]>(localStorageKeys.salesActivities, createInitialSalesActivities),
   );
@@ -302,6 +313,7 @@ function App() {
   );
   const workflowRegistry = useMemo(() => getWorkflowRegistry(), []);
   const salesSummary = useMemo(() => summarizeSalesPipeline(salesLeads, salesProposals), [salesLeads, salesProposals]);
+  const salesOpportunitySummary = useMemo(() => summarizeSalesOpportunities(salesOpportunities), [salesOpportunities]);
   const salesScores = useMemo(() => scoreSalesLeads(salesLeads, salesProposals, salesActivities), [salesActivities, salesLeads, salesProposals]);
   const salesFollowUpQueue = useMemo(
     () => buildSalesFollowUpQueue(salesLeads, salesProposals, salesActivities, salesScores),
@@ -399,6 +411,7 @@ function App() {
   useEffect(() => saveLocalState(localStorageKeys.auditLogs, auditLogs), [auditLogs]);
   useEffect(() => saveLocalState(localStorageKeys.approvals, approvalItems), [approvalItems]);
   useEffect(() => saveLocalState(localStorageKeys.salesLeads, salesLeads), [salesLeads]);
+  useEffect(() => saveLocalState(localStorageKeys.salesOpportunities, salesOpportunities), [salesOpportunities]);
   useEffect(() => saveLocalState(localStorageKeys.salesActivities, salesActivities), [salesActivities]);
   useEffect(() => saveLocalState(localStorageKeys.salesProposals, salesProposals), [salesProposals]);
   useEffect(() => saveLocalState(localStorageKeys.salesProposalDrafts, salesProposalDrafts), [salesProposalDrafts]);
@@ -1025,6 +1038,26 @@ function App() {
     });
   };
 
+  const moveOpportunityStage = (opportunityId: string, stage: SalesOpportunityStage, reason: string) => {
+    const current = salesOpportunities.find((item) => item.id === opportunityId);
+    if (!current) return;
+    const next = moveSalesOpportunityStage(current, stage, reason, 'Robert');
+    setSalesOpportunities((items) => items.map((item) => (item.id === opportunityId ? next : item)));
+    appendAgentEvent({
+      agent: 'Sales Agent',
+      event: 'opportunity-stage-changed',
+      detail: `${current.company} moved from ${current.stage.replace(/_/g, ' ')} to ${stage.replace(/_/g, ' ')}. Timeline updated locally for Executive and Operator review.`,
+    });
+    appendAudit({
+      actor: 'Robert',
+      agent: 'Sales Agent',
+      action: 'local opportunity stage changed',
+      target: current.company,
+      result: reason,
+      riskLevel: 'low',
+    });
+  };
+
   const generateSalesEmailDrafts = () => {
     const draftTargets = salesProspectResearch.filter((prospect) => prospect.fitScore >= 80).slice(0, 4);
     const status = createSalesStatus(
@@ -1193,6 +1226,7 @@ function App() {
       prospects: salesProspectResearch,
       scores: salesScores,
     });
+    const opportunityReports = buildSalesOpportunityReports(salesOpportunities);
     const localReport =
       report === 'follow_up_queue'
         ? buildFollowUpQueueReport(salesFollowUpQueue)
@@ -1201,7 +1235,7 @@ function App() {
           : report === 'weighted_pipeline'
             ? buildWeightedPipelineReport(salesLeads, salesScores)
             : report === 'pipeline'
-              ? buildSalesPipelineReport(salesLeads, salesActivities, salesProposals)
+              ? opportunityReports.pipeline
               : report === 'follow_up'
                 ? buildFollowUpReport(salesLeads)
                 : report === 'proposal'
@@ -1406,6 +1440,7 @@ function App() {
     runtime,
     salesIntegration,
     salesIntelligenceSummary,
+    salesOpportunitySummary,
     salesScoringSummary,
     salesSummary,
     sharedTasks: sharedTaskSummary,
@@ -1443,6 +1478,7 @@ function App() {
     releaseReadiness,
     releaseShipPlans,
     repositoryIntelligence,
+    salesLocalCrm: salesOpportunitySummary,
     sharedTasks: sharedTaskSummary,
   });
   const recordOperatorRun = () => setOperatorDashboard((current) => ({ ...current, lastRun: new Date().toISOString() }));
@@ -1638,12 +1674,15 @@ function App() {
             onGenerateProposalDraft={generateProposalDraft}
             onGenerateSalesEmailDrafts={generateSalesEmailDrafts}
             onImportJson={importSalesLeads}
+            onMoveOpportunityStage={moveOpportunityStage}
             onRunProspectSearch={runProspectSearch}
             onRunSalesResearch={runSalesResearch}
             onSaveProspectIntake={saveProspectIntake}
             proposalDrafts={salesProposalDrafts}
             proposalSummary={salesProposalSummary}
             proposals={salesProposals}
+            opportunities={salesOpportunities}
+            opportunitySummary={salesOpportunitySummary}
             prospectDossierSummary={salesProspectDossierSummary}
             prospectDossiers={salesResearchDossiers}
             prospectIntakes={salesProspectIntakes}
@@ -1956,6 +1995,9 @@ function OperatorPage({
         <Metric icon={<ListChecks size={20} />} label="Engineering Candidates" value={String(operator.engineeringTasks.generatedTasks)} />
         <Metric icon={<ListChecks size={20} />} label="Open Tasks" value={String(operator.sharedTasks.openTasks)} />
         <Metric icon={<ShieldCheck size={20} />} label="Task Queue Health" value={operator.sharedTasks.queueHealth} />
+        <Metric icon={<Workflow size={20} />} label="Local CRM Opps" value={String(operator.salesLocalCrm.totalOpportunities)} />
+        <Metric icon={<FileClock size={20} />} label="Pending Follow-Ups" value={String(operator.salesLocalCrm.awaitingFollowUp)} />
+        <Metric icon={<FileText size={20} />} label="Proposal Queue" value={String(operator.salesLocalCrm.proposalReady)} />
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -1995,6 +2037,20 @@ function OperatorPage({
               operatorCommandPurpose(command),
             ])}
           />
+        </Panel>
+
+        <Panel title="Sales Local CRM Queue" icon={<Workflow size={18} />} wide>
+          <p className="panel-description">
+            Read-only Operator view of the local Sales CRM. This queue is independent of vyraapp.fit and does not sync externally.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Total Opportunities" value={String(operator.salesLocalCrm.totalOpportunities)} />
+            <Fact label="Active Opportunities" value={String(operator.salesLocalCrm.activeOpportunities)} />
+            <Fact label="Pending Follow-Ups" value={String(operator.salesLocalCrm.awaitingFollowUp)} />
+            <Fact label="Proposal Tasks" value={String(operator.salesLocalCrm.proposalReady)} />
+            <Fact label="Proposal Sent" value={String(operator.salesLocalCrm.proposalSent)} />
+            <Fact label="Average Lead Score" value={String(operator.salesLocalCrm.averageLeadScore)} />
+          </div>
         </Panel>
 
         <Panel title="Executive Operations Center" icon={<Workflow size={18} />} wide>

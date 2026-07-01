@@ -12,6 +12,7 @@ export const localStorageKeys = {
   operatorDashboard: 'vyra-agents:operator-dashboard',
   salesActivities: 'vyra-agents:sales-activities',
   salesLeads: 'vyra-agents:sales-leads',
+  salesOpportunities: 'vyra-agents:sales-opportunities',
   salesProspectDossiers: 'vyra-agents:sales-prospect-dossiers',
   salesProspectIntakes: 'vyra-agents:sales-prospect-intakes',
   salesProspectResearch: 'vyra-agents:sales-prospect-research',

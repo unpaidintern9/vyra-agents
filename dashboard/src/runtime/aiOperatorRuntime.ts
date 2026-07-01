@@ -1,4 +1,5 @@
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
+import type { SalesOpportunityPipelineSummary } from '../agents/sales/salesTypes';
 import { buildDashboardConnectorReadiness, type ConnectorReadinessSummary } from './connectorReadiness';
 import { defaultEngineeringTaskSummary, type EngineeringTaskGeneratorSummary } from './engineeringTaskGenerator';
 import { buildDashboardExecutiveAutomationSummary, type ExecutiveAutomationSummary } from './executiveAutomation';
@@ -48,6 +49,7 @@ export interface AiOperatorDashboardSnapshot {
   releaseReadiness: ReleaseReadinessDashboardSummary;
   releaseShipPlans: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence: RepositoryIntelligenceDashboardSummary;
+  salesLocalCrm: SalesOpportunityPipelineSummary;
   safetyMode: string;
   sharedTasks: SharedTaskDashboardSummary;
   threadBridge: AiThreadBridgeSnapshot;
@@ -158,6 +160,20 @@ export const aiOperatorCommands = [
   'npm run email:audit',
   'npm run email:validate',
   'npm run email:safety-check',
+  'npm run sales:opportunities',
+  'npm run sales:create-opportunity',
+  'npm run sales:update-opportunity',
+  'npm run sales:move-stage',
+  'npm run sales:timeline',
+  'npm run sales:score',
+  'npm run sales:followup',
+  'npm run sales:proposal-status',
+  'npm run sales:archive',
+  'npm run sales:restore',
+  'npm run sales:merge',
+  'npm run sales:dashboard',
+  'npm run reports:validate',
+  'npm run sales:validate',
   'npm run tasks:status',
   'npm run tasks:list',
   'npm run tasks:create',
@@ -297,6 +313,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
   releaseReadiness?: ReleaseReadinessDashboardSummary;
   releaseShipPlans?: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
+  salesLocalCrm?: SalesOpportunityPipelineSummary;
   sharedTasks?: SharedTaskDashboardSummary;
 }): AiOperatorDashboardSnapshot {
   const metadata = buildAiOperatorMetadata(input.integrationMode);
@@ -311,6 +328,18 @@ export function buildAiOperatorDashboardSnapshot(input: {
   const projectRegistry = input.projectRegistry ?? buildDashboardProjectRegistrySummary();
   const repositoryIntelligence = input.repositoryIntelligence ?? defaultRepositoryIntelligenceSummary();
   const sharedTasks = input.sharedTasks ?? buildDashboardSharedTaskSummary();
+  const salesLocalCrm = input.salesLocalCrm ?? {
+    activeOpportunities: 0,
+    averageIcp: 0,
+    averageLeadScore: 0,
+    awaitingFollowUp: 0,
+    highPriority: 0,
+    lost: 0,
+    proposalReady: 0,
+    proposalSent: 0,
+    totalOpportunities: 0,
+    won: 0,
+  };
   const releaseReadiness =
     input.releaseReadiness ??
     buildDashboardReleaseReadinessSummary({
@@ -339,6 +368,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
       releaseShipPlans,
       repositoryIntelligence,
       runtime: input.runtime,
+      salesOpportunitySummary: salesLocalCrm,
       sharedTasks,
     });
   const executiveOperations =
@@ -421,6 +451,7 @@ export function buildAiOperatorDashboardSnapshot(input: {
     releaseReadiness,
     releaseShipPlans,
     repositoryIntelligence,
+    salesLocalCrm,
     safetyMode,
     sharedTasks,
     threadBridge: {

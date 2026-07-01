@@ -319,6 +319,39 @@ h1 {
   gap: 18px;
 }
 
+.opportunity-kanban {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.opportunity-column {
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  min-height: 160px;
+  padding: 12px;
+}
+
+.opportunity-card {
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  color: inherit;
+  display: grid;
+  gap: 4px;
+  min-height: 72px;
+  padding: 10px;
+  text-align: left;
+}
+
+.opportunity-card small {
+  color: var(--muted-text);
+  line-height: 1.35;
+}
+
 .panel {
   grid-column: span 4;
   min-height: 240px;

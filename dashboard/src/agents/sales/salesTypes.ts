@@ -65,6 +65,35 @@ export type SalesReportKind =
   | 'follow_up_queue'
   | 'weighted_pipeline';
 export type SalesExecutionStatusType = 'idle' | 'loading' | 'success' | 'error';
+export type SalesOpportunityStage =
+  | 'prospect'
+  | 'researching'
+  | 'qualified'
+  | 'contact_ready'
+  | 'outreach_sent'
+  | 'waiting'
+  | 'follow_up'
+  | 'discovery_scheduled'
+  | 'proposal_preparation'
+  | 'proposal_sent'
+  | 'negotiation'
+  | 'won'
+  | 'lost'
+  | 'archived';
+export type SalesOpportunityPriority = 'Critical' | 'High' | 'Medium' | 'Low';
+export type SalesOpportunityRating = 'A' | 'B' | 'C' | 'D';
+export type SalesOpportunityTimelineType =
+  | 'created'
+  | 'research_generated'
+  | 'dossier_created'
+  | 'report_generated'
+  | 'outreach_drafted'
+  | 'proposal_prepared'
+  | 'note_added'
+  | 'stage_changed'
+  | 'follow_up_scheduled'
+  | 'manual_action'
+  | 'executive_review';
 export type SalesIntelligenceNodeType =
   | 'prospect'
   | 'organization'
@@ -115,6 +144,99 @@ export interface SalesLead {
   source: string;
   status: LeadStatus;
   updatedAt: string;
+}
+
+export interface SalesOpportunityContact {
+  email: string;
+  name: string;
+  phone: string;
+  role: string;
+}
+
+export interface SalesOpportunityTimelineEvent {
+  id: string;
+  operator: string;
+  previousStage?: SalesOpportunityStage;
+  newStage?: SalesOpportunityStage;
+  reason: string;
+  timestamp: string;
+  title: string;
+  type: SalesOpportunityTimelineType;
+}
+
+export interface SalesOpportunityScore {
+  confidence: number;
+  leadScore: number;
+  opportunityRating: SalesOpportunityRating;
+  overallScore: number;
+  priority: SalesOpportunityPriority;
+  reasoning: string[];
+}
+
+export interface SalesOpportunityFollowUpPlan {
+  estimatedCloseProbability: number;
+  missingInformation: string[];
+  proposalReadiness: number;
+  recommendedNextAction: string;
+  recommendedTimeframe: string;
+  talkingPoints: string[];
+  unansweredQuestions: string[];
+}
+
+export interface SalesOpportunityProposalStatus {
+  missing: string[];
+  readinessPercent: number;
+  status: 'not_ready' | 'needs_review' | 'ready' | 'sent';
+}
+
+export interface SalesOpportunity {
+  activityTimeline: SalesOpportunityTimelineEvent[];
+  archived: boolean;
+  assignedOwner: string;
+  attachments: string[];
+  city: string;
+  company: string;
+  companySizeEstimate: string;
+  contacts: SalesOpportunityContact[];
+  createdAt: string;
+  draftOutreach: string[];
+  email: string;
+  executiveVisibility: boolean;
+  generatedReports: string[];
+  id: string;
+  icpScore: number;
+  industry: string;
+  leadScore: number;
+  location: string;
+  naics: string;
+  notes: string[];
+  phone: string;
+  pinned: boolean;
+  priority: SalesOpportunityPriority;
+  proposalPreparationStatus: SalesOpportunityProposalStatus;
+  score: SalesOpportunityScore;
+  source: string;
+  stage: SalesOpportunityStage;
+  state: string;
+  status: 'active' | 'won' | 'lost' | 'archived';
+  tags: string[];
+  updatedAt: string;
+  website: string;
+  favorite: boolean;
+  followUpPlan: SalesOpportunityFollowUpPlan;
+}
+
+export interface SalesOpportunityPipelineSummary {
+  activeOpportunities: number;
+  averageIcp: number;
+  averageLeadScore: number;
+  awaitingFollowUp: number;
+  highPriority: number;
+  lost: number;
+  proposalReady: number;
+  proposalSent: number;
+  totalOpportunities: number;
+  won: number;
 }
 
 export interface SalesGym {
@@ -449,6 +571,7 @@ export interface SalesPageProps {
   leads: SalesLead[];
   onAction(_leadId: string, _action: SalesAction): void;
   onCreateSalesExecutionTasks(): void;
+  onMoveOpportunityStage(_opportunityId: string, _stage: SalesOpportunityStage, _reason: string): void;
   onExport(
     _format: 'json' | 'markdown' | 'csv',
     _report: SalesReportKind,
@@ -466,6 +589,8 @@ export interface SalesPageProps {
   proposalDrafts: SalesProposalDraft[];
   proposalSummary: SalesProposalSummary;
   proposals: ProposalPrep[];
+  opportunities: SalesOpportunity[];
+  opportunitySummary: SalesOpportunityPipelineSummary;
   prospectDossierSummary: SalesProspectDossierSummary;
   prospectDossiers: SalesResearchDossier[];
   prospectIntakes: SalesProspectIntake[];
