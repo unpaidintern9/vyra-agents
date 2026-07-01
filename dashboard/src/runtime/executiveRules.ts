@@ -7,6 +7,7 @@ import type { GmailEmailDashboardSummary } from './gmailEmail';
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
 import type { ProjectRegistryDashboardSummary } from './projectRegistry';
+import type { ReleaseReadinessDashboardSummary } from './releaseReadiness';
 import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 import type { ExecutivePriority } from '../agents/executive/executiveTypes';
@@ -20,7 +21,7 @@ import type {
   SalesSummary,
 } from '../agents/sales/salesTypes';
 
-export const executiveRuleCount = 14;
+export const executiveRuleCount = 15;
 
 export function buildExecutivePriorities(
   runtime: AgentRuntimeSnapshot,
@@ -39,6 +40,7 @@ export function buildExecutivePriorities(
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   projectRegistry?: ProjectRegistryDashboardSummary,
+  releaseReadiness?: ReleaseReadinessDashboardSummary,
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutivePriority[] {
@@ -326,6 +328,18 @@ export function buildExecutivePriorities(
       priority: projectRegistry.blockedProjects > 0 ? 'high' : 'medium',
       recommendedAction: 'Open Engineering or Operator and review the Project Registry before release planning.',
       source: 'Real Repo Multi-Project Registry',
+    });
+  }
+
+  if (releaseReadiness && releaseReadiness.releaseHealth !== 'ready') {
+    priorities.push({
+      id: 'release-readiness-command-center',
+      agent: 'Executive Agent',
+      department: 'Executive',
+      detail: `${releaseReadiness.blockedProjects} blocked release(s), ${releaseReadiness.criticalReleaseRisks} critical release risk(s), and average readiness ${releaseReadiness.averageReadinessScore}/100.`,
+      priority: releaseReadiness.criticalReleaseRisks > 0 ? 'high' : 'medium',
+      recommendedAction: releaseReadiness.recommendedExecutiveAction,
+      source: 'Release Readiness Command Center',
     });
   }
 

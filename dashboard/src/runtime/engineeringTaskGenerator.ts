@@ -1,5 +1,6 @@
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { ProjectRegistryDashboardSummary } from './projectRegistry';
+import type { ReleaseReadinessDashboardSummary } from './releaseReadiness';
 import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
 
@@ -21,6 +22,7 @@ export interface EngineeringTaskCandidate {
   linkedExecutivePriority: string | null;
   linkedGitHubPlan: string | null;
   linkedRepoRisk: string | null;
+  linkedReleaseBlocker: string | null;
   linkedSalesMigrationBlocker: string | null;
   linkedSharedTask: string | null;
   localOnly: true;
@@ -41,6 +43,7 @@ export interface EngineeringTaskGeneratorSummary {
   linkedSalesMigrationBlockers: number;
   migrationBlockingEngineeringTasks: number;
   projectSpecificEngineeringTasks: number;
+  releaseBlockerEngineeringTasks: number;
   releaseReadinessTasks: number;
   safetyLabels: string[];
   salesBlockingEngineeringTasks: number;
@@ -51,6 +54,7 @@ export function buildDashboardEngineeringTaskSummary(input: {
   githubPlanning: GitHubPlanningDashboardSummary;
   repositoryIntelligence: RepositoryIntelligenceDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
+  releaseReadiness?: ReleaseReadinessDashboardSummary;
   sharedTasks: SharedTaskDashboardSummary;
 }): EngineeringTaskGeneratorSummary {
   const candidates = dedupeCandidates([
@@ -61,6 +65,7 @@ export function buildDashboardEngineeringTaskSummary(input: {
     ...executiveReviewCandidates(input.repositoryIntelligence, input.githubPlanning, input.sharedTasks),
     ...blockedOpportunityCandidates(input.sharedTasks),
     ...projectRegistryCandidates(input.projectRegistry),
+    ...releaseBlockerCandidates(input.releaseReadiness),
   ]);
 
   return {
@@ -75,6 +80,7 @@ export function buildDashboardEngineeringTaskSummary(input: {
     linkedSalesMigrationBlockers: candidates.filter((candidate) => candidate.linkedSalesMigrationBlocker).length,
     migrationBlockingEngineeringTasks: candidates.filter((candidate) => candidate.category === 'migration support').length,
     projectSpecificEngineeringTasks: candidates.filter((candidate) => candidate.id.includes('project-registry')).length,
+    releaseBlockerEngineeringTasks: candidates.filter((candidate) => candidate.linkedReleaseBlocker).length,
     releaseReadinessTasks: candidates.filter((candidate) => candidate.category === 'release readiness').length,
     safetyLabels: ['Local candidates only', 'No shared task creation', 'No GitHub issues', 'No PRs', 'No code changes', 'No production writes'],
     salesBlockingEngineeringTasks: candidates.filter((candidate) => candidate.category === 'sales blocker').length,
@@ -95,11 +101,30 @@ export function defaultEngineeringTaskSummary(): EngineeringTaskGeneratorSummary
     linkedSalesMigrationBlockers: 0,
     migrationBlockingEngineeringTasks: 0,
     projectSpecificEngineeringTasks: 0,
+    releaseBlockerEngineeringTasks: 0,
     releaseReadinessTasks: 0,
     safetyLabels: ['Local candidates only', 'No external actions'],
     salesBlockingEngineeringTasks: 0,
     totalCandidates: 0,
   };
+}
+
+function releaseBlockerCandidates(releaseReadiness?: ReleaseReadinessDashboardSummary): EngineeringTaskCandidate[] {
+  if (!releaseReadiness) return [];
+  return releaseReadiness.blockers
+    .filter((blocker) => ['critical', 'high'].includes(blocker.severity))
+    .slice(0, 10)
+    .map((blocker) =>
+      candidate({
+        id: `dashboard-engineering-task-release-blocker-${blocker.projectId}-${blocker.id}`,
+        title: `Resolve release blocker for ${blocker.projectName}`,
+        category: 'release readiness',
+        recommendedPriority: blocker.severity === 'critical' ? 'Critical' : 'High',
+        reason: `${blocker.reason} ${blocker.recommendedAction}`,
+        linkedExecutivePriority: 'release-readiness-command-center',
+        linkedReleaseBlocker: blocker.id,
+      }),
+    );
 }
 
 function projectRegistryCandidates(projectRegistry?: ProjectRegistryDashboardSummary): EngineeringTaskCandidate[] {
@@ -223,6 +248,7 @@ function candidate(
     linkedExecutivePriority: null,
     linkedGitHubPlan: null,
     linkedRepoRisk: null,
+    linkedReleaseBlocker: null,
     linkedSalesMigrationBlocker: null,
     linkedSharedTask: null,
     ...input,

@@ -7,6 +7,7 @@ import type { GmailEmailDashboardSummary } from '../../runtime/gmailEmail';
 import type { GitHubPlanningDashboardSummary } from '../../runtime/githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from '../../runtime/githubReadOnly';
 import type { ProjectRegistryDashboardSummary } from '../../runtime/projectRegistry';
+import type { ReleaseReadinessDashboardSummary } from '../../runtime/releaseReadiness';
 import type { RepositoryIntelligenceDashboardSummary } from '../../runtime/repositoryIntelligence';
 import type { AgentRuntimeSnapshot, RuntimeActivityEntry } from '../../runtime/runtimeTypes';
 import type { SharedTaskDashboardSummary } from '../../runtime/sharedTaskQueue';
@@ -47,6 +48,7 @@ export function buildExecutiveSummary(
   githubPlanning?: GitHubPlanningDashboardSummary,
   githubReadOnly?: GitHubReadOnlyDashboardSummary,
   projectRegistry?: ProjectRegistryDashboardSummary,
+  releaseReadiness?: ReleaseReadinessDashboardSummary,
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary,
   sharedTaskSummary?: SharedTaskDashboardSummary,
 ): ExecutiveSummary {
@@ -91,6 +93,7 @@ export function buildExecutiveSummary(
       githubPlanning,
       githubReadOnly,
       projectRegistry,
+      releaseReadiness,
       repositoryIntelligence,
       sharedTaskSummary,
     ),
@@ -117,6 +120,7 @@ export function buildExecutiveSummary(
     githubPlanning,
     githubReadOnly,
     projectRegistry,
+    releaseReadiness,
     repositoryIntelligence,
     sharedTaskSummary,
   };
@@ -175,6 +179,9 @@ export function buildExecutiveReport(kind: ExecutiveReportKind, context: Executi
     registeredProjects: summary.projectRegistry?.registeredProjects ?? 0,
     blockedProjects: summary.projectRegistry?.blockedProjects ?? 0,
     releaseReadinessStatus: summary.projectRegistry?.releaseReadinessStatus ?? 'Not available',
+    releaseReadyProjects: summary.releaseReadiness?.readyProjects ?? 0,
+    blockedReleases: summary.releaseReadiness?.blockedProjects ?? 0,
+    criticalReleaseRisks: summary.releaseReadiness?.criticalReleaseRisks ?? 0,
     salesAgentTeamActiveAgents: summary.salesAgentTeamSummary?.activeAgents ?? 0,
     salesAgentTeamTotalAgents: summary.salesAgentTeamSummary?.totalAgents ?? 0,
     salesProspectResearchSlots: summary.salesAgentTeamSummary?.totalProspects ?? 0,

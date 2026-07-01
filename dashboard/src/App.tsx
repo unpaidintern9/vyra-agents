@@ -93,6 +93,7 @@ import { buildDashboardGmailEmailSummary } from './runtime/gmailEmail';
 import { buildDashboardGitHubPlanningSummary } from './runtime/githubPlanning';
 import { buildDashboardGitHubReadOnlySummary } from './runtime/githubReadOnly';
 import { buildDashboardProjectRegistrySummary } from './runtime/projectRegistry';
+import { buildDashboardReleaseReadinessSummary } from './runtime/releaseReadiness';
 import { defaultRepositoryIntelligenceSummary, summarizeRepositoryIntelligence } from './runtime/repositoryIntelligence';
 import { buildDashboardSharedTaskSummary } from './runtime/sharedTaskQueue';
 import {
@@ -1232,7 +1233,14 @@ function App() {
   const projectRegistry = buildDashboardProjectRegistrySummary(latestEngineeringGraph ?? undefined);
   const repositoryIntelligence = latestEngineeringGraph ? summarizeRepositoryIntelligence(latestEngineeringGraph) : defaultRepositoryIntelligenceSummary();
   const sharedTaskSummary = buildDashboardSharedTaskSummary();
-  const engineeringTasks = buildDashboardEngineeringTaskSummary({ githubPlanning, projectRegistry, repositoryIntelligence, sharedTasks: sharedTaskSummary });
+  const releaseReadiness = buildDashboardReleaseReadinessSummary({
+    graph: latestEngineeringGraph ?? undefined,
+    githubPlanning,
+    projectRegistry,
+    repositoryIntelligence,
+    sharedTasks: sharedTaskSummary,
+  });
+  const engineeringTasks = buildDashboardEngineeringTaskSummary({ githubPlanning, projectRegistry, releaseReadiness, repositoryIntelligence, sharedTasks: sharedTaskSummary });
   const emailSummary = buildDashboardGmailEmailSummary();
   const executiveAutomation = buildDashboardExecutiveAutomationSummary({
     connectorReadiness,
@@ -1242,6 +1250,7 @@ function App() {
     githubPlanning,
     githubReadOnly,
     projectRegistry,
+    releaseReadiness,
     repositoryIntelligence,
     runtime,
     sharedTasks: sharedTaskSummary,
@@ -1270,6 +1279,7 @@ function App() {
     githubPlanning,
     githubReadOnly,
     projectRegistry,
+    releaseReadiness,
     repositoryIntelligence,
     sharedTasks: sharedTaskSummary,
   });
@@ -1564,6 +1574,7 @@ function App() {
             githubPlanning={githubPlanning}
             githubReadOnly={githubReadOnly}
             projectRegistry={projectRegistry}
+            releaseReadiness={releaseReadiness}
             repositoryIntelligence={repositoryIntelligence}
             sharedTaskSummary={sharedTaskSummary}
           />
@@ -1766,6 +1777,8 @@ function OperatorPage({
         <Metric icon={<GitBranch size={20} />} label="GitHub Plans" value={String(operator.githubPlanning.totalPlans)} />
         <Metric icon={<Network size={20} />} label="Registered Projects" value={String(operator.projectRegistry.registeredProjects)} />
         <Metric icon={<ShieldCheck size={20} />} label="Release Readiness" value={operator.projectRegistry.releaseReadinessStatus} />
+        <Metric icon={<Workflow size={20} />} label="Release Command" value={operator.releaseReadiness.releaseHealth} />
+        <Metric icon={<ShieldCheck size={20} />} label="Ready / Blocked" value={`${operator.releaseReadiness.readyProjects}/${operator.releaseReadiness.blockedProjects}`} />
         <Metric icon={<Network size={20} />} label="Repo Intelligence" value={operator.repositoryIntelligence.validationTrend} />
         <Metric icon={<ListChecks size={20} />} label="Engineering Candidates" value={String(operator.engineeringTasks.generatedTasks)} />
         <Metric icon={<ListChecks size={20} />} label="Open Tasks" value={String(operator.sharedTasks.openTasks)} />
@@ -2126,6 +2139,46 @@ function OperatorPage({
           />
         </Panel>
 
+        <Panel title="Release Readiness Command Center" icon={<Workflow size={18} />} wide>
+          <p className="panel-description">
+            Local release readiness analysis across registered projects. It computes ship-ready, blocked, and needs-review states without deploying, tagging releases, creating GitHub releases, pushing commits, modifying project files, or writing production data.
+          </p>
+          <div className="batch-grid supabase-detail-grid">
+            <Fact label="Scan Status" value={operator.releaseReadiness.scanStatus} />
+            <Fact label="Latest Report" value={formatOptionalDate(operator.releaseReadiness.latestReleaseReport)} />
+            <Fact label="Ready Projects" value={String(operator.releaseReadiness.readyProjects)} />
+            <Fact label="Blocked Projects" value={String(operator.releaseReadiness.blockedProjects)} />
+            <Fact label="Critical Risks" value={String(operator.releaseReadiness.criticalReleaseRisks)} />
+            <Fact label="Average Score" value={`${operator.releaseReadiness.averageReadinessScore}/100`} />
+            <Fact label="Release Trend" value={operator.releaseReadiness.releaseReadinessTrend} />
+            <Fact label="Safety State" value={operator.releaseReadiness.safetyState} />
+          </div>
+          <DataTable
+            columns={['Project', 'Score', 'Risk', 'Blockers', 'Recommended Action']}
+            rows={operator.releaseReadiness.projects.map((project) => [
+              project.projectName,
+              `${project.readinessScore}/100`,
+              project.riskLevel,
+              String(project.releaseBlockers.length),
+              project.recommendedAction,
+            ])}
+          />
+          <DataTable
+            columns={['Project', 'Severity', 'Blocker', 'Action']}
+            rows={operator.releaseReadiness.blockers.slice(0, 10).map((blocker) => [
+              blocker.projectName,
+              blocker.severity,
+              blocker.reason,
+              blocker.recommendedAction,
+            ])}
+            emptyMessage="No release blockers detected."
+          />
+          <DataTable
+            columns={['Command', 'Purpose']}
+            rows={operator.releaseReadiness.commands.map((command) => [command, operatorCommandPurpose(command)])}
+          />
+        </Panel>
+
         <Panel title="Engineering Task Generator" icon={<ListChecks size={18} />} wide>
           <p className="panel-description">
             Generates local engineering task candidates from Repository Intelligence, GitHub plans, Executive priorities, and blocked Sales or Migration work. Candidates are not shared tasks until a human reviews and creates them separately.
@@ -2136,6 +2189,7 @@ function OperatorPage({
             <Fact label="Sales Blocking" value={String(operator.engineeringTasks.salesBlockingEngineeringTasks)} />
             <Fact label="Migration Blocking" value={String(operator.engineeringTasks.migrationBlockingEngineeringTasks)} />
             <Fact label="Project Specific" value={String(operator.engineeringTasks.projectSpecificEngineeringTasks)} />
+            <Fact label="Release Blockers" value={String(operator.engineeringTasks.releaseBlockerEngineeringTasks)} />
             <Fact label="Release Readiness" value={String(operator.engineeringTasks.releaseReadinessTasks)} />
             <Fact label="Linked GitHub Plans" value={String(operator.engineeringTasks.linkedGitHubPlans)} />
           </div>
@@ -3540,6 +3594,12 @@ function operatorCommandPurpose(command: string): string {
   if (command.endsWith('projects:health')) return 'Summarize per-project health, missing paths, validation status, and release readiness.';
   if (command.endsWith('projects:report')) return 'Generate Project Registry, Multi-Project Health, and Release Readiness reports.';
   if (command.endsWith('projects:validate')) return 'Validate registry schema, templates, required project slots, and local-only safety gates.';
+  if (command.endsWith('release:status')) return 'Print local release command center status, ready/blocked counts, latest report, and safety state.';
+  if (command.endsWith('release:scan')) return 'Run a local release readiness scan and write ignored release reports.';
+  if (command.endsWith('release:readiness')) return 'Print per-project release readiness checklists and scores.';
+  if (command.endsWith('release:blockers')) return 'Print explainable release blockers by project and severity.';
+  if (command.endsWith('release:report')) return 'Generate Release Readiness, Release Blockers, and Executive Release Summary reports.';
+  if (command.endsWith('release:validate')) return 'Validate release readiness models, commands, reports, and local-only safety gates.';
   if (command.endsWith('engineering:tasks')) return 'List local Engineering task candidates without creating shared tasks.';
   if (command.endsWith('engineering:generate-tasks')) return 'Generate deterministic Engineering task candidate reports from local intelligence signals.';
   if (command.endsWith('engineering:task-report')) return 'Write Engineering Task Candidate and Executive Engineering Task Summary reports.';

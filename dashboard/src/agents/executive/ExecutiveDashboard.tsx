@@ -20,6 +20,7 @@ export default function ExecutiveDashboard({
   integrationWarnings = [],
   onNavigate,
   projectRegistry,
+  releaseReadiness,
   repositoryIntelligence,
   runtime,
   salesAgentTeamSummary,
@@ -49,6 +50,7 @@ export default function ExecutiveDashboard({
     githubPlanning,
     githubReadOnly,
     projectRegistry,
+    releaseReadiness,
     repositoryIntelligence,
     sharedTaskSummary,
   );
@@ -63,11 +65,52 @@ export default function ExecutiveDashboard({
         <ExecutiveRuntime runtime={summary.runtime} />
         {summary.executiveAutomation ? <ExecutiveAutomationPanel automation={summary.executiveAutomation} /> : null}
         {summary.projectRegistry ? <ExecutiveProjectRegistryPanel projectRegistry={summary.projectRegistry} /> : null}
+        {summary.releaseReadiness ? <ExecutiveReleaseReadinessPanel releaseReadiness={summary.releaseReadiness} /> : null}
         <ExecutiveHealth healthRows={healthRows} onNavigate={onNavigate} />
         <ExecutiveApprovals approvals={runtime.approvals} />
         <ExecutiveReports context={{ healthRows, runtime, summary }} />
       </section>
     </>
+  );
+}
+
+function ExecutiveReleaseReadinessPanel({ releaseReadiness }: { releaseReadiness: NonNullable<ExecutiveDashboardProps['releaseReadiness']> }) {
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Release Command Center</h2>
+        </div>
+        <span>{releaseReadiness.releaseHealth}</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact">
+          <span>Ready To Release</span>
+          <strong>{releaseReadiness.readyProjects}</strong>
+        </div>
+        <div className="fact">
+          <span>Blocked Releases</span>
+          <strong>{releaseReadiness.blockedProjects}</strong>
+        </div>
+        <div className="fact">
+          <span>Critical Risks</span>
+          <strong>{releaseReadiness.criticalReleaseRisks}</strong>
+        </div>
+        <div className="fact">
+          <span>Readiness Score</span>
+          <strong>{releaseReadiness.averageReadinessScore}/100</strong>
+        </div>
+      </div>
+      <div className="activity-list">
+        {releaseReadiness.blockers.slice(0, 5).map((blocker) => (
+          <p key={`${blocker.projectId}-${blocker.id}`}>
+            <strong>{blocker.projectName}</strong>: {blocker.reason}
+          </p>
+        ))}
+      </div>
+      <p className="subtle-note">{releaseReadiness.recommendedExecutiveAction}</p>
+    </section>
   );
 }
 

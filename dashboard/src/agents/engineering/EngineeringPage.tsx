@@ -1,4 +1,4 @@
-import { CheckCircle2, Copy, Database, Download, GitBranch, ListChecks, Network, Search, X } from 'lucide-react';
+import { CheckCircle2, Copy, Database, Download, GitBranch, ListChecks, Network, Search, Workflow, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { EmptyState } from '../../components/EmptyState';
@@ -6,6 +6,7 @@ import { StatusBadge } from '../../components/StatusBadge';
 import { buildDashboardEngineeringTaskSummary } from '../../runtime/engineeringTaskGenerator';
 import { buildDashboardGitHubPlanningSummary } from '../../runtime/githubPlanning';
 import { buildDashboardProjectRegistrySummary } from '../../runtime/projectRegistry';
+import { buildDashboardReleaseReadinessSummary } from '../../runtime/releaseReadiness';
 import { summarizeRepositoryIntelligence } from '../../runtime/repositoryIntelligence';
 import { buildDashboardSharedTaskSummary } from '../../runtime/sharedTaskQueue';
 import { loadEngineeringGraph } from './engineeringGraph';
@@ -133,15 +134,27 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
   const graph = scan.graph;
   const repositoryIntelligence = useMemo(() => summarizeRepositoryIntelligence(graph), [graph]);
   const projectRegistry = useMemo(() => buildDashboardProjectRegistrySummary(graph), [graph]);
-  const engineeringTaskSummary = useMemo(
+  const releaseReadiness = useMemo(
     () =>
-      buildDashboardEngineeringTaskSummary({
+      buildDashboardReleaseReadinessSummary({
+        graph,
         githubPlanning: buildDashboardGitHubPlanningSummary(),
         projectRegistry,
         repositoryIntelligence,
         sharedTasks: buildDashboardSharedTaskSummary(),
       }),
-    [projectRegistry, repositoryIntelligence],
+    [graph, projectRegistry, repositoryIntelligence],
+  );
+  const engineeringTaskSummary = useMemo(
+    () =>
+      buildDashboardEngineeringTaskSummary({
+        githubPlanning: buildDashboardGitHubPlanningSummary(),
+        projectRegistry,
+        releaseReadiness,
+        repositoryIntelligence,
+        sharedTasks: buildDashboardSharedTaskSummary(),
+      }),
+    [projectRegistry, releaseReadiness, repositoryIntelligence],
   );
   const selectedNode = selectedNodeId ? graph.nodes.find((node) => node.id === selectedNodeId) ?? null : null;
   const searchResults = useMemo(() => searchEngineeringNodes(graph, query), [graph, query]);
@@ -600,6 +613,58 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
           <p className="subtle-note">{projectRegistry.safetyStatus}</p>
         </Panel>
 
+        <Panel title="Release Readiness Command Center" icon={<Workflow size={18} />} wide>
+          <p className="panel-description">
+            Per-project release checklist for build, lint, validation, tests, docs, secrets, blockers, risk, and recommended Engineering action. This analysis is local-only and does not deploy or modify project files.
+          </p>
+          <div className="summary-grid compact-summary">
+            {[
+              ['Ready Projects', releaseReadiness.readyProjects],
+              ['Blocked Releases', releaseReadiness.blockedProjects],
+              ['Critical Risks', releaseReadiness.criticalReleaseRisks],
+              ['Average Score', `${releaseReadiness.averageReadinessScore}/100`],
+              ['Trend', releaseReadiness.releaseReadinessTrend],
+              ['Generated Blocker Tasks', engineeringTaskSummary.releaseBlockerEngineeringTasks],
+            ].map(([label, value]) => (
+              <article className="metric-card" key={label}>
+                <Workflow size={18} />
+                <span>{label}</span>
+                <strong>{String(value)}</strong>
+              </article>
+            ))}
+          </div>
+          <DataTable
+            columns={['Project', 'Build', 'Lint', 'Validation', 'Tests', 'Docs', 'Secrets', 'Score', 'Risk']}
+            rows={releaseReadiness.projects.map((project) => [
+              project.projectName,
+              project.buildStatus,
+              project.lintStatus,
+              project.validationStatus,
+              project.testStatus,
+              project.docsStatus,
+              project.secretsStatus,
+              `${project.readinessScore}/100`,
+              project.riskLevel,
+            ])}
+          />
+          <DataTable
+            columns={['Project', 'Severity', 'Blocker', 'Recommended Action']}
+            rows={releaseReadiness.blockers.map((blocker) => [
+              blocker.projectName,
+              blocker.severity,
+              blocker.reason,
+              blocker.recommendedAction,
+            ])}
+          />
+          <DataTable
+            columns={['Candidate', 'Priority', 'Reason']}
+            rows={engineeringTaskSummary.candidates
+              .filter((candidate) => candidate.linkedReleaseBlocker)
+              .map((candidate) => [candidate.title, candidate.recommendedPriority, candidate.reason])}
+          />
+          <p className="subtle-note">{releaseReadiness.safetyState}</p>
+        </Panel>
+
         <Panel title="Engineering Task Generator" icon={<ListChecks size={18} />} wide>
           <p className="panel-description">
             Deterministic task candidates generated from repository health, dependency warnings, orphaned modules, missing documentation, GitHub plans, Executive priorities, and blocked Sales or Migration work. Candidates stay local and approval-only.
@@ -611,6 +676,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
               ['Sales Blocking', engineeringTaskSummary.salesBlockingEngineeringTasks],
               ['Migration Blocking', engineeringTaskSummary.migrationBlockingEngineeringTasks],
               ['Project Specific', engineeringTaskSummary.projectSpecificEngineeringTasks],
+              ['Release Blockers', engineeringTaskSummary.releaseBlockerEngineeringTasks],
               ['Release Readiness', engineeringTaskSummary.releaseReadinessTasks],
               ['Linked GitHub Plans', engineeringTaskSummary.linkedGitHubPlans],
               ['Linked Repo Risks', engineeringTaskSummary.linkedRepoRisks],

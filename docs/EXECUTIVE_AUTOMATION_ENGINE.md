@@ -26,6 +26,7 @@ The engine integrates these existing layers:
 - Gmail Email Connector workflow and audit trail.
 - Repository Intelligence.
 - Project Registry and release readiness.
+- Release Readiness Command Center.
 - GitHub Planning Queue.
 - Connector Readiness.
 - Cross-Agent Collaboration graph.
@@ -55,3 +56,7 @@ The Executive Dashboard shows automation health, top triggered rules, unresolved
 ## Project Registry Link
 
 Phase 42 adds multi-project readiness to Executive automation. Blocked projects and non-ready release readiness can trigger Engineering health and cross-agent review signals. Generated tasks, plans, emails, and reports remain local and must pass the same safety gates as other automation output.
+
+## Release Command Center Link
+
+Phase 43 adds blocked releases and critical release risks to Executive automation context. Release health can trigger Engineering health warnings and cross-agent review needs, but automation still cannot deploy, tag, create releases, push commits, or write production data.

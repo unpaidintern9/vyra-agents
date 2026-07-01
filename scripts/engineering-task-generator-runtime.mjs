@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildGitHubPlanningStatus } from './github-planning-runtime.mjs';
 import { buildProjectRegistry } from './project-registry-runtime.mjs';
+import { buildReleaseReadiness } from './release-readiness-runtime.mjs';
 import { buildRepositoryIntelligence } from './repository-intelligence-runtime.mjs';
 import { buildSharedTaskStatus } from './shared-task-runtime.mjs';
 
@@ -44,6 +45,7 @@ export function buildEngineeringTaskCandidateSet() {
   const repositoryIntelligence = buildRepositoryIntelligence();
   const githubPlanning = buildGitHubPlanningStatus();
   const projectRegistry = buildProjectRegistry();
+  const releaseReadiness = buildReleaseReadiness();
   const sharedTasks = buildSharedTaskStatus();
   const candidates = dedupeCandidates([
     ...repositoryRiskCandidates(repositoryIntelligence),
@@ -55,6 +57,7 @@ export function buildEngineeringTaskCandidateSet() {
     ...executivePriorityCandidates(repositoryIntelligence, githubPlanning, sharedTasks),
     ...blockedOpportunityCandidates(sharedTasks),
     ...projectRegistryCandidates(projectRegistry),
+    ...releaseBlockerCandidates(releaseReadiness),
   ]);
   const summary = summarizeCandidates(candidates);
 
@@ -67,6 +70,7 @@ export function buildEngineeringTaskCandidateSet() {
     sources: {
       repositoryIntelligence: repositoryIntelligence.sourceGraph,
       projectRegistry: projectRegistry.configRoot,
+      releaseReadiness: 'reports/agents/release',
       githubPlanning: githubPlanning.planRoot,
       sharedTasks: sharedTasks.taskRoot,
       executivePriorities: 'derived locally from repository, GitHub planning, and shared task signals',
@@ -141,10 +145,37 @@ export function writeEngineeringTaskReports(set = buildEngineeringTaskCandidateS
       salesBlockingCandidates: set.candidates.filter((candidate) => candidate.category === 'sales blocker'),
       migrationBlockingCandidates: set.candidates.filter((candidate) => candidate.category === 'migration support'),
       releaseReadinessCandidates: set.candidates.filter((candidate) => candidate.category === 'release readiness'),
+      releaseBlockerCandidates: set.candidates.filter((candidate) => candidate.linkedReleaseBlocker),
       projectSpecificCandidates: set.candidates.filter((candidate) => candidate.linkedProjectId),
       safety,
     }),
   ].flat();
+}
+
+function releaseBlockerCandidates(releaseReadiness) {
+  return (releaseReadiness.projects ?? [])
+    .flatMap((project) =>
+      project.releaseBlockers
+        .filter((blocker) => ['critical', 'high'].includes(blocker.severity))
+        .slice(0, 4)
+        .map((blocker) =>
+          candidate({
+            id: `engineering-task:release-blocker:${slugify(project.projectId)}:${slugify(blocker.id)}`,
+            title: `Resolve release blocker for ${project.projectName}`,
+            category: 'release readiness',
+            recommendedPriority: blocker.severity === 'critical' ? 'Critical' : 'High',
+            reason: `${blocker.reason} ${blocker.recommendedAction}`,
+            linkedProjectId: project.projectId,
+            linkedReleaseBlocker: blocker.id,
+            linkedRepoRisk: `${project.repoName}:${project.riskLevel}`,
+            linkedGitHubPlan: project.linkedGitHubPlans[0] ?? null,
+            linkedSharedTask: project.linkedSharedTasks[0] ?? null,
+            linkedExecutivePriority: 'release-readiness-command-center',
+            signals: [`releaseBlocker:${blocker.id}`, `severity:${blocker.severity}`, `readinessScore:${project.readinessScore}`],
+          }),
+        ),
+    )
+    .slice(0, 20);
 }
 
 function projectRegistryCandidates(projectRegistry) {
@@ -334,6 +365,7 @@ function candidate(input) {
     linkedGitHubPlan: input.linkedGitHubPlan ?? null,
     linkedGraphNodeIds: input.linkedGraphNodeIds ?? [],
     linkedProjectId: input.linkedProjectId ?? null,
+    linkedReleaseBlocker: input.linkedReleaseBlocker ?? null,
     linkedRepoRisk: input.linkedRepoRisk ?? null,
     linkedSalesMigrationBlocker: input.linkedSalesMigrationBlocker ?? null,
     linkedSharedTask: input.linkedSharedTask ?? null,
@@ -356,6 +388,7 @@ function summarizeCandidates(candidates) {
     salesBlockingEngineeringTasks: candidates.filter((candidate) => candidate.category === 'sales blocker').length,
     migrationBlockingEngineeringTasks: candidates.filter((candidate) => candidate.category === 'migration support').length,
     projectSpecificEngineeringTasks: candidates.filter((candidate) => candidate.linkedProjectId).length,
+    releaseBlockerEngineeringTasks: candidates.filter((candidate) => candidate.linkedReleaseBlocker).length,
     releaseReadinessTasks: candidates.filter((candidate) => candidate.category === 'release readiness').length,
     categoryCounts: countBy(candidates, 'category'),
     priorityCounts: countBy(candidates, 'recommendedPriority'),

@@ -5,6 +5,7 @@ import type { GmailEmailDashboardSummary } from './gmailEmail';
 import type { GitHubPlanningDashboardSummary } from './githubPlanning';
 import type { GitHubReadOnlyDashboardSummary } from './githubReadOnly';
 import type { ProjectRegistryDashboardSummary } from './projectRegistry';
+import type { ReleaseReadinessDashboardSummary } from './releaseReadiness';
 import type { RepositoryIntelligenceDashboardSummary } from './repositoryIntelligence';
 import type { AgentRuntimeSnapshot } from './runtimeTypes';
 import type { SharedTaskDashboardSummary } from './sharedTaskQueue';
@@ -89,6 +90,7 @@ export function buildDashboardExecutiveAutomationSummary(input: {
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
+  releaseReadiness?: ReleaseReadinessDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   runtime: AgentRuntimeSnapshot;
   sharedTasks?: SharedTaskDashboardSummary;
@@ -129,6 +131,7 @@ function buildRules(input: {
   githubPlanning?: GitHubPlanningDashboardSummary;
   githubReadOnly?: GitHubReadOnlyDashboardSummary;
   projectRegistry?: ProjectRegistryDashboardSummary;
+  releaseReadiness?: ReleaseReadinessDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   runtime: AgentRuntimeSnapshot;
   sharedTasks?: SharedTaskDashboardSummary;
@@ -139,9 +142,9 @@ function buildRules(input: {
       'engineering health warnings',
       'threshold-crossed',
       ['create shared task', 'create GitHub plan', 'create Executive review item'],
-      Boolean((input.repositoryIntelligence && input.repositoryIntelligence.repositoryRisk !== 'Low') || (input.projectRegistry?.blockedProjects ?? 0) > 0),
+      Boolean((input.repositoryIntelligence && input.repositoryIntelligence.repositoryRisk !== 'Low') || (input.projectRegistry?.blockedProjects ?? 0) > 0 || (input.releaseReadiness?.blockedProjects ?? 0) > 0),
       [
-        `Repository risk ${input.repositoryIntelligence?.repositoryRisk ?? 'Unknown'}; health ${input.repositoryIntelligence?.engineeringHealthScore ?? 0}/100; blocked projects ${input.projectRegistry?.blockedProjects ?? 0}.`,
+        `Repository risk ${input.repositoryIntelligence?.repositoryRisk ?? 'Unknown'}; health ${input.repositoryIntelligence?.engineeringHealthScore ?? 0}/100; blocked projects ${input.projectRegistry?.blockedProjects ?? 0}; blocked releases ${input.releaseReadiness?.blockedProjects ?? 0}.`,
       ],
       'high',
     ),
@@ -224,9 +227,9 @@ function buildRules(input: {
       'cross-agent review needs',
       'report-ready',
       ['create Executive review item', 'create email draft', 'send configured internal email', 'generate report'],
-      Boolean(input.crossAgentSummary?.organizationsNeedingExecutiveReview || (input.projectRegistry && input.projectRegistry.releaseReadinessStatus !== 'Ready')),
+      Boolean(input.crossAgentSummary?.organizationsNeedingExecutiveReview || (input.projectRegistry && input.projectRegistry.releaseReadinessStatus !== 'Ready') || (input.releaseReadiness && input.releaseReadiness.releaseHealth !== 'ready')),
       [
-        `${input.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0} organization(s) need Executive review; project readiness ${input.projectRegistry?.releaseReadinessStatus ?? 'unknown'}.`,
+        `${input.crossAgentSummary?.organizationsNeedingExecutiveReview ?? 0} organization(s) need Executive review; project readiness ${input.projectRegistry?.releaseReadinessStatus ?? 'unknown'}; release health ${input.releaseReadiness?.releaseHealth ?? 'unknown'}.`,
       ],
       'medium',
     ),

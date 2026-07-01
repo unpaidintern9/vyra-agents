@@ -52,3 +52,7 @@ Phase 39 uses Repository Intelligence as a source for local Engineering task can
 Phase 42 makes Repository Intelligence project-aware. The scanner reads configured local targets from the Project Registry and annotates each repository with project id, project type, owning agent, repo owner/name, and validation commands.
 
 Missing project paths fail safely as registry health data. Repository Intelligence still performs local metadata scans only and does not run project validation commands automatically.
+
+## Release Command Center Link
+
+Phase 43 uses Repository Intelligence health, documentation coverage, dependency warnings, and repository risk as release readiness inputs. High repository risk can become a critical release blocker.

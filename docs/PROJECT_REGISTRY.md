@@ -55,6 +55,10 @@ npm run projects:validate
 - Multi-Project Health Report Markdown
 - Release Readiness Report Markdown
 
+## Release Command Center Link
+
+Phase 43 uses registered projects as the source list for release readiness. Branch, latest commit, validation commands, project status, and notes feed the release checklist for each project.
+
 ## Safety
 
 The registry performs local scans only. It does not modify project files, run destructive commands, commit project-local generated data, write GitHub records, write production data, or print secrets.
