@@ -2083,6 +2083,86 @@ function MarketingPage({ marketing }: { marketing: MarketingDashboardSummary }) 
         />
       </Panel>
 
+      <Panel title="Content Studio" icon={<FileText size={18} />} wide>
+        <div className="batch-grid supabase-detail-grid">
+          <Fact label="Draft Library" value={String(marketing.contentStudio.summary.drafts)} />
+          <Fact label="Brand Check Results" value={`${marketing.contentStudio.summary.averageBrandConsistency}%`} />
+          <Fact label="Approval Queue" value={String(marketing.contentStudio.approvals.filter((approval) => approval.status !== 'approved_internal_only').length)} />
+          <Fact label="Readiness" value={`${marketing.contentStudio.summary.averageReadiness}%`} />
+        </div>
+        <DataTable
+          columns={['Draft Library', 'Type', 'Audience', 'Product', 'Status', 'Brand Check']}
+          rows={marketing.contentStudio.drafts.map((draft) => [draft.title, draft.type, draft.audience, draft.product, draft.status, `${draft.brandConsistencyScore}%`])}
+        />
+      </Panel>
+
+      <Panel title="Brand Check Results" icon={<ShieldCheck size={18} />} wide>
+        <DataTable
+          columns={['Draft', 'Score', 'Confidence', 'Risks', 'Next Action']}
+          rows={marketing.contentStudio.brandChecks.map((check) => [
+            marketing.contentStudio.drafts.find((draft) => draft.draftId === check.draftId)?.title ?? check.draftId,
+            `${check.score}%`,
+            `${check.confidence}%`,
+            check.risks.join('; ') || check.violations.join('; ') || 'No major risk',
+            check.nextActions[0],
+          ])}
+        />
+      </Panel>
+
+      <Panel title="Campaign Briefs" icon={<Workflow size={18} />} wide>
+        <DataTable
+          columns={['Campaign Briefs', 'Campaign', 'Readiness', 'Approval']}
+          rows={marketing.contentStudio.drafts
+            .filter((draft) => draft.type === 'campaign brief')
+            .map((draft) => [draft.title, draft.campaign, `${draft.readinessScore}%`, draft.approvalStatus])}
+        />
+      </Panel>
+
+      <Panel title="Landing Page Drafts" icon={<FileText size={18} />} wide>
+        <DataTable
+          columns={['Landing Page Drafts', 'Audience', 'Product', 'Status']}
+          rows={marketing.contentStudio.drafts
+            .filter((draft) => draft.type === 'landing page draft')
+            .map((draft) => [draft.title, draft.audience, draft.product, draft.status])}
+        />
+      </Panel>
+
+      <Panel title="Email Drafts" icon={<FileClock size={18} />} wide>
+        <DataTable
+          columns={['Email Drafts', 'Campaign', 'Approval', 'Safety']}
+          rows={marketing.contentStudio.drafts
+            .filter((draft) => draft.type === 'email draft' || draft.type === 'newsletter draft')
+            .map((draft) => [draft.title, draft.campaign, draft.approvalStatus, 'Sending disabled'])}
+        />
+      </Panel>
+
+      <Panel title="Social Drafts" icon={<Megaphone size={18} />} wide>
+        <DataTable
+          columns={['Social Drafts', 'Campaign', 'Approval', 'Safety']}
+          rows={marketing.contentStudio.drafts
+            .filter((draft) => draft.type === 'social post set' || draft.type === 'ad copy draft')
+            .map((draft) => [draft.title, draft.campaign, draft.approvalStatus, 'Posting/ad execution disabled'])}
+        />
+      </Panel>
+
+      <Panel title="Blog/SEO Drafts" icon={<FileText size={18} />} wide>
+        <DataTable
+          columns={['Blog/SEO Drafts', 'Audience', 'Product', 'Readiness']}
+          rows={marketing.contentStudio.drafts
+            .filter((draft) => draft.type === 'blog outline' || draft.type === 'FAQ draft')
+            .map((draft) => [draft.title, draft.audience, draft.product, `${draft.readinessScore}%`])}
+        />
+      </Panel>
+
+      <Panel title="Launch Drafts" icon={<FileClock size={18} />} wide>
+        <DataTable
+          columns={['Launch Drafts', 'Campaign', 'Status', 'Approval']}
+          rows={marketing.contentStudio.drafts
+            .filter((draft) => draft.type === 'launch announcement' || draft.type === 'release note')
+            .map((draft) => [draft.title, draft.campaign, draft.status, draft.approvalStatus])}
+        />
+      </Panel>
+
       <Panel title="Product Library" icon={<PackageIcon size={18} />} wide>
         <DataTable
           columns={['Product', 'Audience', 'Launch Status', 'Pricing', 'Positioning']}

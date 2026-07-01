@@ -1,11 +1,11 @@
 # Brand Intelligence Report
 
-Generated: 2026-07-01T18:53:55.417Z
+Generated: 2026-07-01T20:01:59.961Z
 
 ```json
 {
   "title": "Brand Intelligence Report",
-  "generatedAt": "2026-07-01T18:53:55.417Z",
+  "generatedAt": "2026-07-01T20:01:59.961Z",
   "brand": {
     "id": "brand-vyra-performance",
     "brandName": "Vyra Performance",
@@ -121,7 +121,9 @@ Generated: 2026-07-01T18:53:55.417Z
     "inventedBrandAssets": false,
     "governmentContractingLogic": false,
     "samGovLogic": false,
-    "federalProposalLogic": false
+    "federalProposalLogic": false,
+    "unsupportedClaims": false,
+    "healthFitnessClaimsWithoutReview": false
   }
 }
 ```

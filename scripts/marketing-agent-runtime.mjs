@@ -9,6 +9,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const marketingRoot = path.join(repoRoot, 'codex-agent-threads/shared/marketing');
 const reportsRoot = path.join(marketingRoot, 'reports');
+const contentStudioRoot = path.join(marketingRoot, 'content-studio');
+const contentStudioReportsRoot = path.join(contentStudioRoot, 'reports');
 const files = {
   brand: path.join(marketingRoot, 'brand-intelligence.json'),
   products: path.join(marketingRoot, 'product-intelligence.json'),
@@ -18,6 +20,10 @@ const files = {
   calendar: path.join(marketingRoot, 'marketing-calendar.json'),
   approvals: path.join(marketingRoot, 'approval-queue.json'),
   readiness: path.join(marketingRoot, 'marketing-readiness.json'),
+  drafts: path.join(contentStudioRoot, 'drafts.json'),
+  brandChecks: path.join(contentStudioRoot, 'brand-checks.json'),
+  draftApprovals: path.join(contentStudioRoot, 'approvals.json'),
+  draftAudit: path.join(contentStudioRoot, 'draft-audit-history.json'),
 };
 
 const safety = {
@@ -32,6 +38,8 @@ const safety = {
   governmentContractingLogic: false,
   samGovLogic: false,
   federalProposalLogic: false,
+  unsupportedClaims: false,
+  healthFitnessClaimsWithoutReview: false,
 };
 
 export function getMarketingBrand() {
@@ -62,6 +70,55 @@ export function getMarketingCampaigns() {
 export function getMarketingCalendar() {
   const store = readMarketingStore();
   return { title: 'Marketing Calendar', generatedAt: stamp(), calendar: store.calendar, readiness: store.readiness.launchReadiness, safety };
+}
+
+export function getMarketingDrafts() {
+  const store = readMarketingStore();
+  const studio = readContentStudioStore(store);
+  return { title: 'Marketing Content Studio Drafts', generatedAt: stamp(), drafts: studio.drafts, summary: summarizeContentStudio(studio), safety };
+}
+
+export function createMarketingDraft(options = {}) {
+  const store = readMarketingStore();
+  const studio = readContentStudioStore(store);
+  const type = process.env.MARKETING_DRAFT_TYPE ?? options.type ?? 'campaign brief';
+  const campaign = store.campaigns.find((item) => item.campaignId === (process.env.MARKETING_CAMPAIGN_ID ?? options.campaignId)) ?? store.campaigns[0];
+  const product = store.products.find((item) => item.id === (process.env.MARKETING_PRODUCT_ID ?? options.productId)) ?? store.products.find((item) => campaign.products.includes(item.id)) ?? store.products[0];
+  const audience = store.audiences.find((item) => item.id === (process.env.MARKETING_AUDIENCE_ID ?? options.audienceId)) ?? store.audiences.find((item) => item.name === campaign.audience[0]) ?? store.audiences[0];
+  const now = stamp();
+  const draft = buildDraft({ type, campaign, product, audience, store, now, index: studio.drafts.length + 1 });
+  const brandCheck = evaluateDraftBrandConsistency(draft, store);
+  const next = {
+    ...studio,
+    drafts: [draft, ...studio.drafts.filter((item) => item.draftId !== draft.draftId)],
+    brandChecks: [brandCheck, ...studio.brandChecks.filter((item) => item.draftId !== draft.draftId)],
+    approvals: [approvalRecord(draft, 'pending', 'Created draft; approval required before any external use.', now), ...studio.approvals],
+    auditHistory: [auditEvent(draft.draftId, null, draft.status, 'Marketing Content Studio', 'Draft generated locally.', 'draft_created', now), ...studio.auditHistory],
+  };
+  writeContentStudioStore(next);
+  return { title: 'Marketing Draft Created', generatedAt: now, draft, brandCheck, safety };
+}
+
+export function getMarketingBrandCheck() {
+  const store = readMarketingStore();
+  const studio = readContentStudioStore(store);
+  return { title: 'Marketing Brand Check Results', generatedAt: stamp(), brandChecks: studio.brandChecks, safety };
+}
+
+export function submitMarketingDraft() {
+  return transitionDraft('needs_review', 'submitted_for_review', 'Draft submitted for local review.');
+}
+
+export function approveMarketingDraft() {
+  return transitionDraft('approved', 'draft_approved', 'Draft approved for internal use only. Publishing remains disabled.');
+}
+
+export function rejectMarketingDraft() {
+  return transitionDraft('rejected', 'draft_rejected', 'Draft rejected locally; no external action created.');
+}
+
+export function archiveMarketingDraft() {
+  return transitionDraft('archived', 'draft_archived', 'Draft archived locally.');
 }
 
 export function buildMarketingBrandReport() {
@@ -96,8 +153,35 @@ export function buildMarketingContentReport() {
   });
 }
 
+export function buildContentStudioReport() {
+  const store = readMarketingStore();
+  const studio = readContentStudioStore(store);
+  return writeContentStudioReport('content-studio-report', {
+    title: 'Content Studio Report',
+    generatedAt: stamp(),
+    summary: summarizeContentStudio(studio),
+    workflows: contentStudioWorkflows(),
+    drafts: studio.drafts,
+    safety,
+  });
+}
+
+export function buildMarketingDraftReport() {
+  const store = readMarketingStore();
+  const studio = readContentStudioStore(store);
+  return writeContentStudioReport('draft-library-report', {
+    title: 'Draft Library Report',
+    generatedAt: stamp(),
+    drafts: studio.drafts,
+    brandChecks: studio.brandChecks,
+    approvals: studio.approvals,
+    safety,
+  });
+}
+
 export function buildMarketingReports() {
   const store = readMarketingStore();
+  const studio = readContentStudioStore(store);
   const reports = {
     'brand-intelligence-report': { title: 'Brand Intelligence Report', generatedAt: stamp(), brand: store.brand, safety },
     'product-messaging-report': { title: 'Product Messaging Report', generatedAt: stamp(), products: store.products, safety },
@@ -108,6 +192,13 @@ export function buildMarketingReports() {
     'marketing-readiness-report': { title: 'Marketing Readiness Report', generatedAt: stamp(), readiness: store.readiness, safety },
     'executive-marketing-summary': { title: 'Executive Marketing Summary', generatedAt: stamp(), summary: summarizeMarketing(store), safety },
     'brand-consistency-report': { title: 'Brand Consistency Report', generatedAt: stamp(), consistency: brandConsistency(store), safety },
+    'content-studio-report': { title: 'Content Studio Report', generatedAt: stamp(), summary: summarizeContentStudio(studio), workflows: contentStudioWorkflows(), safety },
+    'draft-library-report': { title: 'Draft Library Report', generatedAt: stamp(), drafts: studio.drafts, safety },
+    'draft-approval-report': { title: 'Draft Approval Report', generatedAt: stamp(), approvals: studio.approvals, safety },
+    'campaign-content-report': { title: 'Campaign Content Report', generatedAt: stamp(), rows: campaignContentRows(studio), safety },
+    'launch-content-report': { title: 'Launch Content Report', generatedAt: stamp(), rows: studio.drafts.filter((draft) => ['launch announcement', 'release note'].includes(draft.type)), safety },
+    'sales-enablement-content-report': { title: 'Sales Enablement Content Report', generatedAt: stamp(), rows: studio.drafts.filter((draft) => ['product messaging draft', 'FAQ draft', 'case study outline'].includes(draft.type)), safety },
+    'executive-marketing-draft-summary': { title: 'Executive Marketing Draft Summary', generatedAt: stamp(), summary: summarizeContentStudio(studio), brandRiskQueue: studio.brandChecks.filter((check) => check.risks.length || check.violations.length), safety },
   };
   return {
     title: 'Marketing Reports Generated',
@@ -119,6 +210,7 @@ export function buildMarketingReports() {
 
 export function validateMarketing() {
   const store = readMarketingStore();
+  const studio = readContentStudioStore(store);
   const errors = [];
   if (!store.brand?.brandName) errors.push('brand intelligence missing');
   if (!Array.isArray(store.products) || store.products.length < 6) errors.push('product intelligence incomplete');
@@ -127,6 +219,16 @@ export function validateMarketing() {
   if (!Array.isArray(store.campaigns) || !store.campaigns.length) errors.push('campaign planner missing');
   if (!Array.isArray(store.calendar) || !store.calendar.length) errors.push('marketing calendar missing');
   if (!Array.isArray(store.approvals)) errors.push('approval queue missing');
+  if (!Array.isArray(studio.drafts) || studio.drafts.length < 10) errors.push('content studio drafts incomplete');
+  if (!Array.isArray(studio.brandChecks) || studio.brandChecks.length !== studio.drafts.length) errors.push('brand checks incomplete');
+  if (!Array.isArray(studio.approvals)) errors.push('draft approvals missing');
+  if (!Array.isArray(studio.auditHistory) || !studio.auditHistory.length) errors.push('draft audit history missing');
+  for (const draft of studio.drafts) {
+    ['draftId', 'title', 'type', 'audience', 'product', 'campaign', 'owner', 'status', 'approvalStatus', 'brandConsistencyScore', 'readinessScore', 'linkedCampaign', 'linkedContentItem', 'createdAt', 'updatedAt'].forEach((field) => {
+      if (draft[field] === undefined || draft[field] === '') errors.push(`${draft.draftId ?? 'draft'} missing ${field}`);
+    });
+    if (draft.status === 'approved' && draft.publishingEnabled) errors.push(`${draft.draftId} approved draft enables publishing`);
+  }
   for (const asset of store.brand.assetReferences) {
     if (asset.status === 'confirmed' && !asset.localReference) errors.push(`${asset.name} confirmed without local reference`);
   }
@@ -144,6 +246,7 @@ export function validateMarketing() {
     storageRoot: path.relative(repoRoot, marketingRoot),
     reportCount: reports.written.length,
     summary: summarizeMarketing(store),
+    contentStudioSummary: summarizeContentStudio(studio),
     safety,
   };
 }
@@ -159,6 +262,7 @@ export function readMarketingStore() {
     calendar: readJson(files.calendar, []),
     approvals: readJson(files.approvals, []),
     readiness: readJson(files.readiness, {}),
+    contentStudio: readContentStudioStore({}),
   };
 }
 
@@ -172,12 +276,23 @@ export const marketingCommands = [
   'marketing:brand-report',
   'marketing:campaign-report',
   'marketing:content-report',
+  'marketing:drafts',
+  'marketing:create-draft',
+  'marketing:brand-check',
+  'marketing:submit-draft',
+  'marketing:approve-draft',
+  'marketing:reject-draft',
+  'marketing:archive-draft',
+  'marketing:content-studio-report',
+  'marketing:draft-report',
   'marketing:validate',
 ];
 
 function ensureMarketingStorage() {
   mkdirSync(marketingRoot, { recursive: true });
   mkdirSync(reportsRoot, { recursive: true });
+  mkdirSync(contentStudioRoot, { recursive: true });
+  mkdirSync(contentStudioReportsRoot, { recursive: true });
   if (existsSync(files.brand)) return;
   const now = '2026-07-01T14:00:00.000Z';
   const store = seedMarketingStore(now);
@@ -189,6 +304,7 @@ function ensureMarketingStorage() {
   writeJson(files.calendar, store.calendar);
   writeJson(files.approvals, store.approvals);
   writeJson(files.readiness, store.readiness);
+  writeContentStudioStore(seedContentStudioStore(store, now));
 }
 
 function seedMarketingStore(now) {
@@ -225,7 +341,7 @@ function seedMarketingStore(now) {
     createdAt: now,
     updatedAt: now,
   };
-  const products = productSeeds(planning.goals.map((goal) => goal.id));
+  const products = productSeeds(planning.goals.map((goal) => goal.goalId ?? goal.id).filter(Boolean));
   const audiences = audienceSeeds();
   const campaigns = campaignSeeds(now, tasks);
   const content = contentSeeds(campaigns, planning.goals);
@@ -337,7 +453,7 @@ function contentSeeds(campaigns, goals) {
     owner: 'Marketing',
     approvalStatus: 'pending',
     linkedCampaign: campaigns[index % campaigns.length].campaignId,
-    linkedGoal: goals[index % Math.max(goals.length, 1)]?.id ?? 'goal-marketing-foundation',
+    linkedGoal: goals[index % Math.max(goals.length, 1)]?.goalId ?? goals[index % Math.max(goals.length, 1)]?.id ?? 'goal-marketing-foundation',
     linkedTask: '',
     notes: ['Draft/planning record only. No publishing, sending, posting, or paid promotion.'],
   }));
@@ -403,10 +519,214 @@ function brandConsistency(store) {
   };
 }
 
+function readContentStudioStore(store) {
+  mkdirSync(contentStudioRoot, { recursive: true });
+  mkdirSync(contentStudioReportsRoot, { recursive: true });
+  if (!existsSync(files.drafts) && store?.brand) writeContentStudioStore(seedContentStudioStore(store, '2026-07-01T15:00:00.000Z'));
+  return {
+    drafts: readJson(files.drafts, []),
+    brandChecks: readJson(files.brandChecks, []),
+    approvals: readJson(files.draftApprovals, []),
+    auditHistory: readJson(files.draftAudit, []),
+  };
+}
+
+function writeContentStudioStore(studio) {
+  mkdirSync(contentStudioRoot, { recursive: true });
+  mkdirSync(contentStudioReportsRoot, { recursive: true });
+  writeJson(files.drafts, studio.drafts);
+  writeJson(files.brandChecks, studio.brandChecks);
+  writeJson(files.draftApprovals, studio.approvals);
+  writeJson(files.draftAudit, studio.auditHistory);
+}
+
+function seedContentStudioStore(store, now) {
+  const types = ['campaign brief', 'landing page draft', 'email draft', 'newsletter draft', 'social post set', 'blog outline', 'launch announcement', 'release note', 'product messaging draft', 'ad copy draft', 'video brief', 'podcast brief', 'case study outline', 'FAQ draft'];
+  const drafts = types.map((type, index) => {
+    const campaign = store.campaigns[index % store.campaigns.length];
+    const product = store.products.find((item) => campaign.products.includes(item.id)) ?? store.products[index % store.products.length];
+    const audience = store.audiences.find((item) => item.name === campaign.audience[0]) ?? store.audiences[index % store.audiences.length];
+    return buildDraft({ type, campaign, product, audience, store, now, index: index + 1 });
+  });
+  const brandChecks = drafts.map((draft) => evaluateDraftBrandConsistency(draft, store));
+  const approvals = drafts.map((draft) => approvalRecord(draft, draft.status === 'needs_review' ? 'pending_review' : 'pending', 'Draft requires human review before any external use.', now));
+  const auditHistory = drafts.map((draft) => auditEvent(draft.draftId, null, draft.status, 'Marketing Content Studio', 'Seeded draft-only content studio record.', 'draft_seeded', now));
+  return { drafts, brandChecks, approvals, auditHistory };
+}
+
+function buildDraft({ type, campaign, product, audience, store, now, index }) {
+  const content = store.content.find((item) => item.linkedCampaign === campaign.campaignId && item.product === product.id) ?? store.content[index % store.content.length];
+  const title = `${titleCase(type)}: ${campaign.name}`;
+  const body = draftBody(type, campaign, product, audience);
+  const brandCheckPreview = lightweightBrandScore(body, store);
+  return {
+    draftId: `mkt-draft-${slugify(type)}-${slugify(campaign.name)}`,
+    title,
+    type,
+    audience: audience.name,
+    product: product.name,
+    campaign: campaign.name,
+    owner: 'Marketing',
+    status: index % 5 === 0 ? 'needs_review' : 'draft',
+    approvalStatus: index % 5 === 0 ? 'pending_review' : 'pending',
+    brandConsistencyScore: brandCheckPreview.score,
+    readinessScore: Math.max(45, Math.min(90, brandCheckPreview.score - (type.includes('ad') ? 12 : 4))),
+    linkedTasks: campaign.tasks ?? [],
+    linkedGoals: product.linkedGoals ?? [],
+    linkedCampaign: campaign.campaignId,
+    linkedContentItem: content?.id ?? '',
+    brandRecord: store.brand.id,
+    productRecord: product.id,
+    audienceProfile: audience.id,
+    operator: 'Marketing Content Studio',
+    sourceInputs: [store.brand.id, product.id, audience.id, campaign.campaignId, content?.id ?? 'content-library'],
+    body,
+    publishingEnabled: false,
+    createdAt: now,
+    updatedAt: now,
+    auditHistory: [auditEvent(`mkt-draft-${slugify(type)}-${slugify(campaign.name)}`, null, index % 5 === 0 ? 'needs_review' : 'draft', 'Marketing Content Studio', 'Draft generated locally.', 'draft_generated', now)],
+  };
+}
+
+function draftBody(type, campaign, product, audience) {
+  const cta = 'Review this draft internally before any external use.';
+  const base = `${campaign.name} helps ${audience.name} understand how ${product.name} supports clearer performance workflows.`;
+  const details = [
+    `Audience goal: ${audience.goals[0]}`,
+    `Product positioning: ${product.positioning}`,
+    `Campaign objective: ${campaign.objective}`,
+    `Call to action: ${cta}`,
+  ];
+  if (type === 'social post set') return [`Post 1: ${base}`, `Post 2: Focus on ${audience.painPoints[0].toLowerCase()}.`, `Post 3: ${cta}`].join('\n');
+  if (type === 'FAQ draft') return [`Q: Who is this for?`, `A: ${audience.name} who need ${audience.goals[0].toLowerCase()}.`, `Q: Can this be published now?`, 'A: No. This is a local draft pending review.'].join('\n');
+  if (type === 'ad copy draft') return [`Headline: Clearer performance workflows for ${audience.name}`, `Body: ${base}`, `CTA: ${cta}`, 'Note: Paid ad execution is disabled.'].join('\n');
+  return [base, ...details].join('\n');
+}
+
+function evaluateDraftBrandConsistency(draft, store) {
+  const text = `${draft.title}\n${draft.body}`.toLowerCase();
+  const violations = store.brand.wordsToAvoid.filter((word) => text.includes(word.toLowerCase()));
+  const pricingRisk = /free|discount|price|pricing|\$\d/.test(text) && String(store.products.find((product) => product.name === draft.product)?.pricing ?? '').includes('not confirmed');
+  const claimRisk = /(guarantee|cure|medical|injury-free|lose weight fast|transform overnight)/.test(text);
+  const ctaClear = text.includes('review') || text.includes('call to action') || text.includes('cta');
+  const risks = [
+    violations.length ? 'Avoided or prohibited brand wording present.' : null,
+    pricingRisk ? 'Pricing language needs review because pricing is not confirmed locally.' : null,
+    claimRisk ? 'Health/fitness or outcome claim requires review.' : null,
+    !ctaClear ? 'Call to action is unclear.' : null,
+  ].filter(Boolean);
+  const score = Math.max(35, 92 - violations.length * 18 - (pricingRisk ? 12 : 0) - (claimRisk ? 18 : 0) - (!ctaClear ? 8 : 0));
+  return {
+    id: `brand-check-${draft.draftId}`,
+    draftId: draft.draftId,
+    score,
+    confidence: risks.length ? 72 : 86,
+    risks,
+    violations,
+    checks: {
+      brandVoice: true,
+      approvedMessaging: text.includes('performance') || text.includes('workflow'),
+      productPositioning: text.includes(draft.product.toLowerCase()) || text.includes('product positioning'),
+      audienceFit: text.includes(draft.audience.toLowerCase()),
+      claimSafety: !claimRisk,
+      pricingConsistency: !pricingRisk,
+      callToActionClarity: ctaClear,
+    },
+    recommendations: risks.length ? ['Revise flagged language and resubmit for review.', 'Keep draft local until a human approves it.'] : ['Ready for local review.'],
+    nextActions: risks.length ? ['Request edits before approval.'] : ['Submit for human review.'],
+    generatedAt: stamp(),
+  };
+}
+
+function lightweightBrandScore(body, store) {
+  const text = body.toLowerCase();
+  const violations = store.brand.wordsToAvoid.filter((word) => text.includes(word.toLowerCase()));
+  return { score: Math.max(40, 90 - violations.length * 15) };
+}
+
+function transitionDraft(newStatus, auditEventName, defaultReason) {
+  const store = readMarketingStore();
+  const studio = readContentStudioStore(store);
+  const id = process.env.MARKETING_DRAFT_ID ?? studio.drafts[0]?.draftId;
+  const reviewer = process.env.MARKETING_REVIEWER ?? 'Marketing Reviewer';
+  const reason = process.env.MARKETING_DRAFT_REASON ?? defaultReason;
+  const now = stamp();
+  let changed = null;
+  const drafts = studio.drafts.map((draft) => {
+    if (draft.draftId !== id) return draft;
+    changed = draft;
+    return {
+      ...draft,
+      status: newStatus,
+      approvalStatus: newStatus === 'approved' ? 'approved_internal_only' : newStatus === 'rejected' ? 'rejected' : newStatus === 'archived' ? 'archived' : 'pending_review',
+      publishingEnabled: false,
+      updatedAt: now,
+      auditHistory: [auditEvent(draft.draftId, draft.status, newStatus, reviewer, reason, auditEventName, now), ...(draft.auditHistory ?? [])],
+    };
+  });
+  if (!changed) return { title: 'Marketing Draft Transition Failed', generatedAt: now, status: 'fail', errors: [`Draft not found: ${id}`], safety };
+  const approval = approvalRecord({ ...changed, status: newStatus }, newStatus === 'approved' ? 'approved_internal_only' : newStatus, reason, now, reviewer);
+  const next = {
+    ...studio,
+    drafts,
+    approvals: [approval, ...studio.approvals],
+    auditHistory: [auditEvent(id, changed.status, newStatus, reviewer, reason, auditEventName, now), ...studio.auditHistory],
+  };
+  writeContentStudioStore(next);
+  return { title: 'Marketing Draft Updated', generatedAt: now, draft: drafts.find((draft) => draft.draftId === id), approval, safety };
+}
+
+function approvalRecord(draft, status, reason, timestamp, reviewer = 'Marketing Content Studio') {
+  return {
+    id: `mkt-draft-approval-${draft.draftId}-${compactStamp(timestamp)}`,
+    draftId: draft.draftId,
+    title: draft.title,
+    reviewer,
+    status,
+    reason,
+    publishingEnabled: false,
+    timestamp,
+  };
+}
+
+function auditEvent(draftId, previousStatus, newStatus, operator, reason, event, timestamp) {
+  return { id: `audit-${draftId}-${compactStamp(timestamp)}-${event}`, draftId, previousStatus, newStatus, operator, reason, auditEvent: event, timestamp, publishingActionCreated: false };
+}
+
+function contentStudioWorkflows() {
+  return ['create campaign brief', 'create landing page draft', 'create email draft', 'create social post set', 'create blog outline', 'create launch announcement', 'create release note', 'create video brief', 'create FAQ draft'];
+}
+
+function summarizeContentStudio(studio) {
+  return {
+    drafts: studio.drafts.length,
+    needsReview: studio.drafts.filter((draft) => draft.status === 'needs_review').length,
+    approved: studio.drafts.filter((draft) => draft.status === 'approved').length,
+    rejected: studio.drafts.filter((draft) => draft.status === 'rejected').length,
+    brandRiskQueue: studio.brandChecks.filter((check) => check.risks.length || check.violations.length).length,
+    averageBrandConsistency: average(studio.brandChecks.map((check) => check.score)),
+    averageReadiness: average(studio.drafts.map((draft) => draft.readinessScore)),
+    approvals: studio.approvals.length,
+  };
+}
+
+function campaignContentRows(studio) {
+  return studio.drafts.map((draft) => ({ campaign: draft.campaign, draft: draft.title, type: draft.type, status: draft.status, brandConsistencyScore: draft.brandConsistencyScore, readinessScore: draft.readinessScore }));
+}
+
 function writeMarketingReport(slug, payload) {
   mkdirSync(reportsRoot, { recursive: true });
   const jsonPath = path.join(reportsRoot, `${slug}.json`);
   const mdPath = path.join(reportsRoot, `${slug}.md`);
+  writeFileSync(jsonPath, `${JSON.stringify(payload, null, 2)}\n`);
+  writeFileSync(mdPath, toMarkdown(payload));
+  return { json: path.relative(repoRoot, jsonPath), markdown: path.relative(repoRoot, mdPath) };
+}
+
+function writeContentStudioReport(slug, payload) {
+  mkdirSync(contentStudioReportsRoot, { recursive: true });
+  const jsonPath = path.join(contentStudioReportsRoot, `${slug}.json`);
+  const mdPath = path.join(contentStudioReportsRoot, `${slug}.md`);
   writeFileSync(jsonPath, `${JSON.stringify(payload, null, 2)}\n`);
   writeFileSync(mdPath, toMarkdown(payload));
   return { json: path.relative(repoRoot, jsonPath), markdown: path.relative(repoRoot, mdPath) };
@@ -436,6 +756,10 @@ function average(values) {
 
 function slugify(value) {
   return String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function compactStamp(value) {
+  return String(value).replace(/[^0-9]/g, '').slice(0, 14);
 }
 
 function titleCase(value) {

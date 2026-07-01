@@ -1,0 +1,176 @@
+# Sales Enablement Content Report
+
+Generated: 2026-07-01T20:01:59.964Z
+
+```json
+{
+  "title": "Sales Enablement Content Report",
+  "generatedAt": "2026-07-01T20:01:59.964Z",
+  "rows": [
+    {
+      "draftId": "mkt-draft-product-messaging-draft-white-label-positioning",
+      "title": "Product Messaging Draft: White Label Positioning",
+      "type": "product messaging draft",
+      "audience": "sports organizations",
+      "product": "White Label Platform",
+      "campaign": "White Label Positioning",
+      "owner": "Marketing",
+      "status": "draft",
+      "approvalStatus": "pending",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86,
+      "linkedTasks": [],
+      "linkedGoals": [
+        null,
+        null,
+        null
+      ],
+      "linkedCampaign": "camp-white-label-positioning",
+      "linkedContentItem": "content-social-post",
+      "brandRecord": "brand-vyra-performance",
+      "productRecord": "prod-white-label",
+      "audienceProfile": "aud-sports-organizations",
+      "operator": "Marketing Content Studio",
+      "sourceInputs": [
+        "brand-vyra-performance",
+        "prod-white-label",
+        "aud-sports-organizations",
+        "camp-white-label-positioning",
+        "content-social-post"
+      ],
+      "body": "White Label Positioning helps sports organizations understand how White Label Platform supports clearer performance workflows.\nAudience goal: Standardize athlete support\nProduct positioning: White label platform for organizations that need branded performance experiences.\nCampaign objective: Clarify white label audience and approval needs before public claims.\nCall to action: Review this draft internally before any external use.",
+      "publishingEnabled": false,
+      "createdAt": "2026-07-01T15:00:00.000Z",
+      "updatedAt": "2026-07-01T15:00:00.000Z",
+      "auditHistory": [
+        {
+          "id": "audit-mkt-draft-product-messaging-draft-white-label-positioning-20260701150000-draft_generated",
+          "draftId": "mkt-draft-product-messaging-draft-white-label-positioning",
+          "previousStatus": null,
+          "newStatus": "draft",
+          "operator": "Marketing Content Studio",
+          "reason": "Draft generated locally.",
+          "auditEvent": "draft_generated",
+          "timestamp": "2026-07-01T15:00:00.000Z",
+          "publishingActionCreated": false
+        }
+      ]
+    },
+    {
+      "draftId": "mkt-draft-case-study-outline-athlete-app-foundation",
+      "title": "Case Study Outline: Athlete App Foundation",
+      "type": "case study outline",
+      "audience": "athletes",
+      "product": "Athlete App",
+      "campaign": "Athlete App Foundation",
+      "owner": "Marketing",
+      "status": "draft",
+      "approvalStatus": "pending",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86,
+      "linkedTasks": [],
+      "linkedGoals": [
+        null,
+        null,
+        null
+      ],
+      "linkedCampaign": "camp-athlete-app-foundation",
+      "linkedContentItem": "content-landing-page",
+      "brandRecord": "brand-vyra-performance",
+      "productRecord": "prod-athlete-app",
+      "audienceProfile": "aud-athletes",
+      "operator": "Marketing Content Studio",
+      "sourceInputs": [
+        "brand-vyra-performance",
+        "prod-athlete-app",
+        "aud-athletes",
+        "camp-athlete-app-foundation",
+        "content-landing-page"
+      ],
+      "body": "Athlete App Foundation helps athletes understand how Athlete App supports clearer performance workflows.\nAudience goal: Train consistently\nProduct positioning: Athlete-facing performance companion for training accountability.\nCampaign objective: Prepare launch-ready Athlete App messaging and asset gaps.\nCall to action: Review this draft internally before any external use.",
+      "publishingEnabled": false,
+      "createdAt": "2026-07-01T15:00:00.000Z",
+      "updatedAt": "2026-07-01T15:00:00.000Z",
+      "auditHistory": [
+        {
+          "id": "audit-mkt-draft-case-study-outline-athlete-app-foundation-20260701150000-draft_generated",
+          "draftId": "mkt-draft-case-study-outline-athlete-app-foundation",
+          "previousStatus": null,
+          "newStatus": "draft",
+          "operator": "Marketing Content Studio",
+          "reason": "Draft generated locally.",
+          "auditEvent": "draft_generated",
+          "timestamp": "2026-07-01T15:00:00.000Z",
+          "publishingActionCreated": false
+        }
+      ]
+    },
+    {
+      "draftId": "mkt-draft-faq-draft-gym-growth-readiness",
+      "title": "FAQ Draft: Gym Growth Readiness",
+      "type": "FAQ draft",
+      "audience": "gym owners",
+      "product": "Gym Software",
+      "campaign": "Gym Growth Readiness",
+      "owner": "Marketing",
+      "status": "draft",
+      "approvalStatus": "pending",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86,
+      "linkedTasks": [],
+      "linkedGoals": [
+        null,
+        null,
+        null
+      ],
+      "linkedCampaign": "camp-gym-growth-readiness",
+      "linkedContentItem": "content-blog-post",
+      "brandRecord": "brand-vyra-performance",
+      "productRecord": "prod-gym-software",
+      "audienceProfile": "aud-gym-owners",
+      "operator": "Marketing Content Studio",
+      "sourceInputs": [
+        "brand-vyra-performance",
+        "prod-gym-software",
+        "aud-gym-owners",
+        "camp-gym-growth-readiness",
+        "content-blog-post"
+      ],
+      "body": "Q: Who is this for?\nA: gym owners who need grow retention.\nQ: Can this be published now?\nA: No. This is a local draft pending review.",
+      "publishingEnabled": false,
+      "createdAt": "2026-07-01T15:00:00.000Z",
+      "updatedAt": "2026-07-01T15:00:00.000Z",
+      "auditHistory": [
+        {
+          "id": "audit-mkt-draft-faq-draft-gym-growth-readiness-20260701150000-draft_generated",
+          "draftId": "mkt-draft-faq-draft-gym-growth-readiness",
+          "previousStatus": null,
+          "newStatus": "draft",
+          "operator": "Marketing Content Studio",
+          "reason": "Draft generated locally.",
+          "auditEvent": "draft_generated",
+          "timestamp": "2026-07-01T15:00:00.000Z",
+          "publishingActionCreated": false
+        }
+      ]
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "autonomousPublishing": false,
+    "autonomousSocialPosting": false,
+    "autonomousEmailing": false,
+    "paidAdExecution": false,
+    "externalCrmSync": false,
+    "automaticApproval": false,
+    "inventedBrandAssets": false,
+    "governmentContractingLogic": false,
+    "samGovLogic": false,
+    "federalProposalLogic": false,
+    "unsupportedClaims": false,
+    "healthFitnessClaimsWithoutReview": false
+  }
+}
+```
+
+Local-only marketing safety: no publishing, posting, emailing, ad buying, CRM sync, automatic approval, or unsupported brand assets.

@@ -1,0 +1,161 @@
+{
+  "title": "Draft Approval Report",
+  "generatedAt": "2026-07-01T20:01:59.964Z",
+  "approvals": [
+    {
+      "id": "mkt-draft-approval-mkt-draft-campaign-brief-athlete-app-foundation-20260701150000",
+      "draftId": "mkt-draft-campaign-brief-athlete-app-foundation",
+      "title": "Campaign Brief: Athlete App Foundation",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-landing-page-draft-gym-growth-readiness-20260701150000",
+      "draftId": "mkt-draft-landing-page-draft-gym-growth-readiness",
+      "title": "Landing Page Draft: Gym Growth Readiness",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-email-draft-white-label-positioning-20260701150000",
+      "draftId": "mkt-draft-email-draft-white-label-positioning",
+      "title": "Email Draft: White Label Positioning",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-newsletter-draft-athlete-app-foundation-20260701150000",
+      "draftId": "mkt-draft-newsletter-draft-athlete-app-foundation",
+      "title": "Newsletter Draft: Athlete App Foundation",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-social-post-set-gym-growth-readiness-20260701150000",
+      "draftId": "mkt-draft-social-post-set-gym-growth-readiness",
+      "title": "Social Post Set: Gym Growth Readiness",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending_review",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-blog-outline-white-label-positioning-20260701150000",
+      "draftId": "mkt-draft-blog-outline-white-label-positioning",
+      "title": "Blog Outline: White Label Positioning",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-launch-announcement-athlete-app-foundation-20260701150000",
+      "draftId": "mkt-draft-launch-announcement-athlete-app-foundation",
+      "title": "Launch Announcement: Athlete App Foundation",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-release-note-gym-growth-readiness-20260701150000",
+      "draftId": "mkt-draft-release-note-gym-growth-readiness",
+      "title": "Release Note: Gym Growth Readiness",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-product-messaging-draft-white-label-positioning-20260701150000",
+      "draftId": "mkt-draft-product-messaging-draft-white-label-positioning",
+      "title": "Product Messaging Draft: White Label Positioning",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-ad-copy-draft-athlete-app-foundation-20260701150000",
+      "draftId": "mkt-draft-ad-copy-draft-athlete-app-foundation",
+      "title": "Ad Copy Draft: Athlete App Foundation",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending_review",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-video-brief-gym-growth-readiness-20260701150000",
+      "draftId": "mkt-draft-video-brief-gym-growth-readiness",
+      "title": "Video Brief: Gym Growth Readiness",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-podcast-brief-white-label-positioning-20260701150000",
+      "draftId": "mkt-draft-podcast-brief-white-label-positioning",
+      "title": "Podcast Brief: White Label Positioning",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-case-study-outline-athlete-app-foundation-20260701150000",
+      "draftId": "mkt-draft-case-study-outline-athlete-app-foundation",
+      "title": "Case Study Outline: Athlete App Foundation",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    },
+    {
+      "id": "mkt-draft-approval-mkt-draft-faq-draft-gym-growth-readiness-20260701150000",
+      "draftId": "mkt-draft-faq-draft-gym-growth-readiness",
+      "title": "FAQ Draft: Gym Growth Readiness",
+      "reviewer": "Marketing Content Studio",
+      "status": "pending",
+      "reason": "Draft requires human review before any external use.",
+      "publishingEnabled": false,
+      "timestamp": "2026-07-01T15:00:00.000Z"
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "autonomousPublishing": false,
+    "autonomousSocialPosting": false,
+    "autonomousEmailing": false,
+    "paidAdExecution": false,
+    "externalCrmSync": false,
+    "automaticApproval": false,
+    "inventedBrandAssets": false,
+    "governmentContractingLogic": false,
+    "samGovLogic": false,
+    "federalProposalLogic": false,
+    "unsupportedClaims": false,
+    "healthFitnessClaimsWithoutReview": false
+  }
+}

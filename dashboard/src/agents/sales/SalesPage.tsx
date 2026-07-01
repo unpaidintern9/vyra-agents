@@ -969,6 +969,43 @@ export default function SalesPage({
               columns={['Audience Messaging', 'Preferred Channels', 'Content Ideas']}
               rows={marketing.audiences.slice(0, 6).map((audience) => [audience.name, audience.preferredChannels.join(', '), audience.contentIdeas.join('; ')])}
             />
+            <div className="dashboard-subsection">
+              <h3>Sales Enablement Drafts</h3>
+              <DataTable
+                columns={['Draft', 'Product', 'Audience', 'Approval']}
+                rows={marketing.contentStudio.drafts
+                  .filter((draft) => ['product messaging draft', 'FAQ draft', 'case study outline'].includes(draft.type))
+                  .map((draft) => [draft.title, draft.product, draft.audience, draft.approvalStatus])}
+                emptyMessage="No Sales enablement drafts."
+              />
+            </div>
+            <div className="dashboard-subsection">
+              <h3>Campaign Support Drafts</h3>
+              <DataTable
+                columns={['Draft', 'Campaign', 'Type', 'Readiness']}
+                rows={marketing.contentStudio.drafts
+                  .filter((draft) => draft.type === 'campaign brief' || draft.type === 'landing page draft')
+                  .map((draft) => [draft.title, draft.campaign, draft.type, `${draft.readinessScore}%`])}
+              />
+            </div>
+            <div className="dashboard-subsection">
+              <h3>Product Messaging Drafts</h3>
+              <DataTable
+                columns={['Draft', 'Status', 'Brand Check']}
+                rows={marketing.contentStudio.drafts
+                  .filter((draft) => draft.type === 'product messaging draft')
+                  .map((draft) => [draft.title, draft.status, `${draft.brandConsistencyScore}%`])}
+              />
+            </div>
+            <div className="dashboard-subsection">
+              <h3>Audience-Specific Copy</h3>
+              <DataTable
+                columns={['Draft', 'Audience', 'Draft Type', 'Safety']}
+                rows={marketing.contentStudio.drafts
+                  .slice(0, 6)
+                  .map((draft) => [draft.title, draft.audience, draft.type, 'Draft only'])}
+              />
+            </div>
             <p className="subtle-note">Sales marketing support is local enablement only. It does not publish, email, post to social, buy ads, sync CRM data, or approve assets automatically.</p>
           </section>
         ) : null}

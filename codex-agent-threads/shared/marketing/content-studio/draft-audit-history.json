@@ -1,0 +1,156 @@
+[
+  {
+    "id": "audit-mkt-draft-campaign-brief-athlete-app-foundation-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-campaign-brief-athlete-app-foundation",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-landing-page-draft-gym-growth-readiness-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-landing-page-draft-gym-growth-readiness",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-email-draft-white-label-positioning-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-email-draft-white-label-positioning",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-newsletter-draft-athlete-app-foundation-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-newsletter-draft-athlete-app-foundation",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-social-post-set-gym-growth-readiness-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-social-post-set-gym-growth-readiness",
+    "previousStatus": null,
+    "newStatus": "needs_review",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-blog-outline-white-label-positioning-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-blog-outline-white-label-positioning",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-launch-announcement-athlete-app-foundation-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-launch-announcement-athlete-app-foundation",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-release-note-gym-growth-readiness-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-release-note-gym-growth-readiness",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-product-messaging-draft-white-label-positioning-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-product-messaging-draft-white-label-positioning",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-ad-copy-draft-athlete-app-foundation-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-ad-copy-draft-athlete-app-foundation",
+    "previousStatus": null,
+    "newStatus": "needs_review",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-video-brief-gym-growth-readiness-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-video-brief-gym-growth-readiness",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-podcast-brief-white-label-positioning-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-podcast-brief-white-label-positioning",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-case-study-outline-athlete-app-foundation-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-case-study-outline-athlete-app-foundation",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  },
+  {
+    "id": "audit-mkt-draft-faq-draft-gym-growth-readiness-20260701150000-draft_seeded",
+    "draftId": "mkt-draft-faq-draft-gym-growth-readiness",
+    "previousStatus": null,
+    "newStatus": "draft",
+    "operator": "Marketing Content Studio",
+    "reason": "Seeded draft-only content studio record.",
+    "auditEvent": "draft_seeded",
+    "timestamp": "2026-07-01T15:00:00.000Z",
+    "publishingActionCreated": false
+  }
+]

@@ -1452,3 +1452,34 @@ Boundaries:
 - No invented brand assets.
 - No government contracting, SAM.gov, federal proposal, Valor, or contract logic.
 - No secrets committed.
+
+## Phase 56
+
+Marketing Content Studio & Draft Generation.
+
+Includes:
+
+- Local Content Studio under `codex-agent-threads/shared/marketing/content-studio/`.
+- Draft generation for campaign briefs, landing page drafts, email drafts, newsletters, social post sets, blog outlines, launch announcements, release notes, product messaging, ad copy, video/podcast briefs, case study outlines, and FAQ drafts.
+- Draft records with status, approval status, brand consistency score, readiness score, linked campaign/product/audience/task context, created/updated timestamps, and audit history.
+- Brand consistency checks for voice, approved messaging, positioning, audience fit, words to avoid, claim safety, pricing consistency, and CTA clarity.
+- Draft approval workflow for submit, approve, reject, and archive transitions. Approval marks a local draft ready for use, but never publishes it.
+- Marketing dashboard sections for Content Studio, Draft Library, Brand Check Results, Approval Queue, Campaign Briefs, Landing Page Drafts, Email Drafts, Social Drafts, Blog/SEO Drafts, and Launch Drafts.
+- Executive visibility for Marketing Draft Pipeline, Brand Risk Queue, Campaign Readiness, and Launch Content Status.
+- Sales visibility for Sales Enablement Drafts, Campaign Support Drafts, Product Messaging Drafts, and Audience-Specific Copy.
+- Root npm scripts for `marketing:drafts`, `marketing:create-draft`, `marketing:brand-check`, `marketing:submit-draft`, `marketing:approve-draft`, `marketing:reject-draft`, `marketing:archive-draft`, `marketing:content-studio-report`, and `marketing:draft-report`.
+
+Boundaries:
+
+- Local execution only.
+- Vyra Performance only.
+- No dependency on `vyraapp.fit`.
+- No autonomous publishing.
+- No autonomous social posting.
+- No autonomous email sending.
+- No paid ad execution.
+- No external CRM sync.
+- No automatic approval.
+- No proposal submission.
+- No government contracting, SAM.gov, federal proposal, Valor, or contract logic.
+- No secrets committed.

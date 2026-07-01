@@ -123,6 +123,44 @@ function ExecutiveMarketingOverviewPanel({ marketing }: { marketing: NonNullable
         columns={['Upcoming Launches', 'Date', 'Publishing', 'Status']}
         rows={marketing.calendar.map((item) => [item.title, item.date.slice(0, 10), item.publishingEnabled ? 'Enabled' : 'Disabled', item.status])}
       />
+      <div className="dashboard-subsection">
+        <h3>Marketing Draft Pipeline</h3>
+        <DataTable
+          columns={['Draft', 'Type', 'Status', 'Brand Check']}
+          rows={marketing.contentStudio.drafts.slice(0, 8).map((draft) => [draft.title, draft.type, draft.status, `${draft.brandConsistencyScore}%`])}
+        />
+      </div>
+      <div className="dashboard-subsection">
+        <h3>Brand Risk Queue</h3>
+        <DataTable
+          columns={['Draft', 'Score', 'Risk', 'Next Action']}
+          rows={marketing.contentStudio.brandChecks
+            .filter((check) => check.risks.length || check.violations.length)
+            .map((check) => [
+              marketing.contentStudio.drafts.find((draft) => draft.draftId === check.draftId)?.title ?? check.draftId,
+              `${check.score}%`,
+              check.risks.join('; ') || check.violations.join('; '),
+              check.nextActions[0],
+            ])}
+          emptyMessage="No brand risks in the draft queue."
+        />
+      </div>
+      <div className="dashboard-subsection">
+        <h3>Campaign Readiness</h3>
+        <DataTable
+          columns={['Scope', 'Drafts', 'Needs Review', 'Avg Readiness']}
+          rows={[['Content Studio', String(marketing.contentStudio.summary.drafts), String(marketing.contentStudio.summary.needsReview), `${marketing.contentStudio.summary.averageReadiness}%`]]}
+        />
+      </div>
+      <div className="dashboard-subsection">
+        <h3>Launch Content Status</h3>
+        <DataTable
+          columns={['Draft', 'Campaign', 'Status', 'Approval']}
+          rows={marketing.contentStudio.drafts
+            .filter((draft) => draft.type === 'launch announcement' || draft.type === 'release note')
+            .map((draft) => [draft.title, draft.campaign, draft.status, draft.approvalStatus])}
+        />
+      </div>
       <p className="subtle-note">Executive Marketing Overview is read-only and local. It does not publish, post, email, buy ads, sync CRM data, or approve marketing automatically.</p>
     </section>
   );

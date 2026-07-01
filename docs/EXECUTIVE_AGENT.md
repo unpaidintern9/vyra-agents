@@ -104,3 +104,9 @@ See `docs/EXECUTIVE_PLANNING.md`, `docs/GOAL_MANAGEMENT.md`, `docs/KPI_SCORECARD
 The Executive dashboard includes Marketing Overview, Brand Health, Campaign Pipeline, Content Progress, and Upcoming Launches.
 
 Marketing records live under `codex-agent-threads/shared/marketing/` and remain local planning records for Vyra Performance. Executive can review brand gaps, pending approvals, and launch readiness, but the dashboard does not publish, post, email, buy ads, sync CRM records, or approve marketing automatically.
+
+## Phase 56 Marketing Draft Pipeline
+
+The Executive dashboard includes Marketing Draft Pipeline, Brand Risk Queue, Campaign Readiness, and Launch Content Status.
+
+Content Studio records live under `codex-agent-threads/shared/marketing/content-studio/`. Executive visibility is read-only and approval-aware; approved drafts remain local drafts and do not publish, email, post, buy ads, sync CRM records, or trigger external actions.

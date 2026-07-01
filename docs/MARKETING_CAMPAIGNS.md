@@ -16,3 +16,8 @@ Supported statuses:
 
 Campaigns remain local planning records. The Marketing Agent does not publish content, post to social, send email, buy ads, sync CRM records, or approve campaigns automatically.
 
+## Campaign Drafts
+
+Phase 56 links campaign briefs, landing page drafts, social draft sets, launch drafts, and related content to campaign records.
+
+Campaign content remains draft-only. Campaign readiness can improve with reviewed drafts, but no campaign is activated externally.

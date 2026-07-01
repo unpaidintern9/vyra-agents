@@ -1,11 +1,11 @@
 # Marketing Readiness Report
 
-Generated: 2026-07-01T18:53:55.419Z
+Generated: 2026-07-01T20:01:59.963Z
 
 ```json
 {
   "title": "Marketing Readiness Report",
-  "generatedAt": "2026-07-01T18:53:55.419Z",
+  "generatedAt": "2026-07-01T20:01:59.963Z",
   "readiness": {
     "brandCompleteness": {
       "score": 54,
@@ -106,7 +106,9 @@ Generated: 2026-07-01T18:53:55.419Z
     "inventedBrandAssets": false,
     "governmentContractingLogic": false,
     "samGovLogic": false,
-    "federalProposalLogic": false
+    "federalProposalLogic": false,
+    "unsupportedClaims": false,
+    "healthFitnessClaimsWithoutReview": false
   }
 }
 ```

@@ -19,3 +19,8 @@ Each item tracks title, type, audience, product, status, owner, approval status,
 
 All content records are planning records only. No publishing or sending is performed.
 
+## Draft Generation
+
+Phase 56 adds Content Studio drafts linked to content library items, campaigns, products, audiences, goals, and tasks.
+
+Generated drafts are deterministic local records with readiness scores, brand consistency scores, approval status, and audit history. Draft generation does not publish, send, post, or buy ads.

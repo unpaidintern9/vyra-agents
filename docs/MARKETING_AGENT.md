@@ -33,3 +33,10 @@ Safety:
 - No automatic approval.
 - No invented brand assets.
 
+## Phase 56 Content Studio
+
+The Marketing Agent now includes a Content Studio for draft-only campaign briefs, landing page drafts, email drafts, newsletters, social post sets, blog outlines, launch announcements, release notes, product messaging, ad copy, video/podcast briefs, case study outlines, and FAQ drafts.
+
+Use `npm run marketing:drafts`, `npm run marketing:create-draft`, `npm run marketing:brand-check`, `npm run marketing:submit-draft`, `npm run marketing:approve-draft`, `npm run marketing:reject-draft`, `npm run marketing:archive-draft`, `npm run marketing:content-studio-report`, and `npm run marketing:draft-report`.
+
+Approval remains internal only and does not publish or create external actions.

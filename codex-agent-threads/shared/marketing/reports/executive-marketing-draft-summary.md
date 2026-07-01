@@ -1,22 +1,22 @@
-# Executive Marketing Summary
+# Executive Marketing Draft Summary
 
-Generated: 2026-07-01T20:01:59.963Z
+Generated: 2026-07-01T20:01:59.964Z
 
 ```json
 {
-  "title": "Executive Marketing Summary",
-  "generatedAt": "2026-07-01T20:01:59.963Z",
+  "title": "Executive Marketing Draft Summary",
+  "generatedAt": "2026-07-01T20:01:59.964Z",
   "summary": {
-    "brandAssetsConfirmed": 3,
-    "brandAssetsMissing": 2,
-    "products": 6,
-    "audiences": 10,
-    "contentItems": 12,
-    "campaigns": 3,
-    "calendarItems": 3,
-    "approvalsPending": 2,
-    "averageReadiness": 65
+    "drafts": 14,
+    "needsReview": 2,
+    "approved": 0,
+    "rejected": 0,
+    "brandRiskQueue": 0,
+    "averageBrandConsistency": 92,
+    "averageReadiness": 85,
+    "approvals": 14
   },
+  "brandRiskQueue": [],
   "safety": {
     "localOnly": true,
     "autonomousPublishing": false,

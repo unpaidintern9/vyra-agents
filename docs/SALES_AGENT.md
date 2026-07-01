@@ -258,3 +258,9 @@ Sales goal alignment links local opportunities, organizations, KPIs, and Executi
 The Sales dashboard includes Marketing Assets, Product Messaging, Audience Messaging, and Campaign Support from the local Marketing Agent.
 
 These records help sellers align outreach and follow-up prep with Vyra Performance messaging. They are draft-only and do not publish content, send email, post to social, buy ads, sync CRM records, or approve marketing assets automatically.
+
+## Phase 56 Sales Enablement Drafts
+
+The Sales dashboard includes Sales Enablement Drafts, Campaign Support Drafts, Product Messaging Drafts, and Audience-Specific Copy from the local Marketing Content Studio.
+
+These drafts help sellers prepare local-only outreach and follow-up context while preserving manual review. Sales cannot publish marketing drafts, send customer emails, post to social, buy ads, sync CRM records, or approve marketing content automatically.

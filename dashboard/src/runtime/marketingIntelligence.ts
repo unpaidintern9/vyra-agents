@@ -38,6 +38,12 @@ export interface MarketingDashboardSummary {
     approvalsPending: number;
   };
   salesSupport: Array<{ asset: string; product: string; audience: string; message: string; status: string }>;
+  contentStudio: {
+    drafts: Array<{ draftId: string; title: string; type: string; audience: string; product: string; campaign: string; status: string; approvalStatus: string; brandConsistencyScore: number; readinessScore: number; body: string }>;
+    brandChecks: Array<{ id: string; draftId: string; score: number; confidence: number; risks: string[]; violations: string[]; nextActions: string[] }>;
+    approvals: Array<{ id: string; draftId: string; title: string; reviewer: string; status: string; reason: string }>;
+    summary: { drafts: number; needsReview: number; brandRiskQueue: number; averageBrandConsistency: number; averageReadiness: number };
+  };
   safety: {
     localOnly: boolean;
     publishing: boolean;
@@ -126,6 +132,16 @@ export function buildDashboardMarketingSummary(input: {
     campaignReadiness: evaluation(66, 'Planning', ['Campaigns require approval before publishing.']),
     launchReadiness: evaluation(60, 'Needs Review', ['Launch dates are planning records only.']),
   };
+  const drafts = contentStudioDrafts(campaigns, products, audiences);
+  const brandChecks = drafts.map((draft) => brandCheckForDraft(draft, brand));
+  const draftApprovals = drafts.map((draft) => ({
+    id: `mkt-draft-approval-${draft.draftId}`,
+    draftId: draft.draftId,
+    title: draft.title,
+    reviewer: draft.status === 'needs_review' ? 'Executive' : 'Marketing',
+    status: draft.status === 'needs_review' ? 'pending_review' : 'pending',
+    reason: 'Draft requires human review before any external use.',
+  }));
   return {
     brand,
     products,
@@ -149,6 +165,18 @@ export function buildDashboardMarketingSummary(input: {
       message: `${opportunity.company}: lead with member experience, retention, and local operations clarity.`,
       status: 'draft',
     })),
+    contentStudio: {
+      drafts,
+      brandChecks,
+      approvals: draftApprovals,
+      summary: {
+        drafts: drafts.length,
+        needsReview: drafts.filter((draft) => draft.status === 'needs_review').length,
+        brandRiskQueue: brandChecks.filter((check) => check.risks.length || check.violations.length).length,
+        averageBrandConsistency: average(brandChecks.map((check) => check.score)),
+        averageReadiness: average(drafts.map((draft) => draft.readinessScore)),
+      },
+    },
     safety: {
       localOnly: true,
       publishing: false,
@@ -158,6 +186,48 @@ export function buildDashboardMarketingSummary(input: {
       externalCrmSync: false,
       automaticApproval: false,
     },
+  };
+}
+
+function contentStudioDrafts(campaigns: MarketingDashboardSummary['campaigns'], products: MarketingDashboardSummary['products'], audiences: MarketingDashboardSummary['audiences']) {
+  const types = ['campaign brief', 'landing page draft', 'email draft', 'newsletter draft', 'social post set', 'blog outline', 'launch announcement', 'release note', 'product messaging draft', 'ad copy draft', 'video brief', 'podcast brief', 'case study outline', 'FAQ draft'];
+  return types.map((type, index) => {
+    const campaignItem = campaigns[index % campaigns.length];
+    const productItem = products.find((product) => campaignItem.products.includes(product.id)) ?? products[index % products.length];
+    const audienceItem = audiences.find((audience) => audience.name === campaignItem.audience[0]) ?? audiences[index % audiences.length];
+    const body = `${campaignItem.name} helps ${audienceItem.name} understand how ${productItem.name} supports clearer performance workflows. Review this draft internally before any external use.`;
+    return {
+      draftId: `mkt-draft-${type.replace(/\s+/g, '-')}-${campaignItem.campaignId}`,
+      title: `${titleCase(type)}: ${campaignItem.name}`,
+      type,
+      audience: audienceItem.name,
+      product: productItem.name,
+      campaign: campaignItem.name,
+      status: index % 5 === 0 ? 'needs_review' : 'draft',
+      approvalStatus: index % 5 === 0 ? 'pending_review' : 'pending',
+      brandConsistencyScore: type === 'ad copy draft' ? 80 : 92,
+      readinessScore: type === 'ad copy draft' ? 72 : 86,
+      body,
+    };
+  });
+}
+
+function brandCheckForDraft(draft: MarketingDashboardSummary['contentStudio']['drafts'][number], brand: MarketingDashboardSummary['brand']) {
+  const text = `${draft.title} ${draft.body}`.toLowerCase();
+  const violations = brand.wordsToAvoid.filter((word) => text.includes(word.toLowerCase()));
+  const risks = [
+    violations.length ? 'Avoided brand wording present.' : null,
+    draft.type === 'ad copy draft' ? 'Paid ad execution remains disabled and copy needs review.' : null,
+    draft.type === 'email draft' ? 'Email sending is disabled; draft only.' : null,
+  ].filter(Boolean) as string[];
+  return {
+    id: `brand-check-${draft.draftId}`,
+    draftId: draft.draftId,
+    score: Math.max(40, draft.brandConsistencyScore - violations.length * 15),
+    confidence: risks.length ? 72 : 86,
+    risks,
+    violations,
+    nextActions: risks.length ? ['Request edits before approval.'] : ['Submit for human review.'],
   };
 }
 
@@ -211,6 +281,11 @@ function evaluation(score: number, label: string, risks: string[]): MarketingEva
     recommendations: risks.length ? ['Resolve missing inputs before publishing.'] : ['Continue internal review cadence.'],
     nextActions: risks.length ? ['Assign an owner for the highest-risk missing input.'] : ['Prepare next approval review.'],
   };
+}
+
+function average(values: number[]): number {
+  const clean = values.filter((value) => Number.isFinite(value));
+  return clean.length ? Math.round(clean.reduce((sum, value) => sum + value, 0) / clean.length) : 0;
 }
 
 function titleCase(value: string): string {

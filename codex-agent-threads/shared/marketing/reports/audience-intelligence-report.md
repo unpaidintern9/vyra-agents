@@ -1,11 +1,11 @@
 # Audience Intelligence Report
 
-Generated: 2026-07-01T18:53:55.419Z
+Generated: 2026-07-01T20:01:59.963Z
 
 ```json
 {
   "title": "Audience Intelligence Report",
-  "generatedAt": "2026-07-01T18:53:55.419Z",
+  "generatedAt": "2026-07-01T20:01:59.963Z",
   "audiences": [
     {
       "id": "aud-athletes",
@@ -330,7 +330,9 @@ Generated: 2026-07-01T18:53:55.419Z
     "inventedBrandAssets": false,
     "governmentContractingLogic": false,
     "samGovLogic": false,
-    "federalProposalLogic": false
+    "federalProposalLogic": false,
+    "unsupportedClaims": false,
+    "healthFitnessClaimsWithoutReview": false
   }
 }
 ```

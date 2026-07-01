@@ -1,11 +1,11 @@
 # Product Messaging Report
 
-Generated: 2026-07-01T18:53:55.419Z
+Generated: 2026-07-01T20:01:59.963Z
 
 ```json
 {
   "title": "Product Messaging Report",
-  "generatedAt": "2026-07-01T18:53:55.419Z",
+  "generatedAt": "2026-07-01T20:01:59.963Z",
   "products": [
     {
       "id": "prod-athlete-app",
@@ -254,7 +254,9 @@ Generated: 2026-07-01T18:53:55.419Z
     "inventedBrandAssets": false,
     "governmentContractingLogic": false,
     "samGovLogic": false,
-    "federalProposalLogic": false
+    "federalProposalLogic": false,
+    "unsupportedClaims": false,
+    "healthFitnessClaimsWithoutReview": false
   }
 }
 ```

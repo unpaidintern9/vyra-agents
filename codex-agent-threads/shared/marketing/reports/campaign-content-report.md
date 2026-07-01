@@ -1,0 +1,141 @@
+# Campaign Content Report
+
+Generated: 2026-07-01T20:01:59.964Z
+
+```json
+{
+  "title": "Campaign Content Report",
+  "generatedAt": "2026-07-01T20:01:59.964Z",
+  "rows": [
+    {
+      "campaign": "Athlete App Foundation",
+      "draft": "Campaign Brief: Athlete App Foundation",
+      "type": "campaign brief",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "Gym Growth Readiness",
+      "draft": "Landing Page Draft: Gym Growth Readiness",
+      "type": "landing page draft",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "White Label Positioning",
+      "draft": "Email Draft: White Label Positioning",
+      "type": "email draft",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "Athlete App Foundation",
+      "draft": "Newsletter Draft: Athlete App Foundation",
+      "type": "newsletter draft",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "Gym Growth Readiness",
+      "draft": "Social Post Set: Gym Growth Readiness",
+      "type": "social post set",
+      "status": "needs_review",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "White Label Positioning",
+      "draft": "Blog Outline: White Label Positioning",
+      "type": "blog outline",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "Athlete App Foundation",
+      "draft": "Launch Announcement: Athlete App Foundation",
+      "type": "launch announcement",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "Gym Growth Readiness",
+      "draft": "Release Note: Gym Growth Readiness",
+      "type": "release note",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "White Label Positioning",
+      "draft": "Product Messaging Draft: White Label Positioning",
+      "type": "product messaging draft",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "Athlete App Foundation",
+      "draft": "Ad Copy Draft: Athlete App Foundation",
+      "type": "ad copy draft",
+      "status": "needs_review",
+      "brandConsistencyScore": 90,
+      "readinessScore": 78
+    },
+    {
+      "campaign": "Gym Growth Readiness",
+      "draft": "Video Brief: Gym Growth Readiness",
+      "type": "video brief",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "White Label Positioning",
+      "draft": "Podcast Brief: White Label Positioning",
+      "type": "podcast brief",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "Athlete App Foundation",
+      "draft": "Case Study Outline: Athlete App Foundation",
+      "type": "case study outline",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    },
+    {
+      "campaign": "Gym Growth Readiness",
+      "draft": "FAQ Draft: Gym Growth Readiness",
+      "type": "FAQ draft",
+      "status": "draft",
+      "brandConsistencyScore": 90,
+      "readinessScore": 86
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "autonomousPublishing": false,
+    "autonomousSocialPosting": false,
+    "autonomousEmailing": false,
+    "paidAdExecution": false,
+    "externalCrmSync": false,
+    "automaticApproval": false,
+    "inventedBrandAssets": false,
+    "governmentContractingLogic": false,
+    "samGovLogic": false,
+    "federalProposalLogic": false,
+    "unsupportedClaims": false,
+    "healthFitnessClaimsWithoutReview": false
+  }
+}
+```
+
+Local-only marketing safety: no publishing, posting, emailing, ad buying, CRM sync, automatic approval, or unsupported brand assets.
