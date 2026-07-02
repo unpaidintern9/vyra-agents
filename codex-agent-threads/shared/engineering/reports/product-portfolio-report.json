@@ -1,0 +1,163 @@
+{
+  "title": "Product Portfolio Report",
+  "generatedAt": "2026-07-02T13:27:41.599Z",
+  "summary": {
+    "productCount": 4,
+    "featureCount": 5,
+    "activeFeatures": 2,
+    "releasedFeatures": 1,
+    "roadmapCount": 3,
+    "averageRoadmapProgress": 52,
+    "openIssues": 4,
+    "criticalIssues": 1,
+    "upcomingReleases": 3,
+    "blockedReleases": 2,
+    "feedbackItems": 5,
+    "highSeverityFeedback": 2
+  },
+  "products": [
+    {
+      "productId": "prod-athlete-app",
+      "name": "Athlete App",
+      "description": "Athlete-facing performance companion for training accountability.",
+      "status": "Active Development",
+      "owner": "Product",
+      "version": "0.8.0",
+      "roadmap": "roadmap-prod-athlete-app",
+      "linkedGoals": [
+        "goal-athlete-launch"
+      ],
+      "linkedKpis": [
+        "kpi-activation"
+      ],
+      "linkedCampaigns": [
+        "camp-athlete-app-foundation"
+      ],
+      "linkedRevenue": [
+        "forecast-annual"
+      ],
+      "linkedCustomers": [
+        "cust-river-city-performance"
+      ],
+      "linkedEngineeringWork": [
+        "engineering-task:repo-risk:vyra-app"
+      ],
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "product.record.created"
+        }
+      ]
+    },
+    {
+      "productId": "prod-coach-platform",
+      "name": "Coach Platform",
+      "description": "Coach workspace for athlete progress, programming, and client communication.",
+      "status": "QA",
+      "owner": "Product",
+      "version": "1.1.0",
+      "roadmap": "roadmap-prod-coach-platform",
+      "linkedGoals": [
+        "goal-coach-retention"
+      ],
+      "linkedKpis": [
+        "kpi-retention"
+      ],
+      "linkedCampaigns": [
+        "camp-gym-growth-readiness"
+      ],
+      "linkedRevenue": [
+        "fin-cust-area-502-mma"
+      ],
+      "linkedCustomers": [
+        "cust-area-502-mma"
+      ],
+      "linkedEngineeringWork": [
+        "engineering-task:documentation:coach-platform"
+      ],
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "product.record.created"
+        }
+      ]
+    },
+    {
+      "productId": "prod-gym-software",
+      "name": "Gym Software",
+      "description": "Gym operations software for member experience, onboarding, and growth follow-through.",
+      "status": "Beta",
+      "owner": "Product",
+      "version": "0.9.0",
+      "roadmap": "roadmap-prod-gym-software",
+      "linkedGoals": [
+        "goal-gym-growth"
+      ],
+      "linkedKpis": [
+        "kpi-onboarding"
+      ],
+      "linkedCampaigns": [
+        "camp-gym-growth-readiness"
+      ],
+      "linkedRevenue": [
+        "fin-cust-louisville-combat-academy"
+      ],
+      "linkedCustomers": [
+        "cust-louisville-combat-academy"
+      ],
+      "linkedEngineeringWork": [
+        "engineering-task:release-blocker:gym-software:qa"
+      ],
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "product.record.created"
+        }
+      ]
+    },
+    {
+      "productId": "prod-white-label",
+      "name": "White Label Platform",
+      "description": "Partner-branded performance experience planning for larger organizations.",
+      "status": "Planned",
+      "owner": "Product",
+      "version": "0.3.0",
+      "roadmap": "roadmap-prod-white-label",
+      "linkedGoals": [
+        "goal-enterprise-pilot"
+      ],
+      "linkedKpis": [
+        "kpi-pipeline"
+      ],
+      "linkedCampaigns": [
+        "camp-white-label-positioning"
+      ],
+      "linkedRevenue": [
+        "fin-future-white-label"
+      ],
+      "linkedCustomers": [
+        "cust-kentucky-youth-sports"
+      ],
+      "linkedEngineeringWork": [
+        "engineering-task:project-registry:white-label"
+      ],
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "product.record.created"
+        }
+      ]
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "externalDatabase": false,
+    "githubMutations": false,
+    "deploymentAutomation": false,
+    "ciCdMutations": false,
+    "appStorePublishing": false,
+    "autonomousCodeGeneration": false,
+    "autonomousMerges": false,
+    "advisoryOnly": true
+  }
+}

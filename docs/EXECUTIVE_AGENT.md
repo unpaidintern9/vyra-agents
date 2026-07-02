@@ -128,3 +128,9 @@ Customer Success records live under `codex-agent-threads/shared/customer-success
 The Executive dashboard includes Executive Revenue Summary, Revenue Forecast, Growth Trends, Expansion Pipeline, Renewal Health, and Revenue Risks.
 
 Finance records live under `codex-agent-threads/shared/finance/`. Executive visibility is advisory and local. It does not mutate Stripe, send invoices, collect payments, sync accounting, change billing, or approve financial actions automatically.
+
+## Phase 61 Engineering Product Visibility
+
+The Executive dashboard and Engineering page can use Product Portfolio Summary, Roadmap Progress, Release Readiness, Engineering Risks, and Product Health from the local Engineering & Product Operations Agent.
+
+Engineering product records live under `codex-agent-threads/shared/engineering/`. Executive visibility is advisory and does not approve releases, merge code, write GitHub records, deploy software, mutate CI/CD, publish to app stores, or trigger autonomous code generation.

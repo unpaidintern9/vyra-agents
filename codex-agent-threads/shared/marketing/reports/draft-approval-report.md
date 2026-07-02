@@ -1,11 +1,11 @@
 # Draft Approval Report
 
-Generated: 2026-07-01T22:25:08.487Z
+Generated: 2026-07-02T13:27:15.197Z
 
 ```json
 {
   "title": "Draft Approval Report",
-  "generatedAt": "2026-07-01T22:25:08.487Z",
+  "generatedAt": "2026-07-02T13:27:15.197Z",
   "approvals": [
     {
       "id": "mkt-draft-approval-mkt-draft-campaign-brief-athlete-app-foundation-20260701150000",

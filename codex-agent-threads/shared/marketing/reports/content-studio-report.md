@@ -1,11 +1,11 @@
 # Content Studio Report
 
-Generated: 2026-07-01T22:25:08.486Z
+Generated: 2026-07-02T13:27:15.197Z
 
 ```json
 {
   "title": "Content Studio Report",
-  "generatedAt": "2026-07-01T22:25:08.486Z",
+  "generatedAt": "2026-07-02T13:27:15.197Z",
   "summary": {
     "drafts": 14,
     "needsReview": 2,

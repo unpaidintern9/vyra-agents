@@ -1,0 +1,140 @@
+# Customer Feedback Summary
+
+Generated: 2026-07-02T13:27:41.599Z
+
+```json
+{
+  "title": "Customer Feedback Summary",
+  "generatedAt": "2026-07-02T13:27:41.599Z",
+  "summary": {
+    "productCount": 4,
+    "featureCount": 5,
+    "activeFeatures": 2,
+    "releasedFeatures": 1,
+    "roadmapCount": 3,
+    "averageRoadmapProgress": 52,
+    "openIssues": 4,
+    "criticalIssues": 1,
+    "upcomingReleases": 3,
+    "blockedReleases": 2,
+    "feedbackItems": 5,
+    "highSeverityFeedback": 2
+  },
+  "feedback": [
+    {
+      "feedbackId": "feedback-lca-import",
+      "source": "Gyms",
+      "category": "member import",
+      "frequency": 5,
+      "severity": "High",
+      "linkedFeatures": [
+        "feat-gym-member-import"
+      ],
+      "linkedCustomers": [
+        "cust-louisville-combat-academy"
+      ],
+      "recommendations": "Prioritize import validation and release readiness review.",
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "feedback.record.created"
+        }
+      ]
+    },
+    {
+      "feedbackId": "feedback-river-city-progress",
+      "source": "Coaches",
+      "category": "progress reporting",
+      "frequency": 3,
+      "severity": "Medium",
+      "linkedFeatures": [
+        "feat-athlete-progress-snapshot"
+      ],
+      "linkedCustomers": [
+        "cust-river-city-performance"
+      ],
+      "recommendations": "Shape progress snapshot requirements with Customer Success.",
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "feedback.record.created"
+        }
+      ]
+    },
+    {
+      "feedbackId": "feedback-area-502-training",
+      "source": "Customer Success",
+      "category": "training workflow",
+      "frequency": 4,
+      "severity": "Medium",
+      "linkedFeatures": [
+        "feat-coach-client-board"
+      ],
+      "linkedCustomers": [
+        "cust-area-502-mma"
+      ],
+      "recommendations": "Complete QA notes and training assets together.",
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "feedback.record.created"
+        }
+      ]
+    },
+    {
+      "feedbackId": "feedback-kys-enterprise",
+      "source": "Sales",
+      "category": "enterprise branding",
+      "frequency": 2,
+      "severity": "High",
+      "linkedFeatures": [
+        "feat-white-label-branding"
+      ],
+      "linkedCustomers": [
+        "cust-kentucky-youth-sports"
+      ],
+      "recommendations": "Keep white label planning advisory until executive approval.",
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "feedback.record.created"
+        }
+      ]
+    },
+    {
+      "feedbackId": "feedback-success-release-comms",
+      "source": "Customer Success",
+      "category": "release communication",
+      "frequency": 3,
+      "severity": "Medium",
+      "linkedFeatures": [
+        "feat-release-notes-workflow"
+      ],
+      "linkedCustomers": [
+        "cust-louisville-combat-academy",
+        "cust-area-502-mma"
+      ],
+      "recommendations": "Prepare release communications as drafts only.",
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "feedback.record.created"
+        }
+      ]
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "externalDatabase": false,
+    "githubMutations": false,
+    "deploymentAutomation": false,
+    "ciCdMutations": false,
+    "appStorePublishing": false,
+    "autonomousCodeGeneration": false,
+    "autonomousMerges": false,
+    "advisoryOnly": true
+  }
+}
+```
+
+Local-only engineering safety: no GitHub mutations, deployments, CI/CD mutations, App Store publishing, autonomous code generation, automatic releases, or autonomous merges.

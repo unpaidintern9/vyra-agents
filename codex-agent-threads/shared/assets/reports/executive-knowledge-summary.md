@@ -1,11 +1,11 @@
 # Executive Knowledge Summary
 
-Generated: 2026-07-01T22:25:09.070Z
+Generated: 2026-07-02T13:27:32.394Z
 
 ```json
 {
   "title": "Executive Knowledge Summary",
-  "generatedAt": "2026-07-01T22:25:09.070Z",
+  "generatedAt": "2026-07-02T13:27:32.394Z",
   "rows": [
     {
       "knowledgeId": "knowledge-brand-asset-usage",

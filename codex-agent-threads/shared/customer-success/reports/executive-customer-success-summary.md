@@ -1,11 +1,11 @@
 # Executive Customer Success Summary
 
-Generated: 2026-07-01T22:25:09.647Z
+Generated: 2026-07-02T13:27:32.451Z
 
 ```json
 {
   "title": "Executive Customer Success Summary",
-  "generatedAt": "2026-07-01T22:25:09.647Z",
+  "generatedAt": "2026-07-02T13:27:32.451Z",
   "summary": {
     "totalCustomers": 4,
     "onboardingCustomers": 1,

@@ -1,11 +1,11 @@
 # ARR Report
 
-Generated: 2026-07-01T22:25:10.348Z
+Generated: 2026-07-02T13:27:32.591Z
 
 ```json
 {
   "title": "ARR Report",
-  "generatedAt": "2026-07-01T22:25:10.348Z",
+  "generatedAt": "2026-07-02T13:27:32.591Z",
   "totalArr": 44124,
   "revenue": [
     {

@@ -134,6 +134,7 @@ import { buildAgentRuntime } from './runtime/agentRuntime';
 import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } from './runtime/aiOperatorRuntime';
 import { buildDashboardConnectorReadiness } from './runtime/connectorReadiness';
 import { buildDashboardEngineeringTaskSummary } from './runtime/engineeringTaskGenerator';
+import { buildDashboardEngineeringProductOperations, type EngineeringProductOperationsSummary } from './runtime/engineeringProductOperations';
 import { buildDashboardExecutiveAutomationSummary } from './runtime/executiveAutomation';
 import { buildDashboardExecutiveEmailBriefingSummary } from './runtime/executiveEmailBriefing';
 import { buildDashboardExecutiveOperationsSummary } from './runtime/executiveOperations';
@@ -1494,6 +1495,7 @@ function App() {
   });
   const assetLibrary = buildDashboardAssetLibrarySummary();
   const customerSuccess = buildDashboardCustomerSuccessSummary();
+  const engineeringProductOperations = buildDashboardEngineeringProductOperations();
   const finance = buildDashboardFinanceSummary();
   const releaseReadiness = buildDashboardReleaseReadinessSummary({
     graph: latestEngineeringGraph ?? undefined,
@@ -1835,9 +1837,9 @@ function App() {
         ) : activePage === 'Finance' ? (
           <FinancePage finance={finance} />
         ) : activePage === 'Customer Success' ? (
-          <CustomerSuccessPage customerSuccess={customerSuccess} finance={finance} />
+          <CustomerSuccessPage customerSuccess={customerSuccess} engineeringProductOperations={engineeringProductOperations} finance={finance} />
         ) : activePage === 'Marketing' ? (
-          <MarketingPage assetLibrary={assetLibrary} marketing={marketing} />
+          <MarketingPage assetLibrary={assetLibrary} engineeringProductOperations={engineeringProductOperations} marketing={marketing} />
         ) : activePage === 'Assets' ? (
           <AssetLibraryPage assetLibrary={assetLibrary} />
         ) : activePage === 'Integrations' ? (
@@ -2230,7 +2232,27 @@ function FinancePage({ finance }: { finance: FinanceDashboardSummary }) {
   );
 }
 
-function CustomerSuccessPage({ customerSuccess, finance }: { customerSuccess: CustomerSuccessDashboardSummary; finance: FinanceDashboardSummary }) {
+function CustomerSuccessPage({
+  customerSuccess,
+  engineeringProductOperations,
+  finance,
+}: {
+  customerSuccess: CustomerSuccessDashboardSummary;
+  engineeringProductOperations: EngineeringProductOperationsSummary;
+  finance: FinanceDashboardSummary;
+}) {
+  const feedbackRows = engineeringProductOperations.feedback.filter(
+    (item) => item.source === 'Customer Success' || item.linkedCustomers.some((customerId) => customerSuccess.customers.some((customer) => customer.customerId === customerId)),
+  );
+  const requestedFeatureRows = engineeringProductOperations.features.filter((feature) =>
+    feature.linkedFeedback.some((feedbackId) => feedbackRows.some((feedback) => feedback.feedbackId === feedbackId)),
+  );
+  const releaseCommunicationRows = engineeringProductOperations.releases.map((release) => ({
+    ...release,
+    linkedCustomerFeedback: feedbackRows.filter((feedback) =>
+      feedback.linkedFeatures.some((featureId) => release.includedFeatures.includes(featureId)),
+    ),
+  }));
   return (
     <section className="dashboard-grid">
       <Panel title="Customer Overview" icon={<Users size={18} />} wide>
@@ -2290,6 +2312,49 @@ function CustomerSuccessPage({ customerSuccess, finance }: { customerSuccess: Cu
         />
       </Panel>
 
+      <Panel title="Customer Feedback" icon={<Search size={18} />} wide>
+        <DataTable
+          columns={['Customer Feedback', 'Source', 'Category', 'Severity', 'Linked Customers', 'Linked Features', 'Recommendation']}
+          rows={feedbackRows.map((item) => [
+            item.feedbackId,
+            item.source,
+            item.category,
+            item.severity,
+            item.linkedCustomers.join(', '),
+            item.linkedFeatures.join(', '),
+            item.recommendations,
+          ])}
+        />
+      </Panel>
+
+      <Panel title="Requested Features" icon={<ListChecks size={18} />} wide>
+        <DataTable
+          columns={['Requested Features', 'Product', 'Status', 'Priority', 'Customer Impact', 'Feedback']}
+          rows={requestedFeatureRows.map((feature) => [
+            feature.description,
+            feature.productName,
+            feature.status,
+            feature.priority,
+            feature.customerImpact,
+            feature.linkedFeedback.join(', '),
+          ])}
+        />
+      </Panel>
+
+      <Panel title="Release Communication Readiness" icon={<FileClock size={18} />} wide>
+        <DataTable
+          columns={['Release Communication Readiness', 'Planned Date', 'QA', 'Readiness', 'Customer Feedback', 'Draft Status']}
+          rows={releaseCommunicationRows.map((release) => [
+            release.version,
+            formatDate(release.plannedDate),
+            release.qaStatus,
+            `${release.readinessScore}%`,
+            release.linkedCustomerFeedback.map((feedback) => feedback.feedbackId).join(', ') || 'No direct feedback link',
+            release.releaseNotesDraft,
+          ])}
+        />
+      </Panel>
+
       <Panel title="Renewal Queue" icon={<FileClock size={18} />} wide>
         <DataTable
           columns={['Renewal Queue', 'Renewal Date', 'Readiness', 'Status', 'Next Action']}
@@ -2320,10 +2385,22 @@ function CustomerSuccessPage({ customerSuccess, finance }: { customerSuccess: Cu
   );
 }
 
-function MarketingPage({ assetLibrary, marketing }: { assetLibrary: AssetLibraryDashboardSummary; marketing: MarketingDashboardSummary }) {
+function MarketingPage({
+  assetLibrary,
+  engineeringProductOperations,
+  marketing,
+}: {
+  assetLibrary: AssetLibraryDashboardSummary;
+  engineeringProductOperations: EngineeringProductOperationsSummary;
+  marketing: MarketingDashboardSummary;
+}) {
   const marketingAssets = assetLibrary.assets.filter((asset) => asset.category === 'Marketing' || asset.usageReferences.includes('Marketing'));
   const brandAssets = assetLibrary.assets.filter((asset) => asset.category === 'Brand' && asset.approvalStatus === 'Approved');
   const templates = assetLibrary.assets.filter((asset) => asset.assetType.includes('template') || asset.tags.some((tag) => tag.includes('template')));
+  const upcomingReleaseRows = engineeringProductOperations.releases.filter((release) => release.readinessScore >= 50);
+  const productMessagingDependencies = engineeringProductOperations.features.filter((feature) =>
+    feature.linkedFeedback.length || feature.linkedAssets.some((asset) => asset.includes('brand') || asset.includes('release')),
+  );
   return (
     <section className="dashboard-grid">
       <Panel title="Brand Intelligence" icon={<Megaphone size={18} />} wide>
@@ -2477,6 +2554,59 @@ function MarketingPage({ assetLibrary, marketing }: { assetLibrary: AssetLibrary
         <DataTable
           columns={['Item', 'Type', 'Date', 'Status', 'Publishing']}
           rows={marketing.calendar.map((item) => [item.title, item.type, formatDate(item.date), item.status, item.publishingEnabled ? 'Enabled' : 'Disabled'])}
+        />
+      </Panel>
+
+      <Panel title="Upcoming Releases" icon={<FileClock size={18} />} wide>
+        <DataTable
+          columns={['Upcoming Releases', 'Planned Date', 'Features', 'Readiness', 'QA', 'Marketing Dependency']}
+          rows={upcomingReleaseRows.map((release) => [
+            release.version,
+            formatDate(release.plannedDate),
+            release.includedFeatures.join(', '),
+            `${release.readinessScore}%`,
+            release.qaStatus,
+            release.risks.join(' ') || 'Prepare launch copy review.',
+          ])}
+        />
+      </Panel>
+
+      <Panel title="Launch Readiness" icon={<ListChecks size={18} />} wide>
+        <DataTable
+          columns={['Launch Readiness', 'Score', 'Label', 'Risk', 'Next Action']}
+          rows={[
+            [
+              'Marketing launch readiness',
+              `${marketing.readiness.launchReadiness.score}%`,
+              marketing.readiness.launchReadiness.label,
+              marketing.readiness.launchReadiness.risks.join('; ') || 'No major risk',
+              marketing.readiness.launchReadiness.nextActions[0],
+            ],
+            [
+              'Product release readiness',
+              `${engineeringProductOperations.health.releaseReadiness.score}%`,
+              engineeringProductOperations.health.releaseReadiness.blockers.length ? 'Needs Review' : 'Ready for Internal Review',
+              engineeringProductOperations.health.releaseReadiness.risks.join('; ') || 'No major risk',
+              engineeringProductOperations.health.releaseReadiness.nextActions[0],
+            ],
+          ]}
+        />
+      </Panel>
+
+      <Panel title="Product Messaging Dependencies" icon={<PackageIcon size={18} />} wide>
+        <DataTable
+          columns={['Product Messaging Dependencies', 'Product', 'Status', 'Priority', 'Campaigns', 'Assets']}
+          rows={productMessagingDependencies.map((feature) => {
+            const product = engineeringProductOperations.products.find((item) => item.productId === feature.productId);
+            return [
+              feature.description,
+              feature.productName,
+              feature.status,
+              feature.priority,
+              product?.linkedCampaigns.join(', ') ?? 'No campaign link',
+              feature.linkedAssets.join(', ') || 'No asset link',
+            ];
+          })}
         />
       </Panel>
 

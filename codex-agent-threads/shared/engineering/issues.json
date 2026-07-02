@@ -1,0 +1,114 @@
+[
+  {
+    "issueId": "issue-gym-import-validation",
+    "type": "Bug",
+    "severity": "Critical",
+    "priority": "P0",
+    "owner": "Engineering",
+    "status": "open",
+    "productId": "prod-gym-software",
+    "productName": "Gym Software",
+    "featureId": "feat-gym-member-import",
+    "reproductionNotes": "CSV import validation misses duplicate local IDs in one dry-run path.",
+    "linkedTasks": [
+      "tasks:validate"
+    ],
+    "linkedAssets": [
+      "asset-migration-guide"
+    ],
+    "linkedReports": [
+      "release-readiness-report"
+    ],
+    "githubWriteEnabled": false,
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-02T13:25:31.406Z",
+        "event": "issue.record.created"
+      }
+    ]
+  },
+  {
+    "issueId": "issue-coach-doc-gap",
+    "type": "Documentation",
+    "severity": "Medium",
+    "priority": "P2",
+    "owner": "Product",
+    "status": "planned",
+    "productId": "prod-coach-platform",
+    "productName": "Coach Platform",
+    "featureId": "feat-coach-client-board",
+    "reproductionNotes": "Coach client board acceptance notes need screenshots before release review.",
+    "linkedTasks": [
+      "engineering-task:documentation:coach-platform"
+    ],
+    "linkedAssets": [
+      "asset-operator-runtime-docs"
+    ],
+    "linkedReports": [
+      "feature-status-report"
+    ],
+    "githubWriteEnabled": false,
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-02T13:25:31.406Z",
+        "event": "issue.record.created"
+      }
+    ]
+  },
+  {
+    "issueId": "issue-athlete-empty-state",
+    "type": "UI",
+    "severity": "Low",
+    "priority": "P3",
+    "owner": "Design",
+    "status": "triage",
+    "productId": "prod-athlete-app",
+    "productName": "Athlete App",
+    "featureId": "feat-athlete-progress-snapshot",
+    "reproductionNotes": "Progress snapshot empty state needs clearer product wording.",
+    "linkedTasks": [
+      "marketing:content"
+    ],
+    "linkedAssets": [
+      "asset-brand-intelligence"
+    ],
+    "linkedReports": [
+      "product-portfolio-report"
+    ],
+    "githubWriteEnabled": false,
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-02T13:25:31.406Z",
+        "event": "issue.record.created"
+      }
+    ]
+  },
+  {
+    "issueId": "issue-white-label-scope",
+    "type": "Enhancement",
+    "severity": "High",
+    "priority": "P1",
+    "owner": "Product",
+    "status": "planned",
+    "productId": "prod-white-label",
+    "productName": "White Label Platform",
+    "featureId": "feat-white-label-branding",
+    "reproductionNotes": "White label scope requires manual executive review before any build work.",
+    "linkedTasks": [
+      "executive:goals"
+    ],
+    "linkedAssets": [
+      "asset-brand-intelligence"
+    ],
+    "linkedReports": [
+      "executive-engineering-summary"
+    ],
+    "githubWriteEnabled": false,
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-02T13:25:31.406Z",
+        "event": "issue.record.created"
+      }
+    ]
+  }
+]

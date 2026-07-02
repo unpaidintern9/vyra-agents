@@ -1,11 +1,11 @@
 # Revenue Risk Report
 
-Generated: 2026-07-01T22:25:10.349Z
+Generated: 2026-07-02T13:27:32.592Z
 
 ```json
 {
   "title": "Revenue Risk Report",
-  "generatedAt": "2026-07-01T22:25:10.349Z",
+  "generatedAt": "2026-07-02T13:27:32.592Z",
   "risks": [
     {
       "healthId": "rev-health-fin-cust-kentucky-youth-sports",

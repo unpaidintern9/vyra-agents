@@ -1,0 +1,127 @@
+{
+  "title": "Release Readiness Report",
+  "generatedAt": "2026-07-02T13:27:41.599Z",
+  "summary": {
+    "productCount": 4,
+    "featureCount": 5,
+    "activeFeatures": 2,
+    "releasedFeatures": 1,
+    "roadmapCount": 3,
+    "averageRoadmapProgress": 52,
+    "openIssues": 4,
+    "criticalIssues": 1,
+    "upcomingReleases": 3,
+    "blockedReleases": 2,
+    "feedbackItems": 5,
+    "highSeverityFeedback": 2
+  },
+  "releases": [
+    {
+      "releaseId": "rel-0.9.0-gym-beta",
+      "version": "0.9.0",
+      "plannedDate": "2026-07-22",
+      "includedFeatures": [
+        "feat-gym-member-import",
+        "feat-release-notes-workflow"
+      ],
+      "bugFixes": [
+        "issue-gym-import-validation"
+      ],
+      "risks": [
+        "QA blocker unresolved."
+      ],
+      "qaStatus": "blocked",
+      "releaseNotesDraft": "Draft release notes for 0.9.0. Planning only; no automatic release.",
+      "readinessScore": 61,
+      "executiveApprovalStatus": "needs_review",
+      "releaseAutomationEnabled": false,
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "release.record.created"
+        }
+      ]
+    },
+    {
+      "releaseId": "rel-1.1.0-coach-qa",
+      "version": "1.1.0",
+      "plannedDate": "2026-08-05",
+      "includedFeatures": [
+        "feat-coach-client-board"
+      ],
+      "bugFixes": [
+        "issue-coach-doc-gap"
+      ],
+      "risks": [
+        "Documentation gap before release notes."
+      ],
+      "qaStatus": "review",
+      "releaseNotesDraft": "Draft release notes for 1.1.0. Planning only; no automatic release.",
+      "readinessScore": 74,
+      "executiveApprovalStatus": "pending",
+      "releaseAutomationEnabled": false,
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "release.record.created"
+        }
+      ]
+    },
+    {
+      "releaseId": "rel-0.8.0-athlete-planning",
+      "version": "0.8.0",
+      "plannedDate": "2026-08-19",
+      "includedFeatures": [
+        "feat-athlete-progress-snapshot"
+      ],
+      "bugFixes": [
+        "issue-athlete-empty-state"
+      ],
+      "risks": [
+        "Feature is still in idea review."
+      ],
+      "qaStatus": "planning",
+      "releaseNotesDraft": "Draft release notes for 0.8.0. Planning only; no automatic release.",
+      "readinessScore": 52,
+      "executiveApprovalStatus": "not_requested",
+      "releaseAutomationEnabled": false,
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "release.record.created"
+        }
+      ]
+    }
+  ],
+  "health": {
+    "score": 62,
+    "confidence": 78,
+    "risks": [
+      "QA blocker unresolved.",
+      "Documentation gap before release notes.",
+      "Feature is still in idea review."
+    ],
+    "blockers": [
+      "QA blocker unresolved."
+    ],
+    "recommendations": [
+      "Review blocked releases.",
+      "Keep release approval manual."
+    ],
+    "nextActions": [
+      "Review blocked releases.",
+      "Keep release approval manual."
+    ]
+  },
+  "safety": {
+    "localOnly": true,
+    "externalDatabase": false,
+    "githubMutations": false,
+    "deploymentAutomation": false,
+    "ciCdMutations": false,
+    "appStorePublishing": false,
+    "autonomousCodeGeneration": false,
+    "autonomousMerges": false,
+    "advisoryOnly": true
+  }
+}

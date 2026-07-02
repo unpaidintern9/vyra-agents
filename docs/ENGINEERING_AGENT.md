@@ -72,3 +72,30 @@ Task actions are local only: reviewed, dismissed, planned, done, and reset. No G
 ## Phase 13 GitHub Issue Drafts
 
 The Engineering page can group fix queue items into local GitHub issue drafts with priorities, labels, Markdown bodies, and approval-required status. Drafts can be copied or exported, but the dashboard does not create GitHub issues or write to GitHub.
+
+## Phase 61 Product Operations
+
+The Engineering Agent now includes the Engineering & Product Operations Agent for Vyra Performance.
+
+It manages local product records, feature records, roadmap records, issue records, release planning records, product feedback, deterministic health evaluations, and report generation under:
+
+```text
+codex-agent-threads/shared/engineering/
+```
+
+Commands:
+
+- `npm run engineering:products`
+- `npm run engineering:features`
+- `npm run engineering:roadmaps`
+- `npm run engineering:issues`
+- `npm run engineering:releases`
+- `npm run engineering:feedback`
+- `npm run engineering:health`
+- `npm run engineering:roadmap-report`
+- `npm run engineering:release-report`
+- `npm run engineering:validate`
+
+The dashboard Engineering page includes Product Portfolio, Feature Board, Roadmaps, Bug Tracker, Release Planning, Product Feedback, and Engineering Health sections.
+
+Safety remains strict: local only, no GitHub mutations, no deployments, no CI/CD mutations, no App Store publishing, no autonomous code generation, no automatic releases, and no autonomous merges.

@@ -1,11 +1,11 @@
 # Product Asset Coverage
 
-Generated: 2026-07-01T22:25:09.070Z
+Generated: 2026-07-02T13:27:32.394Z
 
 ```json
 {
   "title": "Product Asset Coverage",
-  "generatedAt": "2026-07-01T22:25:09.070Z",
+  "generatedAt": "2026-07-02T13:27:32.394Z",
   "rows": [
     {
       "name": "Vyra Performance",

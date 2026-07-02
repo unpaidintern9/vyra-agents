@@ -1,0 +1,83 @@
+# Bug Summary Report
+
+Generated: 2026-07-02T13:27:41.599Z
+
+```json
+{
+  "title": "Bug Summary Report",
+  "generatedAt": "2026-07-02T13:27:41.599Z",
+  "summary": {
+    "productCount": 4,
+    "featureCount": 5,
+    "activeFeatures": 2,
+    "releasedFeatures": 1,
+    "roadmapCount": 3,
+    "averageRoadmapProgress": 52,
+    "openIssues": 4,
+    "criticalIssues": 1,
+    "upcomingReleases": 3,
+    "blockedReleases": 2,
+    "feedbackItems": 5,
+    "highSeverityFeedback": 2
+  },
+  "issues": [
+    {
+      "issueId": "issue-gym-import-validation",
+      "type": "Bug",
+      "severity": "Critical",
+      "priority": "P0",
+      "owner": "Engineering",
+      "status": "open",
+      "productId": "prod-gym-software",
+      "productName": "Gym Software",
+      "featureId": "feat-gym-member-import",
+      "reproductionNotes": "CSV import validation misses duplicate local IDs in one dry-run path.",
+      "linkedTasks": [
+        "tasks:validate"
+      ],
+      "linkedAssets": [
+        "asset-migration-guide"
+      ],
+      "linkedReports": [
+        "release-readiness-report"
+      ],
+      "githubWriteEnabled": false,
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T13:25:31.406Z",
+          "event": "issue.record.created"
+        }
+      ]
+    }
+  ],
+  "health": {
+    "score": 58,
+    "confidence": 78,
+    "risks": [
+      "Critical or high issue open."
+    ],
+    "blockers": [
+      "Critical or high issue open."
+    ],
+    "recommendations": [
+      "Triage critical bugs before release planning."
+    ],
+    "nextActions": [
+      "Triage critical bugs before release planning."
+    ]
+  },
+  "safety": {
+    "localOnly": true,
+    "externalDatabase": false,
+    "githubMutations": false,
+    "deploymentAutomation": false,
+    "ciCdMutations": false,
+    "appStorePublishing": false,
+    "autonomousCodeGeneration": false,
+    "autonomousMerges": false,
+    "advisoryOnly": true
+  }
+}
+```
+
+Local-only engineering safety: no GitHub mutations, deployments, CI/CD mutations, App Store publishing, autonomous code generation, automatic releases, or autonomous merges.

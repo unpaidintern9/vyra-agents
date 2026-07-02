@@ -1,0 +1,161 @@
+# Engineering Health Report
+
+Generated: 2026-07-02T13:27:41.599Z
+
+```json
+{
+  "title": "Engineering Health Report",
+  "generatedAt": "2026-07-02T13:27:41.599Z",
+  "summary": {
+    "productCount": 4,
+    "featureCount": 5,
+    "activeFeatures": 2,
+    "releasedFeatures": 1,
+    "roadmapCount": 3,
+    "averageRoadmapProgress": 52,
+    "openIssues": 4,
+    "criticalIssues": 1,
+    "upcomingReleases": 3,
+    "blockedReleases": 2,
+    "feedbackItems": 5,
+    "highSeverityFeedback": 2
+  },
+  "health": {
+    "releaseReadiness": {
+      "score": 62,
+      "confidence": 78,
+      "risks": [
+        "QA blocker unresolved.",
+        "Documentation gap before release notes.",
+        "Feature is still in idea review."
+      ],
+      "blockers": [
+        "QA blocker unresolved."
+      ],
+      "recommendations": [
+        "Review blocked releases.",
+        "Keep release approval manual."
+      ],
+      "nextActions": [
+        "Review blocked releases.",
+        "Keep release approval manual."
+      ]
+    },
+    "roadmapProgress": {
+      "score": 52,
+      "confidence": 78,
+      "risks": [
+        "Member import QA remains the release blocker.",
+        "Release approval is planning-only.",
+        "Enterprise scope needs customer validation."
+      ],
+      "blockers": [
+        "Member import QA remains the release blocker."
+      ],
+      "recommendations": [
+        "Review roadmap risks with Executive.",
+        "Keep dependencies explicit."
+      ],
+      "nextActions": [
+        "Review roadmap risks with Executive.",
+        "Keep dependencies explicit."
+      ]
+    },
+    "featureCompletion": {
+      "score": 60,
+      "confidence": 78,
+      "risks": [],
+      "blockers": [],
+      "recommendations": [
+        "Move active features through QA intentionally."
+      ],
+      "nextActions": [
+        "Move active features through QA intentionally."
+      ]
+    },
+    "bugBacklogHealth": {
+      "score": 58,
+      "confidence": 78,
+      "risks": [
+        "Critical or high issue open."
+      ],
+      "blockers": [
+        "Critical or high issue open."
+      ],
+      "recommendations": [
+        "Triage critical bugs before release planning."
+      ],
+      "nextActions": [
+        "Triage critical bugs before release planning."
+      ]
+    },
+    "technicalDebt": {
+      "score": 72,
+      "confidence": 78,
+      "risks": [
+        "Technical debt is inferred from local planning records."
+      ],
+      "blockers": [],
+      "recommendations": [
+        "Review repository-intelligence task candidates."
+      ],
+      "nextActions": [
+        "Review repository-intelligence task candidates."
+      ]
+    },
+    "qaReadiness": {
+      "score": 46,
+      "confidence": 78,
+      "risks": [
+        "QA blockers remain open."
+      ],
+      "blockers": [
+        "QA blockers remain open."
+      ],
+      "recommendations": [
+        "Resolve QA blockers before release readiness approval."
+      ],
+      "nextActions": [
+        "Resolve QA blockers before release readiness approval."
+      ]
+    },
+    "productHealth": {
+      "score": 63,
+      "confidence": 78,
+      "risks": [
+        "Member import QA remains the release blocker.",
+        "Release approval is planning-only.",
+        "Enterprise scope needs customer validation.",
+        "QA blocker unresolved.",
+        "Documentation gap before release notes.",
+        "Feature is still in idea review.",
+        "CSV import validation misses duplicate local IDs in one dry-run path.",
+        "White label scope requires manual executive review before any build work."
+      ],
+      "blockers": [
+        "Member import QA remains the release blocker.",
+        "QA blocker unresolved."
+      ],
+      "recommendations": [
+        "Review product portfolio monthly."
+      ],
+      "nextActions": [
+        "Review product portfolio monthly."
+      ]
+    }
+  },
+  "safety": {
+    "localOnly": true,
+    "externalDatabase": false,
+    "githubMutations": false,
+    "deploymentAutomation": false,
+    "ciCdMutations": false,
+    "appStorePublishing": false,
+    "autonomousCodeGeneration": false,
+    "autonomousMerges": false,
+    "advisoryOnly": true
+  }
+}
+```
+
+Local-only engineering safety: no GitHub mutations, deployments, CI/CD mutations, App Store publishing, autonomous code generation, automatic releases, or autonomous merges.

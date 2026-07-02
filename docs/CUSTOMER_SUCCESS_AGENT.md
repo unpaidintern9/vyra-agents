@@ -40,3 +40,9 @@ Safety:
 Customer Success now includes Renewal Readiness, Revenue Health, Expansion Opportunities, and Churn Exposure from the local Finance Agent.
 
 These records help prioritize retention and expansion planning, but they do not renew subscriptions, change billing, send invoices, collect payments, update Stripe, or sync accounting.
+
+## Phase 61 Product Feedback Context
+
+Customer Success can contribute local product feedback, requested features, support-linked bugs, and release communication readiness signals to the Engineering & Product Operations Agent.
+
+Feedback remains advisory. Customer Success does not message customers, publish release communications, update accounts, create GitHub issues, deploy fixes, or approve releases automatically.

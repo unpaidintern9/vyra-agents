@@ -1,11 +1,11 @@
 # Executive Marketing Draft Summary
 
-Generated: 2026-07-01T22:25:08.487Z
+Generated: 2026-07-02T13:27:15.197Z
 
 ```json
 {
   "title": "Executive Marketing Draft Summary",
-  "generatedAt": "2026-07-01T22:25:08.487Z",
+  "generatedAt": "2026-07-02T13:27:15.197Z",
   "summary": {
     "drafts": 14,
     "needsReview": 2,

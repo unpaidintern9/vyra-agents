@@ -1569,3 +1569,35 @@ Boundaries:
 - No proposal submission.
 - No government contracting, SAM.gov, federal proposal, Valor, or contract logic.
 - No secrets committed.
+
+## Phase 61
+
+Engineering & Product Operations Agent.
+
+Includes:
+
+- Local Product Operations storage under `codex-agent-threads/shared/engineering/`.
+- Product records with ID, name, description, status, owner, version, roadmap, linked goals, KPIs, campaigns, revenue, customers, engineering work, and audit history.
+- Feature management for idea, planned, active development, QA, beta, released, and deprecated states.
+- Roadmaps for quarterly, monthly, release, and long-term planning with milestones, features, goals, dependencies, risks, progress, executive priority, and audit history.
+- Local issue tracking for bugs, enhancements, technical debt, performance, UI, security, accessibility, and documentation.
+- Release planning records with planned dates, included features, bug fixes, risks, QA status, release notes draft, readiness score, and executive approval status.
+- Product feedback from coaches, gyms, athletes, Customer Success, Sales, Marketing, and Executive.
+- Deterministic Engineering Health evaluations for release readiness, roadmap progress, feature completion, bug backlog health, technical debt, QA readiness, and product health.
+- Engineering dashboard sections for Product Portfolio, Feature Board, Roadmaps, Bug Tracker, Release Planning, Product Feedback, and Engineering Health.
+- Reports for Product Portfolio, Engineering Health, Roadmap Progress, Feature Status, Bug Summary, Release Readiness, Customer Feedback Summary, and Executive Engineering Summary.
+- Root npm scripts for `engineering:products`, `engineering:features`, `engineering:roadmaps`, `engineering:issues`, `engineering:releases`, `engineering:feedback`, `engineering:health`, `engineering:roadmap-report`, `engineering:release-report`, and `engineering:validate`.
+
+Boundaries:
+
+- Local execution only.
+- No dependency on `vyraapp.fit`.
+- No external database.
+- No GitHub mutations.
+- No deployments.
+- No CI/CD mutations.
+- No App Store publishing.
+- No autonomous code generation.
+- No automatic releases.
+- No autonomous merges.
+- Recommendations remain advisory.

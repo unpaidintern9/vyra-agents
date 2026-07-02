@@ -1,11 +1,11 @@
 # Expansion Opportunity Report
 
-Generated: 2026-07-01T22:25:09.647Z
+Generated: 2026-07-02T13:27:32.451Z
 
 ```json
 {
   "title": "Expansion Opportunity Report",
-  "generatedAt": "2026-07-01T22:25:09.647Z",
+  "generatedAt": "2026-07-02T13:27:32.451Z",
   "expansion": [
     {
       "expansionId": "expansion-cust-louisville-combat-academy",

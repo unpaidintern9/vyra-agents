@@ -1,11 +1,11 @@
 # Customer Journey Report
 
-Generated: 2026-07-01T22:25:09.647Z
+Generated: 2026-07-02T13:27:32.452Z
 
 ```json
 {
   "title": "Customer Journey Report",
-  "generatedAt": "2026-07-01T22:25:09.647Z",
+  "generatedAt": "2026-07-02T13:27:32.452Z",
   "journeys": [
     {
       "journeyId": "journey-cust-louisville-combat-academy-onboarding-202607012154",

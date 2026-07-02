@@ -1,0 +1,165 @@
+[
+  {
+    "featureId": "feat-athlete-progress-snapshot",
+    "productId": "prod-athlete-app",
+    "productName": "Athlete App",
+    "description": "athlete progress snapshot",
+    "priority": "High",
+    "complexity": "Medium",
+    "estimatedValue": 82,
+    "customerImpact": "High",
+    "engineeringEffort": 6,
+    "linkedTasks": [
+      "tasks:list"
+    ],
+    "linkedAssets": [
+      "asset-operator-runtime-docs"
+    ],
+    "linkedRequirements": [
+      "req-progress-summary"
+    ],
+    "linkedBugs": [
+      "issue-athlete-empty-state"
+    ],
+    "linkedFeedback": [
+      "feedback-river-city-progress"
+    ],
+    "status": "Feature Ideas",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-02T13:25:31.406Z",
+        "event": "feature.record.created"
+      }
+    ]
+  },
+  {
+    "featureId": "feat-coach-client-board",
+    "productId": "prod-coach-platform",
+    "productName": "Coach Platform",
+    "description": "coach client board",
+    "priority": "High",
+    "complexity": "Medium",
+    "estimatedValue": 78,
+    "customerImpact": "High",
+    "engineeringEffort": 8,
+    "linkedTasks": [
+      "engineering-task:documentation:coach-platform"
+    ],
+    "linkedAssets": [
+      "asset-knowledge-graph-doc"
+    ],
+    "linkedRequirements": [
+      "req-client-board"
+    ],
+    "linkedBugs": [
+      "issue-coach-doc-gap"
+    ],
+    "linkedFeedback": [
+      "feedback-area-502-training"
+    ],
+    "status": "QA",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-02T13:25:31.406Z",
+        "event": "feature.record.created"
+      }
+    ]
+  },
+  {
+    "featureId": "feat-gym-member-import",
+    "productId": "prod-gym-software",
+    "productName": "Gym Software",
+    "description": "gym member import",
+    "priority": "Critical",
+    "complexity": "High",
+    "estimatedValue": 90,
+    "customerImpact": "Critical",
+    "engineeringEffort": 13,
+    "linkedTasks": [
+      "engineering-task:release-blocker:gym-software:qa"
+    ],
+    "linkedAssets": [
+      "asset-migration-guide"
+    ],
+    "linkedRequirements": [
+      "req-member-import"
+    ],
+    "linkedBugs": [
+      "issue-gym-import-validation"
+    ],
+    "linkedFeedback": [
+      "feedback-lca-import"
+    ],
+    "status": "Beta",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-02T13:25:31.406Z",
+        "event": "feature.record.created"
+      }
+    ]
+  },
+  {
+    "featureId": "feat-white-label-branding",
+    "productId": "prod-white-label",
+    "productName": "White Label Platform",
+    "description": "white label branding",
+    "priority": "Medium",
+    "complexity": "High",
+    "estimatedValue": 70,
+    "customerImpact": "Medium",
+    "engineeringEffort": 13,
+    "linkedTasks": [
+      "engineering-task:project-registry:white-label"
+    ],
+    "linkedAssets": [
+      "asset-brand-intelligence"
+    ],
+    "linkedRequirements": [
+      "req-branding"
+    ],
+    "linkedBugs": [
+      "issue-white-label-scope"
+    ],
+    "linkedFeedback": [
+      "feedback-kys-enterprise"
+    ],
+    "status": "Planned Features",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-02T13:25:31.406Z",
+        "event": "feature.record.created"
+      }
+    ]
+  },
+  {
+    "featureId": "feat-release-notes-workflow",
+    "productId": "prod-coach-platform",
+    "productName": "Coach Platform",
+    "description": "release notes workflow",
+    "priority": "Medium",
+    "complexity": "Low",
+    "estimatedValue": 64,
+    "customerImpact": "Medium",
+    "engineeringEffort": 3,
+    "linkedTasks": [
+      "release:ship-plans"
+    ],
+    "linkedAssets": [
+      "asset-release-notes"
+    ],
+    "linkedRequirements": [
+      "req-release-notes"
+    ],
+    "linkedBugs": [],
+    "linkedFeedback": [
+      "feedback-success-release-comms"
+    ],
+    "status": "Released",
+    "auditHistory": [
+      {
+        "timestamp": "2026-07-02T13:25:31.406Z",
+        "event": "feature.record.created"
+      }
+    ]
+  }
+]

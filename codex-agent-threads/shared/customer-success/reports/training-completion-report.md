@@ -1,11 +1,11 @@
 # Training Completion Report
 
-Generated: 2026-07-01T22:25:09.647Z
+Generated: 2026-07-02T13:27:32.451Z
 
 ```json
 {
   "title": "Training Completion Report",
-  "generatedAt": "2026-07-01T22:25:09.647Z",
+  "generatedAt": "2026-07-02T13:27:32.451Z",
   "rows": [
     {
       "customerId": "cust-louisville-combat-academy",

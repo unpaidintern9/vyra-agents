@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { EmptyState } from '../../components/EmptyState';
 import { StatusBadge } from '../../components/StatusBadge';
 import { buildDashboardEngineeringTaskSummary } from '../../runtime/engineeringTaskGenerator';
+import { buildDashboardEngineeringProductOperations } from '../../runtime/engineeringProductOperations';
 import { buildDashboardGitHubPlanningSummary } from '../../runtime/githubPlanning';
 import { buildDashboardProjectRegistrySummary } from '../../runtime/projectRegistry';
 import { buildDashboardReleaseReadinessSummary } from '../../runtime/releaseReadiness';
@@ -162,6 +163,7 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
       }),
     [projectRegistry, releaseReadiness, repositoryIntelligence],
   );
+  const productOperations = useMemo(() => buildDashboardEngineeringProductOperations(), []);
   const releaseShipPlans = useMemo(
     () =>
       buildDashboardReleaseShipPlanSummary({
@@ -466,6 +468,182 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
       </section>
 
       <section className="dashboard-grid">
+        <Panel title="Product Portfolio" icon={<Database size={18} />} wide>
+          <p className="panel-description">
+            Product management workspace for local records, roadmap links, customer signals, revenue references, campaigns, goals, KPIs, and Engineering work. Records are advisory and remain inside shared local storage.
+          </p>
+          <div className="summary-grid compact-summary">
+            {[
+              ['Products', productOperations.summary.productCount],
+              ['Features', productOperations.summary.featureCount],
+              ['Active Features', productOperations.summary.activeFeatures],
+              ['Released Features', productOperations.summary.releasedFeatures],
+              ['Open Issues', productOperations.summary.openIssues],
+              ['Blocked Releases', productOperations.summary.blockedReleases],
+              ['Feedback Items', productOperations.summary.feedbackItems],
+              ['Roadmap Progress', `${productOperations.summary.averageRoadmapProgress}/100`],
+            ].map(([label, value]) => (
+              <article className="metric-card" key={label}>
+                <Database size={18} />
+                <span>{label}</span>
+                <strong>{String(value)}</strong>
+              </article>
+            ))}
+          </div>
+          <DataTable
+            columns={['Product', 'Status', 'Owner', 'Version', 'Goals', 'KPIs', 'Campaigns', 'Revenue', 'Customers', 'Engineering Work']}
+            rows={productOperations.products.map((product) => [
+              product.name,
+              product.status,
+              product.owner,
+              product.version,
+              product.linkedGoals.join(', '),
+              product.linkedKpis.join(', '),
+              product.linkedCampaigns.join(', '),
+              product.linkedRevenue.join(', '),
+              product.linkedCustomers.join(', '),
+              product.linkedEngineeringWork.join(', '),
+            ])}
+          />
+          <p className="subtle-note">CLI: npm run engineering:products. Storage: codex-agent-threads/shared/engineering/products.json.</p>
+        </Panel>
+
+        <Panel title="Feature Board" icon={<ListChecks size={18} />} wide>
+          <p className="panel-description">
+            Feature records move from idea through planned, active development, QA, beta, released, and deprecated states with linked tasks, assets, requirements, bugs, and feedback.
+          </p>
+          <DataTable
+            columns={['Feature', 'Product', 'Status', 'Priority', 'Complexity', 'Value', 'Impact', 'Effort', 'Tasks', 'Bugs', 'Feedback']}
+            rows={productOperations.features.map((feature) => [
+              formatHealth(feature.description),
+              feature.productName,
+              feature.status,
+              feature.priority,
+              feature.complexity,
+              `${feature.estimatedValue}/100`,
+              feature.customerImpact,
+              `${feature.engineeringEffort} pts`,
+              feature.linkedTasks.join(', ') || 'None',
+              feature.linkedBugs.join(', ') || 'None',
+              feature.linkedFeedback.join(', ') || 'None',
+            ])}
+          />
+          <p className="subtle-note">CLI: npm run engineering:features. Feature planning does not create tasks or generate code automatically.</p>
+        </Panel>
+
+        <Panel title="Roadmaps" icon={<Workflow size={18} />} wide>
+          <p className="panel-description">
+            Quarterly, monthly, release, and long-term roadmap records combine milestones, product goals, feature dependencies, risk notes, progress, and executive priority.
+          </p>
+          <DataTable
+            columns={['Roadmap', 'Type', 'Progress', 'Priority', 'Milestones', 'Features', 'Dependencies', 'Risks']}
+            rows={productOperations.roadmaps.map((roadmap) => [
+              roadmap.name,
+              roadmap.type,
+              `${roadmap.progress}/100`,
+              roadmap.executivePriority,
+              roadmap.milestones.join(', '),
+              roadmap.features.join(', '),
+              roadmap.dependencies.join(', '),
+              roadmap.risks.join(' '),
+            ])}
+          />
+          <p className="subtle-note">CLI: npm run engineering:roadmaps and npm run engineering:roadmap-report.</p>
+        </Panel>
+
+        <Panel title="Bug Tracker" icon={<ShieldCheck size={18} />} wide>
+          <p className="panel-description">
+            Local issue records cover bugs, enhancements, technical debt, performance, UI, security, accessibility, and documentation. GitHub issue creation remains disabled here.
+          </p>
+          <DataTable
+            columns={['Issue', 'Type', 'Severity', 'Priority', 'Owner', 'Status', 'Product', 'Feature', 'Linked Tasks', 'Reports']}
+            rows={productOperations.issues.map((issue) => [
+              issue.issueId,
+              issue.type,
+              issue.severity,
+              issue.priority,
+              issue.owner,
+              issue.status,
+              issue.productName,
+              issue.featureId,
+              issue.linkedTasks.join(', ') || 'None',
+              issue.linkedReports.join(', ') || 'None',
+            ])}
+          />
+          <p className="subtle-note">CLI: npm run engineering:issues. No GitHub mutations, issue publishing, or autonomous merges.</p>
+        </Panel>
+
+        <Panel title="Release Planning" icon={<ShieldCheck size={18} />} wide>
+          <p className="panel-description">
+            Release records track planned dates, included features, bug fixes, risks, QA state, draft release notes, readiness score, and executive approval status. Planning only.
+          </p>
+          <DataTable
+            columns={['Release', 'Date', 'Features', 'Fixes', 'QA', 'Readiness', 'Executive Approval', 'Risks']}
+            rows={productOperations.releases.map((release) => [
+              release.version,
+              formatDate(release.plannedDate),
+              release.includedFeatures.join(', '),
+              release.bugFixes.join(', ') || 'None',
+              release.qaStatus,
+              `${release.readinessScore}/100`,
+              release.executiveApprovalStatus.replace(/_/g, ' '),
+              release.risks.join(' '),
+            ])}
+          />
+          <p className="subtle-note">CLI: npm run engineering:releases and npm run engineering:release-report. Release execution is not automated.</p>
+        </Panel>
+
+        <Panel title="Product Feedback" icon={<Search size={18} />} wide>
+          <p className="panel-description">
+            Structured feedback from coaches, gyms, athletes, Customer Success, Sales, Marketing, and Executive feeds product recommendations and release communication readiness.
+          </p>
+          <DataTable
+            columns={['Feedback', 'Source', 'Category', 'Frequency', 'Severity', 'Features', 'Customers', 'Recommendation']}
+            rows={productOperations.feedback.map((feedback) => [
+              feedback.feedbackId,
+              feedback.source,
+              feedback.category,
+              String(feedback.frequency),
+              feedback.severity,
+              feedback.linkedFeatures.join(', '),
+              feedback.linkedCustomers.join(', '),
+              feedback.recommendations,
+            ])}
+          />
+          <p className="subtle-note">CLI: npm run engineering:feedback. Customer communications stay draft-only through Customer Success.</p>
+        </Panel>
+
+        <Panel title="Engineering Health" icon={<CheckCircle2 size={18} />} wide>
+          <p className="panel-description">
+            Deterministic health evaluations for release readiness, roadmap progress, feature completion, bug backlog health, technical debt, QA readiness, and product health.
+          </p>
+          <DataTable
+            columns={['Area', 'Score', 'Confidence', 'Risks', 'Blockers', 'Recommendations', 'Next Actions']}
+            rows={Object.entries(productOperations.health).map(([area, health]) => [
+              formatHealth(area),
+              `${health.score}/100`,
+              `${health.confidence}/100`,
+              health.risks.join(' ') || 'None',
+              health.blockers.join(' ') || 'None',
+              health.recommendations.join(' '),
+              health.nextActions.join(' '),
+            ])}
+          />
+          <div className="safety-badge-row">
+            {[
+              'local only',
+              'no GitHub mutations',
+              'no deployments',
+              'no CI/CD mutations',
+              'no App Store publishing',
+              'advisory only',
+            ].map((label) => (
+              <StatusBadge key={label} value={label} tone="good" />
+            ))}
+          </div>
+          <p className="subtle-note">CLI: npm run engineering:health and npm run engineering:validate.</p>
+        </Panel>
+
         <Panel title="Engineering Graph Controls" icon={<Network size={18} />} wide>
           <p className="panel-description">Refresh the local metadata graph and export read-only engineering reports.</p>
           <div className="control-toolbar graph-control-toolbar">

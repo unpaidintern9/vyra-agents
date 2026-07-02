@@ -58,3 +58,9 @@ Customer Success context remains local. Marketing does not message customers, pu
 Marketing may reference the local Pricing Library and revenue intelligence for positioning, campaign planning, and offer consistency.
 
 Marketing does not change prices, update billing systems, mutate Stripe, send invoices, collect payments, buy ads, publish pricing pages, or sync accounting.
+
+## Phase 61 Product Launch Context
+
+Marketing may reference Engineering Product Operations records for upcoming releases, launch readiness, product messaging dependencies, feature status, and roadmap timing.
+
+Marketing remains draft-only. Product context does not publish launch content, send email, post social content, buy ads, approve messaging automatically, or trigger release activity.

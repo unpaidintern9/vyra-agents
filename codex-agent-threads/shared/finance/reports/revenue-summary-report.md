@@ -1,11 +1,11 @@
 # Revenue Summary Report
 
-Generated: 2026-07-01T22:25:10.346Z
+Generated: 2026-07-02T13:27:32.588Z
 
 ```json
 {
   "title": "Revenue Summary Report",
-  "generatedAt": "2026-07-01T22:25:10.346Z",
+  "generatedAt": "2026-07-02T13:27:32.588Z",
   "summary": {
     "totalEstimatedMrr": 3677,
     "totalEstimatedArr": 44124,
