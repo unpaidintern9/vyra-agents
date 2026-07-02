@@ -132,6 +132,7 @@ import { getSupabaseStatus } from './integrations/supabase/supabaseStatus';
 import type { SupabaseProjectStatus, SupabaseTableCheck } from './integrations/supabase/supabaseTypes';
 import { buildAgentRuntime } from './runtime/agentRuntime';
 import { buildAiOperatorDashboardSnapshot, type AiOperatorDashboardSnapshot } from './runtime/aiOperatorRuntime';
+import { buildDashboardAnalyticsInsights, type AnalyticsInsightsSummary } from './runtime/analyticsInsights';
 import { buildDashboardConnectorReadiness } from './runtime/connectorReadiness';
 import { buildDashboardEngineeringTaskSummary } from './runtime/engineeringTaskGenerator';
 import { buildDashboardEngineeringProductOperations, type EngineeringProductOperationsSummary } from './runtime/engineeringProductOperations';
@@ -1554,6 +1555,15 @@ function App() {
     sharedMemory,
     sharedTasks: sharedTaskSummary,
   });
+  const analytics = buildDashboardAnalyticsInsights({
+    customerSuccess,
+    engineeringProductOperations,
+    executivePlanning,
+    finance,
+    marketing,
+    salesOpportunitySummary,
+    sharedTasks: sharedTaskSummary,
+  });
   const executiveEmailBriefing = buildDashboardExecutiveEmailBriefingSummary({
     email: emailSummary,
     executiveOperations,
@@ -1751,7 +1761,7 @@ function App() {
 
         {activePage === 'Engineering' ? (
           <Suspense fallback={<EngineeringFallback />}>
-            <EngineeringPage onImpactExport={recordEngineeringImpactExport} onScanLoaded={recordEngineeringScan} />
+            <EngineeringPage analytics={analytics} onImpactExport={recordEngineeringImpactExport} onScanLoaded={recordEngineeringScan} />
           </Suspense>
         ) : activePage === 'Migration' ? (
           <MigrationPage
@@ -1775,6 +1785,8 @@ function App() {
             summary={migrationSummary}
           />
         ) : activePage === 'Sales' ? (
+          <>
+          <SalesAnalyticsPanel analytics={analytics} />
           <SalesPage
             activities={salesActivities}
             crossAgentGraph={crossAgentGraph}
@@ -1834,12 +1846,15 @@ function App() {
             customerSuccess={customerSuccess}
             finance={finance}
           />
+          </>
         ) : activePage === 'Finance' ? (
-          <FinancePage finance={finance} />
+          <FinancePage analytics={analytics} finance={finance} />
         ) : activePage === 'Customer Success' ? (
-          <CustomerSuccessPage customerSuccess={customerSuccess} engineeringProductOperations={engineeringProductOperations} finance={finance} />
+          <CustomerSuccessPage analytics={analytics} customerSuccess={customerSuccess} engineeringProductOperations={engineeringProductOperations} finance={finance} />
         ) : activePage === 'Marketing' ? (
-          <MarketingPage assetLibrary={assetLibrary} engineeringProductOperations={engineeringProductOperations} marketing={marketing} />
+          <MarketingPage analytics={analytics} assetLibrary={assetLibrary} engineeringProductOperations={engineeringProductOperations} marketing={marketing} />
+        ) : activePage === 'Analytics' ? (
+          <AnalyticsPage analytics={analytics} />
         ) : activePage === 'Assets' ? (
           <AssetLibraryPage assetLibrary={assetLibrary} />
         ) : activePage === 'Integrations' ? (
@@ -1901,6 +1916,7 @@ function App() {
             onRecordThreadArchive={recordThreadArchive}
             onRecordThreadIngest={recordThreadIngest}
             onRecordValidation={recordOperatorValidation}
+            analytics={analytics}
             operator={operatorSnapshot}
             organizationIntelligenceSummary={salesOrganizationIntelligence.summary}
             assetLibrary={assetLibrary}
@@ -1935,6 +1951,7 @@ function App() {
             executiveEmailBriefing={executiveEmailBriefing}
             executiveOperations={executiveOperations}
             executivePlanning={executivePlanning}
+            analytics={analytics}
             marketing={marketing}
             assetLibrary={assetLibrary}
             customerSuccess={customerSuccess}
@@ -1958,6 +1975,123 @@ function EngineeringFallback() {
     <section className="dashboard-grid">
       <Panel title="Engineering Graph" icon={<Network size={18} />} wide>
         <EmptyState message="Loading Engineering Agent graph tools." />
+      </Panel>
+    </section>
+  );
+}
+
+function AnalyticsPage({ analytics }: { analytics: AnalyticsInsightsSummary }) {
+  return (
+    <section className="dashboard-grid">
+      <Panel title="Analytics Dashboard" icon={<BarChart3 size={18} />} wide>
+        <div className="batch-grid supabase-detail-grid">
+          <Fact label="Company Health" value={`${analytics.companyHealth.score}/100`} />
+          <Fact label="Department Scorecards" value={String(analytics.scorecards.length)} />
+          <Fact label="Insight Feed" value={String(analytics.insights.length)} />
+          <Fact label="Cross-Agent Metrics" value={String(analytics.crossAgentMetrics.length)} />
+        </div>
+      </Panel>
+
+      <Panel title="Company Health" icon={<BarChart3 size={18} />} wide>
+        <div className="batch-grid supabase-detail-grid">
+          <Fact label="Company Health Score" value={`${analytics.companyHealth.score}/100`} />
+          <Fact label="Label" value={analytics.companyHealth.label} />
+          <Fact label="Confidence" value={`${analytics.companyHealth.confidence}/100`} />
+          <Fact label="High Risk Signals" value={String(analytics.risks.length)} />
+        </div>
+        <p className="subtle-note">{analytics.companyHealth.explanation}</p>
+      </Panel>
+
+      <Panel title="Department Scorecards" icon={<ListChecks size={18} />} wide>
+        <DataTable
+          columns={['Department Scorecards', 'Health', 'Trend', 'Risks', 'Blockers', 'Recommendations']}
+          rows={analytics.scorecards.map((scorecard) => [
+            scorecard.department,
+            `${scorecard.healthScore}/100`,
+            scorecard.trend,
+            scorecard.risks.join(' ') || 'None',
+            scorecard.blockers.join(' ') || 'None',
+            scorecard.recommendations.join(' '),
+          ])}
+        />
+      </Panel>
+
+      <Panel title="Cross-Agent Metrics" icon={<Network size={18} />} wide>
+        <DataTable
+          columns={['Cross-Agent Metrics', 'Value', 'Trend', 'Source']}
+          rows={analytics.crossAgentMetrics.map((metricRow) => [metricRow.metric, metricRow.value, metricRow.trend, metricRow.source])}
+        />
+      </Panel>
+
+      <Panel title="Insight Feed" icon={<Search size={18} />} wide>
+        <DataTable
+          columns={['Insight Feed', 'Category', 'Severity', 'Owner', 'Status', 'Next Action']}
+          rows={analytics.insights.map((insight) => [
+            insight.title,
+            insight.category,
+            insight.severity,
+            insight.ownerAgent,
+            insight.status,
+            insight.recommendedNextAction,
+          ])}
+        />
+      </Panel>
+
+      <Panel title="Risk Signals" icon={<AlertTriangle size={18} />} wide>
+        <DataTable
+          columns={['Risk Signals', 'Severity', 'Confidence', 'Explanation']}
+          rows={analytics.risks.map((risk) => [risk.title, risk.severity, `${risk.confidence}/100`, risk.explanation])}
+        />
+      </Panel>
+
+      <Panel title="Bottlenecks" icon={<Workflow size={18} />} wide>
+        <DataTable
+          columns={['Bottlenecks', 'Owner', 'Linked Tasks', 'Recommended Next Action']}
+          rows={analytics.bottlenecks.map((bottleneck) => [
+            bottleneck.title,
+            bottleneck.ownerAgent,
+            bottleneck.linkedTasks.join(', ') || 'None',
+            bottleneck.recommendedNextAction,
+          ])}
+        />
+      </Panel>
+
+      <Panel title="Trend Summary" icon={<Activity size={18} />} wide>
+        <DataTable
+          columns={['Trend Summary', 'Value', 'Trend', 'Explanation']}
+          rows={analytics.trends.map((trend) => [trend.label, trend.value, trend.trend, trend.explanation])}
+        />
+      </Panel>
+
+      <Panel title="Recommendations" icon={<ShieldCheck size={18} />} wide>
+        <DataTable columns={['Recommendations']} rows={analytics.recommendations.map((recommendation) => [recommendation])} />
+        <p className="subtle-note">Analytics are local, deterministic, advisory, and do not add tracking scripts, external sync, customer collection, or external actions.</p>
+      </Panel>
+    </section>
+  );
+}
+
+function SalesAnalyticsPanel({ analytics }: { analytics: AnalyticsInsightsSummary }) {
+  const salesCard = analytics.scorecards.find((scorecard) => scorecard.department === 'Sales');
+  return (
+    <section className="dashboard-grid">
+      <Panel title="Sales Analytics" icon={<BarChart3 size={18} />} wide>
+        <DataTable
+          columns={['Pipeline Trends', 'Value', 'Trend', 'Source']}
+          rows={analytics.crossAgentMetrics
+            .filter((metricRow) => metricRow.metric.includes('sales') || metricRow.metric.includes('pipeline'))
+            .map((metricRow) => [metricRow.metric, metricRow.value, metricRow.trend, metricRow.source])}
+        />
+        <DataTable
+          columns={['Conversion Signals', 'Health', 'Risks', 'Recommendations']}
+          rows={salesCard ? [[salesCard.department, `${salesCard.healthScore}/100`, salesCard.risks.join(' ') || 'None', salesCard.recommendations.join(' ')]] : []}
+        />
+        <DataTable
+          columns={['Stalled Opportunity Insights', 'Severity', 'Next Action']}
+          rows={analytics.insights
+            .filter((insight) => insight.ownerAgent === 'Sales')
+            .map((insight) => [insight.title, insight.severity, insight.recommendedNextAction])}
+        />
       </Panel>
     </section>
   );
@@ -2171,7 +2305,7 @@ function AssetLibraryPage({ assetLibrary }: { assetLibrary: AssetLibraryDashboar
   );
 }
 
-function FinancePage({ finance }: { finance: FinanceDashboardSummary }) {
+function FinancePage({ analytics, finance }: { analytics: AnalyticsInsightsSummary; finance: FinanceDashboardSummary }) {
   return (
     <section className="dashboard-grid">
       <Panel title="Revenue Overview" icon={<BarChart3 size={18} />} wide>
@@ -2212,6 +2346,21 @@ function FinancePage({ finance }: { finance: FinanceDashboardSummary }) {
         />
       </Panel>
 
+      <Panel title="Finance Analytics" icon={<BarChart3 size={18} />} wide>
+        <DataTable
+          columns={['Revenue Trend Insights', 'Value', 'Trend', 'Explanation']}
+          rows={analytics.trends.filter((trend) => trend.label.includes('Revenue')).map((trend) => [trend.label, trend.value, trend.trend, trend.explanation])}
+        />
+        <DataTable
+          columns={['Forecast Confidence', 'Value', 'Source']}
+          rows={analytics.crossAgentMetrics.filter((metricRow) => metricRow.metric.includes('forecast')).map((metricRow) => [metricRow.metric, metricRow.value, metricRow.source])}
+        />
+        <DataTable
+          columns={['Renewal/Expansion Signals', 'Severity', 'Next Action']}
+          rows={analytics.insights.filter((insight) => insight.ownerAgent === 'Finance').map((insight) => [insight.title, insight.severity, insight.recommendedNextAction])}
+        />
+      </Panel>
+
       <Panel title="Subscription Overview" icon={<ListChecks size={18} />} wide>
         <DataTable columns={['Organization', 'State', 'Product', 'Plan', 'Renewal']} rows={finance.subscriptions.map((row) => [row.organization, row.subscriptionState, row.product, row.plan, formatDate(row.renewalDate)])} />
       </Panel>
@@ -2233,10 +2382,12 @@ function FinancePage({ finance }: { finance: FinanceDashboardSummary }) {
 }
 
 function CustomerSuccessPage({
+  analytics,
   customerSuccess,
   engineeringProductOperations,
   finance,
 }: {
+  analytics: AnalyticsInsightsSummary;
   customerSuccess: CustomerSuccessDashboardSummary;
   engineeringProductOperations: EngineeringProductOperationsSummary;
   finance: FinanceDashboardSummary;
@@ -2295,6 +2446,25 @@ function CustomerSuccessPage({
         <DataTable
           columns={['Adoption Dashboard', 'Adoption', 'Engagement', 'Reasons']}
           rows={customerSuccess.health.map((item) => [item.organization, `${item.adoptionScore}%`, `${item.engagementScore}%`, item.reasons.join('; ')])}
+        />
+      </Panel>
+
+      <Panel title="Customer Success Analytics" icon={<BarChart3 size={18} />} wide>
+        <DataTable
+          columns={['Adoption Analytics', 'Value', 'Trend', 'Source']}
+          rows={analytics.crossAgentMetrics
+            .filter((metricRow) => metricRow.metric.includes('onboarding') || metricRow.metric.includes('customer'))
+            .map((metricRow) => [metricRow.metric, metricRow.value, metricRow.trend, metricRow.source])}
+        />
+        <DataTable
+          columns={['Churn Risk Trends', 'Severity', 'Confidence', 'Next Action']}
+          rows={analytics.insights
+            .filter((insight) => insight.ownerAgent === 'Customer Success')
+            .map((insight) => [insight.title, insight.severity, `${insight.confidence}/100`, insight.recommendedNextAction])}
+        />
+        <DataTable
+          columns={['Onboarding Completion Trends', 'Value', 'Explanation']}
+          rows={analytics.trends.filter((trend) => trend.label.includes('Churn')).map((trend) => [trend.label, trend.value, trend.explanation])}
         />
       </Panel>
 
@@ -2386,10 +2556,12 @@ function CustomerSuccessPage({
 }
 
 function MarketingPage({
+  analytics,
   assetLibrary,
   engineeringProductOperations,
   marketing,
 }: {
+  analytics: AnalyticsInsightsSummary;
   assetLibrary: AssetLibraryDashboardSummary;
   engineeringProductOperations: EngineeringProductOperationsSummary;
   marketing: MarketingDashboardSummary;
@@ -2630,6 +2802,21 @@ function MarketingPage({
         />
         <p className="subtle-note">Marketing is local planning only. It does not publish, post, email, buy ads, sync CRM data, or approve content automatically.</p>
       </Panel>
+
+      <Panel title="Marketing Analytics" icon={<BarChart3 size={18} />} wide>
+        <DataTable
+          columns={['Campaign Readiness Trends', 'Value', 'Trend', 'Explanation']}
+          rows={analytics.trends.filter((trend) => trend.label.includes('Campaign')).map((trend) => [trend.label, trend.value, trend.trend, trend.explanation])}
+        />
+        <DataTable
+          columns={['Content Approval Bottlenecks', 'Value', 'Source']}
+          rows={analytics.crossAgentMetrics.filter((metricRow) => metricRow.metric.includes('content')).map((metricRow) => [metricRow.metric, metricRow.value, metricRow.source])}
+        />
+        <DataTable
+          columns={['Brand Risk Trends', 'Severity', 'Next Action']}
+          rows={analytics.insights.filter((insight) => insight.ownerAgent === 'Marketing').map((insight) => [insight.title, insight.severity, insight.recommendedNextAction])}
+        />
+      </Panel>
     </section>
   );
 }
@@ -2646,6 +2833,7 @@ function OperatorPage({
   onRecordThreadArchive,
   onRecordThreadIngest,
   onRecordValidation,
+  analytics,
   operator,
   organizationIntelligenceSummary,
   assetLibrary,
@@ -2664,6 +2852,7 @@ function OperatorPage({
   onRecordThreadArchive(): void;
   onRecordThreadIngest(): void;
   onRecordValidation(): void;
+  analytics: AnalyticsInsightsSummary;
   operator: AiOperatorDashboardSnapshot;
   organizationIntelligenceSummary: SalesOrganizationIntelligenceSummary;
   assetLibrary: AssetLibraryDashboardSummary;
@@ -2720,6 +2909,35 @@ function OperatorPage({
         <Metric icon={<ShieldCheck size={20} />} label="Asset Approvals" value={String(assetLibrary.summary.approvalQueue)} />
         <Metric icon={<Users size={20} />} label="CS Customers" value={String(customerSuccess.summary.totalCustomers)} />
         <Metric icon={<AlertTriangle size={20} />} label="CS Support Queue" value={String(customerSuccess.summary.supportOpen)} />
+      </section>
+      <section className="dashboard-grid">
+        <Panel title="Operator Workload Analytics" icon={<BarChart3 size={18} />} wide>
+          <DataTable
+            columns={['Workload Analytics', 'Health', 'Trend', 'Risks', 'Recommendations']}
+            rows={analytics.scorecards
+              .filter((scorecard) => scorecard.department === 'Operator')
+              .map((scorecard) => [
+                scorecard.department,
+                `${scorecard.healthScore}/100`,
+                scorecard.trend,
+                scorecard.risks.join(' ') || 'None',
+                scorecard.recommendations.join(' '),
+              ])}
+          />
+          <DataTable
+            columns={['Blocked Work Clusters', 'Owner', 'Linked Tasks', 'Next Action']}
+            rows={analytics.bottlenecks.map((bottleneck) => [
+              bottleneck.title,
+              bottleneck.ownerAgent,
+              bottleneck.linkedTasks.join(', ') || 'None',
+              bottleneck.recommendedNextAction,
+            ])}
+          />
+          <DataTable
+            columns={['Overdue Queue Trends', 'Value', 'Trend', 'Explanation']}
+            rows={analytics.trends.filter((trend) => trend.label.includes('Overdue')).map((trend) => [trend.label, trend.value, trend.trend, trend.explanation])}
+          />
+        </Panel>
       </section>
       <section className="dashboard-grid">
         <Panel title="Operator Identity" icon={<Bot size={18} />} wide>
@@ -4511,6 +4729,7 @@ function pageCopy(page: string): string {
     Finance: 'Local revenue intelligence, pricing references, forecasts, renewals, and expansion signals without billing writes.',
     'Customer Success': 'Local onboarding, adoption, health, support readiness, renewals, and expansion planning without customer messaging.',
     Marketing: 'Local brand intelligence, product messaging, audience planning, campaigns, and approvals without publishing or ad buying.',
+    Analytics: 'Local analytics, company health, scorecards, insight feed, risk signals, bottlenecks, and recommendations without tracking or external sync.',
     Assets: 'Shared local asset and knowledge library with approvals, version history, usage, and deterministic search.',
     Engineering: 'Read-only repository knowledge graph for files, routes, components, Supabase assets, dependencies, and docs.',
     Integrations: 'Read-only integration health with safe mock fallback and no production writes.',

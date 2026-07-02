@@ -64,3 +64,9 @@ Marketing does not change prices, update billing systems, mutate Stripe, send in
 Marketing may reference Engineering Product Operations records for upcoming releases, launch readiness, product messaging dependencies, feature status, and roadmap timing.
 
 Marketing remains draft-only. Product context does not publish launch content, send email, post social content, buy ads, approve messaging automatically, or trigger release activity.
+
+## Phase 62 Marketing Analytics
+
+The Marketing dashboard includes Marketing Analytics, Campaign Readiness Trends, Content Approval Bottlenecks, and Brand Risk Trends from the local Analytics & Insights Agent.
+
+Analytics remain local and advisory. They do not publish, post, send email, buy ads, collect customer data, install tracking scripts, sync analytics tools, or approve content automatically.

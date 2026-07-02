@@ -1601,3 +1601,34 @@ Boundaries:
 - No automatic releases.
 - No autonomous merges.
 - Recommendations remain advisory.
+
+## Phase 62
+
+Analytics & Insights Agent.
+
+Includes:
+
+- Local Analytics storage under `codex-agent-threads/shared/analytics/`.
+- Analytics metric records for company health, department health, sales performance, marketing readiness, customer success adoption, finance/revenue trends, engineering velocity, task throughput, workflow throughput, goal progress, risk signals, and opportunity signals.
+- Deterministic Insight Engine for growth risks, stalled sales opportunities, campaign readiness gaps, customer churn exposure, revenue forecast risk, engineering bottlenecks, blocked task clusters, workflow aging, overdue executive decisions, goal slippage, missing data, and weak confidence areas.
+- Department scorecards for Executive, Sales, Marketing, Customer Success, Finance, Engineering, and Operator.
+- Cross-agent metrics for task completion, overdue/blocked tasks, workflow aging, approval backlog, onboarding completion, sales pipeline health, campaign readiness, content approval backlog, revenue forecast confidence, engineering release readiness, and goal progress.
+- Company Health Score with score, label, confidence, explanation, risks, recommendations, and next actions.
+- Analytics dashboard sections for Company Health, Department Scorecards, Cross-Agent Metrics, Insight Feed, Risk Signals, Bottlenecks, Trend Summary, and Recommendations.
+- Dashboard analytics panels for Executive, Sales, Marketing, Customer Success, Finance, Engineering, and Operator.
+- Reports for Company Health, Department Scorecards, Executive Insights, Sales Analytics, Marketing Analytics, Customer Success Analytics, Finance Analytics, Engineering Analytics, Operator Workload, Risk Signals, Bottlenecks, and Cross-Agent Metrics.
+- Root npm scripts for `analytics:overview`, `analytics:company-health`, `analytics:scorecards`, `analytics:insights`, `analytics:risks`, `analytics:bottlenecks`, `analytics:trends`, `analytics:report`, and `analytics:validate`.
+
+Boundaries:
+
+- Local execution only.
+- No dependency on `vyraapp.fit`.
+- No external analytics sync.
+- No tracking scripts.
+- No autonomous customer data collection.
+- No autonomous emails.
+- No publishing.
+- No billing actions.
+- No deployment actions.
+- No autonomous external actions.
+- Insights remain advisory.

@@ -1,11 +1,11 @@
 # Brand Intelligence Report
 
-Generated: 2026-07-02T13:27:15.194Z
+Generated: 2026-07-02T14:00:55.437Z
 
 ```json
 {
   "title": "Brand Intelligence Report",
-  "generatedAt": "2026-07-02T13:27:15.194Z",
+  "generatedAt": "2026-07-02T14:00:55.437Z",
   "brand": {
     "id": "brand-vyra-performance",
     "brandName": "Vyra Performance",

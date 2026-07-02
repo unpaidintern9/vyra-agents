@@ -99,3 +99,9 @@ Commands:
 The dashboard Engineering page includes Product Portfolio, Feature Board, Roadmaps, Bug Tracker, Release Planning, Product Feedback, and Engineering Health sections.
 
 Safety remains strict: local only, no GitHub mutations, no deployments, no CI/CD mutations, no App Store publishing, no autonomous code generation, no automatic releases, and no autonomous merges.
+
+## Phase 62 Engineering Analytics
+
+The Engineering dashboard includes Engineering Velocity, Release Readiness Trends, and Bug/Issue Risk Signals from the local Analytics & Insights Agent.
+
+Analytics remain advisory. They do not write GitHub records, deploy code, mutate CI/CD, publish releases, generate code autonomously, merge changes, or execute engineering actions.

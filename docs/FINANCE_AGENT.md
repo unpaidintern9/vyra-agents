@@ -34,3 +34,9 @@ Safety:
 - No payout processing.
 - No accounting synchronization.
 - No autonomous financial actions.
+
+## Phase 62 Finance Analytics
+
+The Finance dashboard includes Revenue Trend Insights, Forecast Confidence, and Renewal/Expansion Signals from the local Analytics & Insights Agent.
+
+Analytics are advisory and local. They do not mutate Stripe, change billing, collect payments, send invoices, sync accounting, install tracking, or execute financial actions.

@@ -282,3 +282,9 @@ Sales can review local Customer Success context for handoffs and expansion plann
 The Sales dashboard includes Sales Revenue Pipeline, Estimated Opportunity Value, Expansion Revenue, Customer Revenue Health, renewal readiness, and revenue risk context from the local Finance Agent.
 
 Sales revenue intelligence is advisory. Sales cannot mutate billing, send invoices, collect payments, sync accounting, update Stripe, or change customer subscription state.
+
+## Phase 62 Sales Analytics
+
+The Sales dashboard includes Sales Analytics, Pipeline Trends, Conversion Signals, and Stalled Opportunity Insights from the local Analytics & Insights Agent.
+
+Analytics use local Sales records and shared task signals only. Sales analytics do not browse, send customer email, sync CRM data, track customers, submit proposals, or trigger external actions.

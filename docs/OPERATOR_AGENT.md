@@ -36,3 +36,9 @@ Operator can use these queues to decide what local records need attention. CLI c
 The Operator dashboard includes Goal-Linked Tasks, Blockers Affecting Goals, and Executive Priority Queue signals from the Executive Planning Engine.
 
 These are review-only planning signals. Operator does not approve goals, complete goals, send messages, sync CRM data, browse, or submit proposals from this view.
+
+## Phase 62 Workload Analytics
+
+The Operator dashboard includes Workload Analytics, Blocked Work Clusters, and Overdue Queue Trends from the local Analytics & Insights Agent.
+
+Analytics are local review surfaces only. Operator analytics do not run background work, send messages, sync external analytics, collect customer data, approve work, or execute external actions.

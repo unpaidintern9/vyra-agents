@@ -27,6 +27,7 @@ export const navItems = [
   { label: 'Finance', icon: BarChart3 },
   { label: 'Customer Success', icon: CheckCircle2 },
   { label: 'Marketing', icon: Megaphone },
+  { label: 'Analytics', icon: BarChart3 },
   { label: 'Assets', icon: Files },
   { label: 'Products', icon: Package },
   { label: 'Integrations', icon: Link2 },
@@ -55,7 +56,7 @@ export const agents = [
   { name: 'Sales Agent', status: 'Planned', detail: 'Awaiting CRM scope' },
   { name: 'Marketing Agent', status: 'Planned', detail: 'Awaiting campaign sources' },
   { name: 'Finance Agent', status: 'Ready', detail: 'Local revenue intelligence prepared' },
-  { name: 'Analytics Agent', status: 'Planned', detail: 'Awaiting event taxonomy' },
+  { name: 'Analytics Agent', status: 'Ready', detail: 'Local insight engine prepared' },
 ];
 
 export const migrationStatus = [

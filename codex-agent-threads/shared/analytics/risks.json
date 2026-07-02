@@ -1,0 +1,161 @@
+[
+  {
+    "insightId": "insight-growth-risk",
+    "title": "Growth risk from goal slippage",
+    "category": "growth risks",
+    "severity": "high",
+    "confidence": 78,
+    "explanation": "2 Executive goal(s) are at risk.",
+    "linkedEntities": [
+      "goal-operating-control",
+      "goal-proposal-readiness",
+      "goal-revenue-louisville-sales"
+    ],
+    "linkedTasks": [
+      "task-20260630-executive-automation-connector-readiness-failures",
+      "task-20260630-executive-automation-cross-agent-review-needs",
+      "task-20260630-executive-automation-email-send-failures-skips",
+      "task-20260630-executive-automation-failed-validations",
+      "task-20260701T135455Z-apex-martial-arts-academy:-high-fit-prospect-executive-review",
+      "task-20260701T135455Z-area-502-mma:-high-fit-prospect-executive-review"
+    ],
+    "linkedWorkflows": [
+      "executive-planning"
+    ],
+    "recommendedNextAction": "Review at-risk goals and supporting tasks.",
+    "ownerAgent": "Executive",
+    "status": "new"
+  },
+  {
+    "insightId": "insight-stalled-sales",
+    "title": "Stalled sales opportunities",
+    "category": "stalled sales opportunities",
+    "severity": "high",
+    "confidence": 74,
+    "explanation": "2 opportunity item(s) await follow-up.",
+    "linkedEntities": [
+      "sales-opportunities"
+    ],
+    "linkedTasks": [
+      "task-20260630-executive-automation-high-value-sales-opportunities",
+      "task-20260701T135455Z-apex-martial-arts-academy:-needs-contact-info",
+      "task-20260701T135455Z-apex-martial-arts-academy:-needs-outreach-draft"
+    ],
+    "linkedWorkflows": [
+      "sales-workflows"
+    ],
+    "recommendedNextAction": "Prioritize awaiting follow-up opportunities.",
+    "ownerAgent": "Sales",
+    "status": "new"
+  },
+  {
+    "insightId": "insight-campaign-gaps",
+    "title": "Campaign readiness gaps",
+    "category": "campaign readiness gaps",
+    "severity": "high",
+    "confidence": 82,
+    "explanation": "Campaign readiness is 66%.",
+    "linkedEntities": [
+      "camp-athlete-app-foundation",
+      "camp-gym-growth-readiness",
+      "camp-white-label-positioning"
+    ],
+    "linkedTasks": [],
+    "linkedWorkflows": [
+      "marketing-campaigns"
+    ],
+    "recommendedNextAction": "Close campaign readiness risks before launch messaging.",
+    "ownerAgent": "Marketing",
+    "status": "new"
+  },
+  {
+    "insightId": "insight-churn-exposure",
+    "title": "Customer churn exposure",
+    "category": "customer churn exposure",
+    "severity": "high",
+    "confidence": 76,
+    "explanation": "2 customer(s) have churn-risk signals.",
+    "linkedEntities": [
+      "cust-louisville-combat-academy",
+      "cust-kentucky-youth-sports"
+    ],
+    "linkedTasks": [],
+    "linkedWorkflows": [
+      "customer-health"
+    ],
+    "recommendedNextAction": "Review adoption and onboarding risks.",
+    "ownerAgent": "Customer Success",
+    "status": "new"
+  },
+  {
+    "insightId": "insight-revenue-forecast-risk",
+    "title": "Revenue forecast risk",
+    "category": "revenue forecast risk",
+    "severity": "high",
+    "confidence": 75,
+    "explanation": "1 finance risk signal(s) need review.",
+    "linkedEntities": [
+      "Kentucky Youth Sports"
+    ],
+    "linkedTasks": [],
+    "linkedWorkflows": [
+      "finance-forecast"
+    ],
+    "recommendedNextAction": "Review renewal and expansion risk before forecast decisions.",
+    "ownerAgent": "Finance",
+    "status": "new"
+  },
+  {
+    "insightId": "insight-engineering-bottleneck",
+    "title": "Engineering bottlenecks",
+    "category": "engineering bottlenecks",
+    "severity": "high",
+    "confidence": 80,
+    "explanation": "2 release(s) are blocked or below readiness threshold.",
+    "linkedEntities": [
+      "rel-0.9.0-gym-beta",
+      "rel-1.1.0-coach-qa",
+      "rel-0.8.0-athlete-planning"
+    ],
+    "linkedTasks": [
+      "tasks:validate",
+      "engineering-task:documentation:coach-platform",
+      "marketing:content",
+      "executive:goals"
+    ],
+    "linkedWorkflows": [
+      "engineering-releases"
+    ],
+    "recommendedNextAction": "Clear release blockers before launch work.",
+    "ownerAgent": "Engineering",
+    "status": "new"
+  },
+  {
+    "insightId": "insight-overdue-decisions",
+    "title": "Overdue executive decisions",
+    "category": "overdue executive decisions",
+    "severity": "high",
+    "confidence": 78,
+    "explanation": "2 Executive attention item(s) are open.",
+    "linkedEntities": [
+      "decision-keep-local-only"
+    ],
+    "linkedTasks": [
+      "task-20260630-executive-automation-connector-readiness-failures",
+      "task-20260630-executive-automation-cross-agent-review-needs",
+      "task-20260630-executive-automation-email-send-failures-skips",
+      "task-20260630-executive-automation-engineering-health-warnings",
+      "task-20260630-executive-automation-failed-validations",
+      "task-20260630-executive-automation-github-repo-changes",
+      "task-20260630-executive-automation-high-value-sales-opportunities",
+      "task-20260701T135455Z-apex-martial-arts-academy:-high-fit-prospect-executive-review",
+      "task-20260701T135455Z-area-502-mma:-high-fit-prospect-executive-review"
+    ],
+    "linkedWorkflows": [
+      "executive-queue"
+    ],
+    "recommendedNextAction": "Review Executive queue decisions.",
+    "ownerAgent": "Executive",
+    "status": "new"
+  }
+]

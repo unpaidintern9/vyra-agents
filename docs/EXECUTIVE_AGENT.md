@@ -134,3 +134,9 @@ Finance records live under `codex-agent-threads/shared/finance/`. Executive visi
 The Executive dashboard and Engineering page can use Product Portfolio Summary, Roadmap Progress, Release Readiness, Engineering Risks, and Product Health from the local Engineering & Product Operations Agent.
 
 Engineering product records live under `codex-agent-threads/shared/engineering/`. Executive visibility is advisory and does not approve releases, merge code, write GitHub records, deploy software, mutate CI/CD, publish to app stores, or trigger autonomous code generation.
+
+## Phase 62 Analytics Visibility
+
+The Executive dashboard includes Executive Insights, Company Health Score, Department Health, Strategic Risk Signals, and KPI Trend Insights from the local Analytics & Insights Agent.
+
+Analytics records live under `codex-agent-threads/shared/analytics/`. Executive analytics are advisory and do not add tracking scripts, sync external analytics, collect customer data, send emails, publish content, change billing, deploy software, or execute external actions.

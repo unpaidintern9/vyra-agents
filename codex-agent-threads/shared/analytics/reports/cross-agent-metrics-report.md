@@ -1,0 +1,98 @@
+# Cross-Agent Metrics Report
+
+Generated: 2026-07-02T14:01:08.109Z
+
+```json
+{
+  "title": "Cross-Agent Metrics Report",
+  "generatedAt": "2026-07-02T14:01:08.109Z",
+  "crossAgentMetrics": [
+    {
+      "metric": "task completion rate",
+      "value": "0%",
+      "trend": "flat",
+      "source": "Universal Task Engine"
+    },
+    {
+      "metric": "overdue task count",
+      "value": "0",
+      "trend": "flat",
+      "source": "Universal Task Engine"
+    },
+    {
+      "metric": "blocked task count",
+      "value": "0",
+      "trend": "flat",
+      "source": "Universal Task Engine"
+    },
+    {
+      "metric": "workflow aging",
+      "value": "13 dependency blocker(s)",
+      "trend": "flat",
+      "source": "Shared task dependencies"
+    },
+    {
+      "metric": "approval backlog",
+      "value": "20",
+      "trend": "up",
+      "source": "Executive Queue"
+    },
+    {
+      "metric": "customer onboarding completion",
+      "value": "60%",
+      "trend": "up",
+      "source": "Customer Success"
+    },
+    {
+      "metric": "sales pipeline health",
+      "value": "86/100",
+      "trend": "up",
+      "source": "Sales"
+    },
+    {
+      "metric": "campaign readiness",
+      "value": "66%",
+      "trend": "flat",
+      "source": "Marketing"
+    },
+    {
+      "metric": "content approval backlog",
+      "value": "2",
+      "trend": "up",
+      "source": "Marketing"
+    },
+    {
+      "metric": "revenue forecast confidence",
+      "value": "72%",
+      "trend": "flat",
+      "source": "Finance"
+    },
+    {
+      "metric": "engineering release readiness",
+      "value": "62%",
+      "trend": "up",
+      "source": "Engineering"
+    },
+    {
+      "metric": "goal progress",
+      "value": "56%",
+      "trend": "flat",
+      "source": "Executive Planning"
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "externalAnalyticsSync": false,
+    "trackingScripts": false,
+    "customerDataCollection": false,
+    "autonomousEmails": false,
+    "publishing": false,
+    "billingActions": false,
+    "deploymentActions": false,
+    "autonomousExternalActions": false,
+    "advisoryOnly": true
+  }
+}
+```
+
+Local-only analytics safety: no external analytics sync, tracking scripts, customer data collection, autonomous emails, publishing, billing actions, deployment actions, or autonomous external actions.

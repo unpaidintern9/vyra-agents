@@ -46,3 +46,9 @@ These records help prioritize retention and expansion planning, but they do not 
 Customer Success can contribute local product feedback, requested features, support-linked bugs, and release communication readiness signals to the Engineering & Product Operations Agent.
 
 Feedback remains advisory. Customer Success does not message customers, publish release communications, update accounts, create GitHub issues, deploy fixes, or approve releases automatically.
+
+## Phase 62 Customer Success Analytics
+
+The Customer Success dashboard includes Adoption Analytics, Churn Risk Trends, and Onboarding Completion Trends from the local Analytics & Insights Agent.
+
+Analytics use existing local Customer Success records. They do not collect customer data autonomously, message customers, update accounts, sync CRM data, renew subscriptions, or respond to support automatically.

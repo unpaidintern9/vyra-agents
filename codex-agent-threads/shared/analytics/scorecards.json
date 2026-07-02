@@ -1,0 +1,193 @@
+[
+  {
+    "department": "Executive",
+    "healthScore": 56,
+    "trend": "down",
+    "keyMetrics": [
+      {
+        "label": "Goals",
+        "value": "3"
+      },
+      {
+        "label": "Attention Needed",
+        "value": "2"
+      }
+    ],
+    "risks": [
+      "Planning blockers are affecting goals.",
+      "Shared memory conflicts may reduce planning confidence."
+    ],
+    "blockers": [
+      "20 task(s) require Executive review.",
+      "49 shared memory conflict(s) remain unresolved.",
+      "24 risky fact(s) need verification before decisions.",
+      "Maintain local operating control: Manual review queues need daily attention.",
+      "Improve proposal readiness gates: Missing decision maker confirmation on warm prospects.",
+      "Grow Louisville KY sales pipeline: 49 unresolved shared memory conflict(s).",
+      "Resolve planning-critical memory conflicts: Memory conflict review queue is non-empty.",
+      "Use Sales priority queues for daily planning: 49 unresolved shared memory conflict(s)."
+    ],
+    "opportunities": [
+      "Clearer cross-agent priority review."
+    ],
+    "recommendations": [
+      "Review Executive Insights."
+    ]
+  },
+  {
+    "department": "Sales",
+    "healthScore": 86,
+    "trend": "up",
+    "keyMetrics": [
+      {
+        "label": "Active Opportunities",
+        "value": "8"
+      },
+      {
+        "label": "Proposal Ready",
+        "value": "0"
+      }
+    ],
+    "risks": [
+      "Awaiting follow-up queue exists."
+    ],
+    "blockers": [],
+    "opportunities": [
+      "Prioritize high-confidence pipeline."
+    ],
+    "recommendations": [
+      "Review Sales Analytics."
+    ]
+  },
+  {
+    "department": "Marketing",
+    "healthScore": 60,
+    "trend": "flat",
+    "keyMetrics": [
+      {
+        "label": "Campaigns",
+        "value": "3"
+      },
+      {
+        "label": "Drafts",
+        "value": "0"
+      }
+    ],
+    "risks": [
+      "Launch dates are planning records only."
+    ],
+    "blockers": [],
+    "opportunities": [
+      "Use release readiness to time launch work."
+    ],
+    "recommendations": [
+      "Close campaign readiness gaps."
+    ]
+  },
+  {
+    "department": "Customer Success",
+    "healthScore": 61,
+    "trend": "down",
+    "keyMetrics": [
+      {
+        "label": "Customers",
+        "value": "4"
+      },
+      {
+        "label": "Adoption",
+        "value": "54%"
+      }
+    ],
+    "risks": [
+      "Onboarding or adoption requires review.",
+      "Onboarding or adoption requires review."
+    ],
+    "blockers": [],
+    "opportunities": [
+      "Expansion signals from healthy accounts."
+    ],
+    "recommendations": [
+      "Review adoption analytics."
+    ]
+  },
+  {
+    "department": "Finance",
+    "healthScore": 72,
+    "trend": "flat",
+    "keyMetrics": [
+      {
+        "label": "ARR",
+        "value": "$44124"
+      },
+      {
+        "label": "Forecast",
+        "value": "$33405"
+      }
+    ],
+    "risks": [
+      "Retention or onboarding risk requires review."
+    ],
+    "blockers": [],
+    "opportunities": [
+      "Expansion revenue signals."
+    ],
+    "recommendations": [
+      "Review forecast confidence."
+    ]
+  },
+  {
+    "department": "Engineering",
+    "healthScore": 63,
+    "trend": "down",
+    "keyMetrics": [
+      {
+        "label": "Features",
+        "value": "5"
+      },
+      {
+        "label": "Blocked Releases",
+        "value": "2"
+      }
+    ],
+    "risks": [
+      "QA blocker unresolved.",
+      "Documentation gap before release notes.",
+      "Feature is still in idea review.",
+      "Member import QA remains the release blocker.",
+      "Release approval is planning-only.",
+      "Enterprise scope needs customer validation."
+    ],
+    "blockers": [
+      "issue-gym-import-validation"
+    ],
+    "opportunities": [
+      "Release readiness can improve launch confidence."
+    ],
+    "recommendations": [
+      "Clear bug and release risks."
+    ]
+  },
+  {
+    "department": "Operator",
+    "healthScore": 100,
+    "trend": "flat",
+    "keyMetrics": [
+      {
+        "label": "Open Tasks",
+        "value": "31"
+      },
+      {
+        "label": "Approval Backlog",
+        "value": "20"
+      }
+    ],
+    "risks": [],
+    "blockers": [],
+    "opportunities": [
+      "Blocked work clearance creates leverage."
+    ],
+    "recommendations": [
+      "Review workload analytics."
+    ]
+  }
+]

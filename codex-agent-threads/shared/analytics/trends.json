@@ -1,0 +1,38 @@
+[
+  {
+    "label": "Revenue Trend Insights",
+    "value": "$33405",
+    "trend": "watch",
+    "explanation": "Forecast remains advisory and depends on renewal risk."
+  },
+  {
+    "label": "Pipeline Trends",
+    "value": "8",
+    "trend": "up",
+    "explanation": "Active pipeline exists but awaiting follow-up needs review."
+  },
+  {
+    "label": "Campaign Readiness Trends",
+    "value": "66%",
+    "trend": "flat",
+    "explanation": "Campaign readiness depends on approvals and product launch timing."
+  },
+  {
+    "label": "Churn Risk Trends",
+    "value": "2",
+    "trend": "watch",
+    "explanation": "Customer health signals indicate retention exposure."
+  },
+  {
+    "label": "Release Readiness Trends",
+    "value": "62%",
+    "trend": "watch",
+    "explanation": "Release readiness is constrained by local bug and QA risk."
+  },
+  {
+    "label": "Overdue Queue Trends",
+    "value": "0",
+    "trend": "flat",
+    "explanation": "Operator should review overdue work before new approvals."
+  }
+]

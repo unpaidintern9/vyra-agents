@@ -45,6 +45,7 @@ export default function ExecutiveDashboard({
   salesWorkflowSummary,
   salesSummary,
   sharedTaskSummary,
+  analytics,
 }: ExecutiveDashboardProps) {
   const summary = buildExecutiveSummary(
     runtime,
@@ -84,6 +85,7 @@ export default function ExecutiveDashboard({
         {salesResearchIntelligenceSummary ? <ExecutiveResearchIntelligencePanel summary={salesResearchIntelligenceSummary} /> : null}
         {salesWorkflowSummary ? <ExecutiveSalesWorkflowPanel summary={salesWorkflowSummary} /> : null}
         {executivePlanning ? <ExecutivePlanningPanel planning={executivePlanning} /> : null}
+        {analytics ? <ExecutiveAnalyticsPanel analytics={analytics} /> : null}
         {assetLibrary ? <ExecutiveAssetLibraryPanel assetLibrary={assetLibrary} /> : null}
         {customerSuccess ? <ExecutiveCustomerSuccessPanel customerSuccess={customerSuccess} /> : null}
         {finance ? <ExecutiveFinancePanel finance={finance} /> : null}
@@ -131,6 +133,35 @@ function ExecutiveFinancePanel({ finance }: { finance: NonNullable<ExecutiveDash
         emptyMessage="No Executive revenue risks above review threshold."
       />
       <p className="subtle-note">Finance intelligence is advisory and local. It does not mutate Stripe, send invoices, collect payments, sync accounting, or approve billing changes.</p>
+    </section>
+  );
+}
+
+function ExecutiveAnalyticsPanel({ analytics }: { analytics: NonNullable<ExecutiveDashboardProps['analytics']> }) {
+  const executiveInsights = analytics.insights.filter((insight) => insight.ownerAgent === 'Executive');
+  return (
+    <section className="panel wide-panel">
+      <div className="panel-header">
+        <div>
+          <Workflow size={18} />
+          <h2>Executive Insights</h2>
+        </div>
+        <span>{analytics.companyHealth.label}</span>
+      </div>
+      <div className="batch-grid">
+        <div className="fact"><span>Company Health Score</span><strong>{analytics.companyHealth.score}/100</strong></div>
+        <div className="fact"><span>Department Health</span><strong>{analytics.scorecards.length}</strong></div>
+        <div className="fact"><span>Strategic Risk Signals</span><strong>{analytics.risks.length}</strong></div>
+        <div className="fact"><span>KPI Trend Insights</span><strong>{analytics.trends.length}</strong></div>
+      </div>
+      <div className="activity-list">
+        {executiveInsights.map((insight) => (
+          <p key={insight.insightId}>
+            <strong>{insight.title}</strong>: {insight.recommendedNextAction}
+          </p>
+        ))}
+      </div>
+      <p className="subtle-note">{analytics.companyHealth.explanation}</p>
     </section>
   );
 }

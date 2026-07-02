@@ -1,11 +1,11 @@
 # Executive Finance Summary
 
-Generated: 2026-07-02T13:27:32.592Z
+Generated: 2026-07-02T14:00:57.127Z
 
 ```json
 {
   "title": "Executive Finance Summary",
-  "generatedAt": "2026-07-02T13:27:32.592Z",
+  "generatedAt": "2026-07-02T14:00:57.127Z",
   "summary": {
     "totalEstimatedMrr": 3677,
     "totalEstimatedArr": 44124,

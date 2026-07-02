@@ -2453,8 +2453,8 @@ function OrganizationIntelligenceWorkspace({
           <article className="proposal-preview-card">
             <h3>Contact Timeline</h3>
             <div className="relationship-list">
-              {selectedOrganization.contacts.flatMap((contact) => contact.timeline).map((item) => (
-                <article className="relationship-item" key={item.id}>
+              {selectedOrganization.contacts.flatMap((contact) => contact.timeline).map((item, index) => (
+                <article className="relationship-item" key={`${item.id}-${index}`}>
                   <strong>{item.title}</strong>
                   <span>{formatDate(item.timestamp)}</span>
                   <small>{item.detail}</small>
@@ -2488,11 +2488,11 @@ function RelationshipList({ graph, relationships }: { graph: SalesIntelligenceGr
       <h3>Relationship Graph</h3>
       {relationships.length ? (
         <div className="relationship-list">
-          {relationships.map((edge) => {
+          {relationships.map((edge, index) => {
             const from = graph.nodes.find((node) => node.id === edge.from);
             const to = graph.nodes.find((node) => node.id === edge.to);
             return (
-              <article className="relationship-item" key={edge.id}>
+              <article className="relationship-item" key={`${edge.id}-${index}`}>
                 <strong>{from?.label ?? edge.from} → {to?.label ?? edge.to}</strong>
                 <span>{edge.relationship.replace(/_/g, ' ')}</span>
                 <small>{edge.explanation}</small>
@@ -2513,8 +2513,8 @@ function ConnectedNodeList({ nodes }: { nodes: SalesIntelligenceGraph['nodes'] }
       <h3>Connected Records</h3>
       {nodes.length ? (
         <div className="relationship-list">
-          {nodes.map((node) => (
-            <article className="relationship-item" key={node.id}>
+          {nodes.map((node, index) => (
+            <article className="relationship-item" key={`${node.id}-${index}`}>
               <strong>{node.label}</strong>
               <span>{node.type.replace(/_/g, ' ')}</span>
             </article>
@@ -2533,8 +2533,8 @@ function TimelineList({ timeline }: { timeline: SalesOrganizationProfile['timeli
       <h3>Organization Timeline</h3>
       {timeline.length ? (
         <div className="relationship-list">
-          {timeline.map((item) => (
-            <article className="relationship-item" key={item.id}>
+          {timeline.map((item, index) => (
+            <article className="relationship-item" key={`${item.id}-${index}`}>
               <strong>{item.title}</strong>
               <span>{formatDate(item.timestamp)}</span>
               <small>{item.detail}</small>

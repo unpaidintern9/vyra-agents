@@ -1,8 +1,9 @@
-import { CheckCircle2, Copy, Database, Download, GitBranch, ListChecks, Network, Search, ShieldCheck, Workflow, X } from 'lucide-react';
+import { Activity, CheckCircle2, Copy, Database, Download, GitBranch, ListChecks, Network, Search, ShieldCheck, Workflow, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { EmptyState } from '../../components/EmptyState';
 import { StatusBadge } from '../../components/StatusBadge';
+import type { AnalyticsInsightsSummary } from '../../runtime/analyticsInsights';
 import { buildDashboardEngineeringTaskSummary } from '../../runtime/engineeringTaskGenerator';
 import { buildDashboardEngineeringProductOperations } from '../../runtime/engineeringProductOperations';
 import { buildDashboardGitHubPlanningSummary } from '../../runtime/githubPlanning';
@@ -86,6 +87,7 @@ import { resolveGitHubRepo } from '../../integrations/github/githubRepoConfig';
 import { gitHubTokenConfigurationStatus, hasGitHubTokenForRepo } from '../../integrations/github/githubTokenResolver';
 
 interface EngineeringPageProps {
+  analytics: AnalyticsInsightsSummary;
   onImpactExport(_event: {
     affectedCount: number;
     nodeLabel: string;
@@ -96,7 +98,7 @@ interface EngineeringPageProps {
   onScanLoaded(_result: EngineeringScanResult): void;
 }
 
-export default function EngineeringPage({ onImpactExport, onScanLoaded }: EngineeringPageProps) {
+export default function EngineeringPage({ analytics, onImpactExport, onScanLoaded }: EngineeringPageProps) {
   const [scan, setScan] = useState<EngineeringScanResult>({
     graph: engineeringMockGraph,
     loadedAt: 'Loading',
@@ -642,6 +644,28 @@ export default function EngineeringPage({ onImpactExport, onScanLoaded }: Engine
             ))}
           </div>
           <p className="subtle-note">CLI: npm run engineering:health and npm run engineering:validate.</p>
+        </Panel>
+
+        <Panel title="Engineering Analytics" icon={<Activity size={18} />} wide>
+          <p className="panel-description">Analytics view of release readiness trends, engineering bottlenecks, and bug/issue risk signals from the local insight engine.</p>
+          <DataTable
+            columns={['Engineering Velocity', 'Score', 'Trend', 'Risks', 'Recommendations']}
+            rows={analytics.scorecards
+              .filter((scorecard) => scorecard.department === 'Engineering')
+              .map((scorecard) => [
+                scorecard.department,
+                `${scorecard.healthScore}/100`,
+                scorecard.trend,
+                scorecard.risks.join(' ') || 'No major risk',
+                scorecard.recommendations.join(' '),
+              ])}
+          />
+          <DataTable
+            columns={['Bug/Issue Risk Signals', 'Severity', 'Confidence', 'Next Action']}
+            rows={analytics.insights
+              .filter((insight) => insight.ownerAgent === 'Engineering')
+              .map((insight) => [insight.title, insight.severity, `${insight.confidence}/100`, insight.recommendedNextAction])}
+          />
         </Panel>
 
         <Panel title="Engineering Graph Controls" icon={<Network size={18} />} wide>

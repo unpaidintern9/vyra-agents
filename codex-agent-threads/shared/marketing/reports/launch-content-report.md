@@ -1,11 +1,11 @@
 # Launch Content Report
 
-Generated: 2026-07-02T13:27:15.197Z
+Generated: 2026-07-02T14:00:55.451Z
 
 ```json
 {
   "title": "Launch Content Report",
-  "generatedAt": "2026-07-02T13:27:15.197Z",
+  "generatedAt": "2026-07-02T14:00:55.451Z",
   "rows": [
     {
       "draftId": "mkt-draft-launch-announcement-athlete-app-foundation",

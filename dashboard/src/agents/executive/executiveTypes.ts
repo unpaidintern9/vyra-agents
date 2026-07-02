@@ -1,5 +1,6 @@
 import type { RiskLevel } from '../../components/RiskBadge';
 import type { ConnectorReadinessSummary } from '../../runtime/connectorReadiness';
+import type { AnalyticsInsightsSummary } from '../../runtime/analyticsInsights';
 import type { CrossAgentCollaborationSummary } from '../../runtime/crossAgentCollaboration';
 import type { EngineeringTaskGeneratorSummary } from '../../runtime/engineeringTaskGenerator';
 import type { ExecutiveAutomationSummary } from '../../runtime/executiveAutomation';
@@ -139,6 +140,7 @@ export interface ExecutiveSummary {
   releaseShipPlans?: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
+  analytics?: AnalyticsInsightsSummary;
 }
 
 export interface ExecutiveDashboardProps {
@@ -176,6 +178,7 @@ export interface ExecutiveDashboardProps {
   releaseShipPlans?: ReleaseShipPlanDashboardSummary;
   repositoryIntelligence?: RepositoryIntelligenceDashboardSummary;
   sharedTaskSummary?: SharedTaskDashboardSummary;
+  analytics?: AnalyticsInsightsSummary;
 }
 
 export interface ExecutiveApprovalFilters {

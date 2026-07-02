@@ -1,11 +1,11 @@
 # Audience Intelligence Report
 
-Generated: 2026-07-02T13:27:15.196Z
+Generated: 2026-07-02T14:00:55.439Z
 
 ```json
 {
   "title": "Audience Intelligence Report",
-  "generatedAt": "2026-07-02T13:27:15.196Z",
+  "generatedAt": "2026-07-02T14:00:55.439Z",
   "audiences": [
     {
       "id": "aud-athletes",

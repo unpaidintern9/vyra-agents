@@ -1,11 +1,11 @@
 # Onboarding Progress Report
 
-Generated: 2026-07-02T13:27:32.451Z
+Generated: 2026-07-02T14:00:56.576Z
 
 ```json
 {
   "title": "Onboarding Progress Report",
-  "generatedAt": "2026-07-02T13:27:32.451Z",
+  "generatedAt": "2026-07-02T14:00:56.576Z",
   "onboarding": [
     {
       "onboardingId": "onboarding-cust-louisville-combat-academy",

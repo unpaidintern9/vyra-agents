@@ -1,11 +1,11 @@
 # Executive Marketing Summary
 
-Generated: 2026-07-02T13:27:15.196Z
+Generated: 2026-07-02T14:00:55.439Z
 
 ```json
 {
   "title": "Executive Marketing Summary",
-  "generatedAt": "2026-07-02T13:27:15.196Z",
+  "generatedAt": "2026-07-02T14:00:55.439Z",
   "summary": {
     "brandAssetsConfirmed": 3,
     "brandAssetsMissing": 2,

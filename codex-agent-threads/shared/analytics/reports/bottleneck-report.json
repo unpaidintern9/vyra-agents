@@ -1,0 +1,79 @@
+{
+  "title": "Bottleneck Report",
+  "generatedAt": "2026-07-02T14:01:08.109Z",
+  "bottlenecks": [
+    {
+      "insightId": "insight-engineering-bottleneck",
+      "title": "Engineering bottlenecks",
+      "category": "engineering bottlenecks",
+      "severity": "high",
+      "confidence": 80,
+      "explanation": "2 release(s) are blocked or below readiness threshold.",
+      "linkedEntities": [
+        "rel-0.9.0-gym-beta",
+        "rel-1.1.0-coach-qa",
+        "rel-0.8.0-athlete-planning"
+      ],
+      "linkedTasks": [
+        "tasks:validate",
+        "engineering-task:documentation:coach-platform",
+        "marketing:content",
+        "executive:goals"
+      ],
+      "linkedWorkflows": [
+        "engineering-releases"
+      ],
+      "recommendedNextAction": "Clear release blockers before launch work.",
+      "ownerAgent": "Engineering",
+      "status": "new"
+    },
+    {
+      "insightId": "insight-blocked-clusters",
+      "title": "Blocked task clusters",
+      "category": "blocked task clusters",
+      "severity": "low",
+      "confidence": 86,
+      "explanation": "0 shared task(s) are blocked and 0 are overdue.",
+      "linkedEntities": [
+        "shared-task-queue"
+      ],
+      "linkedTasks": [],
+      "linkedWorkflows": [
+        "universal-task-engine"
+      ],
+      "recommendedNextAction": "Review blocked and overdue queues with Operator.",
+      "ownerAgent": "Operator",
+      "status": "new"
+    },
+    {
+      "insightId": "insight-workflow-aging",
+      "title": "Workflow aging",
+      "category": "workflow aging",
+      "severity": "medium",
+      "confidence": 72,
+      "explanation": "13 dependency chain(s) are blocked or waiting.",
+      "linkedEntities": [
+        "workflow-dependencies"
+      ],
+      "linkedTasks": [],
+      "linkedWorkflows": [
+        "workflow-engine"
+      ],
+      "recommendedNextAction": "Clear dependency blockers before new work intake.",
+      "ownerAgent": "Operator",
+      "status": "new"
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "externalAnalyticsSync": false,
+    "trackingScripts": false,
+    "customerDataCollection": false,
+    "autonomousEmails": false,
+    "publishing": false,
+    "billingActions": false,
+    "deploymentActions": false,
+    "autonomousExternalActions": false,
+    "advisoryOnly": true
+  }
+}

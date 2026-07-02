@@ -1,11 +1,11 @@
 # MRR Report
 
-Generated: 2026-07-02T13:27:32.591Z
+Generated: 2026-07-02T14:00:57.126Z
 
 ```json
 {
   "title": "MRR Report",
-  "generatedAt": "2026-07-02T13:27:32.591Z",
+  "generatedAt": "2026-07-02T14:00:57.126Z",
   "totalMrr": 3677,
   "revenue": [
     {

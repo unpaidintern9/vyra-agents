@@ -1,0 +1,118 @@
+{
+  "title": "Finance Analytics Report",
+  "generatedAt": "2026-07-02T14:01:08.109Z",
+  "scorecard": {
+    "department": "Finance",
+    "healthScore": 72,
+    "trend": "flat",
+    "keyMetrics": [
+      {
+        "label": "ARR",
+        "value": "$44124"
+      },
+      {
+        "label": "Forecast",
+        "value": "$33405"
+      }
+    ],
+    "risks": [
+      "Retention or onboarding risk requires review."
+    ],
+    "blockers": [],
+    "opportunities": [
+      "Expansion revenue signals."
+    ],
+    "recommendations": [
+      "Review forecast confidence."
+    ]
+  },
+  "insights": [
+    {
+      "insightId": "insight-revenue-forecast-risk",
+      "title": "Revenue forecast risk",
+      "category": "revenue forecast risk",
+      "severity": "high",
+      "confidence": 75,
+      "explanation": "1 finance risk signal(s) need review.",
+      "linkedEntities": [
+        "Kentucky Youth Sports"
+      ],
+      "linkedTasks": [],
+      "linkedWorkflows": [
+        "finance-forecast"
+      ],
+      "recommendedNextAction": "Review renewal and expansion risk before forecast decisions.",
+      "ownerAgent": "Finance",
+      "status": "new"
+    }
+  ],
+  "metrics": [
+    {
+      "analyticsId": "analytics-company-health",
+      "category": "company health",
+      "metric": "company health score",
+      "value": 72,
+      "previousValue": 66,
+      "trend": "up",
+      "confidence": 78,
+      "sourceRecords": [
+        "finance",
+        "sales",
+        "success",
+        "marketing",
+        "engineering",
+        "tasks"
+      ],
+      "dateRange": "local-current-state",
+      "generatedDate": "2026-07-02T14:01:08.109Z",
+      "explanation": "Composite local company health.",
+      "risks": [],
+      "recommendations": [
+        "Review source records before taking action."
+      ],
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T14:01:08.109Z",
+          "event": "analytics.metric.generated"
+        }
+      ]
+    },
+    {
+      "analyticsId": "analytics-revenue-trends",
+      "category": "finance/revenue trends",
+      "metric": "forecast confidence",
+      "value": 72,
+      "previousValue": 68,
+      "trend": "up",
+      "confidence": 78,
+      "sourceRecords": [
+        "finance-forecasts"
+      ],
+      "dateRange": "local-current-state",
+      "generatedDate": "2026-07-02T14:01:08.109Z",
+      "explanation": "Average forecast confidence.",
+      "risks": [],
+      "recommendations": [
+        "Review source records before taking action."
+      ],
+      "auditHistory": [
+        {
+          "timestamp": "2026-07-02T14:01:08.109Z",
+          "event": "analytics.metric.generated"
+        }
+      ]
+    }
+  ],
+  "safety": {
+    "localOnly": true,
+    "externalAnalyticsSync": false,
+    "trackingScripts": false,
+    "customerDataCollection": false,
+    "autonomousEmails": false,
+    "publishing": false,
+    "billingActions": false,
+    "deploymentActions": false,
+    "autonomousExternalActions": false,
+    "advisoryOnly": true
+  }
+}
